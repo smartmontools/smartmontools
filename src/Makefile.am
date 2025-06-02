@@ -356,23 +356,7 @@ endif
 
 docsdir=$(docdir)
 docs_DATA = \
-        AUTHORS \
-        INSTALL \
-        NEWS \
         smartd.conf
-
-examplesdir=$(exampledir)
-examples_DATA = \
-        examplescripts/README
-examples_SCRIPTS = \
-        examplescripts/Example1 \
-        examplescripts/Example2 \
-        examplescripts/Example3 \
-        examplescripts/Example4 \
-        examplescripts/Example5 \
-        examplescripts/Example6 \
-        examplescripts/Example7 \
-        examplescripts/Example8
 
 sysconf_DATA = smartd.conf
 
@@ -907,11 +891,11 @@ endif
 DOCFILES_WIN32 = \
         smartctl.8.html smartd.8.html smartd.conf.5.html \
         smartctl.8.pdf smartd.8.pdf smartd.conf.5.pdf \
-        $(srcdir)/AUTHORS \
+        $(top_srcdir)/doc/AUTHORS \
         $(top_srcdir)/doc/old/ChangeLog-7.0-7.5.txt \
         $(top_srcdir)/COPYING \
-        $(srcdir)/INSTALL \
-        $(srcdir)/NEWS \
+        $(top_srcdir)/doc/INSTALL \
+        $(top_srcdir)/doc/NEWS \
         $(top_srcdir)/README.md \
         $(srcdir)/smartd.conf
 

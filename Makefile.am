@@ -5,12 +5,28 @@
 
 docsdir=$(docdir)
 docs_DATA = \
+        doc/AUTHORS \
         COPYING \
+        doc/INSTALL \
+        doc/NEWS \
         README.md
 
 docolddir = $(docdir)/old
 docold_DATA = \
         doc/old/ChangeLog-7.0-7.5.txt
+
+examplesdir=$(exampledir)
+examples_DATA = \
+        doc/examplescripts/README
+examples_SCRIPTS = \
+        doc/examplescripts/Example1 \
+        doc/examplescripts/Example2 \
+        doc/examplescripts/Example3 \
+        doc/examplescripts/Example4 \
+        doc/examplescripts/Example5 \
+        doc/examplescripts/Example6 \
+        doc/examplescripts/Example7 \
+        doc/examplescripts/Example8
 
 EXTRA_DIST = \
         autogen.sh \
