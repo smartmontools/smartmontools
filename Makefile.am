@@ -5,6 +5,7 @@
 
 docsdir=$(docdir)
 docs_DATA = \
+        COPYING \
         README.md
 
 docolddir = $(docdir)/old

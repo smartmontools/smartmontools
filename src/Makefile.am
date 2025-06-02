@@ -357,7 +357,6 @@ endif
 docsdir=$(docdir)
 docs_DATA = \
         AUTHORS \
-        COPYING \
         INSTALL \
         NEWS \
         smartd.conf
@@ -910,7 +909,7 @@ DOCFILES_WIN32 = \
         smartctl.8.pdf smartd.8.pdf smartd.conf.5.pdf \
         $(srcdir)/AUTHORS \
         $(top_srcdir)/doc/old/ChangeLog-7.0-7.5.txt \
-        $(srcdir)/COPYING \
+        $(top_srcdir)/COPYING \
         $(srcdir)/INSTALL \
         $(srcdir)/NEWS \
         $(top_srcdir)/README.md \
@@ -1125,7 +1124,7 @@ $(pkg_darwin):
 		-e "s|@pkgname@|$(pkg_darwin)|" \
 		$(srcdir)/os_darwin/pkg/Distribution.in > $(distdir_darwin)/pkg/Distribution
 	@mkdir -p $(distdir_darwin)/pkg/Resources/English.lproj
-	@cp $(srcdir)/COPYING $(distdir_darwin)/pkg/Resources/English.lproj/license.txt
+	@cp $(top_srcdir)/COPYING $(distdir_darwin)/pkg/Resources/English.lproj/license.txt
 	@mkbom -u 0 -g 80 $(distdir_darwin)/root $(distdir_darwin)/pkg/Bom
 	@mkdir -p $(distdir_darwin)/dmg
 	@( cd $(distdir_darwin)/pkg && xar --distribution --compression none -cf "../dmg/$(pkg_darwin)" * )
