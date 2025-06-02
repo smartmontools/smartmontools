@@ -393,7 +393,6 @@ uninstall-sysconfDATA:
 smartdscript_SCRIPTS = smartd_warning.sh
 
 EXTRA_DIST = \
-        .editorconfig \
         cppcheck.sh \
         getversion.sh \
         smartd.initd.in \

@@ -1,6 +1,5 @@
 # smartmontools indent style settings for EditorConfig
-# https://editorconfig.org/
-# $Id: .editorconfig 5497 2023-07-10 16:18:14Z chrfranke $
+# https://editorconfig.org
 
 # top-most file
 root = true
@@ -10,37 +9,33 @@ indent_style = space
 indent_size = 2
 tab_width = 8
 
-[/ChangeLog]
-indent_style = tab
-indent_size = 8
-
 [Makefile*]
 # Rule recipes require tab characters (spaces are used elsewhere)
 indent_style = tab
 indent_size = 8
 
 # TODO: Fix files with other indent styles
-[/scsiata.cpp]
+[/src/scsiata.cpp]
 # indent_size = 2 and 4
 
-[/scsicmds.*]
+[/src/scsicmds.*]
 indent_size = 4
 
-[/scsiprint.cpp]
+[/src/scsiprint.cpp]
 indent_size = 4
 
 # Keep indent style of imported files as is
-[/*_nvme_ioctl.h]
+[/src/*_nvme_ioctl.h]
 indent_style = tab
 indent_size = 8
 
-[/csmisas.h]
+[/src/csmisas.h]
 indent_size = 3
 
-[/getopt/getopt.*]
+[/src/getopt/getopt.*]
 indent_style = tab
 indent_size = 2
 
-[/regex/reg*.*]
+[/src/regex/reg*.*]
 indent_style = tab
 indent_size = 2

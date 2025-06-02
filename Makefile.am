@@ -29,6 +29,7 @@ examples_SCRIPTS = \
         doc/examplescripts/Example8
 
 EXTRA_DIST = \
+        .editorconfig \
         autogen.sh \
         doc/old/ChangeLog-6.0-7.0.txt \
         doc/old/ChangeLog-5.0-6.0.txt \
