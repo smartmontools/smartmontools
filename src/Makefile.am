@@ -361,7 +361,6 @@ docs_DATA = \
         INSTALL \
         NEWS \
         README \
-        TODO \
         smartd.conf
 
 examplesdir=$(exampledir)
@@ -916,7 +915,6 @@ DOCFILES_WIN32 = \
         $(srcdir)/INSTALL \
         $(srcdir)/NEWS \
         $(srcdir)/README \
-        $(srcdir)/TODO \
         $(srcdir)/smartd.conf
 
 CLEANFILES += \

@@ -212,7 +212,7 @@ Section "!Documentation" DOC_SECTION
   File "${INPDIR}\doc\INSTALL.txt"
   File "${INPDIR}\doc\NEWS.txt"
   File "${INPDIR}\doc\README.txt"
-  File "${INPDIR}\doc\TODO.txt"
+  Delete "$INSTDIR\doc\TODO.txt" ; TODO: Remove after smartmontools 8.1
 !ifdef INPDIR64
   ${If} $X64 != ""
     File "${INPDIR64}\doc\checksums64.txt"
@@ -488,13 +488,14 @@ Section "Uninstall"
   Delete "$INSTDIR\bin\runcmdu.exe"
   Delete "$INSTDIR\bin\wtssendmsg.exe"
   Delete "$INSTDIR\doc\AUTHORS.txt"
+  Delete "$INSTDIR\doc\ChangeLog.txt" ; TODO: Remove after smartmontools 8.1
   Delete "$INSTDIR\doc\ChangeLog-7.0-7.5.txt"
   Delete "$INSTDIR\doc\ChangeLog-6.0-7.0.txt" ; TODO: Remove after smartmontools 8.1
   Delete "$INSTDIR\doc\COPYING.txt"
   Delete "$INSTDIR\doc\INSTALL.txt"
   Delete "$INSTDIR\doc\NEWS.txt"
   Delete "$INSTDIR\doc\README.txt"
-  Delete "$INSTDIR\doc\TODO.txt"
+  Delete "$INSTDIR\doc\TODO.txt" ; TODO: Remove after smartmontools 8.1
   Delete "$INSTDIR\doc\checksums*.txt"
   Delete "$INSTDIR\doc\smartctl.8.html"
   Delete "$INSTDIR\doc\smartctl.8.pdf"
