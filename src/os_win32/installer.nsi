@@ -3,11 +3,9 @@
 ;
 ; Home page of code is: https://www.smartmontools.org
 ;
-; Copyright (C) 2006-24 Christian Franke
+; Copyright (C) 2006-25 Christian Franke
 ;
 ; SPDX-License-Identifier: GPL-2.0-or-later
-;
-; $Id: installer.nsi 5593 2024-01-19 18:05:16Z chrfranke $
 ;
 
 
@@ -207,8 +205,9 @@ Section "!Documentation" DOC_SECTION
 
   SetOutPath "$INSTDIR\doc"
   File "${INPDIR}\doc\AUTHORS.txt"
-  File "${INPDIR}\doc\ChangeLog.txt"
-  File "${INPDIR}\doc\ChangeLog-6.0-7.0.txt"
+  Delete "$INSTDIR\doc\ChangeLog.txt" ; TODO: Remove after smartmontools 8.1
+  Delete "$INSTDIR\doc\ChangeLog-6.0-7.0.txt" ; TODO: Remove after smartmontools 8.1
+  File "${INPDIR}\doc\ChangeLog-7.0-7.5.txt"
   File "${INPDIR}\doc\COPYING.txt"
   File "${INPDIR}\doc\INSTALL.txt"
   File "${INPDIR}\doc\NEWS.txt"
@@ -355,7 +354,7 @@ Section "Start Menu Shortcuts" MENU_SECTION
       CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\drivedb.h (view).lnk" "$EDITOR" '"$INSTDIR\bin\drivedb.h"'
       !insertmacro CreateAdminShortCut "$SMPROGRAMS\smartmontools\Documentation\drivedb-add.h (create, edit).lnk" "$EDITOR" '"$INSTDIR\bin\drivedb-add.h"'
     ${EndIf}
-    CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\ChangeLog.lnk" "$INSTDIR\doc\ChangeLog.txt"
+    Delete "$SMPROGRAMS\smartmontools\Documentation\ChangeLog.lnk" ; TODO: Remove after smartmontools 8.1
     CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\COPYING.lnk"   "$INSTDIR\doc\COPYING.txt"
     CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\NEWS.lnk"      "$INSTDIR\doc\NEWS.txt"
   ${EndIf}
@@ -489,8 +488,8 @@ Section "Uninstall"
   Delete "$INSTDIR\bin\runcmdu.exe"
   Delete "$INSTDIR\bin\wtssendmsg.exe"
   Delete "$INSTDIR\doc\AUTHORS.txt"
-  Delete "$INSTDIR\doc\ChangeLog.txt"
-  Delete "$INSTDIR\doc\ChangeLog-6.0-7.0.txt"
+  Delete "$INSTDIR\doc\ChangeLog-7.0-7.5.txt"
+  Delete "$INSTDIR\doc\ChangeLog-6.0-7.0.txt" ; TODO: Remove after smartmontools 8.1
   Delete "$INSTDIR\doc\COPYING.txt"
   Delete "$INSTDIR\doc\INSTALL.txt"
   Delete "$INSTDIR\doc\NEWS.txt"

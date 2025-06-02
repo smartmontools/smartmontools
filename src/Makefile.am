@@ -357,8 +357,6 @@ endif
 docsdir=$(docdir)
 docs_DATA = \
         AUTHORS \
-        ChangeLog \
-        ChangeLog-6.0-7.0 \
         COPYING \
         INSTALL \
         NEWS \
@@ -415,7 +413,6 @@ smartdscript_SCRIPTS = smartd_warning.sh
 
 EXTRA_DIST = \
         .editorconfig \
-        ChangeLog-5.0-6.0 \
         cppcheck.sh \
         getversion.sh \
         smartd.initd.in \
@@ -493,8 +490,8 @@ MAINTAINERCLEANFILES = \
 
 smartctl.o utility.o: svnversion.h
 
-# Get version info from svn, Id strings or git
-svnversion.h: ChangeLog Makefile config.h
+# Get version info
+svnversion.h: Makefile config.h
 	$(AM_V_GEN)$(srcdir)/getversion.sh -i > $@
 	@! $(AM_V_P) || cat $@
 
@@ -914,8 +911,7 @@ DOCFILES_WIN32 = \
         smartctl.8.html smartd.8.html smartd.conf.5.html \
         smartctl.8.pdf smartd.8.pdf smartd.conf.5.pdf \
         $(srcdir)/AUTHORS \
-        $(srcdir)/ChangeLog \
-        $(srcdir)/ChangeLog-6.0-7.0 \
+        $(top_srcdir)/doc/old/ChangeLog-7.0-7.5.txt \
         $(srcdir)/COPYING \
         $(srcdir)/INSTALL \
         $(srcdir)/NEWS \
@@ -1004,7 +1000,7 @@ $(distdir_win32).stamp: Makefile $(BINFILES_WIN32) $(DOCFILES_WIN32)
 	done && \
 	for src in $(DOCFILES_WIN32); do \
 	  dst=$(distdir_win32)/doc/$${src##*/} && \
-	  case $${src##*/} in [A-Z]*) dst=$$dst.txt ;; esac && \
+	  case $${src##*/} in [A-Z]*[A-Z]) dst=$$dst.txt ;; esac && \
 	  case $${src##*/} in \
 	    *.pdf) vrun cp -p $$src $$dst ;; \
 	    *) vrun $(UNIX2DOS) \< $$src \> $$dst && vrun touch -r $$src $$dst ;; \
