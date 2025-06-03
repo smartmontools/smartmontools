@@ -1622,7 +1622,9 @@ static void Directives()
            "  -T TYPE Set the tolerance to one of: normal, permissive\n"
            "  -o VAL  Enable/disable automatic offline tests (on/off)\n"
            "  -S VAL  Enable/disable attribute autosave (on/off)\n"
-           "  -n MODE No check if: never, sleep[,N][,q], standby[,N][,q], idle[,N][,q]\n"
+           "  -n MODE No check if: never, sleep[,N][,q], standby[,N][,q],\n"
+           "          standby_y[,N][,q], standby_z[,N][,q], idle[,N][,q], idle_a[,N][,q],\n"
+           "          idle_b[,N][,q], idle_c[,N][,q]\n"
            "  -H      Monitor SMART Health Status, report if failed\n"
            "  -H MASK Monitor specific NVMe Critical Warning bits\n"
            "  -s REG  Do Self-Test at time(s) given by regular expression REG\n"
@@ -3670,73 +3672,79 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
   if (cfg.powermode && !state.powermodefail) {
     int dontcheck=0, powermode=ataCheckPowerMode(atadev);
     const char * mode = 0;
-    if (0 <= powermode && powermode < 0xff) {
+    int powermode2, trial = 0;
+
+    while (1)
+    {
+      switch (powermode){
+      case -1:
+        // SLEEP
+        mode="SLEEP";
+        if (cfg.powermode>=2)
+          dontcheck=1;
+        break;
+      case 0x00:
+        // STANDBY
+        mode="STANDBY";
+        if (cfg.powermode>=3)
+          dontcheck=1;
+        break;
+      case 0x01:
+        // STANDBY_Y
+        mode="STANDBY_Y";
+        if (cfg.powermode>=4)
+          dontcheck=1;
+        break;
+      case 0x80:
+        // IDLE
+        mode="IDLE";
+        if (cfg.powermode>=7)
+          dontcheck=1;
+        break;
+      case 0x81:
+        // IDLE_A
+        mode="IDLE_A";
+        if (cfg.powermode>=7)
+          dontcheck=1;
+        break;
+      case 0x82:
+        // IDLE_B
+        mode="IDLE_B";
+        if (cfg.powermode>=6)
+          dontcheck=1;
+        break;
+      case 0x83:
+        // IDLE_C
+        mode="IDLE_C";
+        if (cfg.powermode>=5)
+          dontcheck=1;
+        break;
+      case 0xff:
+        // ACTIVE/IDLE
+      case 0x40:
+        // ACTIVE
+      case 0x41:
+        // ACTIVE
+        mode="ACTIVE or IDLE";
+        break;
+      default:
+        // UNKNOWN
+        PrintOut(LOG_CRIT, "Device: %s, CHECK POWER STATUS returned %d, not ATA compliant, ignoring -n Directive\n",
+          name, powermode);
+        state.powermodefail = true;
+        break;
+      }
+
+      if (trial > 0 || powermode < 0 || dontcheck == 0)
+        break;
+      trial++;
+
       // wait for possible spin up and check again
-      int powermode2;
       sleep(5);
       powermode2 = ataCheckPowerMode(atadev);
       if (powermode2 > powermode)
         PrintOut(LOG_INFO, "Device: %s, CHECK POWER STATUS spins up disk (0x%02x -> 0x%02x)\n", name, powermode, powermode2);
       powermode = powermode2;
-    }
-        
-    switch (powermode){
-    case -1:
-      // SLEEP
-      mode="SLEEP";
-      if (cfg.powermode>=1)
-        dontcheck=1;
-      break;
-    case 0x00:
-      // STANDBY
-      mode="STANDBY";
-      if (cfg.powermode>=2)
-        dontcheck=1;
-      break;
-    case 0x01:
-      // STANDBY_Y
-      mode="STANDBY_Y";
-      if (cfg.powermode>=2)
-        dontcheck=1;
-      break;
-    case 0x80:
-      // IDLE
-      mode="IDLE";
-      if (cfg.powermode>=3)
-        dontcheck=1;
-      break;
-    case 0x81:
-      // IDLE_A
-      mode="IDLE_A";
-      if (cfg.powermode>=3)
-        dontcheck=1;
-      break;
-    case 0x82:
-      // IDLE_B
-      mode="IDLE_B";
-      if (cfg.powermode>=3)
-        dontcheck=1;
-      break;
-    case 0x83:
-      // IDLE_C
-      mode="IDLE_C";
-      if (cfg.powermode>=3)
-        dontcheck=1;
-      break;
-    case 0xff:
-      // ACTIVE/IDLE
-    case 0x40:
-      // ACTIVE
-    case 0x41:
-      // ACTIVE
-      mode="ACTIVE or IDLE";
-      break;
-    default:
-      // UNKNOWN
-      PrintOut(LOG_CRIT, "Device: %s, CHECK POWER STATUS returned %d, not ATA compliant, ignoring -n Directive\n",
-        name, powermode);
-      state.powermodefail = true;
-      break;
     }
 
     // if we are going to skip a check, return now
@@ -3906,6 +3914,98 @@ static int SCSICheckDevice(const dev_config & cfg, dev_state & state, scsi_devic
     return 1;
 
   const char * name = cfg.name.c_str();
+  struct scsi_sense_disect sense_info;
+
+  // user may have requested (with the -n Directive) to leave the disk
+  // alone if it is in idle or sleeping mode.  In this case check the
+  // power mode and exit without check if needed
+  if (cfg.powermode && !state.powermodefail) {
+    scsiRequestSense(scsidev, &sense_info) ;
+    int dontcheck=0;
+    int powermode=(sense_info.asc == 0x5E) ? sense_info.ascq : -1 ;
+    const char * mode = 0;
+    int powermode2, trial = 0;
+    unsigned char powerlimit = 0xff;
+
+    while (1)
+    {
+      if (sense_info.asc == 0x5E) {
+        switch (powermode){
+        case 0x00: // LOW POWER CONDITION ON
+          mode = "LOW POWER"; powerlimit = 3; break;
+        case 0x01: // IDLE CONDITION ACTIVATED BY TIMER
+          mode = "IDLE BY TIMER"; powerlimit = 7; break;
+        case 0x02: // STANDBY CONDITION ACTIVATED BY TIMER
+          mode = "STANDBY BY TIMER";    powerlimit = 3; break;
+        case 0x03: // IDLE CONDITION ACTIVATED BY COMMAND
+          mode = "IDLE BY COMMAND";  powerlimit = 7; break;
+        case 0x04: // STANDBY CONDITION ACTIVATED BY COMMAND
+          mode = "STANDBY BY COMMAND";  powerlimit = 3; break;
+        case 0x05: // IDLE_B CONDITION ACTIVATED BY TIMER
+          mode = "IDLE_B BY TIMER";  powerlimit = 6; break;
+        case 0x06: // IDLE_B CONDITION ACTIVATED BY COMMAND
+          mode = "IDLE_B BY COMMAND";  powerlimit = 6; break;
+        case 0x07: // IDLE_C CONDITION ACTIVATED BY TIMER
+          mode = "IDLE_C BY TIMER";  powerlimit = 5; break;
+        case 0x08: // IDLE_C CONDITION ACTIVATED BY COMMAND
+          mode = "IDLE_C BY COMMAND";  powerlimit = 5; break;
+        case 0x09: // STANDBY_Y CONDITION ACTIVATED BY TIMER
+          mode = "STANDBY_Y BY TIMER";    powerlimit = 4; break;
+        case 0x0A: // STANDBY_Y CONDITION ACTIVATED BY COMMAND
+          mode = "STANDBY_Y BY COMMAND";  powerlimit = 4; break;
+
+        default: // UNKNOWN
+          PrintOut(LOG_CRIT, "Device: %s, REQUEST SENSE returned ascq %d, not SCSI compliant, ignoring -n Directive\n",
+            name, powermode);
+          state.powermodefail = true;
+          mode = "UNKNOWN"; powerlimit = 0xff; break;
+        }
+      } else {
+        mode = "ACTIVE";
+        powerlimit = 0xff;
+      }
+      dontcheck = cfg.powermode >= powerlimit ? 1 : 0;
+
+      if (trial > 0 || powermode < 0 || dontcheck == 0)
+        break;
+      trial++;
+
+      // wait for possible spin up and check again
+      sleep(5);
+      scsiRequestSense(scsidev, &sense_info) ;
+      powermode2=(sense_info.asc == 0x5E) ? sense_info.ascq : -1 ;
+      if (powermode2 > powermode)
+        PrintOut(LOG_INFO, "Device: %s, power mode changed after retry (0x%02x -> 0x%02x)\n", name, powermode, powermode2);
+      powermode = powermode2;
+    }
+
+    // if we are going to skip a check, return now
+    if (dontcheck){
+      // skip at most powerskipmax checks
+      if (!cfg.powerskipmax || state.powerskipcnt<cfg.powerskipmax) {
+        CloseDevice(scsidev, name);
+        // report first only except if state has changed, avoid waking up system disk
+        if ((!state.powerskipcnt || state.lastpowermodeskipped != powermode) && !cfg.powerquiet) {
+          PrintOut(LOG_INFO, "Device: %s, is in %s mode, suspending checks\n", name, mode);
+          state.lastpowermodeskipped = powermode;
+        }
+        state.powerskipcnt++;
+        return 0;
+      }
+      else {
+        PrintOut(LOG_INFO, "Device: %s, %s mode ignored due to reached limit of skipped checks (%d check%s skipped)\n",
+          name, mode, state.powerskipcnt, (state.powerskipcnt==1?"":"s"));
+      }
+      state.powerskipcnt = 0;
+      state.tempmin_delay = time(nullptr) + default_checktime - 60; // Delay Min Temperature update
+    }
+    else if (state.powerskipcnt) {
+      PrintOut(LOG_INFO, "Device: %s, is back in %s mode, resuming checks (%d check%s skipped)\n",
+        name, mode, state.powerskipcnt, (state.powerskipcnt==1?"":"s"));
+      state.powerskipcnt = 0;
+      state.tempmin_delay = time(nullptr) + default_checktime - 60; // Delay Min Temperature update
+    }
+  }
 
   uint8_t asc = 0, ascq = 0;
   uint8_t currenttemp = 0, triptemp = 0;
@@ -4540,7 +4640,9 @@ static void printoutvaliddirectiveargs(int priority, char d)
 {
   switch (d) {
   case 'n':
-    PrintOut(priority, "never[,N][,q], sleep[,N][,q], standby[,N][,q], idle[,N][,q]");
+    PrintOut(priority, "never[,N][,q], sleep[,N][,q], standby[,N][,q], "
+                       "standby_y[,N][,q], standby_z[,N][,q], idle[,N][,q], "
+                       "idle_a[,N][,q], idle_b[,N][,q], idle_c[,N][,q]");
     break;
   case 's':
     PrintOut(priority, "valid_regular_expression");
@@ -4881,11 +4983,21 @@ static int ParseToken(char * & token, dev_config & cfg, smart_devtype_list & sca
       if (!strcmp(arg, "never"))
         cfg.powermode = 0;
       else if (!strcmp(arg, "sleep"))
-        cfg.powermode = 1;
-      else if (!strcmp(arg, "standby"))
         cfg.powermode = 2;
-      else if (!strcmp(arg, "idle"))
+      else if (!strcmp(arg, "standby"))
         cfg.powermode = 3;
+      else if (!strcmp(arg, "standby_z"))
+        cfg.powermode = 3;
+      else if (!strcmp(arg, "standby_y"))
+        cfg.powermode = 4;
+      else if (!strcmp(arg, "idle_c"))
+        cfg.powermode = 5;
+      else if (!strcmp(arg, "idle_b"))
+        cfg.powermode = 6;
+      else if (!strcmp(arg, "idle"))
+        cfg.powermode = 7;
+      else if (!strcmp(arg, "idle_a"))
+        cfg.powermode = 7;
       else
         badarg = 1;
 
