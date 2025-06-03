@@ -5463,6 +5463,13 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  // Blueendless
+  { "USB: Blueendless; Initio",
+    "0x0204:0x3639", // U23QC
+    "",
+    "",
+    "-d sat"
+  },
   // 0x0350 (?)
   { "USB: ViPowER USB3.0 Storage; ",
     "0x0350:0x0038",
@@ -6931,13 +6938,6 @@ const drive_settings builtin_knowndrives[] = {
   { "USB: ; ",
     "0xabcd:0x610[34]", // 0x6103: LogiLink AU0028A V1.0 USB 3.0 to IDE & SATA Adapter
       // 0x6104: LogiLink PCCloneEX Lite
-    "",
-    "",
-    "-d sat"
-  },
-  // Blueendless
-  { "USB: ; Blueendless",
-    "0x0204:0x3639", // U23QC
     "",
     "",
     "-d sat"
