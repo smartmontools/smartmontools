@@ -771,7 +771,7 @@ SHELLCHECK=shellcheck
 SHELLCHECKFLAGS=-S warning -e SC3043
 
 SHELLSCRIPTS= \
-    $(srcdir)/autogen.sh \
+    $(top_srcdir)/autogen.sh \
     $(srcdir)/cppcheck.sh \
     $(srcdir)/do_release \
     $(srcdir)/getversion.sh \
