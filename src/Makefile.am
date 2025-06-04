@@ -422,9 +422,7 @@ EXTRA_DIST = \
         os_win32/update-smart-drivedb.ps1.in \
         os_win32/versioninfo.rc.in \
         os_win32/wtssendmsg.c \
-        $(docs_DATA) \
-        $(examples_DATA) \
-        $(examples_SCRIPTS)
+        $(docs_DATA)
 
 CLEANFILES = \
         cppcheck.txt \
