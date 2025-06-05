@@ -20,23 +20,22 @@ before_build:
 - cd nsis-3.10-src && sudo scons -j `nproc` ZLIB_W32=$HOME/zlib SKIPUTILS="NSIS Menu" NSIS_CONFIG_LOG=yes build install && cd $APPVEYOR_BUILD_FOLDER
 
 build_script:
-- cd smartmontools
 - export SOURCE_DATE_EPOCH=$(git log -1 --format="%at")
-- SM_VER=$(grep -E 'AC_INIT\(\[smartmontools\]' configure.ac|awk -F, '{print $2}'|tr -d '[]')
-- sh: "SVNREV=$(git log -1|grep -oP 'git-svn-id: http://svn.code.sf.net/p/smartmontools/code/trunk@(\\d+)'|awk -F@ '{print $2}')"
+- SOURCE_DATE_EPOCH=$((SOURCE_DATE_EPOCH + 1))
+- VERSION=$(src/getversion.sh -n)
 - BUILD_INFO='"(AppVeyor)"'
-- 'echo "Starting build: SOURCE_DATE_EPOCH: ${SOURCE_DATE_EPOCH}, SM_VER: ${SM_VER}, SVNREV: ${SVNREV}"'
+- 'echo "Starting build: SOURCE_DATE_EPOCH: ${SOURCE_DATE_EPOCH}, VERSION: ${VERSION}"'
 - ./autogen.sh && mkdir build && cd build
 - ../configure build_alias=$(../config.guess) host_alias=i686-w64-mingw32 SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH}
 - make -j BUILD_INFO="$BUILD_INFO" && make distdir-win32 && cd .. && mkdir build64 && cd build64
 - ../configure build_alias=$(../config.guess) host_alias=x86_64-w64-mingw32 SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH}
 - make -j BUILD_INFO="$BUILD_INFO" && make distdir-win32
-- cd ../build && dest="smartmontools-win32-setup-${SM_VER}-r${SVNREV}.exe"
-- make BUILD_INFO="$BUILD_INFO" builddir_win64=../build64 distinst_win32="$dest" installer-win32
+- cd ../build/src && dest="smartmontools-win32-setup-${VERSION}.exe"
+- make BUILD_INFO="$BUILD_INFO" builddir_win64=../../build64/src distinst_win32="$dest" installer-win32
 - sha256sum *.exe
 
 artifacts:
-- path: smartmontools/build/smartmontools-win32-setup-*.exe
+- path: build/src/smartmontools-win32-setup-*.exe
 
 deploy:
 - provider: Webhook
