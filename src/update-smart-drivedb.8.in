@@ -1,10 +1,8 @@
 .ig
 Copyright (C) 2013 Hannes von Haugwitz <hannes@vonhaugwitz.com>
-Copyright (C) 2014-23 Christian Franke
+Copyright (C) 2014-25 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
-
-$Id: update-smart-drivedb.8.in 5605 2024-03-29 17:12:50Z chrfranke $
 
 ..
 .\" Macros borrowed from pages generated with Pod::Man
@@ -25,7 +23,7 @@ $Id: update-smart-drivedb.8.in 5605 2024-03-29 17:12:50Z chrfranke $
 .\" Use groff extension \(aq (apostrophe quote, ASCII 0x27) if possible
 .ie \n(.g .ds Aq \(aq
 .el       .ds Aq '
-.TH UPDATE-SMART-DRIVEDB 8 "CURRENT_SVN_DATE" "CURRENT_SVN_VERSION" "SMART Monitoring Tools"
+.TH UPDATE-SMART-DRIVEDB 8 "@SMARTMONTOOLS_GIT_REV_DATE@" "smartmontools-@SMARTMONTOOLS_GIT_VER_DESC@" "SMART Monitoring Tools"
 .SH NAME
 update-smart-drivedb \- update smartmontools drive database
 .Sp
@@ -258,6 +256,4 @@ Alternatively send the info to the smartmontools support mailing list:
 \fBsmartctl\fP(8), \fBsmartd\fP(8).
 .Sp
 .SH PACKAGE VERSION
-CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
-.br
-$Id: update-smart-drivedb.8.in 5605 2024-03-29 17:12:50Z chrfranke $
+smartmontools-@SMARTMONTOOLS_GIT_VER_DESC@ @SMARTMONTOOLS_GIT_REV_DATE@ @SMARTMONTOOLS_GIT_REV@

@@ -35,12 +35,12 @@
 
 #include <stdexcept>
 
-#include "svnversion.h"
 #include "utility.h"
 
 #include "atacmds.h"
 #include "dev_interface.h"
 #include "sg_unaligned.h"
+#include "version.h"
 
 #ifndef USE_CLOCK_MONOTONIC
 #ifdef __MINGW32__
@@ -54,9 +54,6 @@
 #define USE_CLOCK_MONOTONIC 0
 #endif
 #endif // USE_CLOCK_MONOTONIC
-
-const char * utility_cpp_cvsid = "$Id: utility.cpp 5646 2025-01-01 10:40:19Z chrfranke $"
-  UTILITY_H_CVSID;
 
 const char * packet_types[] = {
         "Direct-access (disk)",
@@ -87,15 +84,11 @@ const char * packet_types[] = {
 std::string format_version_info(const char * prog_name, int lines /* = 2 */)
 {
   std::string info = strprintf(
-    "%s "
-#ifndef SMARTMONTOOLS_RELEASE_DATE
-      "pre-"
-#endif
-      PACKAGE_VERSION " "
-#ifdef SMARTMONTOOLS_SVN_REV
-      SMARTMONTOOLS_SVN_DATE " r" SMARTMONTOOLS_SVN_REV
+    "%s " SMARTMONTOOLS_GIT_VER_DESC " "
+#ifdef SMARTMONTOOLS_GIT_REV_DATE
+      SMARTMONTOOLS_GIT_REV_DATE
 #else
-      "(build date " __DATE__ ")" // checkout without expansion of Id keywords
+      "(build date " __DATE__ ")" // not build from git repository or src tarball
 #endif
       " [%s] " BUILD_INFO "\n",
     prog_name, smi()->get_os_version_str().c_str()
@@ -115,20 +108,16 @@ std::string format_version_info(const char * prog_name, int lines /* = 2 */)
     "version 2, or (at your option) any later version.\n"
     "See https://www.gnu.org for further details.\n"
     "\n"
-#ifndef SMARTMONTOOLS_RELEASE_DATE
-    "smartmontools pre-release " PACKAGE_VERSION "\n"
-#else
-    "smartmontools release " PACKAGE_VERSION
-      " dated " SMARTMONTOOLS_RELEASE_DATE " at " SMARTMONTOOLS_RELEASE_TIME "\n"
+    "smartmontools release " SMARTMONTOOLS_GIT_VER_DESC
+#ifdef SMARTMONTOOLS_RELEASE_DATE
+      " dated " SMARTMONTOOLS_RELEASE_DATE " at " SMARTMONTOOLS_RELEASE_TIME
 #endif
-#ifdef SMARTMONTOOLS_SVN_REV
-    "smartmontools SVN rev " SMARTMONTOOLS_SVN_REV
-#ifdef SMARTMONTOOLS_GIT_HASH
-      " (git " SMARTMONTOOLS_GIT_HASH ")"
-#endif
-      " dated " SMARTMONTOOLS_SVN_DATE " at " SMARTMONTOOLS_SVN_TIME "\n"
+      "\n"
+#ifdef SMARTMONTOOLS_GIT_REV
+    "smartmontools git revision " SMARTMONTOOLS_GIT_REV
+      " dated " SMARTMONTOOLS_GIT_REV_DATE " at " SMARTMONTOOLS_GIT_REV_TIME "\n"
 #else
-    "smartmontools SVN rev is unknown\n"
+    "smartmontools git revision is unknown\n"
 #endif
     "smartmontools build host: " SMARTMONTOOLS_BUILD_HOST "\n"
     "smartmontools build with: "

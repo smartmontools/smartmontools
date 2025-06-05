@@ -451,7 +451,10 @@ CLEANFILES = \
         smartd.freebsd.initd \
         smartd.service \
         smartd_warning.sh \
-        svnversion.h \
+        version.h \
+        version.h.tmp \
+        version.sh \
+        version.sh.tmp \
         update-smart-drivedb \
         update-smart-drivedb.8 \
         update-smart-drivedb.1m \
@@ -466,11 +469,16 @@ MAINTAINERCLEANFILES = \
         $(srcdir)/config.h.in \
         $(srcdir)/config.h.in~
 
-smartctl.o utility.o: svnversion.h
+smartctl.o utility.o: version.h
 
 # Get version info
-svnversion.h: Makefile config.h
-	$(AM_V_GEN)$(srcdir)/getversion.sh -i > $@
+version.h: version.sh getversion.sh
+	$(AM_V_GEN)$(srcdir)/getversion.sh -i < version.sh > $@.tmp
+	$(AM_V_at)mv -f $@.tmp $@
+
+version.sh: getversion.sh ../configure.ac ../Makefile Makefile config.h
+	$(AM_V_GEN)$(srcdir)/getversion.sh -s > $@.tmp
+	$(AM_V_at)mv -f $@.tmp $@
 	@! $(AM_V_P) || cat $@
 
 if ENABLE_DRIVEDB
@@ -569,9 +577,10 @@ install-data-local: installdirs-local
 # Build man pages
 #
 MAN_FILTER = { \
-    sed -e 's|CURRENT_SVN_VERSION|$(releaseversion)|g' \
-        -e "s|CURRENT_SVN_DATE|`sed -n 's,^.*DATE[^"]*"\([^"]*\)".*$$,\1,p' svnversion.h`|g" \
-        -e "s|CURRENT_SVN_REV|`sed -n 's,^.*REV[^"]*"\([^"]*\)".*$$,r\1,p' svnversion.h`|g" \
+    . ./version.sh && \
+    sed -e "s|@SMARTMONTOOLS_GIT_VER_DESC@|$$SMARTMONTOOLS_GIT_VER_DESC|g" \
+        -e "s|@SMARTMONTOOLS_GIT_REV_DATE@|$${SMARTMONTOOLS_GIT_REV_DATE:--}|g" \
+        -e "s|@SMARTMONTOOLS_GIT_REV@|$${SMARTMONTOOLS_GIT_REV:--}|g" \
         -e 's|/usr/local/share/man/|$(mandir)/|g' \
         -e 's|/usr/local/sbin/|$(sbindir)/|g' \
         -e 's|/usr/local/share/doc/smartmontools/examplescripts/|!exampledir!|g' \
@@ -647,19 +656,19 @@ MAN_FILTER = { \
       cat; \
     fi; }
 
-smartctl.8: smartctl.8.in Makefile svnversion.h
+smartctl.8: smartctl.8.in Makefile version.sh
 	$(ECHO_V_GEN) ' $$(MAN_FILTER) < $(srcdir)/smartctl.8.in > $@'
 	@$(MAN_FILTER) < $(srcdir)/smartctl.8.in > $@
 
-smartd.8: smartd.8.in Makefile svnversion.h
+smartd.8: smartd.8.in Makefile version.sh
 	$(ECHO_V_GEN) ' $$(MAN_FILTER) < $(srcdir)/smartd.8.in > $@'
 	@$(MAN_FILTER) < $(srcdir)/smartd.8.in > $@
 
-smartd.conf.5: smartd.conf.5.in Makefile svnversion.h
+smartd.conf.5: smartd.conf.5.in Makefile version.sh
 	$(ECHO_V_GEN) ' $$(MAN_FILTER) < $(srcdir)/smartd.conf.5.in > $@'
 	@$(MAN_FILTER) < $(srcdir)/smartd.conf.5.in > $@
 
-update-smart-drivedb.8: update-smart-drivedb.8.in Makefile svnversion.h
+update-smart-drivedb.8: update-smart-drivedb.8.in Makefile version.sh
 	$(ECHO_V_GEN) ' $$(MAN_FILTER) < $(srcdir)/update-smart-drivedb.8.in > $@'
 	@$(MAN_FILTER) < $(srcdir)/update-smart-drivedb.8.in > $@
 
@@ -805,9 +814,9 @@ wtssendmsg_res.o: wtssendmsg_res.rc $(os_win32_manifest)
 # set description, name, version and year
 WIN_RC_FILTER = { \
     ver=`echo '$(PACKAGE_VERSION).0' | sed -n 's,^\([0-9]*\.[0-9]*\.[0-9]*\).*$$,\1,p'` && \
-    rev=`sed -n 's,^.*REV[^"]*"\([0-9]*\).*$$,\1,p' svnversion.h` && \
-    txtver="$${ver:-0.0.0}.$${rev:-0}" && binver=`echo "$$txtver" | sed 's|\.|,|g'` && \
-    yy=`sed -n 's,^.*DATE[^"]*"20\([0-9][0-9]\).*$$,\1,p' svnversion.h` && yy="$${yy:-XX}" && \
+    . ./version.sh && \
+    txtver=$$SMARTMONTOOLS_GIT_VER_WIN && binver=`echo "$$txtver" | sed 's|\.|,|g'` && \
+    yy=`echo "$$SMARTMONTOOLS_GIT_REV_DATE" | sed -n 's,^20\([0-9][0-9]\).*$$,\1,p'` && yy="$${yy:-XX}" && \
     sed -e "s|@DESC@|$$d|" -e "s|@NAME@|$$n|" -e "s|@BINARY_VERSION@|$$binver|g" \
         -e "s|@TEXT_VERSION@|$$txtver|g" -e "s|@YY@|$$yy|g"; }
 
@@ -821,28 +830,28 @@ WIN_APP_MANIFEST = \
       echo '1 24 "$(srcdir)/$(os_win32_manifest)"' >> $@; \
     fi
 
-smartctl_res.rc: os_win32/versioninfo.rc.in Makefile svnversion.h
+smartctl_res.rc: os_win32/versioninfo.rc.in Makefile version.sh
 	$(AM_V_GEN)
 	@n=smartctl d="Control and Monitor Utility for SMART Disks"; $(WIN_MAKE_RES)
 	@$(WIN_APP_MANIFEST)
 
-smartd_res.rc: os_win32/versioninfo.rc.in Makefile svnversion.h
+smartd_res.rc: os_win32/versioninfo.rc.in Makefile version.sh
 	$(AM_V_GEN)
 	@n=smartd d="SMART Disk Monitoring Daemon"; $(WIN_MAKE_RES)
 	$(AM_V_at)echo '#include "./syslogevt.rc"' >> $@
 	@$(WIN_APP_MANIFEST)
 
-runcmdu_res.rc: os_win32/versioninfo.rc.in Makefile svnversion.h
+runcmdu_res.rc: os_win32/versioninfo.rc.in Makefile version.sh
 	$(AM_V_GEN)
 	@n=runcmdu d="Run console command"; $(WIN_MAKE_RES)
 	@$(WIN_APP_MANIFEST)
 
-runcmda_res.rc: os_win32/versioninfo.rc.in Makefile svnversion.h
+runcmda_res.rc: os_win32/versioninfo.rc.in Makefile version.sh
 	$(AM_V_GEN)
 	@n=runcmda d="Run console command as admin"; $(WIN_MAKE_RES)
 	$(AM_V_at)echo '1 24 "./defadmin.manifest"' >> $@
 
-wtssendmsg_res.rc: os_win32/versioninfo.rc.in Makefile svnversion.h
+wtssendmsg_res.rc: os_win32/versioninfo.rc.in Makefile version.sh
 	$(AM_V_GEN)
 	@n=wtssendmsg d="Send console messages"; $(WIN_MAKE_RES)
 	@$(WIN_APP_MANIFEST)
@@ -937,11 +946,10 @@ $(distinst_win32): os_win32/installer.nsi Makefile smartctl_res.rc $(distdir_win
 	$(AM_V_GEN)
 	@test -n '$(MAKENSIS)' || ! echo 'makensis: command not found (https://nsis.sourceforge.io)'
 	$(AM_V_at)test -z '$(builddir_win64)' || ( cd $(builddir_win64) && $(MAKE) distdir-win32 )
-	@date=`sed -n 's,^.*DATE[^"]*"\([^"]*\)".*$$,\1,p' svnversion.h` && \
-	rev=`sed -n 's,^.*REV[^"]*"\([^"]*\)".*$$,r\1,p' svnversion.h` && \
-	version=`sed -n 's|^ *VALUE "FileVersion", "\([0-9.]*\)".*$$|\1|p' smartctl_res.rc` && \
-	yy=`echo "$$date" | sed -n 's,^20\([0-9][0-9]\).*$$,\1,p'`; yy="$${yy:-XX}" && \
-	verstr="$(PACKAGE_VERSION) $$date $$rev "$(BUILD_INFO) && \
+	@. ./version.sh && \
+	version=$$SMARTMONTOOLS_GIT_VER_WIN && \
+	yy=`echo "$$SMARTMONTOOLS_GIT_REV_DATE" | sed -n 's,^20\([0-9][0-9]\).*$$,\1,p'` && yy="$${yy:-XX}" && \
+	verstr=$$SMARTMONTOOLS_GIT_VER_WIN && \
 	d64= && if [ -n '$(builddir_win64)' ]; then d64='-DINPDIR64=$(builddir_win64)/$(PACKAGE)-$(VERSION).win64'; fi && \
 	$(ECHO_V) "'$(MAKENSIS)' -V2 -NOCD -DINPDIR=$(distdir_win32) $$d64 -DOUTFILE=$@ -DVERSION=$$version -DYY=$$yy -DVERSTR='$$verstr' $(srcdir)/os_win32/installer.nsi" && \
 	'$(MAKENSIS)' -V2 -NOCD -DINPDIR=$(distdir_win32) $$d64 -DOUTFILE=$@ -DVERSION=$$version -DYY=$$yy -DVERSTR="$$verstr" $(srcdir)/os_win32/installer.nsi
@@ -1038,13 +1046,13 @@ check-vc-version:
 	  *) echo 'Usage: $(MAKE) vc=16|17 config-vc clean-vc distclean-vc maintainer-clean-vc'; exit 1 ;; \
 	esac
 
-# Build os_win32/vcNN/{config.h,smart*.rc,svnversion.h} for MSVCNN from MinGW files
+# Build os_win32/vcNN/{config.h,smart*.rc,version.h} for MSVCNN from MinGW files
 
 CONFIG_VC_FILES = \
         $(srcdir)/os_win32/vc$(vcver)/config.h \
         $(srcdir)/os_win32/vc$(vcver)/smartctl_res.rc \
         $(srcdir)/os_win32/vc$(vcver)/smartd_res.rc \
-        $(srcdir)/os_win32/vc$(vcver)/svnversion.h
+        $(srcdir)/os_win32/vc$(vcver)/version.h
 
 config-vc: check-vc-version $(CONFIG_VC_FILES)
 
@@ -1054,8 +1062,8 @@ $(srcdir)/os_win32/vc$(vcver)/config.h: config.h Makefile
 	  -e 's,^#define HAVE_\(ATTR_PACKED\|CLOCK_GETTIME\|GETTIMEOFDAY\|__INT128\|LONG_DOUBLE_WIDER\|STRINGS_H\|UNISTD_H\) 1.*$$,/* #undef HAVE_\1 */ /* VC$(vcver) */,' \
 	  -e 's,^\(#define SMARTMONTOOLS_BUILD_HOST "[^-]*\)[^"]*,\1-pc-w32vc$(vcver),' config.h > $@
 
-$(srcdir)/os_win32/vc$(vcver)/svnversion.h: svnversion.h
-	$(AM_V_GEN)cp svnversion.h $@
+$(srcdir)/os_win32/vc$(vcver)/version.h: version.h
+	$(AM_V_GEN)cp version.h $@
 
 $(srcdir)/os_win32/vc$(vcver)/smartctl_res.rc: smartctl_res.rc
 	$(AM_V_GEN)sed '/^1 24 /d' smartctl_res.rc > $@

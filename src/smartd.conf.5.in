@@ -4,8 +4,6 @@ Copyright (C) 2004-25 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
-$Id: smartd.conf.5.in 5697 2025-04-22 15:02:53Z chrfranke $
-
 ..
 .\" Macros borrowed from pages generated with Pod::Man
 .de Sp \" Vertical space (when we can't use .PP)
@@ -25,7 +23,7 @@ $Id: smartd.conf.5.in 5697 2025-04-22 15:02:53Z chrfranke $
 .\" Use groff extension \(aq (apostrophe quote, ASCII 0x27) if possible
 .ie \n(.g .ds Aq \(aq
 .el       .ds Aq '
-.TH SMARTD.CONF 5 "CURRENT_SVN_DATE" "CURRENT_SVN_VERSION" "SMART Monitoring Tools"
+.TH SMARTD.CONF 5 "@SMARTMONTOOLS_GIT_REV_DATE@" "smartmontools-@SMARTMONTOOLS_GIT_VER_DESC@" "SMART Monitoring Tools"
 .SH NAME
 \fBsmartd.conf\fP \- SMART Disk Monitoring Daemon Configuration File\fP
 .Sp
@@ -1803,6 +1801,4 @@ full path of this file.
 \fBmail\fP(1), \fBregex\fP(7).
 .Sp
 .SH PACKAGE VERSION
-CURRENT_SVN_VERSION CURRENT_SVN_DATE CURRENT_SVN_REV
-.br
-$Id: smartd.conf.5.in 5697 2025-04-22 15:02:53Z chrfranke $
+smartmontools-@SMARTMONTOOLS_GIT_VER_DESC@ @SMARTMONTOOLS_GIT_REV_DATE@ @SMARTMONTOOLS_GIT_REV@

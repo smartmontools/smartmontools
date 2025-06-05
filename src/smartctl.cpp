@@ -40,10 +40,7 @@
 #include "nvmeprint.h"
 #include "smartctl.h"
 #include "utility.h"
-#include "svnversion.h"
-
-const char * smartctl_cpp_cvsid = "$Id: smartctl.cpp 5673 2025-03-20 12:48:26Z chrfranke $"
-  CONFIG_H_CVSID SMARTCTL_H_CVSID;
+#include "version.h"
 
 // Globals to control printing
 bool printing_is_switchable = false;
@@ -88,14 +85,22 @@ static void js_initialize(int argc, char **argv, bool verbose)
   jref["version"][1] = ver[1];
   if (ver[2] > 0)
     jref["version"][2] = ver[2];
+  jref["version_info"] = SMARTMONTOOLS_GIT_VER_DESC;
 
 #ifdef SMARTMONTOOLS_RELEASE_DATE
   jref["pre_release"] = false;
 #else
   jref["pre_release"] = true;
 #endif
-#ifdef SMARTMONTOOLS_SVN_REV
-  jref["svn_revision"] = SMARTMONTOOLS_SVN_REV;
+#ifdef SMARTMONTOOLS_GIT_PRE_REVS
+  jref["pre_release_git_revisions"] = SMARTMONTOOLS_GIT_PRE_REVS;
+#endif
+#ifdef SMARTMONTOOLS_GIT_REV
+  jref["git_revision"] += {
+    { "commit", SMARTMONTOOLS_GIT_REV },
+    { "date", SMARTMONTOOLS_GIT_REV_DATE },
+    { "time", SMARTMONTOOLS_GIT_REV_TIME }
+  };
 #endif
   jref["platform_info"] = smi()->get_os_version_str();
 #ifdef BUILD_INFO
