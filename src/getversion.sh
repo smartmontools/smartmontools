@@ -148,7 +148,8 @@ if $is_git_co; then
       if x=$(cd "$top_srcdir" && git rev-list --count "$prev_release..HEAD" 2>/dev/null)
       then
         if [ 0 -lt "$x" ] && [ "$x" -lt 5600 ]; then
-          pre_revs=$(printf '%03d' "$x");
+          pre_revs=$x
+          pre_revs3=$(printf '%03d' "$pre_revs");
           pre_revs_win=$x
           test -z "$modified" || pre_revs_win=$((pre_revs_win + 500))
         else
@@ -160,9 +161,9 @@ if $is_git_co; then
     fi
 
     # "pre-X.Y[-NNN][-modified]"
-    ver_desc="pre-$ver${pre_revs:+-}$pre_revs$modified"
+    ver_desc="pre-$ver${pre_revs3:+-}$pre_revs3$modified"
     # "X.Y[-NNN]-gREV[-modified]"
-    ver_fname="$ver${pre_revs:+-}$pre_revs-g$rev"
+    ver_fname="$ver${pre_revs3:+-}$pre_revs3-g$rev"
     # "X.Y.0.N[+500]"
     ver_win="$ver.0.$pre_revs_win"
 
