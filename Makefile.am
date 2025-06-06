@@ -106,7 +106,9 @@ dist-zstd: distdir check-gnu-tar
 	unset ZSTD_CLEVEL; zstd -19 -f -q --rm $(distdir).tar
 	$(am__post_remove_distdir)
 
+# List these separately to let automake disable the builtins
 dist-bzip2: dist-fail
+dist-bzip3: dist-fail
 dist-lzip: dist-fail
 dist-zip: dist-fail
 
