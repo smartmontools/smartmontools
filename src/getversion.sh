@@ -32,6 +32,11 @@ error()
   exit 1
 }
 
+warning()
+{
+  echo "$myname: (Warning) $*" >&2
+}
+
 i_opt=false; n_opt=false; s_opt=false
 while :; do case $1 in
   -i) i_opt=true ;;
@@ -101,8 +106,8 @@ if [ -f "$dist_version_sh" ]; then
 fi
 
 rev=; rev_date=; rev_time=; pre_revs=
-ver_desc="$ver-unknown"
-ver_fname=$ver_desc
+ver_desc="$pre$ver-unknown"
+ver_fname="$ver-unknown"
 ver_win="$ver.0.999"
 origin="(git log not available)"
 
@@ -117,6 +122,7 @@ if $is_git_co; then
   # Check for modifications
   x="$(cd "$top_srcdir" && git status -s -uno)" || exit 1
   modified=${x:+-modified}
+  rev="$rev$modified"
 
   if [ -n "$pre" ]; then
     # Determine git revision of previous PACKAGE_VERSION
@@ -125,31 +131,40 @@ if $is_git_co; then
     test "$major.$minor" = "$ver" || error "$ver: invalid package version"
     test "$major" -ge 8 || error "$ver: package versions below 8.0 are not supported"
     if [ "$minor" -gt 0 ]; then
-      prev_rev="smartmontools-$major.$((minor - 1))"
+      prev_release="smartmontools-$major.$((minor - 1))"
     elif [ "$major" -gt 8 ]; then
-      pattern="smartmontools-$((major - 1)).*";
-      prev_rev=$(git tag -l --sort=-authordate --no-column "$pattern" | head -1) || exit 1
-      test -n "$prev_rev" || error "$pattern: no matching revision found"
+      pattern="smartmontools-$((major - 1)).*"
+      prev_release=$(git tag -l --sort=-authordate --no-column "$pattern" 2>/dev/null | head -1)
+      test -n "$prev_release" || warning "$pattern: no matching revisions found"
     else
-      prev_rev=943adaed # r5714 - RELEASE_7_5 svn/trunk commit
+      # svn r5714 - RELEASE_7_5 svn/trunk commit
+      prev_release="943adaeda55c2d534c722fe66c6b4613a782caa1"
     fi
 
-    # Get number of revisions since previous PACKAGE_VERSION
-    pre_revs=$(cd "$top_srcdir" && git rev-list --count "$prev_rev..HEAD" 2>/dev/null) \
-    || error "$prev_rev: revision not found"
-    test "$pre_revs" -gt 0 || error "$prev_rev: is not a previous revision"
-    test "$pre_revs" -lt 5600 || error "$prev_rev: is on an unrelated branch"
+    pre_revs=
+    pre_revs_win=999
+    if [ -n "$prev_release" ]; then
+      # Get number of revisions since previous PACKAGE_VERSION
+      if x=$(cd "$top_srcdir" && git rev-list --count "$prev_release..HEAD" 2>/dev/null)
+      then
+        if [ 0 -lt "$x" ] && [ "$x" -lt 5600 ]; then
+          pre_revs=$(printf '%03d' "$x");
+          pre_revs_win=$x
+          test -z "$modified" || pre_revs_win=$((pre_revs_win + 500))
+        else
+          warning "$prev_release: is not a previous release"
+        fi
+      else
+        warning "$prev_release: revision not found"
+      fi
+    fi
 
-    # "pre-X.Y-NNN[-modified]"
-    ver_desc="pre-$ver-$(printf '%03d' "$pre_revs")$modified"
-    # "X.Y-NNN-gHASH[-modified]"
-    ver_fname="$ver-$(printf '%03d' "$pre_revs")-g$rev$modified"
+    # "pre-X.Y[-NNN][-modified]"
+    ver_desc="pre-$ver${pre_revs:+-}$pre_revs$modified"
+    # "X.Y[-NNN]-gREV[-modified]"
+    ver_fname="$ver${pre_revs:+-}$pre_revs-g$rev"
     # "X.Y.0.N[+500]"
-    if [ -z "$modified" ]; then
-      ver_win="$ver.0.$pre_revs"
-    else
-      ver_win="$ver.0.$((pre_revs + 500))"
-    fi
+    ver_win="$ver.0.$pre_revs_win"
 
   else
     # Release
@@ -164,7 +179,7 @@ if $is_git_co; then
   origin="and git log"
 
 else
-  echo "$myname: Warning: version information is incomplete" >&2
+  warning "no '$dist_version_sh' or git log available"
 fi
 
 if $n_opt; then
