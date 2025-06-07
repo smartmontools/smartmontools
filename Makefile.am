@@ -64,6 +64,10 @@ SRC_TARGETS += cleandist-win32 dist-win32 distdir-win32 install-win32 installer-
 SRC_TARGETS += clean-vc config-vc distclean-vc maintainer-clean-vc
 endif
 
+if OS_DARWIN
+SRC_TARGETS += install-darwin install-darwin-cleanup
+endif
+
 # Avoid automake warning: '.PHONY was already defined in condition ...'
 phony = $(SRC_TARGETS)
 .PHONY: $(phony)
