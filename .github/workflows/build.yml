@@ -22,18 +22,17 @@ jobs:
         cat $GITHUB_ENV
     - name: Creating src.tar.gz
       run: |
-        echo ${SOURCE_DATE_EPOCH} > ~/SOURCE_DATE_EPOCH
         ./autogen.sh --force 
         mkdir build && cd build
         ../configure SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH}
         make dist && tar -tvzf smartmontools-${SM_VER}.tar.gz
-        pwd
-        env
+        mkdir artifacts
+        echo ${SOURCE_DATE_EPOCH} > artifacts/SOURCE_DATE_EPOCH
+        mv smartmontools-${SM_VER}.tar.gz artifacts/
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
         name: dist
-        path: |
-          ~/SOURCE_DATE_EPOCH
-          !dist/**/*.md
+        path: build/artifacts/
+
