@@ -1,4 +1,4 @@
-name: C/C++ CI
+name: Build smartmontools (non-release)
 
 on:
   push:
@@ -7,18 +7,27 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
-
+  make-src-tgz:
     runs-on: ubuntu-latest
-    container: 
-      image: ghcr.io/smartmontools/docker-build:master
+    # container: 
+    #   image: ghcr.io/smartmontools/docker-build:master
 
     steps:
     - uses: actions/checkout@v4
-    - name: Set SOURCE_DATE_EPOCH
+    - name: Setting environment variables
       run: |
-        echo "SOURCE_DATE_EPOCH=$s # `date -d @"$s" -u -Is`" &&
-        echo "$s" >~/SOURCE_DATE_EPOCH
+        git log -1 --format="SOURCE_DATE_EPOCH=%at" >> $GITHUB_ENV
+        echo SM_VER=$(sed -n 's|^AC_INIT[^,]*, *\[\([0-9.]*\)\] *,.*$|\1|p' configure.ac) >> $GITHUB_ENV
+        echo SM_REV=$(git rev-parse --short=12 HEAD >> $GITHUB_ENV
+        cat $GITHUB_ENV
     - name: Creating src.tar.gz
       run: | 
         ./autogen.sh && ./configure
+
+    - name: Archive production artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: dist-without-markdown
+        path: |
+          dist
+          !dist/**/*.md
