@@ -37,11 +37,11 @@ jobs:
         echo ${SOURCE_DATE_EPOCH} > artifacts/SOURCE_DATE_EPOCH
         mv smartmontools-${SM_VER}.tar.gz artifacts/smartmontools-${SM_VER}-r${SM_REV}.tar.gz
 
-    - name: Upload distfile
+    - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: smartmontools-${{ steps.set-env.outputs.SM_VER }}-r${{ steps.set-env.outputs.SM_REV }}.tar.gz
-        path: build/artifacts/smartmontools-${{ steps.set-env.outputs.SM_VER }}-r${{ steps.set-env.outputs.SM_REV }}.tar.gz
+        name: artifacts
+        path: build/artifacts/
 
   compile-linux:
     needs: make-src-tgz
@@ -56,5 +56,5 @@ jobs:
         #   path: smartmontools-${{ needs.make-src-tgz.outputs.SM_VER }}-r${{ needs.make-src-tgz.outputs.SM_REV }}.tar.gz
       - name: build
         run: |
-          ls
+          ls -lR
           tar -xvf smartmontools-${SM_VER}-r${SM_REV}.tar.gz
