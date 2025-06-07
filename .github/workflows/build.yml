@@ -56,5 +56,6 @@ jobs:
           path: smartmontools-${SM_VER}.tar.gz
       - name: build
         run: |
-          tar -xvf smartmontools-${SM_VER}.tar.gz
           ls
+          tar -xvf smartmontools-${SM_VER}-r${SM_REV}.tar.gz
+        
