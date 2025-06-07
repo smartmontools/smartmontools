@@ -22,9 +22,12 @@ jobs:
         cat $GITHUB_ENV
     - name: Creating src.tar.gz
       run: | 
-        ./autogen.sh && ./configure
+        ./autogen.sh --force 
+        mkdir build && cd build
+        ../configure SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH}
+        make dist && tar -tvzf smartmontools-${SM_VER}.tar.gz
 
-    - name: Archive production artifacts
+    - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
         name: dist-without-markdown
