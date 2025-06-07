@@ -233,3 +233,18 @@ jobs:
           name: windows
           path: artifacts/smartmontools-win32-setup-${{ needs.make-src-tgz.outputs.SM_VER }}-r${{ needs.make-src-tgz.outputs.SM_REV }}.exe
           retention-days: 1
+
+
+  publish-artifacts:
+    name: publush-artifacts
+    needs: 
+      - compile-linux-static-x86_64
+      - compile-linux-static-i386
+      - compile-darwin
+      - compile-freebsd
+      - compile-windows
+    runs-on: ubuntu-latest 
+    steps:
+      - uses: actions/download-artifact@v4
+      - name: test
+        run: ls -lR
