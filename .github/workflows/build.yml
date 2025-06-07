@@ -225,7 +225,7 @@ jobs:
           dest="smartmontools-win32-setup-${SM_VER}-r${SM_REV}.exe" && \
             make BUILD_INFO="$BUILD_INFO" builddir_win64=../../build64 distinst_win32="$dest" installer-win32
           mkdir -p inst ${GITHUB_WORKSPACE}/artifacts && make DESTDIR="$(pwd)/inst" install
-          ls -lR
+          ls -lR 
           cd inst
       # - name: Upload artifacts
       #   uses: actions/upload-artifact@v4
