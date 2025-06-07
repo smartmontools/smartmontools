@@ -18,7 +18,7 @@ jobs:
       run: |
         git log -1 --format="SOURCE_DATE_EPOCH=%at" >> $GITHUB_ENV
         echo SM_VER=$(sed -n 's|^AC_INIT[^,]*, *\[\([0-9.]*\)\] *,.*$|\1|p' configure.ac) >> $GITHUB_ENV
-        echo SM_REV=$(git rev-parse --short=12 HEAD >> $GITHUB_ENV
+        echo SM_REV=$(git rev-parse --short=12 HEAD) >> $GITHUB_ENV
         cat $GITHUB_ENV
     - name: Creating src.tar.gz
       run: | 
