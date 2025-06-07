@@ -32,10 +32,10 @@ jobs:
         ./autogen.sh --force 
         mkdir build && cd build
         ../configure SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH}
-        make dist && tar -tvzf smartmontools-${SM_VER}-r${SM_REV}.tar.gz
+        make dist && tar -tvzf smartmontools-${SM_VER}.tar.gz
         mkdir artifacts
         echo ${SOURCE_DATE_EPOCH} > artifacts/SOURCE_DATE_EPOCH
-        mv smartmontools-${SM_VER}-r${SM_REV}.tar.gz artifacts/
+        mv smartmontools-${SM_VER}.tar.gz artifacts/smartmontools-${SM_VER}-r${SM_REV}.tar.gz
 
     - name: Upload distfile
       uses: actions/upload-artifact@v4
