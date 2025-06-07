@@ -121,7 +121,7 @@ jobs:
         run: |
           PATH=/usr/osxcross/bin/:$PATH >> $GITHUB_ENV
           LD_LIBRARY_PATH=/usr/osxcross/lib >> $GITHUB_ENV
-      - run: o64-clang --version
+      - run: env
       - name: build
         run: |
           tar -xvf artifacts/smartmontools-${SM_VER}-r${SM_REV}.tar.gz
