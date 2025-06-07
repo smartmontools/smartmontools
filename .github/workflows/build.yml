@@ -14,6 +14,7 @@ jobs:
       SOURCE_DATE_EPOCH: ${{ steps.set-env.outputs.SOURCE_DATE_EPOCH }}
       SM_VER: ${{ steps.set-env.outputs.SM_VER }}
       SM_REV: ${{ steps.set-env.outputs.SM_REV }}
+      artficact-id: ${{ steps.artifact-upload-step.outputs.artifact-id }}
 
     steps:
     - uses: actions/checkout@v4
@@ -36,6 +37,7 @@ jobs:
         mv smartmontools-${SM_VER}.tar.gz artifacts/smartmontools-${SM_VER}-r${SM_REV}.tar.gz
 
     - name: Upload artifacts
+      id: artifact-upload-step
       uses: actions/upload-artifact@v4
       with:
         name: artifacts
@@ -52,6 +54,8 @@ jobs:
       SM_REV: ${{ needs.make-src-tgz.outputs.SM_REV }}      
     steps:
       - uses: actions/download-artifact@v4
+        with:
+          artifact-ids: ${{ needs.make-src-tgz.outputs.artficact-id }}      
       - name: build
         run: |
           tar -xvf artifacts/smartmontools-${SM_VER}-r${SM_REV}.tar.gz
@@ -65,7 +69,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: linux_static_x86_64
-          path: artifacts/
+          path: artifacts/smartmontools-linux-x86_64-static-${{ needs.make-src-tgz.outputs.SM_VER }}-r${{ needs.make-src-tgz.outputs.SM_REV }}.tar.gz
           retention-days: 1
 
   compile-linux-static-i386:
@@ -78,6 +82,8 @@ jobs:
       SM_REV: ${{ needs.make-src-tgz.outputs.SM_REV }}      
     steps:
       - uses: actions/download-artifact@v4
+        with:
+          artifact-ids: ${{ needs.make-src-tgz.outputs.artficact-id }}    
       - name: install m32 dependencies
         run: sudo apt-get install gcc-multilib g++-multilib
       - name: build
@@ -88,12 +94,12 @@ jobs:
           make -j BUILD_INFO="(GHA Build)" && make check
           mkdir -p inst ${GITHUB_WORKSPACE}/artifacts && make DESTDIR="$(pwd)/inst" install
           cd inst
-          tar --sort=name --mtime=@${SOURCE_DATE_EPOCH} -czf "${GITHUB_WORKSPACE}/artifacts/smartmontools-linux-x86_64-static-${SM_VER}-r${SM_REV}.tar.gz" *
+          tar --sort=name --mtime=@${SOURCE_DATE_EPOCH} -czf "${GITHUB_WORKSPACE}/artifacts/smartmontools-linux-i386-static-${SM_VER}-r${SM_REV}.tar.gz" *
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: linux_static_i386
-          path: artifacts/
+          path: artifacts/smartmontools-linux-i386-static-${{ needs.make-src-tgz.outputs.SM_VER }}-r${{ needs.make-src-tgz.outputs.SM_REV }}.tar.gz
           retention-days: 1
 
   compile-darwin:
@@ -109,18 +115,20 @@ jobs:
       SM_REV: ${{ needs.make-src-tgz.outputs.SM_REV }}      
     steps:
       - uses: actions/download-artifact@v4
+        with:
+          artifact-ids: ${{ needs.make-src-tgz.outputs.artficact-id }}
+      - run: o64-clang --version
       - name: build
         run: |
-          ls -lR
           tar -xvf artifacts/smartmontools-${SM_VER}-r${SM_REV}.tar.gz
           cd smartmontools-${SM_VER} && mkdir build && cd build
           ../configure build_alias=$(../config.guess) host_alias=x86_64-apple-darwin14 'CC=o64-clang' 'CXX=o64-clang++' 'CFLAGS=-arch arm64 -arch x86_64' 'CXXFLAGS=-arch arm64 -arch x86_64 -stdlib=libc++' '--sysconfdir=/private/etc' SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH}
           make -j BUILD_INFO="(GHA Build)"
           make pkg_darwin=smartmontools-${SM_VER}-r${SM_REV}.pkg dmg_darwin=smartmontools-${SM_VER}-r${SM_REV}.dmg install-darwin
           # TODO ADD artifact upload
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: linux_static_i386
-          path: artifacts/
-          retention-days: 1          
+      # - name: Upload artifacts
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: linux_static_i386
+      #     path: artifacts/
+      #     retention-days: 1          
