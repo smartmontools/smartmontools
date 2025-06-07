@@ -9,17 +9,21 @@ on:
 jobs:
   make-src-tgz:
     runs-on: ubuntu-latest
+    outputs:
+      SOURCE_DATE_EPOCH: ${{ steps.set-env.outputs.SOURCE_DATE_EPOCH }}
     # container: 
     #   image: ghcr.io/smartmontools/docker-build:master
 
     steps:
     - uses: actions/checkout@v4
     - name: Setting environment variables
+      id: set-env
       run: |
         git log -1 --format="SOURCE_DATE_EPOCH=%at" >> $GITHUB_ENV
         echo SM_VER=$(sed -n 's|^AC_INIT[^,]*, *\[\([0-9.]*\)\] *,.*$|\1|p' configure.ac) >> $GITHUB_ENV
         echo SM_REV=$(git rev-parse --short=12 HEAD) >> $GITHUB_ENV
-        cat $GITHUB_ENV
+        cat $GITHUB_ENV | tee $GITHUB_OUTPUT
+
     - name: Creating src.tar.gz
       run: |
         ./autogen.sh --force 
@@ -36,3 +40,9 @@ jobs:
         name: dist
         path: build/artifacts/
 
+  compile-linux:
+    needs: make-src-tgz
+    runs-on: ubuntu-latest
+    steps:
+      - name: test output
+        run: echo ${{needs.make-src-tgz.outputs.SOURCE_DATE_EPOCH}}
