@@ -252,5 +252,7 @@ jobs:
           # required
           app-id: ${{ secrets.APP_ID }}
           private-key: ${{ secrets.PRIVATE_KEY }}
+          owner: smartmontools
+          repositories: smartmontools-builds
       - name: test
         run: ls -lR
