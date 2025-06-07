@@ -225,11 +225,11 @@ jobs:
           dest="smartmontools-win32-setup-${SM_VER}-r${SM_REV}.exe" && \
             make BUILD_INFO="$BUILD_INFO" builddir_win64=../../build64/src distinst_win32="$dest" installer-win32
           mkdir -p inst ${GITHUB_WORKSPACE}/artifacts && make DESTDIR="$(pwd)/inst" install
-          ls -lR 
-          cd inst
-      # - name: Upload artifacts
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: windows
-      #     path: artifacts/smartmontools-freebsd-13-${{ needs.make-src-tgz.outputs.SM_VER }}-r${{ needs.make-src-tgz.outputs.SM_REV }}.tar.gz
-      #     retention-days: 1
+          mv ./src/smartmontools-win32-setup-${SM_VER}-r${SM_REV}.exe ${GITHUB_WORKSPACE}/artifacts
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          path: artifacts/smartmontools-win32-setup-${{ needs.make-src-tgz.outputs.SM_VER }}-r${{ needs.make-src-tgz.outputs.SM_REV }}.exe
+          retention-days: 1
