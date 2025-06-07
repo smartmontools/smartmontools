@@ -42,8 +42,10 @@ jobs:
       with:
         name: artifacts
         path: build/artifacts/
+        retention-days: 1
 
-  compile-linux:
+  compile-linux-static:
+    name: Creating static x86_64 linux binaries
     needs: make-src-tgz
     runs-on: ubuntu-latest
     env:
@@ -52,9 +54,11 @@ jobs:
       SM_REV: ${{ needs.make-src-tgz.outputs.SM_REV }}      
     steps:
       - uses: actions/download-artifact@v4
-        # with:
-        #   path: smartmontools-${{ needs.make-src-tgz.outputs.SM_VER }}-r${{ needs.make-src-tgz.outputs.SM_REV }}.tar.gz
       - name: build
         run: |
           ls -lR
-          tar -xvf smartmontools-${SM_VER}-r${SM_REV}.tar.gz
+          tar -xvf artifacts/smartmontools-${SM_VER}-r${SM_REV}.tar.gz
+          cd smartmontools-${SM_VER} && mkdir build && cd build
+          ../configure LDFLAGS="-static" SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH}
+
+
