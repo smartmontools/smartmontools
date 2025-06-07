@@ -274,10 +274,10 @@ jobs:
             linux_static_i386/* windows/* \
             --repo smartmontools/smartmontools-builds \
             --notes "Smartmontools ${SM_VER}, commit ${SM_REV}" --prerelease
-      - name: test
-        run: ls -lR
       - name: Clean old releases
         # leave only last 30 builds and delete everything else
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}        
         run: |
           gh -R smartmontools/smartmontools-builds release list \
             --json tagName -q '.[30:][]|.tagName' | \
