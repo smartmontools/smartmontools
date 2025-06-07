@@ -11,6 +11,9 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       SOURCE_DATE_EPOCH: ${{ steps.set-env.outputs.SOURCE_DATE_EPOCH }}
+      SM_VER: ${{ steps.set-env.outputs.SM_VER }}
+      SM_REV: ${{ steps.set-env.outputs.SM_REV }}
+
     # container: 
     #   image: ghcr.io/smartmontools/docker-build:master
 
@@ -43,6 +46,10 @@ jobs:
   compile-linux:
     needs: make-src-tgz
     runs-on: ubuntu-latest
+    env:
+      SOURCE_DATE_EPOCH: ${{ needs.make-src-tgz.outputs.SOURCE_DATE_EPOCH }}
+      SM_VER: ${{ needs.make-src-tgz.outputs.SM_VER }}
+      SM_REV: ${{ needs.make-src-tgz.outputs.SM_REV }}      
     steps:
       - name: test output
-        run: echo ${{needs.make-src-tgz.outputs.SOURCE_DATE_EPOCH}}
+        run: env
