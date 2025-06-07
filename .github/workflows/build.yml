@@ -81,6 +81,8 @@ jobs:
       SM_REV: ${{ needs.make-src-tgz.outputs.SM_REV }}      
     steps:
       - uses: actions/download-artifact@v4
+      - name: install m32 dependencies
+        run: sudo apt-get install gcc-multilib g++-multilib
       - name: build
         run: |
           ls -lR
