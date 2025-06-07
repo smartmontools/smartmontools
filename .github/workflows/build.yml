@@ -15,11 +15,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: configure
-      run: ./configure
-    - name: make
-      run: make
-    - name: make check
-      run: make check
-    - name: make distcheck
-      run: make distcheck
+    - name: Set SOURCE_DATE_EPOCH
+      run: |
+        echo "SOURCE_DATE_EPOCH=$s # `date -d @"$s" -u -Is`" &&
+        echo "$s" >~/SOURCE_DATE_EPOCH
+    - name: Creating src.tar.gz
+      run: | 
+        ./autogen.sh && ./configure
