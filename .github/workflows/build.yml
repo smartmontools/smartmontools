@@ -223,7 +223,7 @@ jobs:
           make -j  BUILD_INFO='"(GHA Build)"' && make distdir-win32
           cd ../build
           dest="smartmontools-win32-setup-${SM_VER}-r${SM_REV}.exe" && \
-            make BUILD_INFO="$BUILD_INFO" builddir_win64=../../build64 distinst_win32="$dest" installer-win32
+            make BUILD_INFO="$BUILD_INFO" builddir_win64=../../build64/src distinst_win32="$dest" installer-win32
           mkdir -p inst ${GITHUB_WORKSPACE}/artifacts && make DESTDIR="$(pwd)/inst" install
           ls -lR 
           cd inst
