@@ -51,5 +51,8 @@ jobs:
       SM_VER: ${{ needs.make-src-tgz.outputs.SM_VER }}
       SM_REV: ${{ needs.make-src-tgz.outputs.SM_REV }}      
     steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: smartmontools-${SM_VER}.tar.gz
       - name: test output
         run: env
