@@ -119,8 +119,8 @@ jobs:
           artifact-ids: ${{ needs.make-src-tgz.outputs.artficact-id }}
       - name: build
         run: |
-          PATH=/usr/osxcross/bin/:$PATH
-          LD_LIBRARY_PATH=/usr/osxcross/lib
+          export PATH=/usr/osxcross/bin/:$PATH
+          export LD_LIBRARY_PATH=/usr/osxcross/lib
           env
           o64-clang
           tar -xvf artifacts/smartmontools-${SM_VER}-r${SM_REV}.tar.gz
