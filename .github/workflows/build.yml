@@ -52,10 +52,9 @@ jobs:
       SM_REV: ${{ needs.make-src-tgz.outputs.SM_REV }}      
     steps:
       - uses: actions/download-artifact@v4
-        with:
-          path: smartmontools-${SM_VER}.tar.gz
+        # with:
+        #   path: smartmontools-${{ needs.make-src-tgz.outputs.SM_VER }}-r${{ needs.make-src-tgz.outputs.SM_REV }}.tar.gz
       - name: build
         run: |
           ls
           tar -xvf smartmontools-${SM_VER}-r${SM_REV}.tar.gz
-        
