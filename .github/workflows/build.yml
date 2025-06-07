@@ -60,5 +60,14 @@ jobs:
           tar -xvf artifacts/smartmontools-${SM_VER}-r${SM_REV}.tar.gz
           cd smartmontools-${SM_VER} && mkdir build && cd build
           ../configure LDFLAGS="-static" SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH}
-
+          make -j BUILD_INFO="(GHA Build)" && make check
+          mkdir -p inst ${GITHUB_WORKSPACE}/artifacts && make DESTDIR="$(pwd)/inst" install
+          cd inst
+          tar --sort=name --mtime=@${SOURCE_DATE_EPOCH} -czf "${GITHUB_WORKSPACE}/artifacts/smartmontools-linux-x86_64-static-${SM_VER}-r${SM_REV}.tar.gz" *
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux_static
+          path: artifacts/
+          retention-days: 1
 
