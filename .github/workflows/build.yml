@@ -123,8 +123,11 @@ jobs:
           export LD_LIBRARY_PATH=/usr/osxcross/lib
           tar -xvf artifacts/smartmontools-${SM_VER}-r${SM_REV}.tar.gz
           cd smartmontools-${SM_VER} && mkdir build && cd build
-          ../configure build_alias=$(../config.guess) host_alias=x86_64-apple-darwin14 'CC=o64-clang' 'CXX=o64-clang++' 'CFLAGS=-arch arm64 -arch x86_64' 'CXXFLAGS=-arch arm64 -arch x86_64 -stdlib=libc++' '--sysconfdir=/private/etc' SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH}
-          make -j BUILD_INFO="(GHA Build)"
+          ../configure build_alias=$(../config.guess) host_alias=x86_64-apple-darwin14 \
+            'CC=o64-clang' 'CXX=o64-clang++' 'CFLAGS=-arch arm64 -arch x86_64' \
+            'CXXFLAGS=-arch arm64 -arch x86_64 -stdlib=libc++' \
+            '--sysconfdir=/private/etc' SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH}
+          make -j BUILD_INFO='"(GHA Build)"'
           make pkg_darwin=smartmontools-${SM_VER}-r${SM_REV}.pkg dmg_darwin=smartmontools-${SM_VER}-r${SM_REV}.dmg install-darwin
           mkdir -p inst ${GITHUB_WORKSPACE}/artifacts
           mv smartmontools-${SM_VER}-r${SM_REV}.dmg ${GITHUB_WORKSPACE}/artifacts
