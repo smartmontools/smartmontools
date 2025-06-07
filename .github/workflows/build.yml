@@ -117,13 +117,10 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           artifact-ids: ${{ needs.make-src-tgz.outputs.artficact-id }}
-      - name: set environment
-        run: |
-          PATH=/usr/osxcross/bin/:$PATH >> $GITHUB_ENV
-          LD_LIBRARY_PATH=/usr/osxcross/lib >> $GITHUB_ENV
-      - run: env
       - name: build
         run: |
+          PATH=/usr/osxcross/bin/:$PATH
+          LD_LIBRARY_PATH=/usr/osxcross/lib
           tar -xvf artifacts/smartmontools-${SM_VER}-r${SM_REV}.tar.gz
           cd smartmontools-${SM_VER} && mkdir build && cd build
           ../configure build_alias=$(../config.guess) host_alias=x86_64-apple-darwin14 'CC=o64-clang' 'CXX=o64-clang++' 'CFLAGS=-arch arm64 -arch x86_64' 'CXXFLAGS=-arch arm64 -arch x86_64 -stdlib=libc++' '--sysconfdir=/private/etc' SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH}
