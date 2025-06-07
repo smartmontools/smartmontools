@@ -129,6 +129,7 @@ jobs:
             '--sysconfdir=/private/etc' SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH}
           make -j BUILD_INFO='"(GHA Build)"'
           make pkg_darwin=smartmontools-${SM_VER}-r${SM_REV}.pkg dmg_darwin=smartmontools-${SM_VER}-r${SM_REV}.dmg install-darwin
+          ls -lR
           mkdir -p inst ${GITHUB_WORKSPACE}/artifacts
           mv smartmontools-${SM_VER}-r${SM_REV}.dmg ${GITHUB_WORKSPACE}/artifacts
       - name: Upload artifacts
