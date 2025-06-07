@@ -129,7 +129,6 @@ jobs:
             '--sysconfdir=/private/etc' SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH}
           make -j BUILD_INFO='"(GHA Build)"'
           make pkg_darwin=smartmontools-${SM_VER}-r${SM_REV}.pkg dmg_darwin=smartmontools-${SM_VER}-r${SM_REV}.dmg install-darwin
-          ls -lR
           mkdir -p inst ${GITHUB_WORKSPACE}/artifacts
           mv ./src/smartmontools-${SM_VER}-r${SM_REV}.dmg ${GITHUB_WORKSPACE}/artifacts
       - name: Upload artifacts
@@ -137,4 +136,59 @@ jobs:
         with:
           name: darwin
           path: artifacts/smartmontools-${{ needs.make-src-tgz.outputs.SM_VER }}-r${{ needs.make-src-tgz.outputs.SM_REV }}.dmg
+          retention-days: 1
+  
+  compile-freebsd:
+    name: Creating FreeBSD binaries
+    needs: make-src-tgz
+    runs-on: ubuntu-latest
+    container: 
+      image: ghcr.io/smartmontools/docker-build:master     
+    env:
+      SOURCE_DATE_EPOCH: ${{ needs.make-src-tgz.outputs.SOURCE_DATE_EPOCH }}
+      SM_VER: ${{ needs.make-src-tgz.outputs.SM_VER }}
+      SM_REV: ${{ needs.make-src-tgz.outputs.SM_REV }}      
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          artifact-ids: ${{ needs.make-src-tgz.outputs.artficact-id }}
+      - name: FreeBSD 14 build
+        run: |
+          tar -xvf artifacts/smartmontools-${SM_VER}-r${SM_REV}.tar.gz
+          cd smartmontools-${SM_VER}
+          mkdir build && cd build
+          export TARGET="-target x86_64-unknown-freebsd14 --sysroot=/opt/cross-freebsd-14/"
+          ../configure CC="clang $TARGET" CXX="clang++ $TARGET" \
+            CPPFLAGS="-isystem /opt/cross-freebsd-14/usr/include/c++/v1" \
+            LDFLAGS="-static" --host=x86_64-pc-freebsd14 \
+            SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH}
+          make -j BUILD_INFO='"(GHA Build)"'
+          mkdir -p inst ${GITHUB_WORKSPACE}/artifacts && make DESTDIR="$(pwd)/inst" install
+          cd inst
+          tar --sort=name --mtime=@${SOURCE_DATE_EPOCH} -czf "${GITHUB_WORKSPACE}/artifacts/smartmontools-freebsd-14-${SM_VER}-r${SM_REV}.tar.gz" *
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: darwin
+          path: artifacts/smartmontools-freebsd-14-${{ needs.make-src-tgz.outputs.SM_VER }}-r${{ needs.make-src-tgz.outputs.SM_REV }}.tar.gz
+          retention-days: 1
+      - name: FreeBSD 13 build
+        run: |
+          tar -xvf artifacts/smartmontools-${SM_VER}-r${SM_REV}.tar.gz
+          cd smartmontools-${SM_VER}
+          mkdir build && cd build
+          export TARGET="-target x86_64-unknown-freebsd13 --sysroot=/opt/cross-freebsd-13/"
+          ../configure CC="clang $TARGET" CXX="clang++ $TARGET" \
+            CPPFLAGS="-isystem /opt/cross-freebsd-13/usr/include/c++/v1" \
+            LDFLAGS="-static" --host=x86_64-pc-freebsd13 \
+            SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH}
+          make -j BUILD_INFO='"(GHA Build)"'
+          mkdir -p inst ${GITHUB_WORKSPACE}/artifacts && make DESTDIR="$(pwd)/inst" install
+          cd inst
+          tar --sort=name --mtime=@${SOURCE_DATE_EPOCH} -czf "${GITHUB_WORKSPACE}/artifacts/smartmontools-freebsd-13-${SM_VER}-r${SM_REV}.tar.gz" *
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: darwin
+          path: artifacts/smartmontools-freebsd-13-${{ needs.make-src-tgz.outputs.SM_VER }}-r${{ needs.make-src-tgz.outputs.SM_REV }}.tar.gz
           retention-days: 1
