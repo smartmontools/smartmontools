@@ -271,7 +271,7 @@ jobs:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
           gh release create ${SOURCE_DATE_EPOCH}-r${SM_REV} \
-            artifacts/* \
+            artifacts/* linux_static_x86_64/* \
             --repo smartmontools/smartmontools-builds \
             --notes "Smartmontools ${SM_VER}, commit ${SM_REV}" --prerelease
       - name: test
