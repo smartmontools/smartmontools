@@ -44,7 +44,7 @@ jobs:
         path: build/artifacts/
         retention-days: 1
 
-  compile-linux-static:
+  compile-linux-static-x86_64:
     name: Creating static x86_64 linux binaries
     needs: make-src-tgz
     runs-on: ubuntu-latest
@@ -67,7 +67,33 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: linux_static
+          name: linux_static_x86_64
           path: artifacts/
           retention-days: 1
 
+  compile-linux-static-i386:
+    name: Creating static i386 linux binaries
+    needs: make-src-tgz
+    runs-on: ubuntu-latest
+    env:
+      SOURCE_DATE_EPOCH: ${{ needs.make-src-tgz.outputs.SOURCE_DATE_EPOCH }}
+      SM_VER: ${{ needs.make-src-tgz.outputs.SM_VER }}
+      SM_REV: ${{ needs.make-src-tgz.outputs.SM_REV }}      
+    steps:
+      - uses: actions/download-artifact@v4
+      - name: build
+        run: |
+          ls -lR
+          tar -xvf artifacts/smartmontools-${SM_VER}-r${SM_REV}.tar.gz
+          cd smartmontools-${SM_VER} && mkdir build && cd build
+          ../configure CC="gcc -m32" CXX="g++ -m32" LDFLAGS="-static" SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH}
+          make -j BUILD_INFO="(GHA Build)" && make check
+          mkdir -p inst ${GITHUB_WORKSPACE}/artifacts && make DESTDIR="$(pwd)/inst" install
+          cd inst
+          tar --sort=name --mtime=@${SOURCE_DATE_EPOCH} -czf "${GITHUB_WORKSPACE}/artifacts/smartmontools-linux-x86_64-static-${SM_VER}-r${SM_REV}.tar.gz" *
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux_static_i386
+          path: artifacts/
+          retention-days: 1
