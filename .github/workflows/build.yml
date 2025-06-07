@@ -254,5 +254,9 @@ jobs:
           private-key: ${{ secrets.PRIVATE_KEY }}
           owner: smartmontools
           repositories: smartmontools-builds
+      - name: gh login
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: echo $GH_TOKEN | gh auth login --with-token
       - name: test
         run: ls -lR
