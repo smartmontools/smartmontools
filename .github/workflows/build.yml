@@ -193,6 +193,20 @@ jobs:
           path: artifacts/smartmontools-freebsd-13-${{ needs.make-src-tgz.outputs.SM_VER }}-r${{ needs.make-src-tgz.outputs.SM_REV }}.tar.gz
           retention-days: 1
 
+  compile-windows:
+    name: Creating Windows binary
+    needs: make-src-tgz
+    runs-on: ubuntu-latest
+    container: 
+      image: ghcr.io/smartmontools/docker-build:master     
+    env:
+      SOURCE_DATE_EPOCH: ${{ needs.make-src-tgz.outputs.SOURCE_DATE_EPOCH }}
+      SM_VER: ${{ needs.make-src-tgz.outputs.SM_VER }}
+      SM_REV: ${{ needs.make-src-tgz.outputs.SM_REV }}      
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          artifact-ids: ${{ needs.make-src-tgz.outputs.artficact-id }}
       - name: Windows build
         run: |
           tar -xvf artifacts/smartmontools-${SM_VER}-r${SM_REV}.tar.gz
