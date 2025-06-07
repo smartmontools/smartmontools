@@ -259,11 +259,20 @@ jobs:
           private-key: ${{ secrets.PRIVATE_KEY }}
           owner: smartmontools
           repositories: smartmontools-builds
+      - name: gh create delete (clenup)
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        # cleanup release with the same name
+        run: |
+          gh release delete r${SM_REV} --repo smartmontools/smartmontools-builds \
+            --yes --cleanup-tag || true
       - name: gh create release
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
-          gh release create r${SM_REV} --repo smartmontools/smartmontools-builds \
+          gh release create r${SM_REV} \
+            artifacts/* \
+            --repo smartmontools/smartmontools-builds \
             --notes "Smartmontools ${SM_VER}, commit ${SM_REV}" --prerelease
       - name: test
         run: ls -lR
