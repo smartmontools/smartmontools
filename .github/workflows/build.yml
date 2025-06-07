@@ -169,7 +169,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: darwin
+          name: freebsd14
           path: artifacts/smartmontools-freebsd-14-${{ needs.make-src-tgz.outputs.SM_VER }}-r${{ needs.make-src-tgz.outputs.SM_REV }}.tar.gz
           retention-days: 1
       - name: FreeBSD 13 build
@@ -189,6 +189,31 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: darwin
+          name: freebsd13
           path: artifacts/smartmontools-freebsd-13-${{ needs.make-src-tgz.outputs.SM_VER }}-r${{ needs.make-src-tgz.outputs.SM_REV }}.tar.gz
           retention-days: 1
+
+      - name: Windows build
+        run: |
+          tar -xvf artifacts/smartmontools-${SM_VER}-r${SM_REV}.tar.gz
+          cd smartmontools-${SM_VER}
+          mkdir build && cd build
+          ../configure build_alias=$(../config.guess) host_alias=i686-w64-mingw32 \
+            SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
+          make -j BUILD_INFO='"(GHA Build)"' && make distdir-win32
+          cd .. && mkdir build64 && cd build64
+          ../configure build_alias=$(../config.guess) host_alias=x86_64-w64-mingw32 \
+            SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} 
+          make -j  BUILD_INFO='"(GHA Build)"' && make distdir-win32
+          cd ../build
+          dest="smartmontools-win32-setup-${SM_VER}-r${SM_REV}.exe" && \
+            make BUILD_INFO="$BUILD_INFO" builddir_win64=../build64 distinst_win32="$dest" installer-win32
+          mkdir -p inst ${GITHUB_WORKSPACE}/artifacts && make DESTDIR="$(pwd)/inst" install
+          ls -lR
+          cd inst
+      # - name: Upload artifacts
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: windows
+      #     path: artifacts/smartmontools-freebsd-13-${{ needs.make-src-tgz.outputs.SM_VER }}-r${{ needs.make-src-tgz.outputs.SM_REV }}.tar.gz
+      #     retention-days: 1
