@@ -270,8 +270,16 @@ jobs:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
           gh release create ${SOURCE_DATE_EPOCH}-r${SM_REV} \
-            artifacts/* linux_static_x86_64/* \
+            artifacts/* linux_static_x86_64/* darwin/* freebsd13/* freebsd14/* \
+            linux_static_i386/* windows/* \
             --repo smartmontools/smartmontools-builds \
             --notes "Smartmontools ${SM_VER}, commit ${SM_REV}" --prerelease
       - name: test
         run: ls -lR
+      - name: Clean old releases
+        # leave only last 30 builds and delete everything else
+        run: |
+          gh -R smartmontools/smartmontools-builds release list \
+            --json tagName -q '.[30:][]|.tagName' | \
+            xargs -n1 gh release delete -R smartmontools/smartmontools-build --yes --cleanup-tag
+
