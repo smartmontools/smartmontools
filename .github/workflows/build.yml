@@ -263,6 +263,6 @@ jobs:
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
         run: gh release create -R smartmontools/smartmontools-builds \
-          -n "Smartmontools ${SM_VER}, commit ${SM_REL}" -p r${SM_REV}
+          -n "Smartmontools ${SM_VER}, commit ${SM_REV}" -p r${SM_REV}
       - name: test
         run: ls -lR
