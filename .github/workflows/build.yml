@@ -236,8 +236,13 @@ jobs:
 
 
   publish-artifacts:
+    env:
+      SOURCE_DATE_EPOCH: ${{ needs.make-src-tgz.outputs.SOURCE_DATE_EPOCH }}
+      SM_VER: ${{ needs.make-src-tgz.outputs.SM_VER }}
+      SM_REV: ${{ needs.make-src-tgz.outputs.SM_REV }}      
     name: publush-artifacts
     needs: 
+      - make-src-tgz
       - compile-linux-static-x86_64
       # - compile-linux-static-i386
       # - compile-darwin
@@ -254,9 +259,10 @@ jobs:
           private-key: ${{ secrets.PRIVATE_KEY }}
           owner: smartmontools
           repositories: smartmontools-builds
-      - name: gh login
+      - name: gh create release
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
-        run: echo $GH_TOKEN | gh auth login --with-token
+        run: gh release create -R smartmontools/smartmontools-builds \
+          -n "Smartmontools ${SM_VER}, commit ${SM_REL}" -p r${SM_REV}
       - name: test
         run: ls -lR
