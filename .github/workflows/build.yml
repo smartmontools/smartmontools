@@ -21,16 +21,19 @@ jobs:
         echo SM_REV=$(git rev-parse --short=12 HEAD) >> $GITHUB_ENV
         cat $GITHUB_ENV
     - name: Creating src.tar.gz
-      run: | 
+      run: |
+        echo ${SOURCE_DATE_EPOCH} > ~/SOURCE_DATE_EPOCH
         ./autogen.sh --force 
         mkdir build && cd build
         ../configure SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH}
         make dist && tar -tvzf smartmontools-${SM_VER}.tar.gz
+        pwd
+        env
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: dist-without-markdown
+        name: dist
         path: |
-          dist
+          ~/SOURCE_DATE_EPOCH
           !dist/**/*.md
