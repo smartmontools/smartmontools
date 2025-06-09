@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Create svnversion.h file or get package version
+# getversion.sh
 #
 # Home page of code is: https://www.smartmontools.org
 #
@@ -113,11 +113,13 @@ origin="(git log not available)"
 
 if $is_git_co; then
   # Get hash, date and time of current revision
-  x=$(cd "$top_srcdir" && TZ='' LC_ALL=C git log -1 --date=iso-local --format='format:%h %cd' 2>/dev/null) \
+  # Note: don't use 'format:%h' because its length depends on clone depth
+  x=$(cd "$top_srcdir" && TZ='' LC_ALL=C git log -1 --date=iso-local --format='format:%H %cd' 2>/dev/null) \
   || exit 1
   rev=${x%% *}; x=${x#* }
   rev_date=${x%% *}; x=${x#* }
   rev_time=${x%% *}
+  rev=$(echo "$rev" | cut -c 1-12)
 
   # Check for modifications
   x="$(cd "$top_srcdir" && git status -s -uno)" || exit 1
