@@ -1,0 +1,42 @@
+name: "Sign windows binary on signpath.io"
+on: workflow_dispatch
+jobs:
+  build-and-sign-windows-binary:
+    runs-on: ubuntu-latest
+    steps:
+        - name: "Install dependencies"
+          run: |
+            sudo apt-get update
+            sudo apt-get install -y g++-mingw-w64-x86-64 g++-mingw-w64-i686 \
+              unzip wget man2html-base groff nsis dos2unix
+        - uses: actions/checkout@v4
+        - name: Build smartmontools/windows and save it as an artifact
+          run: |
+            export SOURCE_DATE_EPOCH=$(git log -1 --format="%at") &&
+            SOURCE_DATE_EPOCH=$((SOURCE_DATE_EPOCH + 1)) &&
+            VERSION=$(src/getversion.sh -n) &&
+            BUILD_INFO='"(GHA/signpath)"' &&
+            echo "Starting build: SOURCE_DATE_EPOCH: ${SOURCE_DATE_EPOCH}, VERSION: ${VERSION}"
+            ./autogen.sh && mkdir build && cd build &&
+            ../configure build_alias=$(../config.guess) host_alias=i686-w64-mingw32 SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
+            make -j BUILD_INFO="$BUILD_INFO" && make distdir-win32 && cd .. && mkdir build64 && cd build64 &&
+            ../configure build_alias=$(../config.guess) host_alias=x86_64-w64-mingw32 SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
+            make -j BUILD_INFO="$BUILD_INFO" && make distdir-win32 &&
+            cd ../build/src && dest="smartmontools-win32-setup-${VERSION}.exe" &&
+            make BUILD_INFO="$BUILD_INFO" builddir_win64=../../build64/src distinst_win32="$dest" installer-win32 &&
+            sha256sum *.exe
+        - name: Upload artifacts
+          id: artifact-upload-step
+          uses: actions/upload-artifact@v4
+          with:
+            name: windows
+            path: build/src/smartmontools-win32-setup-*.exe
+            retention-days: 1
+        - name: Submit binary to signpath.io to sign
+          uses: 'signpath/github-action-submit-signing-request@v1.1'
+          with:
+            api-token: '${{ secrets.SIGNPATH_API_TOKEN }}'
+            organization-id: 0924a018-22d7-47ea-b10c-7c84c08e8d55
+            project-slug: smartmontools
+            signing-policy-slug: release-signing
+            github-artifact-id: '${{ steps.artifact-upload-step.outputs.artifact-id }}'
