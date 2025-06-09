@@ -247,8 +247,8 @@ jobs:
   publish-artifacts:
     # finally we are publishing all artifacts to the smartmontools/smartmontools-builds
     # git repository on releases page
-    # Publishing should be performed only on main branch
-    if: github.ref == 'refs/heads/main'
+    # Publishing should be performed only from main branch of upstream repository
+    if: ${{ github.repository == 'smartmontools/smartmontools' && github.ref == 'refs/heads/main' }}
     env:
       SOURCE_DATE_EPOCH: ${{ needs.make-src-tgz.outputs.SOURCE_DATE_EPOCH }}
       SM_VER: ${{ needs.make-src-tgz.outputs.SM_VER }}
