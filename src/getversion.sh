@@ -28,7 +28,7 @@ EOF
 
 error()
 {
-  echo "$myname: $*" >&2
+  echo "$myname: Error: $*" >&2
   exit 1
 }
 
@@ -182,7 +182,14 @@ if $is_git_co; then
   origin="and git log"
 
 else
-  warning "no '$dist_version_sh' or git log available"
+  msg="no '$dist_version_sh' or git log available"
+  if [ "$SMARTMONTOOLS_TEST_BUILD" != "1" ]; then
+    echo "$myname: Error: $msg" >&2
+    echo "Use this to override:" >&2
+    echo "export SMARTMONTOOLS_TEST_BUILD=1" >&2
+    exit 1
+  fi
+  warning "$msg"
 fi
 
 if $n_opt; then
