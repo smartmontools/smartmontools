@@ -10,13 +10,20 @@ jobs:
             sudo apt-get install -y g++-mingw-w64-x86-64 g++-mingw-w64-i686 \
               unzip wget man2html-base groff nsis dos2unix
         - uses: actions/checkout@v4
+          with:
+            # Provide at least the commit log since last release for 'getversion.sh'.
+            # 'git clone --shallow-since=2025-04-29' would be sufficient but this is
+            # not supported by 'actions/checkout@v4'.
+            fetch-depth: 300
+            # Include (future) release tags for 'getversion.sh'
+            fetch-tags: true
         - name: Build smartmontools/windows and save it as an artifact
           run: |
             export SOURCE_DATE_EPOCH=$(git log -1 --format="%at") &&
             SOURCE_DATE_EPOCH=$((SOURCE_DATE_EPOCH + 1)) &&
             VERSION=$(src/getversion.sh -n) &&
             BUILD_INFO='"(GHA/signpath)"' &&
-            echo "Starting build: SOURCE_DATE_EPOCH: ${SOURCE_DATE_EPOCH}, VERSION: ${VERSION}"
+            echo "Starting build: SOURCE_DATE_EPOCH: ${SOURCE_DATE_EPOCH}, VERSION: ${VERSION}" &&
             ./autogen.sh && mkdir build && cd build &&
             ../configure build_alias=$(../config.guess) host_alias=i686-w64-mingw32 SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
             make -j BUILD_INFO="$BUILD_INFO" && make distdir-win32 && cd .. && mkdir build64 && cd build64 &&
