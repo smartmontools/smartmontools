@@ -16,10 +16,6 @@ smartmontools_release_time= # "07:42:55 UTC"
 if test -n "$smartmontools_release_date"; then
   AC_DEFINE_UNQUOTED(SMARTMONTOOLS_RELEASE_DATE, "$smartmontools_release_date",    [smartmontools Release Date])
   AC_DEFINE_UNQUOTED(SMARTMONTOOLS_RELEASE_TIME, "$smartmontools_release_time",    [smartmontools Release Time])
-  AC_SUBST(releaseversion, ['${PACKAGE}-${VERSION}'])
-else
-  # Add "pre-" also on man pages.
-  AC_SUBST(releaseversion, ['${PACKAGE}-pre-${VERSION}'])
 fi
 
 AC_DEFINE_UNQUOTED(SMARTMONTOOLS_CONFIGURE_ARGS, "$ac_configure_args",             [smartmontools Configure Arguments])
