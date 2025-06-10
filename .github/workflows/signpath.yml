@@ -33,6 +33,8 @@ jobs:
             path: build/src/smartmontools-win32-setup-*.exe
             retention-days: 1
         - name: Submit binary to signpath.io to sign
+          # Signing requests must be submitted from upstream repository
+          if: ${{ github.repository == 'smartmontools/smartmontools' }}
           uses: 'signpath/github-action-submit-signing-request@v1.1'
           with:
             api-token: '${{ secrets.SIGNPATH_API_TOKEN }}'
