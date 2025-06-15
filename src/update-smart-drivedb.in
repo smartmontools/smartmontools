@@ -4,11 +4,9 @@
 #
 # Home page of code is: https://www.smartmontools.org
 #
-# Copyright (C) 2010-22 Christian Franke
+# Copyright (C) 2010-25 Christian Franke
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
-#
-# $Id: update-smart-drivedb.in 5699 2025-04-25 14:45:35Z chrfranke $
 #
 
 set -e
@@ -64,10 +62,8 @@ Usage: $myname [OPTIONS] [DESTFILE]
                     [default: first one found in $pathinfo]
   -u, --url-of LOCATION
                     Use URL of LOCATION for download:
-                      github (GitHub mirror of SVN repository)
-                      sf (Sourceforge code browser)
-                      svn (SVN repository) [default]
-                      svni (SVN repository via HTTP instead of HTTPS)
+                      github (upstream git repository) [default]
+                      svn (previous SVN repository)
                       trac (Trac code browser)
   --url URL         Download from URL
   --file FILE       Copy from local FILE
@@ -78,8 +74,8 @@ EOF
                     '--no-verify --file $drivedbinstdir/drivedb.h'
 EOF
   cat <<EOF
-  --trunk           Download from SVN trunk (requires '--no-verify')
-  --branch X.Y      Download from branches/RELEASE_X_Y_DRIVEDB
+  --main            Download from main branch (requires '--no-verify')
+  --branch X.Y      Download from branch X.Y
   --cacert FILE     Use CA certificates from FILE to verify the peer
   --capath DIR      Use CA certificate files from DIR to verify the peer
   --insecure        Don't abort download if certificate verification fails
@@ -92,8 +88,8 @@ EOF
   -h, --help        Print this help text
 
 Updates $default_drivedb
-or DESTFILE from branches/$default_branch of smartmontools
-SVN repository.
+or DESTFILE from branch 'drivedb/$default_branch' of smartmontools git
+repository.
 EOF
 }
 
@@ -127,15 +123,12 @@ warning()
 selecturl()
 {
   case $1 in
-    github)  # https://github.com/smartmontools/smartmontools/raw/origin/$branch/smartmontools/drivedb.h
-             # https://github.com/smartmontools/smartmontools/raw/master/smartmontools/drivedb.h
-          # redirected to:
-          url='https://raw.githubusercontent.com/smartmontools/smartmontools/master/smartmontools/drivedb.h' ;;
-    sf)   url='https://sourceforge.net/p/smartmontools/code/HEAD/tree/trunk/smartmontools/drivedb.h?format=raw' ;;
-    svn)  url='https://svn.code.sf.net/p/smartmontools/code/trunk/smartmontools/drivedb.h' ;;
-    svni) url='http://svn.code.sf.net/p/smartmontools/code/trunk/smartmontools/drivedb.h' ;;
-    trac) url='https://www.smartmontools.org/export/HEAD/trunk/smartmontools/drivedb.h' ;;
-    *) error "$1: is none of 'github sf svn svni trac'"
+    github) # https://github.com/smartmontools/smartmontools/raw/refs/heads/main/src/drivedb.h
+            # redirected to:
+            url='https://raw.githubusercontent.com/smartmontools/smartmontools/refs/heads/main/src/drivedb.h' ;;
+    svn)    url='https://svn.code.sf.net/p/smartmontools/code/trunk/smartmontools/drivedb.h' ;;
+    trac)   url='https://www.smartmontools.org/browser/src/drivedb.h?format=raw&rev=main' ;;
+    *) error "$1: is none of 'github svn trac'"
   esac
 }
 
@@ -231,15 +224,6 @@ download()
       vrun2 "$f" "$tool" -stderr -noredir -source "$u" || rc=$?
       ;;
 
-    svn*)
-      vrun "$tool" $q export \
-        --non-interactive --no-auth-cache \
-        ${cacert:+--config-option "servers:global:ssl-trust-default-ca=no"} \
-        ${cacert:+--config-option "servers:global:ssl-authority-files=$cacert"} \
-        ${insecure:+--trust-server-cert} \
-        "$u" "$f" || rc=$?
-      ;;
-
     fetch*) # FreeBSD
       vrun "$tool" $q --no-redirect \
         ${cacert:+--ca-cert "$cacert"} \
@@ -298,7 +282,7 @@ unexpand_svn_id()
 selectkey()
 {
   case $1 in
-    RELEASE_5_4[0-3]_DRIVEDB|RELEASE_6_[0-6]_DRIVEDB)
+    5.4[0-3]|6.[0-6])
 # Smartmontools Signing Key (ext. to 2024) <smartmontools-database@listi.jpberlin.de>
 # Smartmontools Signing Key (through 2018) <smartmontools-database@listi.jpberlin.de>
 # Smartmontools Signing Key (through 2018) <smartmontools-database@lists.sourceforge.net>
@@ -396,7 +380,7 @@ pnILDDMBUNQMBm/XlCYQUetyrJnAVzFGXurtjEXQ/DDnbfy2Z8efoG8rtq7v3fxS
 "
       ;;
 
-    RELEASE_7_[0235]_DRIVEDB)
+    7.[0235])
 # Smartmontools Signing Key (through 2025) <smartmontools-database@listi.jpberlin.de>
 # Smartmontools Signing Key (through 2020) <smartmontools-database@listi.jpberlin.de>
 # Key ID 721042C5
@@ -488,7 +472,7 @@ Q/qvYlwkbKOdlahjoHrFlkhADSBaO9N1OZp3OYDjziIujMdt2IPKnmM=
 "
       ;;
 
-    *) error "No known public key for branches/$1" ;;
+    *) error "No known public key for branch '$1'" ;;
   esac
 }
 
@@ -542,18 +526,13 @@ gpg_verify()
 # get_db_version DRIVEDB > VERSION
 get_db_version()
 {
-  local r v x
-  x=`sed -n '/^[ {]*"VERSION: *[^"]*"/{
-       s,^[ {]*"VERSION: \([1-9][./0-9]* [^"]*\)".*$,\1,p
+  local v
+  v=`sed -n '/^[ {]*"VERSION: .*"/{
+       s,^[ {]*"VERSION: \([1-9][./0-9]*\)[ "].*$,\1,p
        q
      }' "$1"` || return 1
-  v=${x%% *}
   test -n "$v" || return 0
-  if [ "${v%/*}" = "$v" ]; then # trunk: get rev from expanded SVN-Id
-    r=`echo "$x" | sed -n 's,^[^$]*\$''Id: drivedb\.h \([1-9][0-9]*\) .*$,\1,p'`
-    test -n "$r" || r="?"
-    v="$v/$r"
-  fi
+  test "${v%/*}" != "$v" || v="$v/?"
   echo "$v"
 }
 
@@ -578,7 +557,7 @@ file=
 quiet=
 q="-q"
 dryrun=
-trunk=
+main=
 branch=$default_branch
 cacert=
 capath=
@@ -624,13 +603,14 @@ while true; do case $1 in
   --dryrun)
     dryrun=t ;;
 
-  --trunk)
-    trunk=t ;;
+  --main)
+    main=t ;;
 
   --branch)
     check_optarg "$@"; shift
-    branch=`echo "$1" | sed -n 's,^\([567]\)\.\([0-9][0-9]*\)$,RELEASE_\1_\2_DRIVEDB,p'`
-    test -n "$branch" || error "invalid branch version '$1'" ;;
+    branch=$1
+    test -z "`echo "$branch" | sed 's,^[5-7]\.[0-6]$,,'`" \
+    || error "invalid branch '$branch'" ;;
 
   --cacert)
     check_optarg "$@"; shift
@@ -680,14 +660,26 @@ esac
 # Check selected source
 case "${url_of:+url_of}${url:+url}${file:+file}" in
   ''|url_of)
-    test -n "$url_of" || url_of=svn
+    test -n "$url_of" || url_of=github
     selecturl "$url_of"
-    if [ -z "$trunk" ]; then # select branch
-      url=`echo "$url" | sed -e "s,/trunk/,/branches/$branch/," \
-                             -e "s,/master/,/origin/$branch/,"`
-    elif [ -z "$no_verify" ]; then
-      error "'--trunk' requires '--no-verify'"
-    fi ;;
+    case $url in
+      */main/*|*rev=main*)
+        if [ -z "$main" ]; then
+          url=`echo "$url" | sed -e "s,/main/,/drivedb/$branch/," \
+                                 -e "s,rev=main,rev=drivedb/$branch,"`
+          case $branch in
+            [567].*) url=`echo "$url" | sed -e 's,/src/,/smartmontools/,'` ;;
+          esac
+        elif [ -z "$no_verify" ]; then
+          error "'--main' requires '--no-verify'"
+        fi
+        ;;
+      */trunk/*)
+        test -z "$main" || error "'--main' is not supported with '-u svn'"
+        url=`echo "$url" | sed -e "s,/trunk/,/branches/RELEASE_${branch}_DRIVEDB/," \
+                               -e 's,_\([0-9]*\)\.\([0-9]*\)_,_\1_\2_,'`;;
+      *) error "$url: invalid URL (internal)" ;;
+    esac ;;
   url)
     test -z "`echo "$url" | sed -e 's,^[a-z][a-z0-9]*:[^ ][^ ]*$,,'`" \
     || error "$url: Invalid URL" ;;
@@ -696,6 +688,7 @@ case "${url_of:+url_of}${url:+url}${file:+file}" in
 esac
 
 # Determine path of signature file
+# TODO: remove '.raw' for branches >= 8.0
 file_asc=
 url_asc=
 if [ -z "$no_verify" ]; then case $url in
@@ -727,17 +720,6 @@ if [ -z "$file" ]; then
 fi
 
 # Check option compatibility
-case "$tool:$url_of" in
-  svn:svn*) ;;
-  svn:*) error "'-t svn' requires '-u svn' or '-u svni'" ;;
-esac
-case "$tool:${capath:+set}" in
-  svn:set) warning "'--capath' is ignored if '-t svn' is used" ;;
-esac
-case "$url_of:$insecure" in
-  svni:t) insecure= ;;
-  svni:*) error "'-u svni' requires '--insecure'" ;;
-esac
 case "$tool:$insecure" in
   lynx:t) warning "'--insecure' is ignored if '-t lynx' is used" ;;
 esac
@@ -871,9 +853,9 @@ if [ -z "$newver" ]; then
   fi
   newver="?/?"
 elif [ "${newver##*/}" = "?" ]; then
-  if [ -z "$trunk" ]; then
+  if [ -z "$main" ]; then
     mv_all "$drivedb" ".new" ".error"
-    error "$drivedb.error: VERSION information is incomplete ('--trunk' to ignore)"
+    error "$drivedb.error: VERSION information is incomplete ('--main' to ignore)"
   fi
 fi
 
@@ -913,7 +895,7 @@ test -n "$oldver" || oldver="?/?"
 if    [ "${newver##*/}" = "?" ] \
    || [ "${oldver##*/}" = "?" ] \
    || [ "${newver%/*}" != "${oldver%/*}" ]; then
-  # Always install from trunk or other branch
+  # Always install if from main or other branch
   updmsg="replaced with"
 elif [ "${newver##*/}" -lt "${oldver##*/}" ]; then
   # Install older file only if '--force' is used

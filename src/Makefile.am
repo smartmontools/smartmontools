@@ -592,7 +592,7 @@ MAN_FILTER = { \
         -e 's|\\fBmail\\fP|\\fB$(os_mailer)\\fP|g' \
         -e 's|\\'\''mail\\'\''|\\'\''$(os_mailer)\\'\''|g' \
         -e 's|/usr/bin/mail|/usr/bin/$(os_mailer)|g' \
-        -e 's|RELEASE_6_0_DRIVEDB|$(DRIVEDB_BRANCH)|g' | \
+        -e 's|drivedb/7\.5|drivedb/$(DRIVEDB_BRANCH)|g' | \
     if test -n '$(drivedbdir)'; then \
       sed -e 's|/usr/local/share/smartmontools/drivedb\.h|$(drivedbinstdir)/drivedb.h|g' \
           -e 's|/usr/local/var/lib/smartmontools/drivedb\.h|$(drivedbdir)/drivedb.h|g'  ; \

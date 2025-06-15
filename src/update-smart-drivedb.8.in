@@ -38,17 +38,20 @@ update-smart-drivedb \- update smartmontools drive database
 .\"! It does not contain info specific to other platforms.]
 .\"! .PP
 .\" %ENDIF NOT OS ALL
+.PP
+[NEW EXPERIMENTAL UPDATE-SMART-DRIVEDB 8.0 CHANGE]
+This tool has been considerably modified due to the move of smartmontools
+from SourceForge SVN to GitHub.
+.PP
 .B update-smart-drivedb
 updates
 .B /usr/local/var/lib/smartmontools/drivedb.h
 or
 .I DESTFILE
-from branches/RELEASE_6_0_DRIVEDB of smartmontools SVN repository.
-.PP
+from branch 'drivedb/7.5' of smartmontools git repository.
 The tools used for downloading are either
 .BR curl (1),
 .BR wget (1),
-.BR lynx (1),
 .\" %IF OS FreeBSD
 .BR fetch (1)
 [FreeBSD only],
@@ -58,13 +61,13 @@ The tools used for downloading are either
 [OpenBSD only],
 .\" %ENDIF OS OpenBSD
 or
-.BR svn (1).
+.BR lynx (1).
 .PP
 The downloaded file is verified with OpenPGP/GPG key ID 721042C5.
 The public key block is included in the script.
 .PP
-The old file is kept if the downloaded file is identical (ignoring
-the differences in Id string) otherwise it is moved to
+The old file is kept if the downloaded file is identical, otherwise it is
+moved to
 .BR drivedb.h.old .
 .PP
 The old file is also kept if the downloaded file reports an older version
@@ -85,14 +88,14 @@ The default is
 .B \-t [DIR/]TOOL, \-\-tool [DIR/]TOOL
 Use TOOL for download.
 TOOL is one of:
-.I curl wget lynx
+.I curl wget
 .\" %IF OS FreeBSD
 .I fetch
 .\" %ENDIF OS FreeBSD
 .\" %IF OS OpenBSD
 .I ftp
 .\" %ENDIF OS OpenBSD
-.IR svn .
+.IR lynx .
 The default is the first one found in PATH.
 If a DIR is also specified, the plain TOOL name must begin with any of the
 above names.
@@ -102,22 +105,16 @@ Use URL of LOCATION for download.
 LOCATION is one of:
 .br
 .I github
-(GitHub mirror of SVN repository),
-.br
-.I sf
-(Sourceforge code browser),
+(upstream git repository),
 .br
 .I svn
-(SVN repository),
-.br
-.I svni
-(SVN repository via HTTP instead of HTTPS),
+(previous SVN repository),
 .br
 .I trac
 (Trac code browser).
 .br
 The default is
-.IR svn .
+.IR github .
 .TP
 .B \-\-url URL
 Download from URL.
@@ -137,15 +134,12 @@ This is the same as:
 \*(Aq\-\-no\-verify \-\-file /usr/local/share/smartmontools/drivedb.h\*(Aq
 .\" %ENDIF ENABLE_DB_INSTALL
 .TP
-.B \-\-trunk
-Download from SVN trunk.
-This requires \*(Aq\-\-no\-verify\*(Aq because the trunk versions are not
-signed.
+.B \-\-main
+Download from main branch.
+This requires \*(Aq\-\-no\-verify\*(Aq because these versions are not signed.
 .TP
 .B \-\-branch X.Y
-Download from branches/RELEASE_\fBX\fP_\fBY\fP_DRIVEDB.
-This also selects the OpenPGP/GPG key for older branches
-(5.40 to 6.6: Key ID DFD22559).
+Download from branch X.Y.
 .TP
 .B \-\-cacert FILE
 Use CA certificates from FILE to verify the peer.
@@ -155,8 +149,6 @@ Use CA certificate files from DIR to verify the peer.
 .TP
 .B \-\-insecure
 Don't abort download if certificate verification fails.
-This option is also required if a HTTP URL is selected with \*(Aq\-u\*(Aq
-option.
 .TP
 .B \-\-no\-verify
 Don't verify signature with GnuPG.
@@ -185,20 +177,20 @@ Print help text.
 Regular update:
 .Vb 2
 # update-smart-drivedb
-/usr/local/var/lib/smartmontools/drivedb.h 7.2/5225 updated to 7.2/5237
+/usr/local/var/lib/smartmontools/drivedb.h 7.5/5701 updated to 7.5/5706
 .Ve
 .PP
 Revert to previous version:
 .Vb 2
 # update-smart-drivedb --force \e
   --file /usr/local/var/lib/smartmontools/drivedb.h.old
-/usr/local/var/lib/smartmontools/drivedb.h 7.2/5237 downgraded to 7.2/5225
+/usr/local/var/lib/smartmontools/drivedb.h 7.5/5706 downgraded to 7.5/5701
 .Ve
 .PP
-Download the database from SVN trunk to current directory:
+Download the database from main branch to current directory:
 .Vb 2
-$ update-smart-drivedb --trunk --no-verify -s - -u trac drivedb-trunk.h
-drivedb-trunk.h 7.3/5254 newly installed (NOT VERIFIED)
+$ update-smart-drivedb --main --no-verify -s - -u trac drivedb-main.h
+drivedb-main.h 7.5/? newly installed (NOT VERIFIED)
 .Ve
 .Sp
 .SH "EXIT STATUS"

@@ -7,8 +7,6 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
-# $Id: update-smart-drivedb.ps1.in 5709 2025-04-29 09:31:09Z chrfranke $
-#
 
 <#
   .SYNOPSIS
@@ -16,7 +14,7 @@
 
   .DESCRIPTION
   update-smart-drivedb.ps1 updates SCRIPTDIR/drivedb.h from
-  branches/@DRIVEDB_BRANCH@ of smartmontools SVN repository.
+  branch 'drivedb/@DRIVEDB_BRANCH@' of smartmontools git repository.
 
   The downloaded file is verified with OpenPGP/GPG key ID 721042C5.
   The public key block is included in the script.
@@ -27,12 +25,10 @@
 
   .PARAMETER UrlOf
   Use the URL of one of the following locations for download:
-    github (GitHub mirror of SVN repository)
-    sf (Sourceforge code browser)
-    svn (SVN repository)
-    svni (SVN repository via HTTP instead of HTTPS)
+    github (upstream git repository)
+    svn (previous SVN repository)
     trac (Trac code browser)
-  The default is 'svn'.
+  The default is 'github'.
 
   .PARAMETER Url
   Download from this URL.  A valid OpenPGP/GPG signature with '.raw.asc'
@@ -42,19 +38,16 @@
   Copy from local file.  A valid OpenPGP/GPG signature 'FILE.raw.asc'
   must also exist unless '-NoVerify' is also specified.
 
-  .PARAMETER Trunk
-  Download from SVN trunk.  This requires '-NoVerify' because the trunk
+  .PARAMETER Main
+  Download from main branch.  This requires '-NoVerify' because these
   versions are not signed.
 
   .PARAMETER Branch
-  If '-Branch X.Y' is specified, download from
-  branches/RELEASE_X_Y_DRIVEDB.  This also selects the OpenPGP/GPG key
-  for older branches (5.40 to 6.6: Key ID DFD22559).
+  If '-Branch X.Y' is specified, download from branch X.Y.
 
   .PARAMETER Insecure
-  Don't abort download if certificate verification fails.  This option
-  is also required if a HTTP URL is selected with '-UrlOf' option.
-  If a HTTPS URL is selected, PowerShell >= 6.0 is required.
+  Don't abort download if certificate verification fails.
+  This requires PowerShell >= 6.0.
 
   .PARAMETER NoVerify
   Don't verify signature with GnuPG.
@@ -78,21 +71,21 @@
 
   .EXAMPLE
   update-smart-drivedb.ps1
-  /INSTALLPATH/drivedb.h 7.2/5225 updated to 7.2/5237
+  /INSTALLPATH/drivedb.h 7.5/5701 updated to 7.5/5706
 
   (Regular update)
 
   .EXAMPLE
   update-smart-drivedb.ps1 -Force -File /INSTALLPATH/drivedb.h.old
-  /INSTALLPATH/drivedb.h 7.2/5237 downgraded to 7.2/5225
+  /INSTALLPATH/drivedb.h 7.5/5706 downgraded to 7.5/5701
 
   (Revert to previous version)
 
   .EXAMPLE
-  update-smart-drivedb -Trunk -NoVerify -Smartctl - drivedb-trunk.h
-  drivedb-trunk.h 7.3/5254 newly installed (NOT VERIFIED)
+  update-smart-drivedb -Main -NoVerify -Smartctl - drivedb-main.h
+  drivedb-main.h 7.5/? newly installed (NOT VERIFIED)
 
-  (Download the database from SVN trunk to current directory)
+  (Download the database from main branch to current directory)
 
   .LINK
   https://www.smartmontools.org/
@@ -103,7 +96,7 @@ param (
   [string]$UrlOf,
   [string]$Url,
   [string]$File,
-  [switch]$Trunk,
+  [switch]$Main,
   [string]$Branch,
   [switch]$Insecure,
   [switch]$NoVerify,
@@ -211,16 +204,13 @@ function selecturl($url_of, [ref]$url)
 {
   switch ($url_of) {
     'github' {
-       #    https://github.com/smartmontools/smartmontools/raw/origin/$branch/smartmontools/drivedb.h
-       #    https://github.com/smartmontools/smartmontools/raw/master/smartmontools/drivedb.h
+       #    https://github.com/smartmontools/smartmontools/raw/refs/heads/main/src/drivedb.h
        #    redirected to:
-       $u = 'https://raw.githubusercontent.com/smartmontools/smartmontools/master/smartmontools/drivedb.h'
+       $u = 'https://raw.githubusercontent.com/smartmontools/smartmontools/refs/heads/main/src/drivedb.h'
      }
-    'sf'   { $u = 'https://sourceforge.net/p/smartmontools/code/HEAD/tree/trunk/smartmontools/drivedb.h?format=raw' }
     'svn'  { $u = 'https://svn.code.sf.net/p/smartmontools/code/trunk/smartmontools/drivedb.h' }
-    'svni' { $u = 'http://svn.code.sf.net/p/smartmontools/code/trunk/smartmontools/drivedb.h' }
-    'trac' { $u = 'https://www.smartmontools.org/export/HEAD/trunk/smartmontools/drivedb.h' }
-    default { error "${url_of}: is none of 'github sf svn svni trac'" }
+    'trac' { $u = 'https://www.smartmontools.org/browser/src/drivedb.h?format=raw&rev=main' }
+    default { error "${url_of}: is none of 'github svn trac'" }
   }
   $url.Value = $u
 }
@@ -293,7 +283,7 @@ function unexpand_svn_id($source, $dest)
 function selectkey($branch, [ref]$key)
 {
   switch -RegEx ($branch) {
-    '^RELEASE_(5_4[0-3]|6_[0-6])_DRIVEDB$' {
+    '^(5\.4[0-3]|6\.[0-6])$' {
 # Smartmontools Signing Key (ext. to 2024) <smartmontools-database@listi.jpberlin.de>
 # Smartmontools Signing Key (through 2018) <smartmontools-database@listi.jpberlin.de>
 # Smartmontools Signing Key (through 2018) <smartmontools-database@lists.sourceforge.net>
@@ -391,7 +381,7 @@ pnILDDMBUNQMBm/XlCYQUetyrJnAVzFGXurtjEXQ/DDnbfy2Z8efoG8rtq7v3fxS
 '
     }
 
-    '^RELEASE_7_[0235]_DRIVEDB$' {
+    '^7\.[0235]$' {
 # Smartmontools Signing Key (through 2025) <smartmontools-database@listi.jpberlin.de>
 # Smartmontools Signing Key (through 2020) <smartmontools-database@listi.jpberlin.de>
 # Key ID 721042C5
@@ -484,7 +474,7 @@ Q/qvYlwkbKOdlahjoHrFlkhADSBaO9N1OZp3OYDjziIujMdt2IPKnmM=
     }
 
     default {
-      error "No known public key for branches/${branch}"
+      error "No known public key for branch '${branch}'"
     }
   }
 }
@@ -553,19 +543,15 @@ function gpg_verify($ascfile, $file, [ref]$ok)
 
 function get_db_version($file)
 {
-  $x = (Select-String -CaseSensitive -Pattern '^[ {]*"VERSION: *[^"]*"' -Path $file).Line `
-       -replace '^[ {]*"VERSION: ([1-9][./0-9]* [^"]*)".*$','$1'
-  $v = $x -replace ' .*$',''
-  if ($v -match '^[1-9][.0-9]*$') { # trunk: get rev from expanded SVN-Id
-    $r = $x -replace '^[^$]*\$Id: drivedb\.h ([1-9][0-9]*) .*$','$1'
-    if (!($r -match '^[1-9][0-9]*$')) {
-      $r = "?"
-    }
-    $v = "$v/$r"
-  } elseif (!($v -match '^[1-9][./0-9]*$')) {
+  $v = (Select-String -CaseSensitive -Pattern '^[ {]*"VERSION: .*"' -Path $file).Line `
+       -replace '^[ {]*"VERSION: ([1-9][./0-9]*)[ "].*$','$1'
+  if ($v -match '^[1-9][.0-9]*$') {
+    return "$v/?"
+  } elseif ($v -match '^[1-9][./0-9]*$') {
+    return $v
+  } else {
     return ""
   }
-  return $v
 }
 
 function mv_all($prefix, $old, $new)
@@ -585,12 +571,11 @@ if (!$Smartctl) {
 }
 
 if ($Branch) {
-  $brname = $Branch -replace '^([567])\.([0-9][0-9]*)$','RELEASE_$1_$2_DRIVEDB'
-  if ($brname -eq $Branch) {
-    error "invalid branch version '${Branch}'"
+  if (!($Branch -match '^[5-7]\.[0-6]$')) {
+    error "invalid branch '${Branch}'"
   }
 } else {
-  $brname = $default_branch
+  $Branch = $default_branch
 }
 
 if (!$Drivedb) {
@@ -599,7 +584,7 @@ if (!$Drivedb) {
 
 if ($ExportKey) {
   $key = ""
-  selectkey $brname ([ref]$key)
+  selectkey $Branch ([ref]$key)
   echo $key
   exit 0
 }
@@ -607,15 +592,28 @@ if ($ExportKey) {
 # Check selected source
 if (!$Url -and !$File) {
   if (!$UrlOf) {
-    $UrlOf = "svn"
+    $UrlOf = "github"
   }
   $Url = ""
   selecturl $UrlOf ([ref]$Url)
-  if (!$Trunk) {
-    $Url = $Url -replace "/trunk/","/branches/$brname/"
-    $Url = $Url -replace "/master/","/origin/$brname/"
-  } elseif (!$NoVerify) {
-    error "'-Trunk' requires '-NoVerify'"
+  if ($Url -match '/main/|rev=main') {
+      if (!$Main) {
+        $Url = $Url -replace "/main/","/drivedb/$Branch/" `
+                    -replace "rev=main","rev=drivedb/$Branch"
+        if ($Branch -match '^[567]\.') {
+         $Url = $Url -replace '/src/','/smartmontools/'
+        }
+      } elseif (!$NoVerify) {
+        error "'-Main' requires '-NoVerify'"
+      }
+  } elseif ($Url -match '/trunk/') {
+    if ($Main) {
+      error "'-Main' is not supported with '-UrlOf svn'"
+    }
+    $Url = $Url -replace "/trunk/","/branches/RELEASE_${Branch}_DRIVEDB/" `
+                -replace '_([0-9]*)\.([0-9]*)_','_$1_$2_'`
+  } else {
+    error "${Url}: Invalid URL (internal)"
   }
 } elseif (!$UrlOf -and $Url -and !$File) {
   if (!($Url -match '^[a-z][a-z0-9]*:[^ ][^ ]*$')) {
@@ -627,6 +625,7 @@ if (!$Url -and !$File) {
 }
 
 # Determine path of signature file
+# TODO: remove '.raw' for branches >= 8.0
 $FileAsc = ""
 $UrlAsc = ""
 if (!$NoVerify) {
@@ -636,16 +635,6 @@ if (!$NoVerify) {
     $UrlAsc = $Url -replace '\?','.raw.asc?'
   } else {
     $UrlAsc = "${Url}.raw.asc"
-  }
-}
-
-# Check option compatibility
-if ($UrlOf -eq "svni") {
-  if ($Insecure) {
-    $Insecure = $false
-  }
-  else {
-    error "'-UrlOf svni' requires '-Insecure'"
   }
 }
 
@@ -667,7 +656,7 @@ if (!$NoVerify) {
     error "GnuPG is not available ('-NoVerify' to ignore)"
   }
   $public_key = ""
-  selectkey $brname ([ref]$public_key)
+  selectkey $Branch ([ref]$public_key)
   # Check for gpgconf in same directory
   $gpgpath = Split-Path ($gpgobj[0]).Source
   $gpgconf = "gpgconf"
@@ -780,9 +769,9 @@ if (!$newver) {
   }
   $newver = "?/?"
 } elseif ($newver -match '/\?$') {
-  if (!$Trunk) {
+  if (!$Main) {
     mv_all $Drivedb ".new" ".error"
-    error "${Drivedb}.error: VERSION information is incomplete ('-Trunk' to ignore)"
+    error "${Drivedb}.error: VERSION information is incomplete ('-Main' to ignore)"
   }
 }
 
@@ -827,7 +816,7 @@ if (!$oldver) {
 if (    ($newver -match '/\?$') `
     -or ($oldver -match '/\?$') `
     -or (($newver -replace '/.*$','') -ne ($oldver -replace '/.*$',''))) {
-  # Always install from trunk or other branch
+  # Always install if from main or other branch
   $updmsg = "replaced with"
 } elseif ((($newver -replace '^.*/','') - ($oldver -replace '^.*/','')) -lt 0) {
   # Install older file only if '-Force' is used

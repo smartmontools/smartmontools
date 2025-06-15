@@ -193,14 +193,12 @@ AC_SUBST(drivedbinstdir)
 AC_SUBST(drivedbdir)
 AM_CONDITIONAL(ENABLE_DRIVEDB, [test -n "$drivedbdir"])
 
-drivedb_version=$smartmontools_drivedb_version
 AC_ARG_WITH(update-smart_drivedb,
-  [AS_HELP_STRING([--with-update-smart-drivedb@<:@=yes|no|X.Y@:>@],
-    [Install update-smart-drivedb script (and backport it to branches/RELEASE_X_Y_DRIVEDB) [yes]])],
+  [AS_HELP_STRING([--with-update-smart-drivedb@<:@=yes|no@:>@],
+    [Install update-smart-drivedb script [yes]])],
   [ case "$withval" in
       yes|no) ;;
-      5.4[[0-3]]|6.[[0-6]]|7.[[0235]]) drivedb_version=$withval; with_update_smart_drivedb=yes ;;
-      *) AC_MSG_ERROR([Invalid drivedb branch version: $withval]) ;;
+      *) AC_MSG_ERROR([--with-update-smart-drivedb=$withval is no longer supported]) ;;
     esac
   ],
   [with_update_smart_drivedb=yes])
@@ -588,7 +586,7 @@ AM_CONDITIONAL(NEED_REGEX, [test "$need_regex" = "yes"])
 
 # Set platform-specific modules and symbols
 os_libs=
-os_dltools='curl wget lynx svn'
+os_dltools='curl wget lynx'
 os_mailer=mail
 os_hostname="'hostname' 'uname -n'"
 os_dnsdomainname=
@@ -613,7 +611,7 @@ case "${host}" in
   *-*-freebsd*|*-*-dragonfly*|*-*-kfreebsd*-gnu*|*-*-midnightbsd*)
     os_deps='os_freebsd.o cciss.o dev_areca.o'
     os_libs='-lcam -lsbuf'
-    os_dltools='fetch curl wget lynx svn'
+    os_dltools='fetch curl wget lynx'
     AC_CHECK_LIB(usb, libusb20_dev_get_device_desc)
     os_man_filter=FreeBSD
     os_nvme_devicescan=yes
@@ -635,7 +633,7 @@ case "${host}" in
   *-*-openbsd*)
     os_deps='os_openbsd.o'
     os_libs='-lutil'
-    os_dltools='curl wget lynx ftp svn'
+    os_dltools='curl wget lynx ftp'
     os_man_filter=OpenBSD
     ;;
   *-*-cygwin*)
@@ -728,12 +726,8 @@ AC_SUBST([os_nisdomainname])
 AC_SUBST([os_man_filter])
 AC_SUBST([os_win32_manifest])
 
-# Create drivedb.h update branch name from version: 5.41[.X] -> RELEASE_5_41_DRIVEDB
-DRIVEDB_BRANCH=`echo "$drivedb_version" | sed 's,^\([[0-9]]*\.[[0-9]]*\)\..*$,\1,' \
-                | sed -n 's,^\([[0-9]][[0-9]]*\)\.\([[0-9]][[0-9]]*\)$,RELEASE_\1_\2_DRIVEDB,p'`
-if test -z "$DRIVEDB_BRANCH"; then
-  AC_MSG_ERROR([Unable to create DRIVEDB_BRANCH for version: $drivedb_version])
-fi
+# drivedb.h update branch
+DRIVEDB_BRANCH=$smartmontools_drivedb_version
 AC_SUBST([DRIVEDB_BRANCH])
 
 # Enable platform-specific makefile sections
@@ -879,6 +873,7 @@ info=`
         echo "drive database file:    EXEDIR/drivedb.h"
         if test -n "$MAKENSIS"; then
           echo "database update script: EXEDIR/update-smart-drivedb.ps1"
+          echo "database update branch: drivedb/$DRIVEDB_BRANCH"
         fi
       else
         echo "drive database file:    [[disabled]]"
@@ -904,11 +899,7 @@ info=`
         echo "drive database file:    \`eval eval eval echo $drivedbdir\`/drivedb.h"
         if test "$with_update_smart_drivedb" = "yes"; then
           echo "database update script: \`eval eval eval echo $sbindir\`/update-smart-drivedb"
-          if test "$drivedb_version" = "$smartmontools_drivedb_version"; then
-            echo "database update branch: branches/$DRIVEDB_BRANCH"
-          else
-            echo "... backported to:      branches/$DRIVEDB_BRANCH"
-          fi
+          echo "database update branch: drivedb/$DRIVEDB_BRANCH"
           echo "download tools:         \`eval eval eval echo $os_dltools\`"
           if test -n "$gnupg"; then
             echo "GnuPG for verification: \`eval eval eval echo $gnupg\`"
