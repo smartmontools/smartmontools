@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "VERSION: 7.5 $Id: drivedb.h 5706 2025-04-27 16:54:06Z chrfranke $",
+  { "VERSION: 7.5",
     "-", "-",
     "Version information",
     ""
