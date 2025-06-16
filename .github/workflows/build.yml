@@ -12,9 +12,10 @@ jobs:
     runs-on: ubuntu-latest
     name: Create smartmontools dist
     outputs:
-      SOURCE_DATE_EPOCH: ${{ steps.set-env.outputs.SOURCE_DATE_EPOCH }}
-      SM_VER: ${{ steps.set-env.outputs.SM_VER }}
-      SM_REV: ${{ steps.set-env.outputs.SM_REV }}
+      SOURCE_DATE_EPOCH: ${{ steps.set-env.outputs.SMARTMONTOOLS_GIT_REV_EPOCH }}
+      SMARTMONTOOLS_PKG_VER: ${{ steps.set-env.outputs.SMARTMONTOOLS_PKG_VER }}
+      SMARTMONTOOLS_GIT_VER_FNAME: ${{ steps.set-env.outputs.SMARTMONTOOLS_GIT_VER_FNAME }}
+
       artficact-id: ${{ steps.artifact-upload-step.outputs.artifact-id }}
 
     steps:
@@ -29,20 +30,18 @@ jobs:
     - name: Setting environment variables
       id: set-env
       run: |
-        git log -1 --format="SOURCE_DATE_EPOCH=%at" >> $GITHUB_ENV
-        echo SM_VER=$(sed -n 's|^AC_INIT[^,]*, *\[\([0-9.]*\)\] *,.*$|\1|p' configure.ac) >> $GITHUB_ENV
-        echo SM_REV=$(git rev-parse --short=12 HEAD) >> $GITHUB_ENV
+        ./src/getversion.sh -s | sed -re "s/( ?#.*|')//g" -e "/(^\s*$)/d" >> $GITHUB_ENV
         cat $GITHUB_ENV | tee $GITHUB_OUTPUT
 
     - name: Creating src.tar.gz
       run: |
         ./autogen.sh --force &&
         mkdir build && cd build &&
-        ../configure SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
-        (make dist && tar -tvzf smartmontools-${SM_VER}.tar.gz) &&
+        ../configure SOURCE_DATE_EPOCH=${SMARTMONTOOLS_GIT_REV_EPOCH} &&
+        make dist && tar -tvzf "smartmontools-${SMARTMONTOOLS_PKG_VER}.tar.gz" &&
         mkdir artifacts &&
-        echo ${SOURCE_DATE_EPOCH} > artifacts/SOURCE_DATE_EPOCH &&
-        mv smartmontools-${SM_VER}.tar.gz artifacts/smartmontools-${SM_VER}-r${SM_REV}.tar.gz
+        echo ${SMARTMONTOOLS_GIT_REV_EPOCH} > artifacts/SOURCE_DATE_EPOCH &&
+        mv smartmontools-${SMARTMONTOOLS_PKG_VER}.tar.gz artifacts/smartmontools-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz
 
     - name: Upload artifacts
       id: artifact-upload-step
@@ -58,26 +57,26 @@ jobs:
     runs-on: ubuntu-latest
     env:
       SOURCE_DATE_EPOCH: ${{ needs.make-src-tgz.outputs.SOURCE_DATE_EPOCH }}
-      SM_VER: ${{ needs.make-src-tgz.outputs.SM_VER }}
-      SM_REV: ${{ needs.make-src-tgz.outputs.SM_REV }}      
+      SMARTMONTOOLS_PKG_VER: ${{ needs.make-src-tgz.outputs.SMARTMONTOOLS_PKG_VER }}
+      SMARTMONTOOLS_GIT_VER_FNAME: ${{ needs.make-src-tgz.outputs.SMARTMONTOOLS_GIT_VER_FNAME }}      
     steps:
       - uses: actions/download-artifact@v4
         with:
           artifact-ids: ${{ needs.make-src-tgz.outputs.artficact-id }}      
       - name: build
         run: |
-          tar -xvf artifacts/smartmontools-${SM_VER}-r${SM_REV}.tar.gz &&
-          cd smartmontools-${SM_VER} && mkdir build && cd build &&
+          tar -xvf artifacts/smartmontools-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz &&
+          cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
           ../configure LDFLAGS="-static" SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
           make -j BUILD_INFO='"(GHA Build)"' && make check &&
           mkdir -p inst ${GITHUB_WORKSPACE}/artifacts && make DESTDIR="$(pwd)/inst" install &&
           cd inst &&
-          tar --sort=name --mtime=@${SOURCE_DATE_EPOCH} -czf "${GITHUB_WORKSPACE}/artifacts/smartmontools-linux-x86_64-static-${SM_VER}-r${SM_REV}.tar.gz" *
+          tar --sort=name --mtime=@${SOURCE_DATE_EPOCH} -czf "${GITHUB_WORKSPACE}/artifacts/smartmontools-linux-x86_64-static-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" *
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: linux_static_x86_64
-          path: artifacts/smartmontools-linux-x86_64-static-${{ needs.make-src-tgz.outputs.SM_VER }}-r${{ needs.make-src-tgz.outputs.SM_REV }}.tar.gz
+          path: artifacts/smartmontools-linux-x86_64-static-${{ needs.make-src-tgz.outputs.SMARTMONTOOLS_GIT_VER_FNAME }}.tar.gz
           retention-days: 1
 
   compile-linux-static-i386:
@@ -86,8 +85,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       SOURCE_DATE_EPOCH: ${{ needs.make-src-tgz.outputs.SOURCE_DATE_EPOCH }}
-      SM_VER: ${{ needs.make-src-tgz.outputs.SM_VER }}
-      SM_REV: ${{ needs.make-src-tgz.outputs.SM_REV }}      
+      SMARTMONTOOLS_PKG_VER: ${{ needs.make-src-tgz.outputs.SMARTMONTOOLS_PKG_VER }}
+      SMARTMONTOOLS_GIT_VER_FNAME: ${{ needs.make-src-tgz.outputs.SMARTMONTOOLS_GIT_VER_FNAME }}      
     steps:
       - uses: actions/download-artifact@v4
         with:
@@ -96,18 +95,18 @@ jobs:
         run: sudo apt-get install gcc-multilib g++-multilib
       - name: build
         run: |
-          tar -xvf artifacts/smartmontools-${SM_VER}-r${SM_REV}.tar.gz &&
-          cd smartmontools-${SM_VER} && mkdir build && cd build &&
+          tar -xvf artifacts/smartmontools-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz &&
+          cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
           ../configure CC="gcc -m32" CXX="g++ -m32" LDFLAGS="-static" SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
           make -j BUILD_INFO='"(GHA Build)"' && make check &&
           mkdir -p inst ${GITHUB_WORKSPACE}/artifacts && make DESTDIR="$(pwd)/inst" install &&
           cd inst &&
-          tar --sort=name --mtime=@${SOURCE_DATE_EPOCH} -czf "${GITHUB_WORKSPACE}/artifacts/smartmontools-linux-i386-static-${SM_VER}-r${SM_REV}.tar.gz" *
+          tar --sort=name --mtime=@${SOURCE_DATE_EPOCH} -czf "${GITHUB_WORKSPACE}/artifacts/smartmontools-linux-i386-static-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" *
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: linux_static_i386
-          path: artifacts/smartmontools-linux-i386-static-${{ needs.make-src-tgz.outputs.SM_VER }}-r${{ needs.make-src-tgz.outputs.SM_REV }}.tar.gz
+          path: artifacts/smartmontools-linux-i386-static-${{ needs.make-src-tgz.outputs.SMARTMONTOOLS_GIT_VER_FNAME }}.tar.gz
           retention-days: 1
 
   compile-darwin:
@@ -120,8 +119,8 @@ jobs:
       image: ghcr.io/smartmontools/docker-build:master     
     env:
       SOURCE_DATE_EPOCH: ${{ needs.make-src-tgz.outputs.SOURCE_DATE_EPOCH }}
-      SM_VER: ${{ needs.make-src-tgz.outputs.SM_VER }}
-      SM_REV: ${{ needs.make-src-tgz.outputs.SM_REV }}      
+      SMARTMONTOOLS_PKG_VER: ${{ needs.make-src-tgz.outputs.SMARTMONTOOLS_PKG_VER }}
+      SMARTMONTOOLS_GIT_VER_FNAME: ${{ needs.make-src-tgz.outputs.SMARTMONTOOLS_GIT_VER_FNAME }} 
     steps:
       - uses: actions/download-artifact@v4
         with:
@@ -130,22 +129,22 @@ jobs:
         run: |
           export PATH=/usr/osxcross/bin/:$PATH &&
           export LD_LIBRARY_PATH=/usr/osxcross/lib &&
-          tar -xvf artifacts/smartmontools-${SM_VER}-r${SM_REV}.tar.gz &&
-          cd smartmontools-${SM_VER} &&
+          tar -xvf artifacts/smartmontools-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz &&
+          cd smartmontools-${SMARTMONTOOLS_PKG_VER} &&
           mkdir build && cd build &&
           ../configure build_alias=$(../config.guess) host_alias=x86_64-apple-darwin14 \
             'CC=o64-clang' 'CXX=o64-clang++' 'CFLAGS=-arch arm64 -arch x86_64' \
             'CXXFLAGS=-arch arm64 -arch x86_64 -stdlib=libc++' \
             '--sysconfdir=/private/etc' SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
           make -j BUILD_INFO='"(GHA Build)"' &&
-          make pkg_darwin=smartmontools-${SM_VER}-r${SM_REV}.pkg dmg_darwin=smartmontools-${SM_VER}-r${SM_REV}.dmg install-darwin &&
+          make pkg_darwin=smartmontools-${SMARTMONTOOLS_GIT_VER_FNAME}.pkg dmg_darwin=smartmontools-${SMARTMONTOOLS_GIT_VER_FNAME}.dmg install-darwin &&
           mkdir -p inst ${GITHUB_WORKSPACE}/artifacts &&
-          mv ./src/smartmontools-${SM_VER}-r${SM_REV}.dmg ${GITHUB_WORKSPACE}/artifacts
+          mv ./src/smartmontools-${SMARTMONTOOLS_GIT_VER_FNAME}.dmg ${GITHUB_WORKSPACE}/artifacts
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: darwin
-          path: artifacts/smartmontools-${{ needs.make-src-tgz.outputs.SM_VER }}-r${{ needs.make-src-tgz.outputs.SM_REV }}.dmg
+          path: artifacts/smartmontools-${{ needs.make-src-tgz.outputs.SMARTMONTOOLS_GIT_VER_FNAME }}.dmg
           retention-days: 1
   
   compile-freebsd:
@@ -159,16 +158,16 @@ jobs:
       image: ghcr.io/smartmontools/docker-build:master     
     env:
       SOURCE_DATE_EPOCH: ${{ needs.make-src-tgz.outputs.SOURCE_DATE_EPOCH }}
-      SM_VER: ${{ needs.make-src-tgz.outputs.SM_VER }}
-      SM_REV: ${{ needs.make-src-tgz.outputs.SM_REV }}      
+      SMARTMONTOOLS_PKG_VER: ${{ needs.make-src-tgz.outputs.SMARTMONTOOLS_PKG_VER }}
+      SMARTMONTOOLS_GIT_VER_FNAME: ${{ needs.make-src-tgz.outputs.SMARTMONTOOLS_GIT_VER_FNAME }} 
     steps:
       - uses: actions/download-artifact@v4
         with:
           artifact-ids: ${{ needs.make-src-tgz.outputs.artficact-id }}
       - name: FreeBSD 14 build
         run: |
-          tar -xvf artifacts/smartmontools-${SM_VER}-r${SM_REV}.tar.gz &&
-          cd smartmontools-${SM_VER} &&
+          tar -xvf artifacts/smartmontools-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz &&
+          cd smartmontools-${SMARTMONTOOLS_PKG_VER} &&
           mkdir build && cd build &&
           export TARGET="-target x86_64-unknown-freebsd14 --sysroot=/opt/cross-freebsd-14/" &&
           ../configure CC="clang $TARGET" CXX="clang++ $TARGET" \
@@ -178,19 +177,19 @@ jobs:
           make -j BUILD_INFO='"(GHA Build)"' &&
           mkdir -p inst ${GITHUB_WORKSPACE}/artifacts && make DESTDIR="$(pwd)/inst" install &&
           cd inst &&
-          tar --sort=name --mtime=@${SOURCE_DATE_EPOCH} -czf "${GITHUB_WORKSPACE}/artifacts/smartmontools-freebsd-14-${SM_VER}-r${SM_REV}.tar.gz" *
+          tar --sort=name --mtime=@${SOURCE_DATE_EPOCH} -czf "${GITHUB_WORKSPACE}/artifacts/smartmontools-freebsd-14-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" *
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: freebsd14
-          path: artifacts/smartmontools-freebsd-14-${{ needs.make-src-tgz.outputs.SM_VER }}-r${{ needs.make-src-tgz.outputs.SM_REV }}.tar.gz
+          path: artifacts/smartmontools-freebsd-14-${{ needs.make-src-tgz.outputs.SMARTMONTOOLS_GIT_VER_FNAME }}.tar.gz
           retention-days: 1
       - name: cleanup
-        run: rm -rf smartmontools-${SM_VER}
+        run: rm -rf smartmontools-${SMARTMONTOOLS_PKG_VER}
       - name: FreeBSD 13 build
         run: |
-          tar -xvf artifacts/smartmontools-${SM_VER}-r${SM_REV}.tar.gz &&
-          cd smartmontools-${SM_VER} &&
+          tar -xvf artifacts/smartmontools-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz &&
+          cd smartmontools-${SMARTMONTOOLS_PKG_VER} &&
           mkdir build && cd build &&
           export TARGET="-target x86_64-unknown-freebsd13 --sysroot=/opt/cross-freebsd-13/" &&
           ../configure CC="clang $TARGET" CXX="clang++ $TARGET" \
@@ -200,12 +199,12 @@ jobs:
           make -j BUILD_INFO='"(GHA Build)"' &&
           mkdir -p inst ${GITHUB_WORKSPACE}/artifacts && make DESTDIR="$(pwd)/inst" install &&
           cd inst &&
-          tar --sort=name --mtime=@${SOURCE_DATE_EPOCH} -czf "${GITHUB_WORKSPACE}/artifacts/smartmontools-freebsd-13-${SM_VER}-r${SM_REV}.tar.gz" *
+          tar --sort=name --mtime=@${SOURCE_DATE_EPOCH} -czf "${GITHUB_WORKSPACE}/artifacts/smartmontools-freebsd-13-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" *
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: freebsd13
-          path: artifacts/smartmontools-freebsd-13-${{ needs.make-src-tgz.outputs.SM_VER }}-r${{ needs.make-src-tgz.outputs.SM_REV }}.tar.gz
+          path: artifacts/smartmontools-freebsd-13-${{ needs.make-src-tgz.outputs.SMARTMONTOOLS_GIT_VER_FNAME }}.tar.gz
           retention-days: 1
 
   compile-windows:
@@ -219,16 +218,16 @@ jobs:
       image: ghcr.io/smartmontools/docker-build:master     
     env:
       SOURCE_DATE_EPOCH: ${{ needs.make-src-tgz.outputs.SOURCE_DATE_EPOCH }}
-      SM_VER: ${{ needs.make-src-tgz.outputs.SM_VER }}
-      SM_REV: ${{ needs.make-src-tgz.outputs.SM_REV }}      
+      SMARTMONTOOLS_PKG_VER: ${{ needs.make-src-tgz.outputs.SMARTMONTOOLS_PKG_VER }}
+      SMARTMONTOOLS_GIT_VER_FNAME: ${{ needs.make-src-tgz.outputs.SMARTMONTOOLS_GIT_VER_FNAME }}
     steps:
       - uses: actions/download-artifact@v4
         with:
           artifact-ids: ${{ needs.make-src-tgz.outputs.artficact-id }}
       - name: Windows build
         run: |
-          tar -xvf artifacts/smartmontools-${SM_VER}-r${SM_REV}.tar.gz &&
-          cd smartmontools-${SM_VER} &&
+          tar -xvf artifacts/smartmontools-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz &&
+          cd smartmontools-${SMARTMONTOOLS_PKG_VER} &&
           mkdir build && cd build &&
           ../configure build_alias=$(../config.guess) host_alias=i686-w64-mingw32 \
             SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH}
@@ -238,16 +237,16 @@ jobs:
             SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} 
           make -j  BUILD_INFO='"(GHA Build)"' && make distdir-win32 &&
           cd ../build &&
-          dest="smartmontools-win32-setup-${SM_VER}-r${SM_REV}.exe" && \
+          dest="smartmontools-win32-setup-${SMARTMONTOOLS_GIT_VER_FNAME}.exe" && \
             make BUILD_INFO="$BUILD_INFO" builddir_win64=../../build64/src distinst_win32="$dest" installer-win32 &&
           mkdir -p inst ${GITHUB_WORKSPACE}/artifacts && make DESTDIR="$(pwd)/inst" install &&
-          mv ./src/smartmontools-win32-setup-${SM_VER}-r${SM_REV}.exe ${GITHUB_WORKSPACE}/artifacts
+          mv ./src/smartmontools-win32-setup-${SMARTMONTOOLS_GIT_VER_FNAME}.exe ${GITHUB_WORKSPACE}/artifacts
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: windows
-          path: artifacts/smartmontools-win32-setup-${{ needs.make-src-tgz.outputs.SM_VER }}-r${{ needs.make-src-tgz.outputs.SM_REV }}.exe
+          path: artifacts/smartmontools-win32-setup-${{ needs.make-src-tgz.outputs.SMARTMONTOOLS_GIT_VER_FNAME }}.exe
           retention-days: 1
 
 
@@ -258,8 +257,8 @@ jobs:
     if: ${{ github.repository == 'smartmontools/smartmontools' && github.ref == 'refs/heads/main' }}
     env:
       SOURCE_DATE_EPOCH: ${{ needs.make-src-tgz.outputs.SOURCE_DATE_EPOCH }}
-      SM_VER: ${{ needs.make-src-tgz.outputs.SM_VER }}
-      SM_REV: ${{ needs.make-src-tgz.outputs.SM_REV }}      
+      SMARTMONTOOLS_PKG_VER: ${{ needs.make-src-tgz.outputs.SMARTMONTOOLS_PKG_VER }}
+      SMARTMONTOOLS_GIT_VER_FNAME: ${{ needs.make-src-tgz.outputs.SMARTMONTOOLS_GIT_VER_FNAME }}
     name: publish-artifacts
     # we need to check how to make it conditional, to not fail if any of these
     # failed
@@ -277,6 +276,8 @@ jobs:
       url: https://github.com/smartmontools/smartmontools-builds
     steps:
       - uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
       - uses: actions/create-github-app-token@v2
         id: app-token
         with:
@@ -289,17 +290,16 @@ jobs:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
         # cleanup release with the same name
         run: |
-          gh release delete r${SM_REV} --repo smartmontools/smartmontools-builds \
+          gh release delete "smartmontools-${SMARTMONTOOLS_GIT_VER_FNAME}" --repo smartmontools/smartmontools-builds \
             --yes --cleanup-tag || true
       - name: gh create release
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
-          gh release create ${SOURCE_DATE_EPOCH}-r${SM_REV} \
-            artifacts/* linux_static_x86_64/* darwin/* freebsd13/* freebsd14/* \
-            linux_static_i386/* windows/* \
+          gh release create "smartmontools-${SMARTMONTOOLS_GIT_VER_FNAME}" \
+            artifacts/* \
             --repo smartmontools/smartmontools-builds \
-            --notes "Smartmontools CI build: [${SM_VER}-r${SM_REV}](https://github.com/smartmontools/smartmontools/tree/${SM_REV})" \
+            --notes "Smartmontools CI build: [smartmontools-${SMARTMONTOOLS_GIT_VER_FNAME}](https://github.com/smartmontools/smartmontools/tree/${GITHUB_SHA})" \
             --prerelease
       - name: Clean old builds
         # leave only last 30 builds and delete everything else
