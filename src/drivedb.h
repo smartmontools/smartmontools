@@ -2435,6 +2435,7 @@ const drive_settings builtin_knowndrives[] = {
     "KSM512|" // KingSpec, tested with KSM512/S0509A0
     "LDLC|" // tested with LDLC/KFS03005
     "Netac MobileDataStar|" // tested with Netac MobileDataStar/HPS2227I (0x0dd8:0x0562)
+    "ORICO|" // ORICO S500PRO, tested with ORICO/W0201A0 (2TB)
     "ORTIAL SSD|" // tested with ORTIAL SSD/U0202A0 (128GB)
     "RX7 (240|256|512)G|" // tested with RX7 240G/T0910A0
     "SATA3 ((12[08]|240|256|480)G|[12]T)B SSD|" // TCSUNBOW X3, tested with SATA3 240GB SSD/S0618A0,
@@ -2451,7 +2452,7 @@ const drive_settings builtin_knowndrives[] = {
     "HP(3418C5|S2227I)|KFS03005|P0510E|P0725A|Q(0627|1107)A0|R(0529A|0817B0)|"
     "S(0222|0424|0509|0618|1211|1230)A0|S112[78]B0|T0(311|519|910)A0|"
     "U(0202|0401|0506|1124|1209)A0|V0((609|823)A|(303|718)B)0|V1027A0|"
-    "W(0413|0714|0825)A0",
+    "W(0201|0413|0714|0825)A0",
     "",
     "-v 148,raw48,Total_SLC_Erase_Ct "
     "-v 149,raw48,Max_SLC_Erase_Ct "
