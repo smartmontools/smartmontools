@@ -67,6 +67,7 @@
 
 /*
 const drive_settings builtin_knowndrives[] = {
+ */
   { "VERSION: 7.2/5761 2025-06-15 11:51:35 +0000 5240566eef62",
     "-", "-",
     "Version information",
