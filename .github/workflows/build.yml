@@ -278,6 +278,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           merge-multiple: true
+          path: artifacts
       - uses: actions/create-github-app-token@v2
         id: app-token
         with:
