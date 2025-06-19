@@ -20,8 +20,6 @@
 
 #include <errno.h>
 
-const char * scsinvme_cpp_svnid = "$Id: scsinvme.cpp 5677 2025-03-20 17:22:18Z chrfranke $";
-
 // SNT (SCSI NVMe Translation) namespace and prefix
 namespace snt {
 
@@ -58,9 +56,12 @@ smart_device * nvme_or_sat_device::autodetect_open()
   // SAT not tried first because some USB bridges emulate ATA IDENTIFY via SAT
   // if a NVMe device is connected.
   // TODO: Preserve id_ctrl for next nvme_read_id_ctrl() call
-  smartmontools::nvme_id_ctrl id_ctrl;
-  if (nvme_read_id_ctrl(this, id_ctrl))
-    return this;
+  smartmontools::nvme_id_ctrl id_ctrl{};
+  if (nvme_read_id_ctrl(this, id_ctrl)) {
+    // Some devices return success but no data if a SATA device is connected
+    if (nonempty(id_ctrl.mn, sizeof(id_ctrl.mn)))
+      return this;
+  }
 
   // NVMe Identify Controller failed, use the already opened SCSI device for SAT.
   // IMPORTANT for derived classes: this->close() not called before delete.
