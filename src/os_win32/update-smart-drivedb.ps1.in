@@ -31,11 +31,11 @@
   The default is 'github'.
 
   .PARAMETER Url
-  Download from this URL.  A valid OpenPGP/GPG signature with '.raw.asc'
+  Download from this URL.  A valid OpenPGP/GPG signature with '[.raw].asc'
   extension must also exist unless '-NoVerify' is also specified.
 
   .PARAMETER File
-  Copy from local file.  A valid OpenPGP/GPG signature 'FILE.raw.asc'
+  Copy from local file.  A valid OpenPGP/GPG signature 'FILE[.raw].asc'
   must also exist unless '-NoVerify' is also specified.
 
   .PARAMETER Main
@@ -182,6 +182,7 @@ function rm_f # FILE...
 {
   foreach ($file in $args) {
     if (Test-Path -PathType Leaf -LiteralPath $file) {
+      vecho "Remove-Item '$file'"
       Remove-Item $file
     }
   }
@@ -190,6 +191,7 @@ function rm_f # FILE...
 function rm_rf($dir)
 {
   if (Test-Path -PathType Container -LiteralPath $dir) {
+    vecho "Remove-Item -Recurse '$dir'"
     Remove-Item -Recurse $dir
   }
 }
@@ -197,6 +199,7 @@ function rm_rf($dir)
 function mv_f($oldfile, $newfile)
 {
   rm_f $newfile
+  vecho "Rename-Item '$oldfile' '$newfile'"
   Rename-Item $oldfile $newfile
 }
 
@@ -218,9 +221,9 @@ function selecturl($url_of, [ref]$url)
 function vcopy($src, $dest)
 {
   if ($script:DryRun) {
-    echo "Copy-Item $src $dest"
+    echo "Copy-Item '$src' '$dest'"
   } else {
-    vecho "Copy-Item $src $dest"
+    vecho "Copy-Item '$src' '$dest'"
     Copy-Item $src $dest
   }
 }
@@ -269,15 +272,6 @@ function check_file($file, $firstchar, $minsize, $maxsize)
   }
 
   return ""
-}
-
-function unexpand_svn_id($source, $dest)
-{
-  # For -NoNewLine:
-  #Requires -Version 5
-  (Get-Content -Raw -Path $source) -replace `
-    ('\$'+'Id: drivedb\.h [0-9][0-9]* 2[-0-9]* [012][:0-9]*Z [a-z][a-z0-9]* \$'),('$'+'Id'+'$') `
-  | Set-Content -NoNewLine -Path $dest
 }
 
 function selectkey($branch, [ref]$key)
@@ -456,15 +450,23 @@ function get_db_version($file)
   }
 }
 
-function mv_all($prefix, $old, $new)
+function drivedb_mv($old, $new)
 {
-  mv_f "${prefix}${old}" "${prefix}${new}"
-  mv_f "${prefix}${old}.raw" "${prefix}${new}.raw"
-  if (test_f "${prefix}${old}.raw.asc") {
-    mv_f "${prefix}${old}.raw.asc" "${prefix}${new}.raw.asc"
-  } else {
-    rm_f "${prefix}${new}.raw.asc"
+  foreach ($ext in ("", ".asc", ".raw", ".raw.asc")) {
+    $of = "${Drivedb}${old}${ext}"
+    $nf = "${Drivedb}${new}${ext}"
+    if (test_f $of) {
+      mv_f $of $nf
+    } else {
+      rm_f $nf
+    }
   }
+}
+
+function drivedb_error($message)
+{
+  drivedb_mv ".new" ".error"
+  error "${Drivedb}.error${message}"
 }
 
 # Set defaults
@@ -473,7 +475,7 @@ if (!$Smartctl) {
 }
 
 if ($Branch) {
-  if (!($Branch -match '^[5-7]\.[0-6]$')) {
+  if (!($Branch -match '^5\.4[0-3]|6\.[0-6]|7\.[0235]$')) {
     error "invalid branch '${Branch}'"
   }
 } else {
@@ -527,16 +529,24 @@ if (!$Url -and !$File) {
 }
 
 # Determine path of signature file
-# TODO: remove '.raw' for branches >= 8.0
 $FileAsc = ""
+$FileRawAsc = ""
 $UrlAsc = ""
 if (!$NoVerify) {
-  if (!$Url) {
-    $FileAsc = "${File}.raw.asc"
-  } elseif ($Url -match '\?') {
-    $UrlAsc = $Url -replace '\?','.raw.asc?'
+  if ($Url) {
+    if ($Branch -match '^[567]\.') {
+      $raw = ".raw";
+    } else {
+      $raw = "";
+    }
+    if ($Url -match '\?') {
+      $UrlAsc = $Url -replace '\?',"${raw}.asc?"
+    } else {
+      $UrlAsc = "${Url}${raw}.asc"
+    }
   } else {
-    $UrlAsc = "${Url}.raw.asc"
+    $FileAsc = "${File}.asc"
+    $FileRawAsc = "${File}.raw.asc"
   }
 }
 
@@ -571,7 +581,7 @@ if (!$NoVerify) {
 
 # Remove possible garbage from last download
 if (!$DryRun) {
-  rm_f "${Drivedb}.new" "${Drivedb}.new.raw" "${Drivedb}.new.raw.asc"
+  rm_f "${Drivedb}.new" "${Drivedb}.new.asc" "${Drivedb}.new.raw" "${Drivedb}.new.raw.asc"
 }
 
 if ($Url) {
@@ -585,11 +595,11 @@ if ($Url) {
   }
 
   if ($UrlAsc) {
-    vecho "Download drivedb.h.raw.asc"
-    download $UrlAsc "${Drivedb}.new.raw.asc" ([ref]$errmsg)
+    vecho "Download drivedb.h.asc"
+    download $UrlAsc "${Drivedb}.new.asc" ([ref]$errmsg)
     if ($errmsg) {
-      rm_f "${Drivedb}.new" "${Drivedb}.new.raw.asc"
-      error "drivedb.h.raw.asc: download failed: $errmsg ('-NoVerify' to ignore)"
+      rm_f "${Drivedb}.new" "${Drivedb}.new.asc"
+      error "drivedb.h.asc: download failed: $errmsg ('-NoVerify' to ignore)"
     }
   }
 } else {
@@ -597,13 +607,18 @@ if ($Url) {
   if (!(test_f $File)) {
     error "${File}: file not found"
   }
-  if ($FileAsc -and !(test_f $FileAsc)) {
-    error "${FileAsc}: file not found ('-NoVerify' to ignore)"
+  if ($FileAsc) {
+    if (!(test_f $FileAsc)) {
+      if (!(test_f $FileRawAsc)) {
+        error "${FileAsc}, ${FileRawAsc}: file not found ('-NoVerify' to ignore)"
+      }
+      $FileAsc = $FileRawAsc
+    }
   }
 
   vcopy $File "${Drivedb}.new"
   if ($FileAsc) {
-    vcopy $FileAsc "${Drivedb}.new.raw.asc"
+    vcopy $FileAsc "${Drivedb}.new.asc"
   }
 }
 
@@ -614,51 +629,30 @@ if ($DryRun) {
 # Check files and adjust timestamps
 $errmsg = check_file "${Drivedb}.new" '/' 10000 1000000
 if ($errmsg) {
-  rm_f "${Drivedb}.new.raw.asc"
-  mv_f "${Drivedb}.new" "${Drivedb}.error"
-  error "${Drivedb}.error: $errmsg"
+  drivedb_error ": $errmsg"
 }
 touch "${Drivedb}.new"
 
-if (test_f "${Drivedb}.new.raw.asc") {
-  $errmsg = check_file "${Drivedb}.new.raw.asc" '-' 200 2000
+if (test_f "${Drivedb}.new.asc") {
+  $errmsg = check_file "${Drivedb}.new.asc" '-' 200 2000
   if ($errmsg) {
-    rm_f "${Drivedb}.new"
-    mv_f "${Drivedb}.new.raw.asc" "${Drivedb}.error.raw.asc"
-    error "${Drivedb}.error.raw.asc: $errmsg"
+    drivedb_error ".asc: $errmsg"
   }
-  touch "${Drivedb}.new.raw.asc"
+  touch "${Drivedb}.new.asc"
 }
-
-# Create raw file with unexpanded SVN Id
-# (This assumes newlines are LF and not CR/LF)
-unexpand_svn_id "${Drivedb}.new" "${Drivedb}.new.raw"
 
 # Check whether installed file is identical
-$equal = $false
-if (test_f $Drivedb) {
-  if (!(test_f "${Drivedb}.raw")) {
-    # Create missing raw file
-    unexpand_svn_id "${Drivedb}" "${Drivedb}.raw"
-  }
-  # Ignore missing Id keyword expansion in new file
-  if (      (cmp "${Drivedb}.raw" "${Drivedb}.new.raw") `
-      -and (    (cmp "${Drivedb}"     "${Drivedb}.new") `
-            -or (cmp "${Drivedb}.raw" "${Drivedb}.new"))) {
-    $equal = $true
-  }
-}
+$equal = cmp "${Drivedb}" "${Drivedb}.new"
 
 if (!$NoVerify) {
-  # Verify raw file
+  # Verify new file
   $ok = $false
-  gpg_verify "${Drivedb}.new.raw.asc" "${Drivedb}.new.raw" ([ref]$ok)
+  gpg_verify "${Drivedb}.new.asc" "${Drivedb}.new" ([ref]$ok)
   if (!$ok) {
-    mv_all $Drivedb ".new" ".error"
     if ($equal) {
       warning "${Drivedb}: *** installed file is identical to broken new file ***"
     }
-    error "${Drivedb}.error.raw: *** BAD signature or outdated key ***"
+    drivedb_error ": *** BAD signature or outdated key ***"
   }
 }
 
@@ -666,14 +660,12 @@ if (!$NoVerify) {
 $newver = get_db_version "${Drivedb}.new"
 if (!$newver) {
   if (!$Force) {
-    mv_all $Drivedb ".new" ".error"
-    error "${Drivedb}.error: no VERSION information found ('-Force' to ignore)"
+    drivedb_error ": no VERSION information found ('-Force' to ignore)"
   }
   $newver = "?/?"
 } elseif ($newver -match '/\?$') {
   if (!$Main) {
-    mv_all $Drivedb ".new" ".error"
-    error "${Drivedb}.error: VERSION information is incomplete ('-Main' to ignore)"
+    drivedb_error ": VERSION information is incomplete ('-Main' to ignore)"
   }
 }
 
@@ -681,8 +673,7 @@ if ($Smartctl -ne "-") {
   # Check syntax
   run_join_out_err $Smartctl -B "${Drivedb}.new" -P showall | Out-Null
   if (!$?) {
-    mv_all $Drivedb ".new" ".error"
-    error "${Drivedb}.error: rejected by $Smartctl, probably no longer compatible"
+    drivedb_error ": rejected by $Smartctl, probably no longer compatible"
   }
   vecho "${Smartctl}: syntax OK"
 }
@@ -690,20 +681,20 @@ if ($Smartctl -ne "-") {
 # Always install if missing
 rm_f "${Drivedb}.lastcheck"
 if (!(Test-Path -PathType Leaf -Path $Drivedb)) {
-  mv_all $Drivedb ".new" ""
+  drivedb_mv ".new" ""
   iecho "$Drivedb $newver newly installed$(if ($NoVerify) {" (NOT VERIFIED)"})"
   exit 0
 }
 
 # Keep old file if identical
 if ($equal) {
-  if (test_f "${Drivedb}.new.raw.asc") {
-    if (!(cmp "${Drivedb}.new.raw.asc" "${Drivedb}.raw.asc")) {
-      mv_f "${Drivedb}.new.raw.asc" "${Drivedb}.raw.asc"
-      iecho "${Drivedb}.raw.asc $newver updated"
+  if (test_f "${Drivedb}.new.asc") {
+    if (!(cmp "${Drivedb}.new.asc" "${Drivedb}.asc")) {
+      mv_f "${Drivedb}.new.asc" "${Drivedb}.asc"
+      iecho "${Drivedb}.asc $newver updated"
     }
   }
-  rm_f "${Drivedb}.new" "${Drivedb}.new.raw" "${Drivedb}.new.raw.asc"
+  rm_f "${Drivedb}.new" "${Drivedb}.new.asc" "${Drivedb}.raw" "${Drivedb}.raw.asc"
   touch "${Drivedb}.lastcheck"
   iecho "$Drivedb $newver is already up to date$(if ($NoVerify) {" (NOT VERIFIED)"})"
   exit 0
@@ -714,7 +705,6 @@ $oldver = $(get_db_version "${Drivedb}")
 if (!$oldver) {
   $oldver = "?/?"
 }
-
 if (    ($newver -match '/\?$') `
     -or ($oldver -match '/\?$') `
     -or (($newver -replace '/.*$','') -ne ($oldver -replace '/.*$',''))) {
@@ -723,7 +713,7 @@ if (    ($newver -match '/\?$') `
 } elseif ((($newver -replace '^.*/','') - ($oldver -replace '^.*/','')) -lt 0) {
   # Install older file only if '-Force' is used
   if (!$Force) {
-    rm_f "${Drivedb}.new" "${Drivedb}.new.raw" "${Drivedb}.new.raw.asc"
+    rm_f "${Drivedb}.new" "${Drivedb}.new.asc"
     iecho "$Drivedb $oldver not downgraded to $newver ('-Force' to override)"
     exit 0
   }
@@ -732,7 +722,7 @@ if (    ($newver -match '/\?$') `
   $updmsg = "updated to"
 }
 
-mv_all $Drivedb "" ".old"
-mv_all $Drivedb ".new" ""
+drivedb_mv "" ".old"
+drivedb_mv ".new" ""
 iecho "$Drivedb $oldver $updmsg $newver$(if ($NoVerify) {" (NOT VERIFIED)"})"
 exit 0

@@ -118,12 +118,12 @@ The default is
 .TP
 .B \-\-url URL
 Download from URL.
-A valid OpenPGP/GPG signature with \*(Aq.raw.asc\*(Aq extension must also
+A valid OpenPGP/GPG signature with \*(Aq[.raw].asc\*(Aq extension must also
 exist unless \*(Aq\-\-no\-verify\*(Aq is also specified.
 .TP
 .B \-\-file FILE
 Copy from local FILE.
-A valid OpenPGP/GPG signature \*(AqFILE.raw.asc\*(Aq must also exist
+A valid OpenPGP/GPG signature \*(AqFILE[.raw].asc\*(Aq must also exist
 unless \*(Aq\-\-no\-verify\*(Aq is also specified.
 .\" %IF ENABLE_DB_INSTALL
 .TP
@@ -214,20 +214,20 @@ originally installed drive database.
 .B /usr/local/var/lib/smartmontools/drivedb.h
 current drive database.
 .TP
-.B /usr/local/var/lib/smartmontools/drivedb.h.raw
-current drive database with unexpanded SVN Id string.
-.TP
-.B /usr/local/var/lib/smartmontools/drivedb.h.raw.asc
+.B /usr/local/var/lib/smartmontools/drivedb.h.asc
 signature file.
 .TP
-.B /usr/local/var/lib/smartmontools/drivedb.h.*old*
+.B /usr/local/var/lib/smartmontools/drivedb.h.old[.asc]
 previous files.
 .TP
-.B /usr/local/var/lib/smartmontools/drivedb.h.*error*
+.B /usr/local/var/lib/smartmontools/drivedb.h.error[.asc]
 new files if rejected due to errors.
 .TP
 .B /usr/local/var/lib/smartmontools/drivedb.h.lastcheck
 empty file created if downloaded file was identical.
+.TP
+.B /usr/local/var/lib/smartmontools/drivedb.h.raw[.asc]
+no longer used and removed if still present.
 .Sp
 .SH AUTHORS
 \fBChristian Franke\fP.
