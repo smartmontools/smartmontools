@@ -50,13 +50,9 @@ jobs:
             signing-policy-slug: release-signing
             github-artifact-id: '${{ steps.artifact-upload-step.outputs.artifact-id }}'
             output-artifact-directory: 'signed-artifacts'
-        - name: debug
-          run: cd signed-artifacts && ls -lR
-        - name: unpack signed artifact to avoid zip-inside-zip
-          run: cd signed-artifacts && unzip *.zip && rm *.zip
         - name: upload signed artifact
           uses: actions/upload-artifact@v4
           with:
             name: smartmontools-signed
-            path: signed-artifacts/*
+            path: signed-artifacts/*.exe
             retention-days: 30
