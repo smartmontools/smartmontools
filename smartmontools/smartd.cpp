@@ -3699,28 +3699,28 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
       if (cfg.powermode>=2)
         dontcheck=1;
       break;
-    case 0x80:
-      // IDLE
-      mode="IDLE";
-      if (cfg.powermode>=3)
-        dontcheck=1;
-      break;
-    case 0x81:
-      // IDLE_A
-      mode="IDLE_A";
+    case 0x83:
+      // IDLE_C
+      mode="IDLE_C";
       if (cfg.powermode>=3)
         dontcheck=1;
       break;
     case 0x82:
       // IDLE_B
       mode="IDLE_B";
-      if (cfg.powermode>=3)
+      if (cfg.powermode>=4)
         dontcheck=1;
       break;
-    case 0x83:
-      // IDLE_C
-      mode="IDLE_C";
-      if (cfg.powermode>=3)
+    case 0x81:
+      // IDLE_A
+      mode="IDLE_A";
+      if (cfg.powermode>=5)
+        dontcheck=1;
+      break;
+    case 0x80:
+      // IDLE
+      mode="IDLE";
+      if (cfg.powermode>=6)
         dontcheck=1;
       break;
     case 0xff:
@@ -4884,8 +4884,14 @@ static int ParseToken(char * & token, dev_config & cfg, smart_devtype_list & sca
         cfg.powermode = 1;
       else if (!strcmp(arg, "standby"))
         cfg.powermode = 2;
-      else if (!strcmp(arg, "idle"))
+      else if (!strcmp(arg, "idle_c"))
         cfg.powermode = 3;
+      else if (!strcmp(arg, "idle_b"))
+        cfg.powermode = 4;
+      else if (!strcmp(arg, "idle_a"))
+        cfg.powermode = 5;
+      else if (!strcmp(arg, "idle"))
+        cfg.powermode = 6;
       else
         badarg = 1;
 
