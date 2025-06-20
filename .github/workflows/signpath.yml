@@ -36,9 +36,9 @@ jobs:
           id: artifact-upload-step
           uses: actions/upload-artifact@v4
           with:
-            name: windows
+            name: smartmontools-windows
             path: build/src/smartmontools-win32-setup-*.exe
-            retention-days: 1
+            retention-days: 30
         - name: Submit binary to signpath.io to sign
           # Signing requests must be submitted from upstream repository
           if: ${{ github.repository == 'smartmontools/smartmontools' }}
@@ -49,3 +49,10 @@ jobs:
             project-slug: smartmontools
             signing-policy-slug: release-signing
             github-artifact-id: '${{ steps.artifact-upload-step.outputs.artifact-id }}'
+            output-artifact-directory: 'signed-artifacts'
+        - name: Upload signed artifact
+          uses: actions/upload-artifact@v4
+          with:
+            name: smartmontools-windows-signed
+            path: signed-artifacts/*.exe
+            retention-days: 30
