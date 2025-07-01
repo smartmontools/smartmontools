@@ -1,0 +1,30 @@
+name: Create cppcheck report
+on: workflow_dispatch
+jobs:
+  create-cppcheck-report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install cppcheck
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cppcheck
+      - uses: actions/checkout@v4
+        with:
+          # Provide at least the commit log since last release for 'getversion.sh'.
+          # 'git clone --shallow-since=2025-04-29' would be sufficient but this is
+          # not supported by 'actions/checkout@v4'.
+          fetch-depth: 300
+          # Include (future) release tags for 'getversion.sh'
+          fetch-tags: true
+      - name: Run cppcheck
+        run: |
+          VERSION=$(src/getversion.sh -n) &&
+          DEST="smartmontools-cppcheck-$VERSION.txt" &&
+          echo "Creating $DEST..." &&
+          src/cppcheck.sh -j6 -q | tee "$DEST"
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: smartmontools-cppcheck
+          path: smartmontools-cppcheck-*.txt
+          retention-days: 30
