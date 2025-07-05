@@ -898,10 +898,10 @@ DOCFILES_WIN32 = \
         smartctl.8.html smartd.8.html smartd.conf.5.html \
         smartctl.8.pdf smartd.8.pdf smartd.conf.5.pdf \
         $(top_srcdir)/doc/AUTHORS \
-        $(top_srcdir)/doc/old/ChangeLog-7.0-7.5.txt \
+        $(top_srcdir)/doc/CHANGELOG.md \
         $(top_srcdir)/COPYING \
         $(top_srcdir)/doc/INSTALL \
-        $(top_srcdir)/doc/NEWS \
+        $(top_srcdir)/doc/old/NEWS-5.0-7.5.txt \
         $(top_srcdir)/README.md \
         $(srcdir)/smartd.conf
 

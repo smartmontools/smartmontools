@@ -205,12 +205,13 @@ Section "!Documentation" DOC_SECTION
 
   SetOutPath "$INSTDIR\doc"
   File "${INPDIR}\doc\AUTHORS.txt"
+  File "${INPDIR}\doc\CHANGELOG.md"
   Delete "$INSTDIR\doc\ChangeLog.txt" ; TODO: Remove after smartmontools 8.1
   Delete "$INSTDIR\doc\ChangeLog-6.0-7.0.txt" ; TODO: Remove after smartmontools 8.1
-  File "${INPDIR}\doc\ChangeLog-7.0-7.5.txt"
+  Delete "$INSTDIR\doc\ChangeLog-7.0-7.5.txt"; TODO: Remove after smartmontools 8.1
   File "${INPDIR}\doc\COPYING.txt"
   File "${INPDIR}\doc\INSTALL.txt"
-  File "${INPDIR}\doc\NEWS.txt"
+  Delete "$INSTDIR\doc\NEWS.txt" ; TODO: Remove after smartmontools 8.1
   File "${INPDIR}\doc\README.md"
   Delete "$INSTDIR\doc\README.txt" ; TODO: Remove after smartmontools 8.1
   Delete "$INSTDIR\doc\TODO.txt" ; TODO: Remove after smartmontools 8.1
@@ -230,6 +231,9 @@ Section "!Documentation" DOC_SECTION
   File "${INPDIR}\doc\smartd.conf"
   File "${INPDIR}\doc\smartd.conf.5.html"
   File "${INPDIR}\doc\smartd.conf.5.pdf"
+
+  SetOutPath "$INSTDIR\doc\old"
+  File "${INPDIR}\doc\NEWS-5.0-7.5.txt"
 
 SectionEnd
 
@@ -357,7 +361,8 @@ Section "Start Menu Shortcuts" MENU_SECTION
     ${EndIf}
     Delete "$SMPROGRAMS\smartmontools\Documentation\ChangeLog.lnk" ; TODO: Remove after smartmontools 8.1
     CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\COPYING.lnk"   "$INSTDIR\doc\COPYING.txt"
-    CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\NEWS.lnk"      "$INSTDIR\doc\NEWS.txt"
+    CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\CHANGELOG.md.lnk" "$INSTDIR\doc\CHANGELOG.md"
+    Delete "$SMPROGRAMS\smartmontools\Documentation\NEWS.lnk" ; TODO: Remove after smartmontools 8.1
   ${EndIf}
 
   ; Homepage
@@ -489,12 +494,13 @@ Section "Uninstall"
   Delete "$INSTDIR\bin\runcmdu.exe"
   Delete "$INSTDIR\bin\wtssendmsg.exe"
   Delete "$INSTDIR\doc\AUTHORS.txt"
+  Delete "$INSTDIR\doc\CHANGELOG.md"
   Delete "$INSTDIR\doc\ChangeLog.txt" ; TODO: Remove after smartmontools 8.1
-  Delete "$INSTDIR\doc\ChangeLog-7.0-7.5.txt"
+  Delete "$INSTDIR\doc\ChangeLog-7.0-7.5.txt" ; TODO: Remove after smartmontools 8.1
   Delete "$INSTDIR\doc\ChangeLog-6.0-7.0.txt" ; TODO: Remove after smartmontools 8.1
   Delete "$INSTDIR\doc\COPYING.txt"
   Delete "$INSTDIR\doc\INSTALL.txt"
-  Delete "$INSTDIR\doc\NEWS.txt"
+  Delete "$INSTDIR\doc\NEWS.txt" ; TODO: Remove after smartmontools 8.1
   Delete "$INSTDIR\doc\README.txt" ; TODO: Remove after smartmontools 8.1
   Delete "$INSTDIR\doc\TODO.txt" ; TODO: Remove after smartmontools 8.1
   Delete "$INSTDIR\doc\checksums*.txt"
@@ -505,6 +511,7 @@ Section "Uninstall"
   Delete "$INSTDIR\doc\smartd.conf"
   Delete "$INSTDIR\doc\smartd.conf.5.html"
   Delete "$INSTDIR\doc\smartd.conf.5.pdf"
+  Delete "$INSTDIR\doc\old\NEWS-5.0-7.5.txt"
   Delete "$INSTDIR\uninst-smartmontools.exe"
 
   ; Remove shortcuts
@@ -520,6 +527,7 @@ Section "Uninstall"
   RMDir  "$SMPROGRAMS\smartmontools\smartd Examples"
   RMDir  "$SMPROGRAMS\smartmontools"
   RMDir  "$INSTDIR\bin"
+  RMDir  "$INSTDIR\doc\old"
   RMDir  "$INSTDIR\doc"
   RMDir  "$INSTDIR"
 

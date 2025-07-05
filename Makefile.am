@@ -6,14 +6,14 @@
 docsdir=$(docdir)
 docs_DATA = \
         doc/AUTHORS \
+        doc/CHANGELOG.md \
         COPYING \
         doc/INSTALL \
-        doc/NEWS \
         README.md
 
 docolddir = $(docdir)/old
 docold_DATA = \
-        doc/old/ChangeLog-7.0-7.5.txt
+        doc/old/NEWS-5.0-7.5.txt
 
 examplesdir=$(exampledir)
 examples_DATA = \
@@ -33,6 +33,7 @@ EXTRA_DIST = \
         autogen.sh \
         doc/old/ChangeLog-6.0-7.0.txt \
         doc/old/ChangeLog-5.0-6.0.txt \
+        doc/old/ChangeLog-7.0-7.5.txt \
         m4/pkg.m4 \
         $(docs_DATA) \
         $(docold_DATA) \
