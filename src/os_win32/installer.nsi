@@ -341,7 +341,7 @@ Section "Start Menu Shortcuts" MENU_SECTION
   ${EndIf}
 
   ; Documentation
-  ${If} ${FileExists} "$INSTDIR\doc\README.TXT"
+  ${If} ${FileExists} "$INSTDIR\doc\README.md"
     SetOutPath "$INSTDIR\doc"
     CreateDirectory "$SMPROGRAMS\smartmontools\Documentation"
     CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\smartctl manual page (html).lnk"    "$INSTDIR\doc\smartctl.8.html"
@@ -369,7 +369,7 @@ Section "Start Menu Shortcuts" MENU_SECTION
   ${If} ${FileExists} "$INSTDIR\bin\update-smart-drivedb.ps1"
     SetOutPath "$INSTDIR\bin"
     !insertmacro CreateAdminShortCut "$SMPROGRAMS\smartmontools\drivedb.h update (ps1).lnk" "$INSTDIR\bin\runcmdu.exe" "powershell -NoProfile -ExecutionPolicy Bypass .\update-smart-drivedb.ps1"
-    ${If} ${FileExists} "$INSTDIR\doc\README.TXT"
+    ${If} ${FileExists} "$INSTDIR\doc\README.md"
       CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\drivedb.h update help (ps1).lnk" "$INSTDIR\bin\runcmdu.exe" 'powershell -NoProfile -ExecutionPolicy Bypass "Get-Help .\update-smart-drivedb.ps1 -Detail | more"'
     ${EndIf}
   ${EndIf}
