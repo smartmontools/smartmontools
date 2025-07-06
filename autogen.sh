@@ -75,7 +75,7 @@ set -e	# stops on error status
 
 test -z "$warnings" || set -x
 
-${ACLOCAL} -I m4 --install $force $warnings
+${ACLOCAL} --install $force $warnings
 autoheader $force $warnings
 ${AUTOMAKE} --add-missing --copy ${force:+--force-missing} $amwarnings
 autoconf $force $warnings

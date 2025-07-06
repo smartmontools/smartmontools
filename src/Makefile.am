@@ -3,8 +3,6 @@
 # src/Makefile.am
 #
 
-ACLOCAL_AMFLAGS = -I m4
-
 # BUILD_INFO can be provided by package maintainers (see INSTALL file)
 BUILD_INFO= "(local build)"
 

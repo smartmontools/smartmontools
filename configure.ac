@@ -23,6 +23,7 @@ AC_DEFINE_UNQUOTED(CONFIG_H_CVSID, "", [(TODO: remove this define)])
 
 AC_CONFIG_SRCDIR([src/smartctl.cpp])
 AC_CONFIG_HEADERS([src/config.h])
+AC_CONFIG_MACRO_DIR([m4])
 
 AM_MAINTAINER_MODE
 
