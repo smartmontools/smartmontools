@@ -70,7 +70,7 @@ SRC_TARGETS += install-darwin install-darwin-cleanup
 endif
 
 # Avoid automake warning: '.PHONY was already defined in condition ...'
-phony = $(SRC_TARGETS)
+phony = bin-dist check-gnu-tar $(SRC_TARGETS)
 .PHONY: $(phony)
 
 $(SRC_TARGETS):
@@ -90,7 +90,7 @@ if REPRODUCIBLE_BUILD
 # Therefore the rules are overridden for reproducible builds of the source
 # tarball.
 
-phony += check-gnu-tar dist-fail
+phony += dist-fail
 
 reproducible_tar = \
         $${TAR-tar} --sort=name --mtime=@$(SOURCE_DATE_EPOCH) --clamp-mtime \
@@ -123,4 +123,24 @@ check-gnu-tar:
 
 dist-fail:
 	@! echo "Only 'dist-{gzip,xz,zstd}' are supported if SOURCE_DATE_EPOCH is used." >&2
+
+bin_dist_tar = $(reproducible_tar)
+
+else
+check-gnu-tar:
+	@:
+
+bin_dist_tar = $${TAR-tar} -cho -f
 endif
+
+#
+# Create binary distribution tarball 'smartmontools-VERSION-bin.tar.gz'
+#
+bin_distdir = $(distdir)-bin
+bin_distfile = $(bin_distdir).tar.gz
+
+bin-dist: check-gnu-tar
+	$(MAKE) DESTDIR="$$(pwd)/$(bin_distdir)" install
+	cd $(bin_distdir) && $(bin_dist_tar) ../$(bin_distdir).tar *
+	unset GZIP; gzip $(GZIP_ENV) -n < $(bin_distdir).tar > $(bin_distfile)
+	rm -rf $(bin_distdir) $(bin_distdir).tar
