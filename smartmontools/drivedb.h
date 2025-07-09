@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "VERSION: 7.2/5770 2025-06-16 15:23:46 +0000 c578b4845a1a",
+  { "VERSION: 7.2/5787 2025-07-09 15:27:17 +0000 a5888ba8f476",
     "-", "-",
     "Version information",
     ""
@@ -641,8 +641,9 @@ const drive_settings builtin_knowndrives[] = {
   // Reference: https://www.micron.com/resource-details/feec878a-265e-49a7-8086-15137c5f9011
   // TN-FD-34: 5100 SSD SMART Implementation
   { "Micron 5100 / 52x0 / 5300 / 5400 SSDs",
-    "(Micron_5100_)?(EE|MT)FDDA[KV](240|480|960|1T9|3T8|7T6)T(BY|CB|CC)|" // Matches both stock and Dell OEM
-      // tested with Micron_5100_MTFDDAK3T8TCB/D0MU410, MTFDDAK3T8TCB/D0MU410
+    "(Micron_5100_)?(EE|MT)FDDA[KV](240|480|960|1T9|3T8|7T6)T(BY|CB|CC)(_SED)?|" // Matches both stock and Dell OEM
+      // tested with Micron_5100_MTFDDAK3T8TCB/D0MU410, MTFDDAK3T8TCB/D0MU410,
+      // Micron_5100_MTFDDAK3T8TBY_SED/D0MU445
     "(Micron_5200_)?MTFDDAK(240|480|960|1T9|3T8|7T6)TD(C|D|N)|" // tested with Micron_5200_MTFDDAK240TDN/D1MU005,
       // Micron_5200_MTFDDAK3T8TDD/D1MU505
     "Micron_5210_MTFDDAK(480|960|1T9|3T8|7T6)QDE|" // tested with Micron_5210_MTFDDAK7T6QDE/D2MU804
@@ -916,10 +917,10 @@ const drive_settings builtin_knowndrives[] = {
       // KINGSTON RBUSNS4180S3256GJ/SBFK61D1, KINGSTON RBUSNS8180S3512GJ/SBFK61D1
     "KINGSTON SEDC400S37(400|480|800|960|1600|1800)G|" // DC400, tested with
       // KINGSTON SEDC400S37480G/SAFM02.[GH], KINGSTON SEDC400S37960G/SAFM32.I
-    "KINGSTON SEDC(450R|500[MR]|600M)(480|960|1920|3840|7680)G|" // DC450R, DC500M/R, DC600M, tested with
+    "KINGSTON SEDC(450R|500[MR]|600ME?)(480|960|1920|3840|7680)G|" // DC450R, DC500M/R, DC600M, tested with
       // KINGSTON SEDC450R480G/SCEKH3. KINGSTON SEDC500M1920G/SCEKJ2.3,
       // KINGSTON SEDC500R480G/SCEKJ2.3, KINGSTON SEDC450R7680G/SCEKH3.4,
-      // KINGSTON SEDC600M7680G/SCEKH5.1
+      // KINGSTON SEDC600M7680G/SCEKH5.1, KINGSTON SEDC600ME960G/SCEKH5L5
     "KINGSTON SM2280S3G2(120)G|" // KINGSTON SM2280S3G2120G/SAFM01.R
     "KINGSTON SUV300S37A(120|240|480)G|" // UV300 SSD, tested with KINGSTON SUV300S37A120G/SAFM11.K
     "KINGSTON SKC310S3B?7A960G|" // SSDNow KC310, KINGSTON SKC310S37A960G/SAFM00.r
@@ -2333,8 +2334,9 @@ const drive_settings builtin_knowndrives[] = {
     "T60|" // KingSpec T60, tested with T60/20151120
     "TCSUNBOW [MX]3 (60|120|240|480)GB|" // TC-Sunbow M3/X3, tested with TCSUNBOW M3 240GB/R0327B0,
       // TCSUNBOW X3 120GB/R1211A0, TCSUNBOW X3 480GB/S0509A0
-    "TEAM( T253(TD|X6)|L5Lite3D)((120|240|256|480|512)G|[12]T)|" // TEAMGROUP, tested with
+    "TEAM( T253(TD|X6)?|L5Lite3D)((120|240|256|480|512)G|[12]TB?)|" // TEAMGROUP, tested with
       // TEAML5Lite3D240G/R0302A0 (L5Lite 3D), TEAM T253TD480G/Q0410A, TEAM T253X6256G/U1014A0 (CX2)
+      // TEAM T2532TB/SN14546
     "TS((16|32|64|128|256|512)G|1T)(SSD|MS[AM])(230S?|3[67]0[SI]?|420[IK]?)|" // Transcend SSD230/360/370/420
       // SATA/mSATA, TS6500, tested with TS128GMSA230S/02J0S86A, TS32GMSA370/20140402,
       // mSATA MSM360 mini SSD, tested with TS32GMSM360/Q0407A
@@ -6445,6 +6447,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  { "USB: ; JMicron JMS581", // USB->SATA+PCIe (NVMe)
+    "0x152d:0x0581",
+    "", // 0x4204
+    "",
+    "-d sntjmicron" // smartmontools >= r5677: -d sntjmicron/sat
+  },
   { "USB: ; JMicron JMS583", // USB->PCIe (NVMe)
     "0x152d:0x[0a]583",
     "", // 0x214
@@ -6883,6 +6891,12 @@ const drive_settings builtin_knowndrives[] = {
   // 0x5432 (?)
   { "USB: ; ",
     "0x5432:0x235c", // TerraMaster D4-320 (see also 0x235c:0xa006)
+    "", // 0x0100
+    "",
+    "-d sat"
+  },
+  { "USB: ; ",
+    "0x5432:0x1352", // TerraMaster D8 Hybrid
     "", // 0x0100
     "",
     "-d sat"
