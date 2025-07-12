@@ -8,5 +8,5 @@
 /config.h
 /smartctl_res.rc
 /smartd_res.rc
-/svnversion.h
 /syslogevt.h
+/version.h
