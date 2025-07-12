@@ -1053,6 +1053,7 @@ CONFIG_VC_FILES = \
 config-vc: check-vc-version $(CONFIG_VC_FILES)
 
 $(srcdir)/os_win32/vc$(vcver)/config.h: config.h Makefile
+	@! test -f $(srcdir)/config.h || ! echo '$(MAKE) config-vc: does not work if run from configured source directory'
 	$(AM_V_GEN)sed \
 	  -e '1i/* os_win32/vc$(vcver)/config.h.  Generated from config.h by Makefile.  */' \
 	  -e 's,^#define HAVE_\(ATTR_PACKED\|CLOCK_GETTIME\|GETTIMEOFDAY\|__INT128\|LONG_DOUBLE_WIDER\|STRINGS_H\|UNISTD_H\) 1.*$$,/* #undef HAVE_\1 */ /* VC$(vcver) */,' \
