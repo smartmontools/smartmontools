@@ -139,8 +139,8 @@ smartctl_SOURCES += \
         os_win32/popen_win32.cpp \
         os_win32/popen.h
 
-smartctl_LDADD        += smartctl_res.o
-smartctl_DEPENDENCIES += smartctl_res.o
+smartctl_LDADD        += os_win32/smartctl_res.o
+smartctl_DEPENDENCIES += os_win32/smartctl_res.o
 
 endif
 
@@ -226,8 +226,8 @@ smartd_SOURCES += \
         os_win32/syslog_win32.cpp \
         os_win32/syslog.h
 
-smartd_LDADD        += smartd_res.o
-smartd_DEPENDENCIES += smartd_res.o
+smartd_LDADD        += os_win32/smartd_res.o
+smartd_DEPENDENCIES += os_win32/smartd_res.o
 
 endif
 
@@ -793,25 +793,23 @@ shellcheck.txt: $(SHELLSCRIPTS)
 if OS_WIN32_MINGW
 # Windows resources
 
-smartctl_res.o: smartctl_res.rc $(os_win32_manifest)
-	$(AM_V_GEN)$(WINDRES) smartctl_res.rc $@
+os_win32/smartctl_res.o: os_win32/smartctl_res.rc $(os_win32_manifest)
+	$(AM_V_GEN)$(WINDRES) os_win32/smartctl_res.rc $@
 
-smartd_res.o: smartd_res.rc syslogevt.rc $(os_win32_manifest)
-	$(AM_V_GEN)$(WINDRES) smartd_res.rc $@
+os_win32/smartd_res.o: os_win32/smartd_res.rc os_win32/syslogevt.rc $(os_win32_manifest)
+	$(AM_V_GEN)$(WINDRES) os_win32/smartd_res.rc $@
 
-runcmda_res.o: runcmda_res.rc defadmin.manifest
-	$(AM_V_GEN)$(WINDRES) runcmda_res.rc $@
+os_win32/runcmda_res.o: os_win32/runcmda_res.rc os_win32/defadmin.manifest
+	$(AM_V_GEN)$(WINDRES) os_win32/runcmda_res.rc $@
 
-runcmdu_res.o: runcmdu_res.rc $(os_win32_manifest)
-	$(AM_V_GEN)$(WINDRES) runcmdu_res.rc $@
+os_win32/runcmdu_res.o: os_win32/runcmdu_res.rc $(os_win32_manifest)
+	$(AM_V_GEN)$(WINDRES) os_win32/runcmdu_res.rc $@
 
-wtssendmsg_res.o: wtssendmsg_res.rc $(os_win32_manifest)
-	$(AM_V_GEN)$(WINDRES) wtssendmsg_res.rc $@
+os_win32/wtssendmsg_res.o: os_win32/wtssendmsg_res.rc $(os_win32_manifest)
+	$(AM_V_GEN)$(WINDRES) os_win32/wtssendmsg_res.rc $@
 
-# Convert version for VERSIONINFO resource: 6.6 r4519 -> 6.6.0.4519,
-# set description, name, version and year
+# Set description, name, version and year
 WIN_RC_FILTER = { \
-    ver=`echo '$(PACKAGE_VERSION).0' | sed -n 's,^\([0-9]*\.[0-9]*\.[0-9]*\).*$$,\1,p'` && \
     . ./version.sh && \
     txtver=$$SMARTMONTOOLS_GIT_VER_WIN && binver=`echo "$$txtver" | sed 's|\.|,|g'` && \
     yy=`echo "$$SMARTMONTOOLS_GIT_REV_DATE" | sed -n 's,^20\([0-9][0-9]\).*$$,\1,p'` && yy="$${yy:-XX}" && \
@@ -828,43 +826,43 @@ WIN_APP_MANIFEST = \
       echo '1 24 "$(srcdir)/$(os_win32_manifest)"' >> $@; \
     fi
 
-smartctl_res.rc: os_win32/versioninfo.rc.in Makefile version.sh
+os_win32/smartctl_res.rc: os_win32/versioninfo.rc.in Makefile version.sh
 	$(AM_V_GEN)
 	@n=smartctl d="Control and Monitor Utility for SMART Disks"; $(WIN_MAKE_RES)
 	@$(WIN_APP_MANIFEST)
 
-smartd_res.rc: os_win32/versioninfo.rc.in Makefile version.sh
+os_win32/smartd_res.rc: os_win32/versioninfo.rc.in Makefile version.sh
 	$(AM_V_GEN)
 	@n=smartd d="SMART Disk Monitoring Daemon"; $(WIN_MAKE_RES)
 	$(AM_V_at)echo '#include "./syslogevt.rc"' >> $@
 	@$(WIN_APP_MANIFEST)
 
-runcmdu_res.rc: os_win32/versioninfo.rc.in Makefile version.sh
+os_win32/runcmdu_res.rc: os_win32/versioninfo.rc.in Makefile version.sh
 	$(AM_V_GEN)
 	@n=runcmdu d="Run console command"; $(WIN_MAKE_RES)
 	@$(WIN_APP_MANIFEST)
 
-runcmda_res.rc: os_win32/versioninfo.rc.in Makefile version.sh
+os_win32/runcmda_res.rc: os_win32/versioninfo.rc.in Makefile version.sh
 	$(AM_V_GEN)
 	@n=runcmda d="Run console command as admin"; $(WIN_MAKE_RES)
-	$(AM_V_at)echo '1 24 "./defadmin.manifest"' >> $@
+	$(AM_V_at)echo '1 24 "os_win32/defadmin.manifest"' >> $@
 
-wtssendmsg_res.rc: os_win32/versioninfo.rc.in Makefile version.sh
+os_win32/wtssendmsg_res.rc: os_win32/versioninfo.rc.in Makefile version.sh
 	$(AM_V_GEN)
 	@n=wtssendmsg d="Send console messages"; $(WIN_MAKE_RES)
 	@$(WIN_APP_MANIFEST)
 
-syslogevt.rc: os_win32/syslogevt.mc
+os_win32/syslogevt.rc: os_win32/syslogevt.mc
 	$(AM_V_GEN)
 	@if test -n '$(WINDMC)'; then \
-	  $(ECHO_V) '$(WINDMC) -b $(srcdir)/os_win32/syslogevt.mc'; \
-	  $(WINDMC) -b $(srcdir)/os_win32/syslogevt.mc; \
+	  $(ECHO_V) '$(WINDMC) -b -h os_win32 -r os_win32 $(srcdir)/os_win32/syslogevt.mc'; \
+	  $(WINDMC) -b -h os_win32 -r os_win32 $(srcdir)/os_win32/syslogevt.mc; \
 	else \
 	  $(ECHO_V) "echo '// MESSAGETABLE not available' > $@"; \
 	  echo '// MESSAGETABLE not available' > $@; \
 	fi
 
-defadmin.manifest: os_win32/default.manifest
+os_win32/defadmin.manifest: os_win32/default.manifest
 	$(AM_V_GEN)sed 's,"asInvoker","requireAdministrator",' $(srcdir)/os_win32/default.manifest > $@
 
 # Build Windows distribution
@@ -881,14 +879,14 @@ distinst_win32 = $(PACKAGE)-$(VERSION).win$(win_bits)-setup.exe
 
 BINFILES_WIN32 = \
         smartctl.exe smartctl-nc.exe smartd.exe \
-        runcmda.exe runcmdu.exe wtssendmsg.exe \
+        os_win32/runcmda.exe os_win32/runcmdu.exe os_win32/wtssendmsg.exe \
         $(srcdir)/os_win32/smartd_mailer.ps1 \
         $(srcdir)/os_win32/smartd_mailer.conf.sample.ps1 \
         $(srcdir)/os_win32/smartd_warning.cmd
 
 if ENABLE_DRIVEDB
 BINFILES_WIN32 += \
-        update-smart-drivedb.ps1 \
+        os_win32/update-smart-drivedb.ps1 \
         $(srcdir)/drivedb.h
 endif
 
@@ -904,15 +902,15 @@ DOCFILES_WIN32 = \
         $(srcdir)/smartd.conf
 
 CLEANFILES += \
-        defadmin.manifest \
-        runcmda.exe runcmda_res.rc \
-        runcmdu.exe runcmdu_res.rc \
         smartctl-nc.exe smartctl-nc.exe.tmp \
-        smartctl_res.rc smartd_res.rc \
-        syslogevt.h \
-        syslogevt.rc syslogevt_*.bin \
-        update-smart-drivedb.ps1 \
-        wtssendmsg.exe wtssendmsg_res.rc
+        os_win32/defadmin.manifest \
+        os_win32/runcmda.exe os_win32/runcmda_res.rc \
+        os_win32/runcmdu.exe os_win32/runcmdu_res.rc \
+        os_win32/smartctl_res.rc os_win32/smartd_res.rc \
+        os_win32/syslogevt.h \
+        os_win32/syslogevt.rc os_win32/syslogevt_*.bin \
+        os_win32/update-smart-drivedb.ps1 \
+        os_win32/wtssendmsg.exe os_win32/wtssendmsg_res.rc
 
 # Note: Only use without options to be compatible with all variants
 UNIX2DOS = unix2dos
@@ -940,7 +938,7 @@ $(distzip_win32): $(distdir_win32).stamp
 
 # Build NSIS installer
 # Note: Only option character '-' is also compatible with Linux version of makensis
-$(distinst_win32): os_win32/installer.nsi Makefile smartctl_res.rc $(distdir_win32).stamp
+$(distinst_win32): os_win32/installer.nsi Makefile os_win32/smartctl_res.rc $(distdir_win32).stamp
 	$(AM_V_GEN)
 	@test -n '$(MAKENSIS)' || ! echo 'makensis: command not found (https://nsis.sourceforge.io)'
 	$(AM_V_at)test -z '$(builddir_win64)' || ( cd $(builddir_win64) && $(MAKE) distdir-win32 )
@@ -1015,20 +1013,20 @@ smartctl-nc.exe: smartctl.exe
 	$(AM_V_at)mv -f $@.tmp $@
 
 # Build runcmd?.exe and wtssendmsg.exe
-runcmd.o: os_win32/runcmd.c
-	$(AM_V_CC)$(CC) -c -Os $(srcdir)/os_win32/runcmd.c
+os_win32/runcmd.o: os_win32/runcmd.c
+	$(AM_V_CC)$(CC) -c -o $@ -Os $(srcdir)/os_win32/runcmd.c
 
-runcmdu.exe: runcmd.o runcmdu_res.o
-	$(AM_V_CCLD)$(CC) -o $@ runcmd.o runcmdu_res.o
+os_win32/runcmdu.exe: os_win32/runcmd.o os_win32/runcmdu_res.o
+	$(AM_V_CCLD)$(CC) -o $@ os_win32/runcmd.o os_win32/runcmdu_res.o
 
-runcmda.exe: runcmd.o runcmda_res.o
-	$(AM_V_CCLD)$(CC) -o $@ runcmd.o runcmda_res.o
+os_win32/runcmda.exe: os_win32/runcmd.o os_win32/runcmda_res.o
+	$(AM_V_CCLD)$(CC) -o $@ os_win32/runcmd.o os_win32/runcmda_res.o
 
-wtssendmsg.exe: os_win32/wtssendmsg.c wtssendmsg_res.o
-	$(AM_V_CCLD)$(CC) -Os -o $@ $(srcdir)/os_win32/wtssendmsg.c wtssendmsg_res.o -lwtsapi32
+os_win32/wtssendmsg.exe: os_win32/wtssendmsg.c os_win32/wtssendmsg_res.o
+	$(AM_V_CCLD)$(CC) -Os -o $@ $(srcdir)/os_win32/wtssendmsg.c os_win32/wtssendmsg_res.o -lwtsapi32
 
 # Build drivedb.h update script
-update-smart-drivedb.ps1: os_win32/update-smart-drivedb.ps1.in ../config.status
+os_win32/update-smart-drivedb.ps1: os_win32/update-smart-drivedb.ps1.in ../config.status
 	$(AM_V_GEN)$(SHELL) ../config.status -q --file=$@:$(srcdir)/os_win32/update-smart-drivedb.ps1.in
 
 # MSVC Version to change in make command line
@@ -1063,11 +1061,11 @@ $(srcdir)/os_win32/vc$(vcver)/config.h: config.h Makefile
 $(srcdir)/os_win32/vc$(vcver)/version.h: version.h
 	$(AM_V_GEN)cp version.h $@
 
-$(srcdir)/os_win32/vc$(vcver)/smartctl_res.rc: smartctl_res.rc
-	$(AM_V_GEN)sed '/^1 24 /d' smartctl_res.rc > $@
+$(srcdir)/os_win32/vc$(vcver)/smartctl_res.rc: os_win32/smartctl_res.rc
+	$(AM_V_GEN)sed '/^1 24 /d' os_win32/smartctl_res.rc > $@
 
-$(srcdir)/os_win32/vc$(vcver)/smartd_res.rc: smartd_res.rc
-	$(AM_V_GEN)sed '/^1 24 /d' smartd_res.rc > $@
+$(srcdir)/os_win32/vc$(vcver)/smartd_res.rc: os_win32/smartd_res.rc
+	$(AM_V_GEN)sed '/^1 24 /d' os_win32/smartd_res.rc > $@
 
 clean-vc: check-vc-version
 	rm -f $(srcdir)/os_win32/vc$(vcver)/.vs/smartmontools/v$(vcver)/Browse.VC.opendb
