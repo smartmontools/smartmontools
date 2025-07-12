@@ -4,7 +4,7 @@
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.64])
 AC_INIT([smartmontools],[8.0],[smartmontools-support@listi.jpberlin.de],[],[https://www.smartmontools.org/])
-AM_INIT_AUTOMAKE([1.13 foreign])
+AM_INIT_AUTOMAKE([1.13 foreign subdir-objects])
 
 # Version of drive database branch
 smartmontools_drivedb_version=7.5
