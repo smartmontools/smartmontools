@@ -836,10 +836,7 @@ AC_DEFINE_UNQUOTED(SMARTMONTOOLS_BUILD_HOST,     "${host}",                     
 
 AC_SUBST(CXXFLAGS)
 
-AC_CONFIG_FILES(
-  Makefile
-  src/Makefile
-)
+AC_CONFIG_FILES([Makefile src/Makefile])
 AC_OUTPUT
 AC_PROG_MAKE_SET
 
