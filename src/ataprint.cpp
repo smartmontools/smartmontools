@@ -1209,15 +1209,47 @@ static void set_json_globals_from_smart_attrib(int id, const char * name,
     return;
   }
 
-  static const regular_expression endurance_regex(
-    "SSD_Life_Left.*|Wear_Leveling.*"
-  );
-  if (id >= 100 && endurance_regex.full_match(name)) {
-    // May be later overridden by Device Statistics
-    jglb["endurance_used"]["current_percent"] = (normval <= 100 ? 100 - normval : 0);
+static const regular_expression endurance_regex(
+  "SSD_Life_Left.*|Wear_Leveling.*|"
+  "DriveLife_Remaining%|DriveLife_Used%|"
+  "Drive_Life_Remaining%|Drive_Life_Used%|"
+  "SSD_Life_Left_Perc|SSD_Remaining_Life_Perc|"
+  "Percent_Life_Remaining|Percent_Life_Used|"
+  "PCT_Life_Remaining|Perc_Rated_Life_Remain|"
+  "Perc_Rated_Life_Used|Remaining_Life|"
+  "Lifetime_Remaining%|Lifetime_Left|"
+  "Media_Wearout_Indicator|Percent_Lifetime_Remain|"
+  "Percent_Lifetime_Used|End_of_Life"
+);
+
+static const regular_expression remaining_regex(".*Remaining.*|.*Left.*|.*Remain.*|.*End_of_Life.*");
+
+if (id >= 100 && endurance_regex.full_match(name)) {
+    bool isRemaining = remaining_regex.full_match(name);
+    jglb["endurance_used"]["current_percent"] = isRemaining 
+        ? (normval <= 100 ? 100 - normval : 0)
+        : normval;
     return;
-  }
 }
+
+static const regular_expression temperature_regex(".*[Tt]emperature.*|.*[Tt]emp.*");
+
+if (temperature_regex.full_match(name)) {
+    jglb["temperature_celsius"] = normval;
+    return;
+}
+
+static const regular_expression lba_written_regex(
+  ".*LBAs.*Written.*|.*Host.*Writes.*|.*Writes.*GiB.*|.*Total.*Writes.*|.*NAND.*Writes.*|.*Program_Page_Count.*"
+);
+
+if (lba_written_regex.full_match(name)) {
+    jglb["lbas_written"] = normval;
+    return;
+}
+
+
+
 
 // onlyfailed=0 : print all attribute values
 // onlyfailed=1:  just ones that are currently failed and have prefailure bit set
