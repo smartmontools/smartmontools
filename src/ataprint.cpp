@@ -1209,6 +1209,8 @@ static void set_json_globals_from_smart_attrib(int id, const char * name,
     return;
   }
 
+// --- Regex to match all known SSD endurance/lifetime-related SMART attributes ---
+// Covers vendor variations like 'SSD_Life_Left', 'DriveLife_Used%', 'Percent_Lifetime_Remain', etc.
 static const regular_expression endurance_regex(
   "SSD_Life_Left.*|Wear_Leveling.*|"
   "DriveLife_Remaining%|DriveLife_Used%|"
@@ -1222,33 +1224,47 @@ static const regular_expression endurance_regex(
   "Percent_Lifetime_Used|End_of_Life"
 );
 
+// --- Regex to detect whether the attribute expresses remaining life ---
+// If matched, value is inverted (100 - normval) to give % life used
 static const regular_expression remaining_regex(".*Remaining.*|.*Left.*|.*Remain.*|.*End_of_Life.*");
 
+// --- Endurance Normalization Logic ---
+// If a SMART attribute matches the endurance regex, normalize its value
+// Store the result under the JSON key: "endurance_used.current_percent"
 if (id >= 100 && endurance_regex.full_match(name)) {
-    bool isRemaining = remaining_regex.full_match(name);
+    bool isRemaining = remaining_regex.full_match(name);  // Check if it's a 'remaining life' type
     jglb["endurance_used"]["current_percent"] = isRemaining 
-        ? (normval <= 100 ? 100 - normval : 0)
-        : normval;
-    return;
+        ? (normval <= 100 ? 100 - normval : 0)             // Invert value if needed
+        : normval;                                         // Else use as-is
+    return;  // Exit after handling this attribute
 }
 
+// --- Temperature Attribute Parsing ---
+// Matches all temperature-related labels like "Temperature_Celsius", "Temp_Internal", etc.
 static const regular_expression temperature_regex(".*[Tt]emperature.*|.*[Tt]emp.*");
 
+// If attribute name matches temperature regex, store it under "temperature_celsius"
 if (temperature_regex.full_match(name)) {
-    jglb["temperature_celsius"] = normval;
+    jglb["temperature_celsius"] = normval;  // Direct assignment as it's already normalized
     return;
 }
 
+// --- LBA Written / NAND Write Attribute Parsing ---
+// Matches labels like "Host_Writes", "LBAs_Written", "Total_Writes_GiB", etc.
 static const regular_expression lba_written_regex(
   ".*LBAs.*Written.*|.*Host.*Writes.*|.*Writes.*GiB.*|.*Total.*Writes.*|.*NAND.*Writes.*|.*Program_Page_Count.*"
 );
 
+// If matched, store raw value under "lbas_written"
 if (lba_written_regex.full_match(name)) {
-    jglb["lbas_written"] = normval;
+    jglb["lbas_written"] = normval;  // Unit conversion (e.g., to GiB) can be added later if needed
     return;
 }
 
-
+// --- Fallback Logging ---
+#ifndef NDEBUG
+std::cerr << "Unmatched SMART attribute: " << name << " (ID: " << id << ", normval: " << normval << ")" << std::endl;
+#endif
 
 
 // onlyfailed=0 : print all attribute values
