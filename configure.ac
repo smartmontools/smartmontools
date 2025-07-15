@@ -4,7 +4,7 @@
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.64])
 AC_INIT([smartmontools],[8.0],[smartmontools-support@listi.jpberlin.de],[],[https://www.smartmontools.org/])
-AM_INIT_AUTOMAKE([1.13 foreign subdir-objects])
+AM_INIT_AUTOMAKE([1.13 foreign subdir-objects tar-ustar])
 
 # Version of drive database branch
 smartmontools_drivedb_version=7.5
@@ -832,6 +832,33 @@ elif test "$res" = "no"; then
   done
 fi
 
+if test -n "$SOURCE_DATE_EPOCH"; then
+  AC_MSG_CHECKING([for GNU tar supporting reproducible tarballs])
+  res=no
+  src_dist_tar=false
+  bin_dist_tar=false
+  # aclocal.m4: am__tar="g?tar --format=ustar -chf - "'"$$tardir"'
+  cmd=`echo "$am__tar" | sed -n 's/ - "\$\$tardir"$/ -/p'`
+  if test -n "$cmd"; then
+    cmd="$cmd --sort=name --mtime=@$SOURCE_DATE_EPOCH --clamp-mtime --owner=root:0 --group=root:0"
+    rm -rf conftest.dir
+    mkdir conftest.dir
+    if $cmd conftest.dir >/dev/null 2>&1; then
+      src_dist_tar=$cmd
+      bin_dist_tar="$cmd *"
+      res=${cmd%% *}
+    fi
+    rmdir conftest.dir
+  fi
+  AC_MSG_RESULT([$res])
+else
+  src_dist_tar= # not used in Makefile.am
+  bin_dist_tar=`echo "$am__tar" | sed -n 's/"\$\$tardir"$/*/p'`
+  test -n "$bin_dist_tar" || bin_dist_tar="tar chf - *"
+fi
+AC_SUBST([src_dist_tar])
+AC_SUBST([bin_dist_tar])
+
 AC_DEFINE_UNQUOTED(SMARTMONTOOLS_BUILD_HOST,     "${host}",                       [smartmontools Build Host])
 
 AC_SUBST(CXXFLAGS)
@@ -1009,4 +1036,10 @@ This version of smartmontools does not use C++14 or C++17 enhancements,
 but future versions possibly will.
 This script was unable to determine a compiler option to enable C++$cxx_missing.
 Please send info about compiler and platform to
-$PACKAGE_BUGREPORT - Thanks!])
+$PACKAGE_BUGREPORT - Thanks!
+])
+
+test "$src_dist_tar" != "false" || AC_MSG_WARN([
+Reproducible tarballs require GNU tar which is not available.
+'make dist' and 'make bin-dist' will fail.
+])
