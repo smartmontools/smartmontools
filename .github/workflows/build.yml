@@ -245,6 +245,45 @@ jobs:
           path: artifacts/smartmontools-win32-setup-${{ needs.make-src-tgz.outputs.SMARTMONTOOLS_GIT_VER_FNAME }}.exe
           retention-days: 1
 
+  compile-cygwin:
+    name: Creating Cygwin binaries
+    needs: make-src-tgz
+    runs-on: ubuntu-latest
+    # Cross build on Fedora is faster than the native build done by 'cygwin.yml'.
+    # The recipes below are partly borrowed from Cygwin's own CI build
+    container: fedora:latest
+    env:
+      SOURCE_DATE_EPOCH: ${{ needs.make-src-tgz.outputs.SOURCE_DATE_EPOCH }}
+      SMARTMONTOOLS_PKG_VER: ${{ needs.make-src-tgz.outputs.SMARTMONTOOLS_PKG_VER }}
+      SMARTMONTOOLS_GIT_VER_FNAME: ${{ needs.make-src-tgz.outputs.SMARTMONTOOLS_GIT_VER_FNAME }}
+    steps:
+      - name: Install build tools
+        run: |
+          dnf install -y make
+      - name: Enable 'dnf copr'
+        run: |
+          dnf install -y dnf-plugins-core
+      - name: Install cross-cygwin toolchain
+        run: |
+          dnf copr enable -y yselkowitz/cygwin
+          dnf install -y cygwin64-gcc-c++
+      - uses: actions/download-artifact@v4
+        with:
+          artifact-ids: ${{ needs.make-src-tgz.outputs.artficact-id }}
+      - name: Cygwin build
+        run: |
+          tar -xvf artifacts/smartmontools-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz &&
+          cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
+          ../configure --build=$(../config.guess) --host=x86_64-pc-cygwin SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
+          make -j BUILD_INFO='"(GHA Build)"' &&
+          mkdir -p ${GITHUB_WORKSPACE}/artifacts &&
+          make bin-dist bin_distfile="${GITHUB_WORKSPACE}/artifacts/smartmontools-cygwin-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz"
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: cygwin
+          path: artifacts/smartmontools-cygwin-${{ needs.make-src-tgz.outputs.SMARTMONTOOLS_GIT_VER_FNAME }}.tar.gz
+          retention-days: 1
 
   publish-artifacts:
     # finally we are publishing all artifacts to the smartmontools/smartmontools-builds
@@ -265,6 +304,7 @@ jobs:
       - compile-darwin
       - compile-freebsd
       - compile-windows
+      - compile-cygwin
     runs-on: ubuntu-latest
     # we are using environment to store APP_ID/PRIVATE_KEY
     environment: 
