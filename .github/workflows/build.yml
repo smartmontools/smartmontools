@@ -69,9 +69,8 @@ jobs:
           cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
           ../configure LDFLAGS="-static" SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
           make -j BUILD_INFO='"(GHA Build)"' && make check &&
-          mkdir -p inst ${GITHUB_WORKSPACE}/artifacts && make DESTDIR="$(pwd)/inst" install &&
-          cd inst &&
-          tar --sort=name --mtime=@${SOURCE_DATE_EPOCH} -czf "${GITHUB_WORKSPACE}/artifacts/smartmontools-linux-x86_64-static-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" *
+          mkdir -p ${GITHUB_WORKSPACE}/artifacts &&
+          make bin-dist bin_distfile="${GITHUB_WORKSPACE}/artifacts/smartmontools-linux-x86_64-static-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz"
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -99,9 +98,8 @@ jobs:
           cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
           ../configure CC="gcc -m32" CXX="g++ -m32" LDFLAGS="-static" SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
           make -j BUILD_INFO='"(GHA Build)"' && make check &&
-          mkdir -p inst ${GITHUB_WORKSPACE}/artifacts && make DESTDIR="$(pwd)/inst" install &&
-          cd inst &&
-          tar --sort=name --mtime=@${SOURCE_DATE_EPOCH} -czf "${GITHUB_WORKSPACE}/artifacts/smartmontools-linux-i386-static-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" *
+          mkdir -p ${GITHUB_WORKSPACE}/artifacts &&
+          make bin-dist bin_distfile="${GITHUB_WORKSPACE}/artifacts/smartmontools-linux-i386-static-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz"
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -175,9 +173,8 @@ jobs:
             LDFLAGS="-static" --host=x86_64-pc-freebsd14 \
             SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
           make -j BUILD_INFO='"(GHA Build)"' &&
-          mkdir -p inst ${GITHUB_WORKSPACE}/artifacts && make DESTDIR="$(pwd)/inst" install &&
-          cd inst &&
-          tar --sort=name --mtime=@${SOURCE_DATE_EPOCH} -czf "${GITHUB_WORKSPACE}/artifacts/smartmontools-freebsd-14-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" *
+          mkdir -p ${GITHUB_WORKSPACE}/artifacts &&
+          make bin-dist bin_distfile="${GITHUB_WORKSPACE}/artifacts/smartmontools-freebsd-14-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz"
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -197,9 +194,8 @@ jobs:
             LDFLAGS="-static" --host=x86_64-pc-freebsd13 \
             SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
           make -j BUILD_INFO='"(GHA Build)"' &&
-          mkdir -p inst ${GITHUB_WORKSPACE}/artifacts && make DESTDIR="$(pwd)/inst" install &&
-          cd inst &&
-          tar --sort=name --mtime=@${SOURCE_DATE_EPOCH} -czf "${GITHUB_WORKSPACE}/artifacts/smartmontools-freebsd-13-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" *
+          mkdir -p ${GITHUB_WORKSPACE}/artifacts &&
+          make bin-dist bin_distfile="${GITHUB_WORKSPACE}/artifacts/smartmontools-freebsd-13-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz"
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
