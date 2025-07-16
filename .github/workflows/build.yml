@@ -91,7 +91,7 @@ jobs:
         with:
           artifact-ids: ${{ needs.make-src-tgz.outputs.artficact-id }}    
       - name: install m32 dependencies
-        run: sudo apt-get install gcc-multilib g++-multilib
+        run: sudo apt-get update && sudo apt-get install gcc-multilib g++-multilib
       - name: build
         run: |
           tar -xvf artifacts/smartmontools-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz &&
