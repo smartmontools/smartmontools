@@ -6162,7 +6162,7 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   { "USB: ; Realtek RTL9210", // USB->PCIe (NVMe)
-    "0x0bda:0x9210",
+    "0x(0bda|0dd8):0x9210", // 0x0bda: Realtek, 0x0dd8: Netac WH51
     "", // 0x2100
     "",
     "-d sntrealtek"
