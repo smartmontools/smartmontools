@@ -4631,6 +4631,11 @@ const drive_settings builtin_knowndrives[] = {
     "http://knowledge.seagate.com/articles/en_US/FAQ/207963en",
     ""
   },
+  { "Seagate Barracuda Pro", // tested with ST8000DM0004-1ZC11G/DN01
+    "ST(8|10|12)000DM000[47]-.*",
+    "", "",
+    "-v 9,msec24hour32 -v 188,raw16 -v 240,msec24hour32"
+  },
   { "Seagate Constellation (SATA)", // tested with ST9500530NS/SN03
     "ST9(160511|500530)NS",
     "", "", ""
