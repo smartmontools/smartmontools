@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "VERSION: 7.5/5787 2025-07-09 15:27:17 +0000 a5888ba8f476",
+  { "VERSION: 7.5/5804 2025-07-26 14:08:01 +0000 1479d2572280",
     "-", "-",
     "Version information",
     ""
@@ -649,8 +649,9 @@ const drive_settings builtin_knowndrives[] = {
     "Micron_5210_MTFDDAK(480|960|1T9|3T8|7T6)QDE|" // tested with Micron_5210_MTFDDAK7T6QDE/D2MU804
     "(Micron_5300(HC)?_)?MTFDDA[KV](240|480|960|1T9|3T8|7T6)TD[STU]|" // tested with Micron_5300_MTFDDAK1T9TDS/D3MU001
       // Micron_5300HC_MTFDDAK960TDS/D3MN010, MTFDDAK1T9TDT/D3MU001
-    "(Micron_5400_)?(EE|MT)FDDA[KV](240|480|960|1T9|3T8|7T6)TG[ABC](_SED)?", // tested with
+    "(Micron_5400_)?(EE|MT)FDDA[KV](240|480|960|1T9|3T8|7T6)TG[ABC](_SED)?|" // tested with
       // Micron_5400_MTFDDAK1T9TGB/D4MU001, Micron_5400_MTFDDAK960TGA_SED/D4CS001
+    "VK001920G(WSXK|XAWN)", // HPE OEM, tested with VK001920GWSXK/HPG3 (5200?), VK001920GXAWN/HPG1 (5300?)
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
@@ -3902,8 +3903,10 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 22,raw48,Helium_Level"
   },
   { "Western Digital Ultrastar DC HC560", // tested with WDC  WUH722020ALN604/PQGNW108
-    // WDC WUH722020BLE6L4
-    "(WDC  ?)?WUH722020[AB]L[EN]6[0L][014]",
+    // WDC WUH722020BLE6L4,
+    // WDC WD200EDGZ-11BLDS0/85.00A85 (White label, Elements 0x1058:0x25a3)
+    "(WDC  ?)?WUH722020[AB]L[EN]6[0L][014]|"
+    "WDC WD200EDGZ-.*",
     "", "",
   //"-v 22,raw48,Helium_Level "
     "-v 82,raw16,Head_Health_Score "
@@ -3915,6 +3918,13 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 22,raw48,Helium_Level "
     "-v 71,raw16,Milli_Micro_Actuator "
     "-v 82,raw16,Head_Health_Score "
+    "-v 90,hex48,NAND_Master"
+  },
+  { "Western Digital Ultrastar DC HC580", // tested with WDC  WUH722424ALE6L4/LVGNWF10
+    "(WDC  ?)?WUH72242[24]ALE6L[14]",
+    "", "",
+  //"-v 22,raw48,Helium_Level "
+    "-v 71,raw16,Milli_Micro_Actuator "
     "-v 90,hex48,NAND_Master"
   },
   { "Western Digital Ultrastar DC HC650", // tested with WDC  WSH722020ALE6L0/PCGMT421
@@ -4306,7 +4316,8 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Seagate Momentus 7200.4",
     "ST9(160412|250410|320423|500420)ASG?",
-    "", "", ""
+    "", "",
+    "-v 188,raw16 -v 240,msec24hour32"
   },
   { "Seagate Momentus 7200 FDE.2",
     "ST9((160413|25041[12]|320426|50042[12])AS|(16041[489]|2504[16]4|32042[67]|500426)ASG)",
@@ -4528,9 +4539,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Seagate Barracuda 7200.14 (AF)", // different part number, tested with
       // ST1000DM003-1CH162/CC47, ST1000DM003-1CH162/CC49, ST2000DM001-1CH164/CC24,
-      // ST1000DM000-9TS15E/CC92, APPLE HDD ST3000DM001/AP15 (no attr 240)
+      // ST1000DM000-9TS15E/CC92, APPLE HDD ST3000DM001/AP15 (no attr 240),
+      // APPLE HDD ST1000DM003/AP18
     "ST(1000|1500|2000|2500|3000)DM00[0-3]-.*|"
-    "APPLE HDD ST3000DM001",
+    "APPLE HDD ST([13]000DM00[13])",
     "", "",
     "-v 188,raw16 -v 240,msec24hour32"
   },
@@ -4629,6 +4641,11 @@ const drive_settings builtin_knowndrives[] = {
     "http://knowledge.seagate.com/articles/en_US/FAQ/207931en\n"
     "http://knowledge.seagate.com/articles/en_US/FAQ/207963en",
     ""
+  },
+  { "Seagate Barracuda Pro", // tested with ST8000DM0004-1ZC11G/DN01
+    "ST(8|10|12)000DM000[47]-.*",
+    "", "",
+    "-v 9,msec24hour32 -v 188,raw16 -v 240,msec24hour32"
   },
   { "Seagate Constellation (SATA)", // tested with ST9500530NS/SN03
     "ST9(160511|500530)NS",
@@ -6162,7 +6179,7 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   { "USB: ; Realtek RTL9210", // USB->PCIe (NVMe)
-    "0x0bda:0x9210",
+    "0x(0bda|0dd8):0x9210", // 0x0bda: Realtek, 0x0dd8: Netac WH51
     "", // 0x2100
     "",
     "-d sntrealtek"
