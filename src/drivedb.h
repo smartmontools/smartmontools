@@ -3920,6 +3920,13 @@ const drive_settings builtin_knowndrives[] = {
     "-v 82,raw16,Head_Health_Score "
     "-v 90,hex48,NAND_Master"
   },
+  { "Western Digital Ultrastar DC HC580", // tested with WDC  WUH722424ALE6L4/LVGNWF10
+    "(WDC  ?)?WUH72242[24]ALE6L[14]",
+    "", "",
+  //"-v 22,raw48,Helium_Level "
+    "-v 71,raw16,Milli_Micro_Actuator "
+    "-v 90,hex48,NAND_Master"
+  },
   { "Western Digital Ultrastar DC HC650", // tested with WDC  WSH722020ALE6L0/PCGMT421
     "(WDC  ?)?WSH7220(20|VC)AL[EN]6[0L][0146]",
     "", "", ""
