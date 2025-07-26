@@ -4307,7 +4307,8 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Seagate Momentus 7200.4",
     "ST9(160412|250410|320423|500420)ASG?",
-    "", "", ""
+    "", "",
+    "-v 188,raw16 -v 240,msec24hour32"
   },
   { "Seagate Momentus 7200 FDE.2",
     "ST9((160413|25041[12]|320426|50042[12])AS|(16041[489]|2504[16]4|32042[67]|500426)ASG)",
