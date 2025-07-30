@@ -5418,6 +5418,90 @@ const drive_settings builtin_knowndrives[] = {
     // Model numbers with "M" suffix denote the use of USB-C receptacles instead of Micro-B.
     "", "", ""
   },
+   { "", // Model Family
+    "S1XE(480|1T0|2T0|4T0|8T0)S327Y(A2|91)C1|"//SS6000SE
+    "S1XE(240|480|960)S3N6Y9TC1AP|"//SS6000SE
+    "D1XE0(08|16|32)S3N4Y9SW0A0|"//DS6130
+    "GT66T0(08|16|32)S3IN4SS|"//TS3100
+    "XITC SS6000SES3(27|N6)-(240|480|960|1920|3840|7680)(G|GB)|" //SS6000SE
+    "S1XE(240|480|1T0)S3N6Y9TC1AP",//TS3000
+    "","",
+    "-v 160,raw48,Uncorrectable_Error_Cnt "
+    "-v 161,raw48,Number_of_Pure_Spare "
+    "-v 163,raw48,Initial_Bad_Block_Count "
+    "-v 164,raw48,Total_Erase_Count "
+    "-v 165,raw48,Max_Erase_Count "
+    "-v 166,raw48,Min_Erase_Count "
+    "-v 167,raw48,Average_Erase_Count "
+    "-v 170,raw48,Grown_Failing_Block_Ct "
+    "-v 171,raw48,Program_Fail_Count "
+    "-v 172,raw48,Erase_Fail_Count "
+    "-v 175,raw16,Capacitor_Life "
+    "-v 195,raw8,Hardware_ECC_Recovered "
+    "-v 202,raw48,Available_Reservd_Space "
+    "-v 232,raw48,Percent_Life_Used "
+    "-v 233,raw48,Flash_Writes_32MiB "
+    "-v 234,raw48,Flash_Reads_32MiB "
+    "-v 241,raw48,Host_Writes_32MiB "
+    "-v 242,raw48,Host_Reads_32MiB "
+    "-v 250,raw16,SATA_Downshift_Cnt "
+  },
+  { "", // Model Family
+    "XITC SS2000SES327-(480|960|1920|3840)GB",
+    "","",
+    "-v 160,raw48,Uncorrectable_Error_Cnt "
+    "-v 161,raw48,Number_of_Pure_Spare "
+    "-v 163,raw48,Initial_Bad_Block_Count "
+    "-v 164,raw48,Total_Erase_Count "
+    "-v 165,raw48,Max_Erase_Count "
+    "-v 166,raw48,Min_Erase_Count "
+    "-v 167,raw48,Average_Erase_Count "
+    "-v 170,raw48,Grown_Failing_Block_Ct "
+    "-v 171,raw48,Program_Fail_Count "
+    "-v 172,raw48,Erase_Fail_Count "
+    "-v 174,raw48,Unexpect_Power_Loss_Ct "
+    "-v 175,raw48,Capacitor_Life "
+    "-v 183,raw48,SATA_Downshift_Cnt "
+    "-v 195,raw8,Hardware_ECC_Recovered "
+    "-v 202,raw48,Percent_Lifetime_Remain "
+    "-v 232,raw48,Available_Reservd_Space "
+    "-v 233,raw48,Flash_Writes_32MiB "
+    "-v 234,raw48,Flash_Reads_32MiB "
+    "-v 241,raw48,Host_Writes_32MiB "
+    "-v 242,raw48,Host_Reads_32MiB "
+  },
+  { "", // Model Family
+    "DGD67(256|512)S3C(27|N6)|"//V100 H10C-Y
+    "DGD63(256|512|1T1|2T1|4T1)S3C(27|MA)S(D|D1)|"//V100 H10L-Y
+    "DGC63(064|128|256|512|1T1)S3I(27|MA)S(D|D1)|"//V100 H10I-IY
+    "XITC DS1200PROS3(27|MA)-(256|512|1024|2048|4096)(GB|G)|"//V100
+    "DGD6(7|3)512S3C(27|N6)|" //V100 C09
+    "EG4634T1S3C27SD1|"//V100 E10L-Y
+    "DGF6A(256|512|1T1)S3C(27|MA)|"//V200 H21C-Y
+    "D1XC(008|016|032|064|128)S3(27|N4|MA)Y9SW0A0|"//V200 DS2130
+    "D1XC(064|128|256|512|1T1)S3(27|N4|N6|MA)Y9TC0|" //V200 DS2200T
+    "D1XC(128|256|512|1T1|2T1)S3(27|MA)Y8TW0(A|S)D|" // v200 DS2200Y
+    "DGF69(128|256|512|1T1|2T1)S3I(27|N4|N6|MA)(A|S)D",//V200 H21C-IY
+    "","",
+    "-v 160,raw48,Uncorrectable_Error_Cnt "
+    "-v 161,raw48,Number_of_Pure_Spare "
+    "-v 163,raw48,Initial_Bad_Block_Count "
+    "-v 164,raw48,Total_Erase_Count "
+    "-v 165,raw48,Max_Erase_Count "
+    "-v 166,raw48,Min_Erase_Count "
+    "-v 167,raw48,Average_Erase_Count "
+    "-v 170,raw48,Grown_Failing_Block_Ct "
+    "-v 171,raw48,Program_Fail_Count "
+    "-v 172,raw48,Erase_Fail_Count "
+    "-v 175,raw48,Capacitor_Life "
+    //"-v 194,raw48,Temperature_Celsius "
+    "-v 202,raw48,Available_Reservd_Space "
+    "-v 232,raw48,Percent_Life_Used "
+    "-v 233,raw48,Flash_Writes_32MiB "
+    "-v 234,raw48,Flash_Reads_32MiB "
+    "-v 241,raw48,Host_Writes_32MiB "
+    "-v 242,raw48,Host_Reads_32MiB "
+  },
   { "Quantum Bigfoot", // tested with TS10.0A/A21.0G00, TS12.7A/A21.0F00
     "QUANTUM BIGFOOT TS(10\\.0|12\\.7)A",
     "", "", ""
