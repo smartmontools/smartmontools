@@ -4617,6 +4617,9 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "",
     "-v 183,raw48,SATA_Downshift_Count "
+    "-v 1,raw48:54 "
+    "-v 7,raw48:54 "
+    "-v 188,raw16 "
   },
   { "Seagate Barracuda ES.2", // fixed firmware
     "ST3(25031|50032|75033|100034)0NS",
