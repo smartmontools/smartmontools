@@ -2642,6 +2642,53 @@ const drive_settings builtin_knowndrives[] = {
     "-v 7,raw48,Unknown_Attribute "
     "-v 8,raw48,Unknown_Attribute"
   },
+  { "XITC", // Model Family
+    "^XITC SS6000SE.*|"
+    "^S1XE.*", 
+    "","",
+    "-v 160,raw48,Uncorrectable_Error_Cnt "
+    "-v 161,raw48,Number_of_Pure_Spare "
+    "-v 163,raw48,Initial_Bad_Block_Count "
+    "-v 164,raw48,Total_Erase_Count "
+    "-v 165,raw48,Max_Erase_Count "
+    "-v 166,raw48,Min_Erase_Count "
+    "-v 167,raw48,Average_Erase_Count "
+    "-v 170,raw48,Grown_Failing_Block_Ct "
+    "-v 171,raw48,Program_Fail_Count "
+    "-v 172,raw48,Erase_Fail_Count "
+    "-v 175,raw16,Capacitor_Life "
+    "-v 195,raw8,Hardware_ECC_Recovered "
+    "-v 202,raw48,Available_Reservd_Space "
+    "-v 232,raw48,Percent_Life_Used "
+    "-v 233,raw48,Flash_Writes_32MiB "
+    "-v 234,raw48,Flash_Reads_32MiB "
+    "-v 241,raw48,Host_Writes_32MiB "
+    "-v 242,raw48,Host_Reads_32MiB "
+    "-v 250,raw16,SATA_Downshift_Cnt "
+  },
+  { "UnisFlash", // Model Family
+    "^UnisFlash UFE.*", //UnisFlash
+    "","",
+    "-v 160,raw48,Uncorrectable_Error_Cnt "
+    "-v 161,raw48,Number_of_Pure_Spare "
+    "-v 163,raw48,Initial_Bad_Block_Count "
+    "-v 164,raw48,Total_Erase_Count "
+    "-v 165,raw48,Max_Erase_Count "
+    "-v 166,raw48,Min_Erase_Count "
+    "-v 167,raw48,Average_Erase_Count "
+    "-v 170,raw48,Grown_Failing_Block_Ct "
+    "-v 171,raw48,Program_Fail_Count "
+    "-v 172,raw48,Erase_Fail_Count "
+    "-v 175,raw16,Capacitor_Life "
+    "-v 195,raw8,Hardware_ECC_Recovered "
+    "-v 202,raw48,Available_Reservd_Space "
+    "-v 232,raw48,Percent_Life_Used "
+    "-v 233,raw48,Flash_Writes_32MiB "
+    "-v 234,raw48,Flash_Reads_32MiB "
+    "-v 241,raw48,Host_Writes_32MiB "
+    "-v 242,raw48,Host_Reads_32MiB "
+    "-v 250,raw16,SATA_Downshift_Cnt "
+  },
   { "Xmore Industrial SATA SSDs", // tested with M2CA032GXAIMS-003Z/XP01.1GB
     "(CFAST|M2[AC]A|MSATA|SSD)[0-9]{3}[GT]XA[CEI][MT][MST]-[0-9]{3}[TZ]",
     "", "",
