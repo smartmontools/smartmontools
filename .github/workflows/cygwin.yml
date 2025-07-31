@@ -1,0 +1,48 @@
+name: Build smartmontools on Cygwin
+
+on: workflow_dispatch
+
+jobs:
+  build-cygwin-binaries:
+    runs-on: windows-latest
+    steps:
+      - name: Install Cygwin and build tools
+        uses: cygwin/cygwin-install-action@master
+        with:
+          platform: x86_64
+          packages: |
+            automake
+            gcc-g++
+            git
+            make
+
+        # 'actions/checkout@v4' now uses Cygwin git instead of Windows git.
+      - run: git config --global --add safe.directory /cygdrive/d/a/smartmontools/smartmontools
+      - uses: actions/checkout@v4
+        with:
+          # Done above as the builtin would use a path for Windows git.
+          set-safe-directory: false
+          # Provide at least the commit log since last release for 'getversion.sh'.
+          # 'git clone --shallow-since=2025-04-29' would be sufficient but this is
+          # not supported by 'actions/checkout@v4'.
+          fetch-depth: 300
+          # Include (future) release tags for 'getversion.sh'
+          fetch-tags: true
+
+      - name: Create Cygwin x86_64 binaries
+        run: |
+          export PATH=/usr/bin:$(cygpath ${SYSTEMROOT})/system32 && uname -a &&
+          version_sh=$(src/getversion.sh -s) && eval "${version_sh}" &&
+          export SOURCE_DATE_EPOCH=${SMARTMONTOOLS_GIT_REV_EPOCH} &&
+          SOURCE_DATE_EPOCH=$((SOURCE_DATE_EPOCH + 1)) &&
+          ./autogen.sh && mkdir build && cd build && ../configure &&
+          make -j BUILD_INFO='"(GHA Build)"' && make check &&
+          make bin-dist bin_distfile="smartmontools-cygwin-x86_64-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz"
+        shell: bash --noprofile --norc -e -o igncr '{0}'
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: smartmontools-cygwin
+          path: build/smartmontools-cygwin-x86_64-*.tar.gz
+          retention-days: 30

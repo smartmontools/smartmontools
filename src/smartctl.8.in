@@ -385,13 +385,11 @@ use the exit status of \fBsmartctl\fP (see EXIT STATUS below).
 .Sp
 .I noserial
 \- Do not print the serial number of the device.
-This also suppresses the LU WWN Device Id (ATA) and the SAS addresses (SCSI).
+This also suppresses the LU WWN Device Id (ATA), the SAS addresses (SCSI)
+and the Namespace IEEE EUI-64 (NVMe).
 The related fields are also invalidated in the ATA and NVMe debug outputs.
 .br
 Note: This is not the case in SCSI debug output.
-.br
-[NEW EXPERIMENTAL SMARTCTL 7.4 FEATURE]
-The Namespace IEEE EUI-64 (NVMe) is also suppressed.
 .br
 [NEW EXPERIMENTAL SMARTCTL 7.5 FEATURE]
 The Serial Number and World Wide Name from the FARM log (see
@@ -445,8 +443,7 @@ is only used if the SCSI INQUIRY data reports a SATL (VENDOR: "ATA     ").
 Otherwise device type SCSI (for SCSI/SAS disks) is used.
 .Sp
 .I usbasm1352r,PORT
-\- [NEW EXPERIMENTAL SMARTCTL 7.4 FEATURE]
-this device type is for one or two SATA disks that are behind an ASMedia
+\- this device type is for one or two SATA disks that are behind an ASMedia
 ASM1352R USB to SATA (RAID) bridge.
 The parameter PORT (0 or 1) selects the disk to monitor.
 .br
@@ -736,9 +733,8 @@ under FreeBSD, it is the character device which the driver registered (eg,
 .Sp
 .\" %IF OS Linux
 .I sssraid,E,S
-\- [Linux only: NEW EXPERIMENTAL SMARTCTL 7.4 FEATURE]
-the device consists of one or more SCSI/SAS or SATA disks connected to a
-SSSRAID controller.
+\- [Linux only] the device consists of one or more SCSI/SAS or SATA disks
+connected to a SSSRAID controller.
 The non-negative integer E (in the range of 0 to 8) denotes the enclosure
 and S (range 0 to 128) denotes the slot.
 Use syntax such as:
@@ -1476,8 +1472,7 @@ can be run using the \*(Aq\-t\*(Aq option described below (using the ATA
 test terminology).
 .Sp
 .I selftest
-\- [NVMe: NEW EXPERIMENTAL SMARTCTL 7.4 FEATURE]
-prints the NVMe self-test log.
+\- [NVMe] prints the NVMe self-test log.
 .br
 [NEW EXPERIMENTAL SMARTCTL 7.5 FIX]
 This always uses the broadcast namespace.
@@ -1609,9 +1604,8 @@ This includes one or more temperatures and may include relative humidities.
 Lifetime maximums and minimums are also reported.
 .Sp
 .I genstats
-\- [SCSI only: NEW EXPERIMENTAL SMARTCTL 7.4 FEATURE]
-prints values and descriptions of the SCSI General statistics and performance
-log page.
+\- [SCSI only] prints values and descriptions of the SCSI General statistics
+and performance log page.
 .Sp
 .I sataphy[,reset]
 \- [SATA only] prints values and descriptions of the SATA Phy Event
@@ -1686,10 +1680,9 @@ manufacturer.
 The value may reach 255.
 .Sp
 .I farm
-\- [Seagate ATA or SAS (SCSI) only: NEW EXPERIMENTAL SMARTCTL 7.4 FEATURE]
-prints predictive drive health metrics and values from Seagate's
-vendor-specific Field Access Reliability Metrics (FARM) log when used
-on a drive supporting FARM.
+\- [Seagate ATA or SAS (SCSI) only] prints predictive drive health
+metrics and values from Seagate's vendor-specific Field Access
+Reliability Metrics (FARM) log when used on a drive supporting FARM.
 ATA and SAS logs differ slightly.
 \fBWARNING: Some Seagate drives do not support FARM.\fP
 .TP
@@ -2133,8 +2126,7 @@ with other disks use the \*(Aq\-c\*(Aq option to monitor progress.
 \- [SCSI] runs the "Background short" self-test.
 .Sp
 .I short
-\- [NVMe: NEW EXPERIMENTAL SMARTCTL 7.4 FEATURE]
-runs the "Short" self-test for current namespace.
+\- [NVMe] runs the "Short" self-test for current namespace.
 .Sp
 .I long
 \- [ATA] runs SMART Extended Self Test (tens of minutes to several hours).
@@ -2147,8 +2139,7 @@ below).
 \- [SCSI] runs the "Background long" self-test.
 .Sp
 .I long
-\- [NVMe: NEW EXPERIMENTAL SMARTCTL 7.4 FEATURE]
-runs the "Extended" self-test for current namespace.
+\- [NVMe] runs the "Extended" self-test for current namespace.
 .Sp
 .I conveyance
 \- [ATA only] runs a SMART Conveyance Self Test (minutes).  This

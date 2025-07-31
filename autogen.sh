@@ -50,20 +50,13 @@ fi
 "$ACLOCAL" --version >/dev/null || exit 1
 
 # Warn if Automake version was not tested
-amwarnings=$warnings
 case "$ver" in
   1.[0-9]|1.[0-9].*|1.1[0-2]|1.1[0-2].*)
     echo "GNU Automake $ver is not supported."; exit 1
     ;;
 
-  1.13.[34])
+  1.13.[34]|1.14|1.14.1|1.15|1.15.1|1.16|1.16.[1-5]|1.17|1.18|1.18.1)
     # OK
-    ;;
-
-  1.14|1.14.1|1.15|1.15.1|1.16|1.16.[1-5]|1.17|1.18)
-    # TODO: Enable 'subdir-objects' in configure.ac
-    # For now, suppress 'subdir-objects' forward-incompatibility warning
-    test -n "$warnings" || amwarnings="--warnings=no-unsupported"
     ;;
 
   *)
@@ -75,7 +68,7 @@ set -e	# stops on error status
 
 test -z "$warnings" || set -x
 
-${ACLOCAL} -I m4 --install $force $warnings
+${ACLOCAL} --install $force $warnings
 autoheader $force $warnings
-${AUTOMAKE} --add-missing --copy ${force:+--force-missing} $amwarnings
+${AUTOMAKE} --add-missing --copy ${force:+--force-missing} $warnings
 autoconf $force $warnings

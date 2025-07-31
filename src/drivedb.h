@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "VERSION: 7.5 $Id: drivedb.h 5706 2025-04-27 16:54:06Z chrfranke $",
+  { "VERSION: 7.5",
     "-", "-",
     "Version information",
     ""
@@ -554,8 +554,8 @@ const drive_settings builtin_knowndrives[] = {
       // Crucial_CT1024M550SSD1/MU01, Crucial_CT128M550SSD4/MU02
     "CT(120|240|480)BX300SSD1|" // Silicon Motion SM2258, same attributes as Marvell-based Crucial SSDs,
       // tested with CT240BX300SSD1/M2CR010
-    "CT(120|240|480|960|[12]000)BX500SSD1|" // Silicon Motion SM2258XT, tested with CT120BX500SSD1/M6CR013,
-      // CT1000BX500SSD1/M6CR030, CT2000BX500SSD1/M6CR030
+    "CT(120|240|480|960|[124]000)BX500SSD1|" // Silicon Motion SM2258XT, tested with CT120BX500SSD1/M6CR013,
+      // CT1000BX500SSD1/M6CR030, CT2000BX500SSD1/M6CR030, CT4000BX500SSD1/M6CR082
     "CT(250|500|[124]000)MX500SSD[14]|" // Silicon Motion SM2258, tested with CT250MX500SSD1/M3CR010
       // CT500MX500SSD1/M3CR010, CT1000MX500SSD1/M3CR010, CT2000MX500SSD1/M3CR010,
       // CT500MX500SSD1/M3CR020, CT250MX500SSD4/M3CR022, CT500MX500SSD1/M3CR022,
@@ -641,15 +641,17 @@ const drive_settings builtin_knowndrives[] = {
   // Reference: https://www.micron.com/resource-details/feec878a-265e-49a7-8086-15137c5f9011
   // TN-FD-34: 5100 SSD SMART Implementation
   { "Micron 5100 / 52x0 / 5300 / 5400 SSDs",
-    "(Micron_5100_)?(EE|MT)FDDA[KV](240|480|960|1T9|3T8|7T6)T(BY|CB|CC)|" // Matches both stock and Dell OEM
-      // tested with Micron_5100_MTFDDAK3T8TCB/D0MU410, MTFDDAK3T8TCB/D0MU410
+    "(Micron_5100_)?(EE|MT)FDDA[KV](240|480|960|1T9|3T8|7T6)T(BY|CB|CC)(_SED)?|" // Matches both stock and Dell OEM
+      // tested with Micron_5100_MTFDDAK3T8TCB/D0MU410, MTFDDAK3T8TCB/D0MU410,
+      // Micron_5100_MTFDDAK3T8TBY_SED/D0MU445
     "(Micron_5200_)?MTFDDAK(240|480|960|1T9|3T8|7T6)TD(C|D|N)|" // tested with Micron_5200_MTFDDAK240TDN/D1MU005,
       // Micron_5200_MTFDDAK3T8TDD/D1MU505
     "Micron_5210_MTFDDAK(480|960|1T9|3T8|7T6)QDE|" // tested with Micron_5210_MTFDDAK7T6QDE/D2MU804
     "(Micron_5300(HC)?_)?MTFDDA[KV](240|480|960|1T9|3T8|7T6)TD[STU]|" // tested with Micron_5300_MTFDDAK1T9TDS/D3MU001
       // Micron_5300HC_MTFDDAK960TDS/D3MN010, MTFDDAK1T9TDT/D3MU001
-    "(Micron_5400_)?(EE|MT)FDDA[KV](240|480|960|1T9|3T8|7T6)TG[ABC](_SED)?", // tested with
+    "(Micron_5400_)?(EE|MT)FDDA[KV](240|480|960|1T9|3T8|7T6)TG[ABC](_SED)?|" // tested with
       // Micron_5400_MTFDDAK1T9TGB/D4MU001, Micron_5400_MTFDDAK960TGA_SED/D4CS001
+    "VK001920G(WSXK|XAWN)", // HPE OEM, tested with VK001920GWSXK/HPG3 (5200?), VK001920GXAWN/HPG1 (5300?)
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
@@ -916,10 +918,10 @@ const drive_settings builtin_knowndrives[] = {
       // KINGSTON RBUSNS4180S3256GJ/SBFK61D1, KINGSTON RBUSNS8180S3512GJ/SBFK61D1
     "KINGSTON SEDC400S37(400|480|800|960|1600|1800)G|" // DC400, tested with
       // KINGSTON SEDC400S37480G/SAFM02.[GH], KINGSTON SEDC400S37960G/SAFM32.I
-    "KINGSTON SEDC(450R|500[MR]|600M)(480|960|1920|3840|7680)G|" // DC450R, DC500M/R, DC600M, tested with
+    "KINGSTON SEDC(450R|500[MR]|600ME?)(480|960|1920|3840|7680)G|" // DC450R, DC500M/R, DC600M, tested with
       // KINGSTON SEDC450R480G/SCEKH3. KINGSTON SEDC500M1920G/SCEKJ2.3,
       // KINGSTON SEDC500R480G/SCEKJ2.3, KINGSTON SEDC450R7680G/SCEKH3.4,
-      // KINGSTON SEDC600M7680G/SCEKH5.1
+      // KINGSTON SEDC600M7680G/SCEKH5.1, KINGSTON SEDC600ME960G/SCEKH5L5
     "KINGSTON SM2280S3G2(120)G|" // KINGSTON SM2280S3G2120G/SAFM01.R
     "KINGSTON SUV300S37A(120|240|480)G|" // UV300 SSD, tested with KINGSTON SUV300S37A120G/SAFM11.K
     "KINGSTON SKC310S3B?7A960G|" // SSDNow KC310, KINGSTON SKC310S37A960G/SAFM00.r
@@ -1950,7 +1952,8 @@ const drive_settings builtin_knowndrives[] = {
     "KINGSTON SVP?100S2B?(64|96|128|256|512)G|"  // SSDNow V100/V+100 Series,
       // tested with KINGSTON SVP100S296G/CJR10202, KINGSTON SV100S2256G/D110225a
     "KINGSTON SV200S3(64|128|256)G|" // SSDNow V200 Series, tested with KINGSTON SV200S3128G/E120506a
-    "NT-(64|128|256|512|[12]T)|" // KingSpec NT, MAS0902A-B2C or CS1802A-B2C, tested with NT-512/T191212
+    "[MN]T-(64|128|256|512|[124]TB?)( 22..)?|" // KingSpec MT/NT, MAS0902A-B2C or CS1802A-B2C, tested with
+      // MT-512/SN12574, NT-512/T191212, NT-1TB 2242/SN12574
     "TOSHIBA THNS128GG4BBAA|"  // Toshiba / Super Talent UltraDrive DX,
                                // tested with Toshiba 128GB 2.5" SSD (built in MacBooks)
     "TOSHIBA THNSNC128GMLJ|" // tested with THNSNC128GMLJ/CJTA0202 (built in Toshiba Protege/Dynabook)
@@ -2332,8 +2335,9 @@ const drive_settings builtin_knowndrives[] = {
     "T60|" // KingSpec T60, tested with T60/20151120
     "TCSUNBOW [MX]3 (60|120|240|480)GB|" // TC-Sunbow M3/X3, tested with TCSUNBOW M3 240GB/R0327B0,
       // TCSUNBOW X3 120GB/R1211A0, TCSUNBOW X3 480GB/S0509A0
-    "TEAM( T253(TD|X6)|L5Lite3D)((120|240|256|480|512)G|[12]T)|" // TEAMGROUP, tested with
+    "TEAM( T253(TD|X6)?|L5Lite3D)((120|240|256|480|512)G|[12]TB?)|" // TEAMGROUP, tested with
       // TEAML5Lite3D240G/R0302A0 (L5Lite 3D), TEAM T253TD480G/Q0410A, TEAM T253X6256G/U1014A0 (CX2)
+      // TEAM T2532TB/SN14546
     "TS((16|32|64|128|256|512)G|1T)(SSD|MS[AM])(230S?|3[67]0[SI]?|420[IK]?)|" // Transcend SSD230/360/370/420
       // SATA/mSATA, TS6500, tested with TS128GMSA230S/02J0S86A, TS32GMSA370/20140402,
       // mSATA MSM360 mini SSD, tested with TS32GMSM360/Q0407A
@@ -2435,6 +2439,7 @@ const drive_settings builtin_knowndrives[] = {
     "KSM512|" // KingSpec, tested with KSM512/S0509A0
     "LDLC|" // tested with LDLC/KFS03005
     "Netac MobileDataStar|" // tested with Netac MobileDataStar/HPS2227I (0x0dd8:0x0562)
+    "ORICO|" // ORICO S500PRO, tested with ORICO/W0201A0 (2TB)
     "ORTIAL SSD|" // tested with ORTIAL SSD/U0202A0 (128GB)
     "RX7 (240|256|512)G|" // tested with RX7 240G/T0910A0
     "SATA3 ((12[08]|240|256|480)G|[12]T)B SSD|" // TCSUNBOW X3, tested with SATA3 240GB SSD/S0618A0,
@@ -2451,7 +2456,7 @@ const drive_settings builtin_knowndrives[] = {
     "HP(3418C5|S2227I)|KFS03005|P0510E|P0725A|Q(0627|1107)A0|R(0529A|0817B0)|"
     "S(0222|0424|0509|0618|1211|1230)A0|S112[78]B0|T0(311|519|910)A0|"
     "U(0202|0401|0506|1124|1209)A0|V0((609|823)A|(303|718)B)0|V1027A0|"
-    "W(0413|0714|0825)A0",
+    "W(0201|0413|0714|0825)A0",
     "",
     "-v 148,raw48,Total_SLC_Erase_Ct "
     "-v 149,raw48,Max_SLC_Erase_Ct "
@@ -3898,8 +3903,10 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 22,raw48,Helium_Level"
   },
   { "Western Digital Ultrastar DC HC560", // tested with WDC  WUH722020ALN604/PQGNW108
-    // WDC WUH722020BLE6L4
-    "(WDC  ?)?WUH722020[AB]L[EN]6[0L][014]",
+    // WDC WUH722020BLE6L4,
+    // WDC WD200EDGZ-11BLDS0/85.00A85 (White label, Elements 0x1058:0x25a3)
+    "(WDC  ?)?WUH722020[AB]L[EN]6[0L][014]|"
+    "WDC WD200EDGZ-.*",
     "", "",
   //"-v 22,raw48,Helium_Level "
     "-v 82,raw16,Head_Health_Score "
@@ -3911,6 +3918,13 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 22,raw48,Helium_Level "
     "-v 71,raw16,Milli_Micro_Actuator "
     "-v 82,raw16,Head_Health_Score "
+    "-v 90,hex48,NAND_Master"
+  },
+  { "Western Digital Ultrastar DC HC580", // tested with WDC  WUH722424ALE6L4/LVGNWF10
+    "(WDC  ?)?WUH72242[24]ALE6L[14]",
+    "", "",
+  //"-v 22,raw48,Helium_Level "
+    "-v 71,raw16,Milli_Micro_Actuator "
     "-v 90,hex48,NAND_Master"
   },
   { "Western Digital Ultrastar DC HC650", // tested with WDC  WSH722020ALE6L0/PCGMT421
@@ -4302,7 +4316,8 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Seagate Momentus 7200.4",
     "ST9(160412|250410|320423|500420)ASG?",
-    "", "", ""
+    "", "",
+    "-v 188,raw16 -v 240,msec24hour32"
   },
   { "Seagate Momentus 7200 FDE.2",
     "ST9((160413|25041[12]|320426|50042[12])AS|(16041[489]|2504[16]4|32042[67]|500426)ASG)",
@@ -4524,9 +4539,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Seagate Barracuda 7200.14 (AF)", // different part number, tested with
       // ST1000DM003-1CH162/CC47, ST1000DM003-1CH162/CC49, ST2000DM001-1CH164/CC24,
-      // ST1000DM000-9TS15E/CC92, APPLE HDD ST3000DM001/AP15 (no attr 240)
+      // ST1000DM000-9TS15E/CC92, APPLE HDD ST3000DM001/AP15 (no attr 240),
+      // APPLE HDD ST1000DM003/AP18
     "ST(1000|1500|2000|2500|3000)DM00[0-3]-.*|"
-    "APPLE HDD ST3000DM001",
+    "APPLE HDD ST([13]000DM00[13])",
     "", "",
     "-v 188,raw16 -v 240,msec24hour32"
   },
@@ -4625,6 +4641,11 @@ const drive_settings builtin_knowndrives[] = {
     "http://knowledge.seagate.com/articles/en_US/FAQ/207931en\n"
     "http://knowledge.seagate.com/articles/en_US/FAQ/207963en",
     ""
+  },
+  { "Seagate Barracuda Pro", // tested with ST8000DM0004-1ZC11G/DN01
+    "ST(8|10|12)000DM000[47]-.*",
+    "", "",
+    "-v 9,msec24hour32 -v 188,raw16 -v 240,msec24hour32"
   },
   { "Seagate Constellation (SATA)", // tested with ST9500530NS/SN03
     "ST9(160511|500530)NS",
@@ -5463,6 +5484,13 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  // Blueendless
+  { "USB: Blueendless; Initio",
+    "0x0204:0x3639", // U23QC
+    "",
+    "",
+    "-d sat"
+  },
   // 0x0350 (?)
   { "USB: ViPowER USB3.0 Storage; ",
     "0x0350:0x0038",
@@ -6151,7 +6179,7 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   { "USB: ; Realtek RTL9210", // USB->PCIe (NVMe)
-    "0x0bda:0x9210",
+    "0x(0bda|0dd8):0x9210", // 0x0bda: Realtek, 0x0dd8: Netac WH51
     "", // 0x2100
     "",
     "-d sntrealtek"
@@ -6435,6 +6463,12 @@ const drive_settings builtin_knowndrives[] = {
     "", // 0x0100, 0x0201
     "",
     "-d sat"
+  },
+  { "USB: ; JMicron JMS581", // USB->SATA+PCIe (NVMe)
+    "0x152d:0x0581",
+    "", // 0x4204
+    "",
+    "-d sntjmicron/sat"
   },
   { "USB: ; JMicron JMS583", // USB->PCIe (NVMe)
     "0x152d:0x[0a]583",
@@ -6874,6 +6908,12 @@ const drive_settings builtin_knowndrives[] = {
   // 0x5432 (?)
   { "USB: ; ",
     "0x5432:0x235c", // TerraMaster D4-320 (see also 0x235c:0xa006)
+    "", // 0x0100
+    "",
+    "-d sat"
+  },
+  { "USB: ; ",
+    "0x5432:0x1352", // TerraMaster D8 Hybrid
     "", // 0x0100
     "",
     "-d sat"
