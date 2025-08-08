@@ -5314,7 +5314,7 @@ const drive_settings builtin_knowndrives[] = {
   { "Western Digital Red (CMR)", // tested with // WDC WD80EZZX-11CSGA0/83.H0A03 (My Book 0x1058:0x25ee),
       // WDC WD120EMFZ-11A6JA0/81.00A81 (Easystore 0x1058:0x25fb)
       // WDC WD160EMFZ-11AFXA0/81.00A81,
-    "WDC WD(7500BFCX|80EFZZ|1[26]0EMFZ)-.*",
+    "WDC WD(7500BFCX|80EZZX|1[26]0EMFZ)-.*",
     "", "", ""
   //"-v 22,raw48,Helium_Level" // WD120EMFZ, WD160EMFZ
   },
@@ -5333,7 +5333,7 @@ const drive_settings builtin_knowndrives[] = {
       // WDC WD101EFBX-68B0AN0/85.00A85, WDC WD100EFAX-68LHPN0/83.H0A83,
       // WDC WD120EFAX-68UNTN0/81.00A81, WDC WD120EFBX-68B0EN0/85.00A85,
       // WDC WD140EFFX-68VBXN0/81.00A81
-    "WDC WD(10JFCX|[1-6]0EFRX|[2-8]0EFPX|[23468]0E[FZ](ZX|Z)|(80|10[01]|1[24]0|1[68]1)(JFC|EF[ABFRG])X)-.*",
+    "WDC WD(10JFCX|[1-6]0EFRX|[2-8]0EFPX|[23468]0E[FZ](ZX|ZZ)|(80|10[01]|1[24]0|1[68]1)(JFC|EF[ABFRG])X)-.*",
     "", "", ""
   //"-v 22,raw48,Helium_Level" // WD80EFAX, WD80EFZX, WD100EFAX, >= 12TB
   },
