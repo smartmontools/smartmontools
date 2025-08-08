@@ -122,29 +122,39 @@ std::string format_version_info(const char * prog_name, int lines /* = 2 */)
     "smartmontools build host: " SMARTMONTOOLS_BUILD_HOST "\n"
     "smartmontools build with: "
 
+#ifdef _MSVC_LANG // MSVC sets __cplusplus to 199711L even if a later version is enabled
+#define CPLUSPLUS _MSVC_LANG
+#else
+#define CPLUSPLUS __cplusplus
+#endif
 #define N2S_(s) #s
 #define N2S(s) N2S_(s)
-#if   __cplusplus == 202002
+#if   CPLUSPLUS == 202002
                                "C++20"
-#elif __cplusplus == 201703
+#elif CPLUSPLUS == 201703
                                "C++17"
-#elif __cplusplus == 201402
+#elif CPLUSPLUS == 201402
                                "C++14"
-#elif __cplusplus == 201103
+#elif CPLUSPLUS == 201103
                                "C++11"
 #else
-                               "C++(" N2S(__cplusplus) ")"
+                               "C++(" N2S(CPLUSPLUS) ")"
 #endif
+#undef CPLUSPLUS
+
+#if defined(__GNUC__) && defined(__VERSION__) // works also with CLang
+                                    ", GCC " __VERSION__
+#endif
+#ifdef __MINGW64_VERSION_STR
+                                    ", MinGW-w64 " __MINGW64_VERSION_STR
+#endif
+#ifdef _MSC_FULL_VER
+                                    ", MSVC " N2S(_MSC_FULL_VER)
+#endif
+                                    "\n"
 #undef N2S
 #undef N2S_
 
-#if defined(__GNUC__) && defined(__VERSION__) // works also with CLang
-                                     ", GCC " __VERSION__
-#endif
-#ifdef __MINGW64_VERSION_STR
-                                     ", MinGW-w64 " __MINGW64_VERSION_STR
-#endif
-                                                          "\n"
     "smartmontools configure arguments:"
 #ifdef SOURCE_DATE_EPOCH
                                       " [hidden in reproducible builds]\n"
