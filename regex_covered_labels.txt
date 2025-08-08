@@ -1,0 +1,48 @@
+DriveLife_Remaining% "
+DriveLife_Used% "
+Drive_Life_Remaining% "
+Drive_Life_Used% "
+End_of_Life "
+Lifetime_Die_Failure_Ct "
+Lifetime_Left "
+Lifetime_NAND_Prg_GiB "
+Lifetime_NAND_Prg_GiB " // ?
+Lifetime_Nand_Gb "
+Lifetime_Nand_Writes "
+Lifetime_PS3_Exit_Ct "
+Lifetime_PS4_Entry_Ct "
+Lifetime_Rds_Frm_Hst_GB "
+Lifetime_Reads_GiB "
+Lifetime_Reads_GiB"
+Lifetime_Remaining% "
+Lifetime_Remaining% " //  later then 0409 FW.
+Lifetime_Retried_Blk_Ct "
+Lifetime_UECC_Ct "
+Lifetime_Write_AmpFctr "
+Lifetime_Writes " // LBA?
+Lifetime_Writes_GiB "
+Lifetime_Wts_Frm_Hst_GB "
+Lifetime_Wts_To_Flsh_GB "
+Media_Wearout_Indicator
+Media_Wearout_Indicator "
+Media_Wearout_Indicator " // MS6/1.03
+Media_Wearout_Indicator " // Maybe hex16
+Media_Wearout_Indicator " // PM851
+Media_Wearout_Indicator"
+Percent_Life_Remaining"
+Percent_Life_Used "
+Percent_Lifetime_Remain "
+Percent_Lifetime_Remain " // Remaining endurance
+Percent_Lifetime_Remain " // norm = max(100-raw
+Percent_Lifetime_Used "
+Remaining_Life "
+Remaining_Lifetime_Perc "
+SSD_Life_Left "
+SSD_Life_Left " // KINGSTON SKC600256G/S4500105
+SSD_Life_Left_Perc "
+SSD_Remaining_Life_Perc "
+Wear_Leveling_Count
+Wear_Leveling_Count "
+Wear_Leveling_Count " //  ]
+Wear_Leveling_Count " // CM871
+Wear_Leveling_Count " // ]
