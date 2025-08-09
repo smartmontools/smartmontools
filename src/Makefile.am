@@ -1037,9 +1037,9 @@ phony += check-vc-version clean-vc config-vc distclean-vc maintainer-clean-vc
 
 check-vc-version:
 	@case '$(vcver)' in \
-	  16|17) test -d '$(srcdir)/os_win32/vc$(vcver)' || \
+	  17) test -d '$(srcdir)/os_win32/vc$(vcver)' || \
 	    { echo '$(srcdir)/os_win32/vc$(vcver): Not found (not included in src tarball)' >&2; exit 1; } ;; \
-	  *) echo 'Usage: $(MAKE) vc=16|17 config-vc clean-vc distclean-vc maintainer-clean-vc'; exit 1 ;; \
+	  *) echo 'Usage: $(MAKE) vc=17 config-vc clean-vc distclean-vc maintainer-clean-vc'; exit 1 ;; \
 	esac
 
 # Build os_win32/vcNN/{config.h,smart*.rc,version.h} for MSVCNN from MinGW files
