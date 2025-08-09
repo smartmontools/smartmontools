@@ -1071,7 +1071,9 @@ $(srcdir)/os_win32/vc$(vcver)/smartd_res.rc: os_win32/smartd_res.rc
 clean-vc: check-vc-version
 	rm -f $(srcdir)/os_win32/vc$(vcver)/.vs/smartmontools/v$(vcver)/Browse.VC.opendb
 	rm -f $(srcdir)/os_win32/vc$(vcver)/.vs/smartmontools/v$(vcver)/*.VC.db*
+	rm -f $(srcdir)/os_win32/vc$(vcver)/.vs/smartmontools/v$(vcver)/DocumentLayout*.json
 	rm -rf $(srcdir)/os_win32/vc$(vcver)/.vs/smartmontools/v$(vcver)/ipch
+	rm -rf $(srcdir)/os_win32/vc$(vcver)/.vs/smartmontools/FileContentIndex
 	rm -f $(srcdir)/os_win32/vc$(vcver)/syslogevt.h
 	rm -rf $(srcdir)/os_win32/vc$(vcver)/Debug
 	rm -rf $(srcdir)/os_win32/vc$(vcver)/Debug-static
