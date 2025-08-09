@@ -6759,6 +6759,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  { "USB: OWC Express 1M2; ASMedia ASM2464PD",
+    "0x1e91:0xde79",
+    "", // 0x0100
+    "",
+    "-d sntasmedia"
+  },
   // Innostor
   { "USB: ; Innostor IS611", // USB3->SATA+PATA
     "0x1f75:0x0611", // SMART access via PATA does not work
