@@ -68,17 +68,24 @@ jobs:
     - name: Build x64/Release-Static
       run: MSBuild /m /p:Platform=x64 /p:Configuration=Release-Static ${{env.SLN_FILE}}
 
-    - name: Upload binaries
+    - name: Upload exe files
       uses: actions/upload-artifact@v4
       with:
-        name: smartmontools-msvc17-bin
+        name: smartmontools-msvc17-exe
         path: |
           src/os_win32/vc17/Debug*/*.exe
-          src/os_win32/vc17/Debug*/*.pdb
           src/os_win32/vc17/Release*/*.exe
-          src/os_win32/vc17/Release*/*.pdb
           src/os_win32/vc17/x64/Debug*/*.exe
-          src/os_win32/vc17/x64/Debug*/*.pdb
           src/os_win32/vc17/x64/Release*/*.exe
+        retention-days: 30
+
+    - name: Upload pdb files
+      uses: actions/upload-artifact@v4
+      with:
+        name: smartmontools-msvc17-pdb
+        path: |
+          src/os_win32/vc17/Debug*/*.pdb
+          src/os_win32/vc17/Release*/*.pdb
+          src/os_win32/vc17/x64/Debug*/*.pdb
           src/os_win32/vc17/x64/Release*/*.pdb
         retention-days: 30
