@@ -567,6 +567,16 @@ Please see the \fBsmartctl\fP(8) man page for further details.
 USB to SATA RAID bridge.
 See \*(Aqjmb39x...\*(Aq above for valid arguments.
 .Sp
+.\" %IF OS Linux
+.I ps3stor,n
+\- [Linux only] the device consists of one or more SCSI/SAS or SATA disks connected to a
+PS3StorRAID controller.
+The non-negative integer N (in the range of 0 to 127 inclusive) denotes which disk on the controller is monitored.
+In log files and email messages this disk will be identified as ps3stor_disk_XX
+with XX in the range from 00 to 127 inclusive.
+Please see the \fBsmartctl\fP(8) man page for further details.
+.Sp
+.\" %ENDIF OS Linux
 .I ignore
 \- the device specified by this configuration entry should be ignored.
 This allows one to ignore specific devices which are detected by a following

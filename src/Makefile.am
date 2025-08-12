@@ -131,7 +131,9 @@ EXTRA_smartctl_SOURCES = \
         linux_nvme_ioctl.h \
         openbsd_nvme_ioctl.h \
         megaraid.h \
-        sssraid.h
+        sssraid.h \
+        dev_ps3stor.cpp \
+        dev_ps3stor.h 
 
 if OS_WIN32_MINGW
 
@@ -206,7 +208,9 @@ EXTRA_smartd_SOURCES = \
         netbsd_nvme_ioctl.h \
         openbsd_nvme_ioctl.h \
         megaraid.h \
-        sssraid.h
+        sssraid.h \
+        dev_ps3stor.cpp \
+        dev_ps3stor.h
 
 if OS_POSIX
 
