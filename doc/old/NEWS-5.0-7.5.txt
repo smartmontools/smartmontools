@@ -875,7 +875,7 @@ This is an unstable/experimental release of smartmontools.  It includes
  - support for Marvell chip-set based SATA controllers under Linux.
  - smartd mail now works also under Windows (using "Blat" mailer).
  - smartd can now be run as a Windows service.
-Please report sucess/failure with these items to the
+Please report success/failure with these items to the
 smartmontools-support mailing list.
 
 
@@ -897,7 +897,7 @@ several new features:
 - Windows smartd daemon
 - smartd now monitors current and pending sector counts
 - Support for ATA-7 selective self-test features (Linux/NetBSD only)
-  Please report sucess/failure with this option to the smartmontools-support
+  Please report success/failure with this option to the smartmontools-support
   mailing list.
 
 Date: 2004-3-6

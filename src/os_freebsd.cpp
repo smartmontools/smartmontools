@@ -99,7 +99,7 @@ void printwarning(int msgNo, const char* extra) {
 
         "You must specify a DISK # for 3ware drives with -d 3ware,<n> where <n> begins with 1 for first disk drive\n",
 
-        "ATA support is not provided for this kernel version. Please ugrade to a recent 5-CURRENT kernel (post 09/01/2003 or so)\n"
+        "ATA support is not provided for this kernel version. Please upgrade to a recent 5-CURRENT kernel (post 09/01/2003 or so)\n"
       };
 
       printed[msgNo] = 1;

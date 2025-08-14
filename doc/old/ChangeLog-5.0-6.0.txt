@@ -903,7 +903,7 @@ smartmontools 5.41 2011-06-09
 
   [AS] freebsd_os.cpp:
        Fix memory leak in the ata detection code (added free())
-       Using bzero in cam code to clear structure (fixing varnish varning)
+       Using bzero in cam code to clear structure (fixing varnish warning)
 
   [MS] drivedb.h update:
        Kingston SSDNow S100 Series
@@ -2445,7 +2445,7 @@ smartmontools 5.39 2009-12-09
 
   [CF] Add parser to read drive database from a file. Add '-B' option
        to smartctl and smartd to specify database file name. File syntax
-       is identical to the C/C++ syntax used to inialize the internal
+       is identical to the C/C++ syntax used to initialize the internal
        database array.
 
   [CF] New syntax for drive database: Specify presets by strings
@@ -4353,7 +4353,7 @@ smartmontools 5.1-17
 
   [BA] smartd: finished cleanup.  Now use create/rm functions for
        cfgentries and dynamic memory allocation almost everywhere.
-       Philosophy: aggresively try and provoke SEGV to help find
+       Philosophy: aggressively try and provoke SEGV to help find
        bad code.
 
   [BA] Added SAMSUNG SV0412H to knowndrives table.
@@ -4432,7 +4432,7 @@ smartmontools-5.1-15
        - SMART selftest log
        - SMART ATA error log
        - SMART Attributes values
-       - SMART Attributes thesholds
+       - SMART Attributes thresholds
        - IDENTIFY DEVICE information
        - LOG DIRECTORY
        Smartmontools is now free of endian bias and works correctly
@@ -4602,7 +4602,7 @@ smartmontools-5.1-10
   [DG] Fix scsi smartd problem detecting SMART support. More cleaning
        and fix (and rename) scsiTestUnitReady(). More scsi renaming.
 
-  [BA] Fixed smartd so that if a disk that is explictily listed is not
+  [BA] Fixed smartd so that if a disk that is explicitly listed is not
        found, then smartd will exit with nonzero status BEFORE forking.
        If a disk can't be registered, this will also be detected before
        forking, so that init scripts can react correctly.
@@ -4918,7 +4918,7 @@ smartmontools-5.0.25
   Added a new directive for the configuration file.  If the word
   DEVICESCAN appears before any non-commented material in the
   configuration file, then the confi file will be ignored and the
-  devices wil be scanned.
+  devices will be scanned.
 
 smartmontools-5.0.24
 
@@ -4965,7 +4965,7 @@ smartmontools-5.0.22
     number does not match between Data and Threshold structures.
 
     Fixed nasty bug which led to wrong number of arguments for a
-    varargs statement, with attendent stack corruption.  Sheesh!
+    varargs statement, with attendant stack corruption.  Sheesh!
     Have added script to CVS attic to help find such nasties in the
     future.
 

@@ -3811,7 +3811,7 @@ $Id: ChangeLog-6.0-7.0 5333 2022-02-26 00:15:22Z dpgilbert $
 2012-10-19  Alex Samorukov  <samm@os2.kiev.ua>
 
 	os_freebsd.cpp - fixed 3ware twe controller support broken
-	by inerface migration.
+	by interface migration.
 
 2012-10-18  Christian Franke  <franke@computer.org>
 
@@ -3831,7 +3831,7 @@ $Id: ChangeLog-6.0-7.0 5333 2022-02-26 00:15:22Z dpgilbert $
 	Manual pages updated with /dev/twsX device
 	FreeBSD: Migrate 3ware interface to ata_pass_through()
 	FreeBSD: fix missing drives detection on -d 3ware
-	FreeBSD: 3ware - do not pass buffers direcly, use memcpy() instead
+	FreeBSD: 3ware - do not pass buffers directly, use memcpy() instead
 	FreeBSD: improved detection of 3ware/LSI controllers
 
 2012-10-16  Christian Franke  <franke@computer.org>
