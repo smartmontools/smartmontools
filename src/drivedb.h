@@ -6622,6 +6622,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sntasmedia"
   },
+  { "USB: ; ASMedia ASM2464PD", // USB4->PCIe (NVMe) in USB3
+    "0x174c:0x2463",
+    "",
+    "",
+    "-d sntasmedia"
+  },
   { "USB: ; ASMedia",
     "0x174c:0x....",
     "",
