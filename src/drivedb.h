@@ -249,7 +249,21 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 184,raw48,End-to-End_Error "
     "-v 185,raw48,E2E_ErrCnt_SATA-Flash "
   //"-v 194,tempminmax,Temperature_Celsius "
-  //"-v 195,raw48,Hardware_ECC_Recovered "
+  //"-v 195,raw48,Ha  {
+    "Crucial MX500",
+    // ...existing code...
+    "ATTRS: 246, Total_LBAs_Written, N, Raw value is in LBAs",
+    // ...existing code...
+    "RAWVALUE: 246, (raw * 512) / 1e12, TB written", // Converts LBAs to TB
+    // ...existing code...
+  }  {
+    "Crucial MX500",
+    // ...existing code...
+    "ATTRS: 246, Total_LBAs_Written, N, Raw value is in LBAs",
+    // ...existing code...
+    "RAWVALUE: 246, (raw * 512) / 1e12, TB written", // Converts LBAs to TB
+    // ...existing code...
+  }rdware_ECC_Recovered "
     "-v 196,raw48,Total_Spare_Block_Cnt "
   //"-v 198,raw48,Offline_Uncorrectable "
   //"-v 199,raw48,UDMA_CRC_Error_Count "
@@ -560,7 +574,8 @@ const drive_settings builtin_knowndrives[] = {
       // CT500MX500SSD1/M3CR010, CT1000MX500SSD1/M3CR010, CT2000MX500SSD1/M3CR010,
       // CT500MX500SSD1/M3CR020, CT250MX500SSD4/M3CR022, CT500MX500SSD1/M3CR022,
       // CT500MX500SSD1/M3CR023, CT1000MX500SSD1/M3CR032, CT4000MX500SSD1/M3CR044,
-      // CT500MX500SSD1[A-Z]/M3CR023 // (ticket #342)
+      // CT500MX500SSD1[A-Z]/M3CR023 (suffix letter denotes packaging, e.g. "Z" = Amazon FFP),
+      // see issue #342 and #343
     "Micron_M500_MTFDDA[KTV](120|240|480|960)MAV|"// tested with Micron_M500_MTFDDAK960MAV/MU05
     "Micron_M500DC_(EE|MT)FDDA[AK](120|240|480|800)MBB|" // tested with Micron_M500DC_EEFDDAA120MBB/129,
       // Micron_M500DC_MTFDDAK800MBB/0129
