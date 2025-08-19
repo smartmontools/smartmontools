@@ -2642,10 +2642,14 @@ const drive_settings builtin_knowndrives[] = {
     "-v 7,raw48,Unknown_Attribute "
     "-v 8,raw48,Unknown_Attribute"
   },
-  { "XITC", // Model Family
-    "^XITC SS6000SE.*|"
-    "^S1XE.*", 
+  { "XITC SSDs",//tested with XITC SS6000SES327-7680G/F6600002,XITC SS6000SES3N6-240GB/F6600002,
+  //XITC SS6000SES327-3840G/F6600002,XITC SS6000SES327-1920G/F6600002
+    "XITC SS6000SES3(27|N6)-(240|480|960|1920|3840|7680)(G|GB)",
     "","",
+  //"-v 1,raw48,Raw_Read_Error_Rate "
+  //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
+  //"-v 9,raw24(raw8),Power_On_Hours "
+  //"-v 12,raw48,Power_Cycle_Count "
     "-v 160,raw48,Uncorrectable_Error_Cnt "
     "-v 161,raw48,Number_of_Pure_Spare "
     "-v 163,raw48,Initial_Bad_Block_Count "
@@ -2657,30 +2661,14 @@ const drive_settings builtin_knowndrives[] = {
     "-v 171,raw48,Program_Fail_Count "
     "-v 172,raw48,Erase_Fail_Count "
     "-v 175,raw16,Capacitor_Life "
+  //"-v 177,raw48,Wear_Leveling_Count "
+  //"-v 184,raw48,End-to-End_Error "
+  //"-v 187,raw48,Reported_Uncorrect "
+  //"-v 194,tempminmax,Temperature_Celsius "
     "-v 195,raw8,Hardware_ECC_Recovered "
-    "-v 202,raw48,Available_Reservd_Space "
-    "-v 232,raw48,Percent_Life_Used "
-    "-v 233,raw48,Flash_Writes_32MiB "
-    "-v 234,raw48,Flash_Reads_32MiB "
-    "-v 241,raw48,Host_Writes_32MiB "
-    "-v 242,raw48,Host_Reads_32MiB "
-    "-v 250,raw16,SATA_Downshift_Cnt "
-  },
-  { "UnisFlash", // Model Family
-    "^UnisFlash UFE.*", //UnisFlash
-    "","",
-    "-v 160,raw48,Uncorrectable_Error_Cnt "
-    "-v 161,raw48,Number_of_Pure_Spare "
-    "-v 163,raw48,Initial_Bad_Block_Count "
-    "-v 164,raw48,Total_Erase_Count "
-    "-v 165,raw48,Max_Erase_Count "
-    "-v 166,raw48,Min_Erase_Count "
-    "-v 167,raw48,Average_Erase_Count "
-    "-v 170,raw48,Grown_Failing_Block_Ct "
-    "-v 171,raw48,Program_Fail_Count "
-    "-v 172,raw48,Erase_Fail_Count "
-    "-v 175,raw16,Capacitor_Life "
-    "-v 195,raw8,Hardware_ECC_Recovered "
+  //"-v 196,raw16(raw16),Reallocated_Event_Count "
+  //"-v 197,raw48,Current_Pending_Sector "
+  //"-v 199,raw48,UDMA_CRC_Error_Count "
     "-v 202,raw48,Available_Reservd_Space "
     "-v 232,raw48,Percent_Life_Used "
     "-v 233,raw48,Flash_Writes_32MiB "
