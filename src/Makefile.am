@@ -1037,9 +1037,9 @@ phony += check-vc-version clean-vc config-vc distclean-vc maintainer-clean-vc
 
 check-vc-version:
 	@case '$(vcver)' in \
-	  16|17) test -d '$(srcdir)/os_win32/vc$(vcver)' || \
+	  17) test -d '$(srcdir)/os_win32/vc$(vcver)' || \
 	    { echo '$(srcdir)/os_win32/vc$(vcver): Not found (not included in src tarball)' >&2; exit 1; } ;; \
-	  *) echo 'Usage: $(MAKE) vc=16|17 config-vc clean-vc distclean-vc maintainer-clean-vc'; exit 1 ;; \
+	  *) echo 'Usage: $(MAKE) vc=17 config-vc clean-vc distclean-vc maintainer-clean-vc'; exit 1 ;; \
 	esac
 
 # Build os_win32/vcNN/{config.h,smart*.rc,version.h} for MSVCNN from MinGW files
@@ -1071,7 +1071,9 @@ $(srcdir)/os_win32/vc$(vcver)/smartd_res.rc: os_win32/smartd_res.rc
 clean-vc: check-vc-version
 	rm -f $(srcdir)/os_win32/vc$(vcver)/.vs/smartmontools/v$(vcver)/Browse.VC.opendb
 	rm -f $(srcdir)/os_win32/vc$(vcver)/.vs/smartmontools/v$(vcver)/*.VC.db*
+	rm -f $(srcdir)/os_win32/vc$(vcver)/.vs/smartmontools/v$(vcver)/DocumentLayout*.json
 	rm -rf $(srcdir)/os_win32/vc$(vcver)/.vs/smartmontools/v$(vcver)/ipch
+	rm -rf $(srcdir)/os_win32/vc$(vcver)/.vs/smartmontools/FileContentIndex
 	rm -f $(srcdir)/os_win32/vc$(vcver)/syslogevt.h
 	rm -rf $(srcdir)/os_win32/vc$(vcver)/Debug
 	rm -rf $(srcdir)/os_win32/vc$(vcver)/Debug-static

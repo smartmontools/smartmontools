@@ -10,6 +10,15 @@
     <Filter Include="getopt">
       <UniqueIdentifier>{1d1b67d5-219f-4e86-a5ff-9d94f1f751f9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="topdir">
+      <UniqueIdentifier>{d3b26f36-18b5-4222-8e8c-45a54a2b2f21}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="doc">
+      <UniqueIdentifier>{49c12ec8-4401-4d4a-b488-8acec8c020e4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="os_win32\vc">
+      <UniqueIdentifier>{12a3b158-f435-43b4-a755-33aa295cc37a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\daemon_win32.cpp">
@@ -74,6 +83,8 @@
     <ClCompile Include="..\popen_win32.cpp">
       <Filter>os_win32</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\farmprint.cpp" />
+    <ClCompile Include="..\..\farmcmds.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\daemon_win32.h">
@@ -108,8 +119,6 @@
     <ClInclude Include="..\..\utility.h" />
     <ClInclude Include="..\..\ataidentify.h" />
     <ClInclude Include="..\..\dev_areca.h" />
-    <ClInclude Include="config.h" />
-    <ClInclude Include="svnversion.h" />
     <ClInclude Include="..\..\nvmecmds.h" />
     <ClInclude Include="..\..\nvmeprint.h" />
     <ClInclude Include="..\..\json.h" />
@@ -130,42 +139,64 @@
     <ClInclude Include="..\..\freebsd_nvme_ioctl.h" />
     <ClInclude Include="..\..\linux_nvme_ioctl.h" />
     <ClInclude Include="..\..\netbsd_nvme_ioctl.h" />
+    <ClInclude Include="version.h">
+      <Filter>os_win32\vc</Filter>
+    </ClInclude>
+    <ClInclude Include="config.h">
+      <Filter>os_win32\vc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\farmprint.h" />
+    <ClInclude Include="..\..\farmcmds.h" />
+    <ClInclude Include="..\..\sssraid.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\installer.nsi">
       <Filter>os_win32</Filter>
     </None>
-    <None Include="..\update-smart-drivedb.nsi">
-      <Filter>os_win32</Filter>
-    </None>
-    <None Include="..\..\AUTHORS" />
-    <None Include="..\..\autogen.sh" />
-    <None Include="..\..\ChangeLog" />
     <None Include="..\..\config.h.in" />
-    <None Include="..\..\configure.ac" />
-    <None Include="..\..\do_release" />
     <None Include="..\..\Doxyfile" />
-    <None Include="..\..\INSTALL" />
     <None Include="..\..\Makefile.am" />
-    <None Include="..\..\NEWS" />
-    <None Include="..\..\README" />
     <None Include="..\..\smartctl.8.in" />
     <None Include="..\..\smartd.8.in" />
     <None Include="..\..\smartd.conf.5.in" />
     <None Include="..\..\smartd.initd.in" />
-    <None Include="..\..\TODO" />
     <None Include="..\..\update-smart-drivedb.in" />
-    <None Include="..\..\WARNINGS" />
     <None Include="..\smartd_warning.cmd">
       <Filter>os_win32</Filter>
     </None>
     <None Include="..\..\smartd_warning.sh.in" />
-    <None Include="..\smartctl_res.rc.in">
+    <None Include="..\..\..\doc\CHANGELOG.md">
+      <Filter>doc</Filter>
+    </None>
+    <None Include="..\..\..\autogen.sh">
+      <Filter>topdir</Filter>
+    </None>
+    <None Include="..\..\..\configure.ac">
+      <Filter>topdir</Filter>
+    </None>
+    <None Include="..\..\..\Makefile.am">
+      <Filter>topdir</Filter>
+    </None>
+    <None Include="..\..\..\README.md">
+      <Filter>topdir</Filter>
+    </None>
+    <None Include="..\..\..\COPYING">
+      <Filter>topdir</Filter>
+    </None>
+    <None Include="..\versioninfo.rc.in">
       <Filter>os_win32</Filter>
     </None>
-    <None Include="..\smartd_res.rc.in">
+    <None Include="..\smartd_mailer.conf.sample.ps1">
       <Filter>os_win32</Filter>
     </None>
+    <None Include="..\smartd_mailer.ps1">
+      <Filter>os_win32</Filter>
+    </None>
+    <None Include="..\update-smart-drivedb.ps1.in">
+      <Filter>os_win32</Filter>
+    </None>
+    <None Include="..\..\update-smart-drivedb.8.in" />
+    <None Include="..\..\getversion.sh" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuildStep Include="..\..\ataprint.h" />
@@ -185,10 +216,10 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="smartctl_res.rc">
-      <Filter>os_win32</Filter>
+      <Filter>os_win32\vc</Filter>
     </ResourceCompile>
     <ResourceCompile Include="smartd_res.rc">
-      <Filter>os_win32</Filter>
+      <Filter>os_win32\vc</Filter>
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>

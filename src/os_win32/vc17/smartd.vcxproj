@@ -302,6 +302,26 @@
     <ClCompile Include="..\..\dev_areca.cpp" />
     <ClCompile Include="..\..\dev_intelliprop.cpp" />
     <ClCompile Include="..\..\dev_jmb39x_raid.cpp" />
+    <ClCompile Include="..\..\farmcmds.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-static|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug-static|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-static|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug-static|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\farmprint.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-static|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug-static|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-static|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug-static|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="..\..\json.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug-static|Win32'">true</ExcludedFromBuild>
@@ -534,6 +554,8 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-static|x64'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="..\..\dev_areca.h" />
+    <ClInclude Include="..\..\farmcmds.h" />
+    <ClInclude Include="..\..\farmprint.h" />
     <ClInclude Include="..\..\freebsd_nvme_ioctl.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug-static|Win32'">true</ExcludedFromBuild>
@@ -589,6 +611,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-static|x64'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="..\..\sg_unaligned.h" />
+    <ClInclude Include="..\..\sssraid.h" />
     <ClInclude Include="..\..\static_assert.h" />
     <ClInclude Include="..\daemon_win32.h" />
     <ClInclude Include="..\popen.h" />
@@ -600,7 +623,7 @@
     <ClInclude Include="..\..\atacmdnames.h" />
     <ClInclude Include="..\..\atacmds.h" />
     <ClInclude Include="config.h" />
-    <ClInclude Include="svnversion.h" />
+    <ClInclude Include="version.h" />
     <CustomBuildStep Include="..\..\ataprint.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug-static|Win32'">true</ExcludedFromBuild>
@@ -761,10 +784,18 @@
     <ClInclude Include="..\..\utility.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\..\autogen.sh" />
+    <None Include="..\..\..\configure.ac" />
+    <None Include="..\..\..\COPYING" />
+    <None Include="..\..\..\doc\CHANGELOG.md" />
+    <None Include="..\..\..\Makefile.am" />
+    <None Include="..\..\..\README.md" />
+    <None Include="..\..\getversion.sh" />
     <None Include="..\..\smartd_warning.sh.in" />
+    <None Include="..\..\update-smart-drivedb.8.in" />
     <None Include="..\installer.nsi" />
-    <None Include="..\smartctl_res.rc.in" />
-    <None Include="..\smartd_res.rc.in" />
+    <None Include="..\smartd_mailer.conf.sample.ps1" />
+    <None Include="..\smartd_mailer.ps1" />
     <None Include="..\smartd_warning.cmd" />
     <CustomBuild Include="..\syslogevt.mc">
       <FileType>Document</FileType>
@@ -793,25 +824,16 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)syslogevt.rc;$(IntDir)msg00001.bin;syslogevt.h;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release-static|x64'">$(IntDir)syslogevt.rc;$(IntDir)msg00001.bin;syslogevt.h;%(Outputs)</Outputs>
     </CustomBuild>
-    <None Include="..\update-smart-drivedb.nsi" />
-    <None Include="..\..\AUTHORS" />
-    <None Include="..\..\autogen.sh" />
-    <None Include="..\..\ChangeLog" />
     <None Include="..\..\config.h.in" />
-    <None Include="..\..\configure.ac" />
-    <None Include="..\..\do_release" />
     <None Include="..\..\Doxyfile" />
-    <None Include="..\..\INSTALL" />
     <None Include="..\..\Makefile.am" />
-    <None Include="..\..\NEWS" />
-    <None Include="..\..\README" />
     <None Include="..\..\smartctl.8.in" />
     <None Include="..\..\smartd.8.in" />
     <None Include="..\..\smartd.conf.5.in" />
     <None Include="..\..\smartd.initd.in" />
-    <None Include="..\..\TODO" />
     <None Include="..\..\update-smart-drivedb.in" />
-    <None Include="..\..\WARNINGS" />
+    <None Include="..\update-smart-drivedb.ps1.in" />
+    <None Include="..\versioninfo.rc.in" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="smartctl_res.rc">
