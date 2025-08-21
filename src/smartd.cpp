@@ -90,9 +90,6 @@ typedef int pid_t;
 #define SIGQUIT_KEYNAME "CONTROL-\\"
 #endif // _WIN32
 
-const char * smartd_cpp_cvsid = "$Id: smartd.cpp 5696 2025-04-22 14:23:18Z chrfranke $"
-  CONFIG_H_CVSID;
-
 extern "C" {
   typedef void (*signal_handler_type)(int);
 }
@@ -4050,11 +4047,11 @@ static void log_nvme_self_test_exec_status(const char * name, dev_state & state,
   }
 
   if (curr_op) {
-    PrintOut(LOG_INFO, "Device %s, %s self-test in progress, %d%% remaining\n",
+    PrintOut(LOG_INFO, "Device: %s, %s self-test in progress, %d%% remaining\n",
              name, t, 100 - curr_compl);
   }
   else if (!op0 || res0 == 0xf) { // First entry unused
-    PrintOut(LOG_INFO, "Device %s, no self-test has ever been run\n", name);
+    PrintOut(LOG_INFO, "Device: %s, no self-test has ever been run\n", name);
   }
   else {
     // Report last test result from first log entry
@@ -4079,7 +4076,7 @@ static void log_nvme_self_test_exec_status(const char * name, dev_state & state,
       snprintf(ns, sizeof(ns), " of NSID 0x%x", r.nsid);
 
     PrintOut((0x5 <= res0 && res0 <= 0x7 ? LOG_CRIT : LOG_INFO),
-             "Device %s, previous %s self-test%s %s\n", name, t, ns, m);
+             "Device: %s, previous %s self-test%s %s\n", name, t, ns, m);
   }
 }
 
