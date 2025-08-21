@@ -740,7 +740,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "SandForce Driven SSDs",
     "SanDisk SDSSDA(120|240|480)G|" // SanDisk SSD Plus, tested with SanDisk SDSSDA240G/U21010RL
-    "SanDisk SD8S[BFN]AT128G1(00|12)2", // SanDisk Z400s, tested with 
+    "SanDisk SD8S[BFN]AT128G1(00|12)2", // SanDisk Z400s, tested with
       // SanDisk SD8SFAT128G1122/Z2333000, SanDisk SD8SNAT128G1002/Z2317002
       // SanDisk SD8SBAT128G1002/Z2317002
     "", "",
@@ -2372,7 +2372,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 159,raw48,DRAM_1_Bit_Error_Count " // KINGSTON SKC600256G/S4500105
     "-v 160,raw48,Uncorrectable_Error_Cnt "
     "-v 161,raw48,Valid_Spare_Block_Cnt "
-    "-v 162,raw48,Cache_Block_Count " // Transcend MSM360 
+    "-v 162,raw48,Cache_Block_Count " // Transcend MSM360
     "-v 163,raw48,Initial_Bad_Block_Count "
     "-v 164,raw48,Total_Erase_Count "
     "-v 165,raw48,Max_Erase_Count "
@@ -4084,7 +4084,7 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Toshiba 2.5\" HDD MQ01ABF...", // tested with TOSHIBA MQ01ABF050/AM001J,
-      // TOSHIBA MQ01ABF032/AM001J 
+      // TOSHIBA MQ01ABF032/AM001J
     "TOSHIBA MQ01ABF(032|050|075|100)",
     "", "", ""
   },
@@ -4211,7 +4211,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Toshiba N300/MN NAS HDD", // tested with TOSHIBA HDWQ140/FJ1M, TOSHIBA HDWN160/FS1M,
       // TOSHIBA HDWN180/GX2M, TOSHIBA HDWG440/0601 (4TB), TOSHIBA HDWG480/0601 (8TB),
-      // TOSHIBA HDWG11A/0603 (10TB), TOSHIBA HDWG21C/0601 (12TB), TOSHIBA HDWG21E/0601 (14TB), 
+      // TOSHIBA HDWG11A/0603 (10TB), TOSHIBA HDWG21C/0601 (12TB), TOSHIBA HDWG21E/0601 (14TB),
       // TOSHIBA MN07ACA12T/0601, TOSHIBA MN08ACA14T/0601, TOSHIBA HDWG51J/0104 (18TB)
     "TOSHIBA HDW([GNQ]1[468]0|G(440|480|11A|21[CE]|31[EG]|51[EJ]))|" // 31G: 16TB
     "TOSHIBA MN0(4ACA400|6ACA([68]00|10T)|7ACA1[24]T|8ACA1[46]T)",
@@ -4982,8 +4982,8 @@ const drive_settings builtin_knowndrives[] = {
     "-v 242,raw48,Lifetime_Rds_Frm_Hst_GB "
     "-v 243,hex56,Free_Space "
   },
-  { "Seagate IronWolf (Pro) 125 SSDs", // IronWolf_Pro_125_SSD_Product_Manual_100866982_A.pdf 
-				       // IronWolf_125_SSD_Product_Manual_100866980_C.pdf
+  { "Seagate IronWolf (Pro) 125 SSDs", // IronWolf_Pro_125_SSD_Product_Manual_100866982_A.pdf
+                                       // IronWolf_125_SSD_Product_Manual_100866980_C.pdf
     "Seagate IronWolf ZA(250|500|1000|2000|4000)NM10002-.*|" // tested with
       // Seagate IronWolf ZA500NM10002-2ZG101/SU3SC013
     "Seagate IronWolfPro ZA(240|480|960|1920|3840)NX10001-.*", // tested with
