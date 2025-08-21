@@ -1,0 +1,91 @@
+name: Build smartmontools with MSVC17
+
+on: workflow_dispatch
+
+jobs:
+  config-src:
+    name: Create configured source
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Install dependencies
+      run: |
+        sudo apt-get update && sudo apt-get install -y g++-mingw-w64-x86-64
+
+    - uses: actions/checkout@v4
+      with:
+        # Provide at least the commit log since last release for 'getversion.sh'.
+        # 'git clone --shallow-since=2025-04-29' would be sufficient but this is
+        # not supported by 'actions/checkout@v4'.
+        fetch-depth: 300
+        # Include (future) release tags for 'getversion.sh'
+        fetch-tags: true
+
+    - name: Configure source
+      run: |
+        ./autogen.sh && mkdir build && cd build &&
+        ../configure build_alias=$(../config.guess) host_alias=x86_64-w64-mingw32 &&
+        make config-vc && make distdir && mv smartmontools-*.* smartmontools &&
+        cp -av ../src/os_win32/vc17 smartmontools/src/os_win32
+
+    - name: Upload source
+      uses: actions/upload-artifact@v4
+      with:
+        name: smartmontools-msvc17-src
+        path: build/smartmontools/
+        retention-days: 30
+
+  build:
+    name: Create Windows binaries
+    needs: config-src
+    runs-on: windows-latest
+    env:
+      SLN_FILE: src/os_win32/vc17/smartmontools.sln
+
+    steps:
+    - uses: actions/download-artifact@v4
+      with:
+        name: smartmontools-msvc17-src
+
+    - name: Add MSBuild to PATH
+      uses: microsoft/setup-msbuild@v2
+
+    - name: Build Win32/Debug
+      run: MSBuild /m /p:Platform=Win32 /p:Configuration=Debug ${{env.SLN_FILE}}
+
+    - name: Build Win32/Release
+      run: MSBuild /m /p:Platform=Win32 /p:Configuration=Release ${{env.SLN_FILE}}
+
+    - name: Build Win32/Release-Static
+      run: MSBuild /m /p:Platform=Win32 /p:Configuration=Release-Static ${{env.SLN_FILE}}
+
+    - name: Build x64/Debug
+      run: MSBuild /m /p:Platform=x64 /p:Configuration=Debug ${{env.SLN_FILE}}
+
+    - name: Build x64/Release
+      run: MSBuild /m /p:Platform=x64 /p:Configuration=Release ${{env.SLN_FILE}}
+
+    - name: Build x64/Release-Static
+      run: MSBuild /m /p:Platform=x64 /p:Configuration=Release-Static ${{env.SLN_FILE}}
+
+    - name: Upload exe files
+      uses: actions/upload-artifact@v4
+      with:
+        name: smartmontools-msvc17-exe
+        path: |
+          src/os_win32/vc17/Debug*/*.exe
+          src/os_win32/vc17/Release*/*.exe
+          src/os_win32/vc17/x64/Debug*/*.exe
+          src/os_win32/vc17/x64/Release*/*.exe
+        retention-days: 30
+
+    - name: Upload pdb files
+      uses: actions/upload-artifact@v4
+      with:
+        name: smartmontools-msvc17-pdb
+        path: |
+          src/os_win32/vc17/Debug*/*.pdb
+          src/os_win32/vc17/Release*/*.pdb
+          src/os_win32/vc17/x64/Debug*/*.pdb
+          src/os_win32/vc17/x64/Release*/*.pdb
+        retention-days: 30
