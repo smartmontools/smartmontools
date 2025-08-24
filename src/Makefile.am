@@ -754,8 +754,10 @@ if CROSS_COMPILING
 check:
 	echo "make check: unavailable if cross-compiling"
 else
-# Check drive database syntax
+# Show '-V' output and check drive database syntax
 check:
+	./smartctl -V
+	@echo "./smartctl -B $(srcdir)/drivedb.h -P showall >/dev/null"
 	@if ./smartctl -P showall >/dev/null && \
 	    ./smartctl -B $(srcdir)/drivedb.h -P showall >/dev/null; then \
 	  echo "$(srcdir)/drivedb.h: OK"; \
