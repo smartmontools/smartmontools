@@ -40,6 +40,7 @@ jobs:
     needs: config-src
     runs-on: windows-latest
     env:
+      MSVC_DIR: src/os_win32/vc17
       SLN_FILE: src/os_win32/vc17/smartmontools.sln
 
     steps:
@@ -51,22 +52,34 @@ jobs:
       uses: microsoft/setup-msbuild@v2
 
     - name: Build Win32/Debug
-      run: MSBuild /m /p:Platform=Win32 /p:Configuration=Debug ${{env.SLN_FILE}}
+      run: |
+        MSBuild /m /p:Platform=Win32 /p:Configuration=Debug ${{env.SLN_FILE}}
+        ${{env.MSVC_DIR}}/Debug/smartctl -V
 
     - name: Build Win32/Release
-      run: MSBuild /m /p:Platform=Win32 /p:Configuration=Release ${{env.SLN_FILE}}
+      run: |
+        MSBuild /m /p:Platform=Win32 /p:Configuration=Release ${{env.SLN_FILE}}
+        ${{env.MSVC_DIR}}/Release/smartctl -V
 
     - name: Build Win32/Release-Static
-      run: MSBuild /m /p:Platform=Win32 /p:Configuration=Release-Static ${{env.SLN_FILE}}
+      run: |
+        MSBuild /m /p:Platform=Win32 /p:Configuration=Release-Static ${{env.SLN_FILE}}
+        ${{env.MSVC_DIR}}/Release-Static/smartctl -V
 
     - name: Build x64/Debug
-      run: MSBuild /m /p:Platform=x64 /p:Configuration=Debug ${{env.SLN_FILE}}
+      run: |
+        MSBuild /m /p:Platform=x64 /p:Configuration=Debug ${{env.SLN_FILE}}
+        ${{env.MSVC_DIR}}/x64/Debug/smartctl -V
 
     - name: Build x64/Release
-      run: MSBuild /m /p:Platform=x64 /p:Configuration=Release ${{env.SLN_FILE}}
+      run: |
+        MSBuild /m /p:Platform=x64 /p:Configuration=Release ${{env.SLN_FILE}}
+        ${{env.MSVC_DIR}}/x64/Release/smartctl -V
 
     - name: Build x64/Release-Static
-      run: MSBuild /m /p:Platform=x64 /p:Configuration=Release-Static ${{env.SLN_FILE}}
+      run: |
+        MSBuild /m /p:Platform=x64 /p:Configuration=Release-Static ${{env.SLN_FILE}}
+        ${{env.MSVC_DIR}}/x64/Release-Static/smartctl -V
 
     - name: Upload exe files
       uses: actions/upload-artifact@v4
