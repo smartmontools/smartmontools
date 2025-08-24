@@ -72,6 +72,11 @@ test -z "${SOURCE_DATE_EPOCH+set}" \
 AC_SUBST([SOURCE_DATE_EPOCH])
 AM_CONDITIONAL(REPRODUCIBLE_BUILD, [test -n "$SOURCE_DATE_EPOCH"])
 
+# Some make targets are incompatible with cross-compiling.
+# Note: Don't use 'test "$cross_compiling" = "yes"' because it may be "maybe".
+AC_SUBST(cross_compiling)
+AM_CONDITIONAL(CROSS_COMPILING, [test "$cross_compiling" != "no"])
+
 # Checks for header files.
 AC_CHECK_HEADERS([locale.h])
 AC_CHECK_HEADERS([byteswap.h], [], [], [])

@@ -749,6 +749,11 @@ smartd.conf.5.pdf: smartd.conf.5
 update-smart-drivedb.8.pdf: update-smart-drivedb.8
 	$(AM_V_GEN)$(MAN2PDF) update-smart-drivedb.8 > $@
 
+# Default check target
+if CROSS_COMPILING
+check:
+	echo "make check: unavailable if cross-compiling"
+else
 # Check drive database syntax
 check:
 	@if ./smartctl -P showall >/dev/null && \
@@ -757,6 +762,7 @@ check:
 	else \
 	  echo "$(srcdir)/drivedb.h: Syntax check failed"; exit 1; \
 	fi
+endif
 
 # Create cppcheck report
 cppcheck: cppcheck.txt
