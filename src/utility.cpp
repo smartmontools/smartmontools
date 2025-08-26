@@ -151,6 +151,9 @@ std::string format_version_info(const char * prog_name, int lines /* = 2 */)
 #ifdef __MINGW64_VERSION_STR
                                     ", MinGW-w64 " __MINGW64_VERSION_STR
 #endif
+#ifdef __GLIBCXX__
+                                    ", GNU libstdc++ " N2S(__GLIBCXX__)
+#endif
 #ifdef _MSC_FULL_VER
                                     ", MSVC " N2S(_MSC_FULL_VER)
 #endif
