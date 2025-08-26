@@ -33,10 +33,6 @@
 #include "farmcmds.h"
 #include "farmprint.h"
 
-const char * ataprint_cpp_cvsid = "$Id: ataprint.cpp 5711 2025-04-29 11:56:29Z chrfranke $"
-                                  ATAPRINT_H_CVSID;
-
-
 static const char * infofound(const char *output) {
   return (*output ? output : "[No Information Found]");
 }
@@ -1800,13 +1796,27 @@ static const char * get_device_statistics_page_name(int page)
   return "Unknown Statistics";
 }
 
-static void set_json_globals_from_device_statistics(int page, int offset, int64_t val)
+static void set_json_globals_from_device_statistics(int page, int offset, int64_t val,
+  unsigned log_sector_size)
 {
+  char buf[32];
   switch (page) {
     case 1:
       switch (offset) {
         case 0x008: jglb["power_cycle_count"] = val; break; // ~= Lifetime Power-On Resets
-        case 0x010: jglb["power_on_time"]["hours"]= val; break;
+        case 0x010: jglb["power_on_time"]["hours"] = val; break;
+        case 0x018: jglb["host_writes"] += {
+                      {"units", val},
+                      {"bytes_per_unit", log_sector_size},
+                      {"string", format_capacity(buf, sizeof(buf), val * log_sector_size, ".")}
+                    }; break;
+        case 0x020: jglb["host_writes"]["commands"] = val; break;
+        case 0x028: jglb["host_reads"] += {
+                      {"units", val},
+                      {"bytes_per_unit", log_sector_size},
+                      {"string", format_capacity(buf, sizeof(buf), val * log_sector_size, ".")}
+                    }; break;
+        case 0x030: jglb["host_reads"]["commands"] = val; break;
       }
       break;
     case 5:
@@ -1828,7 +1838,8 @@ static void set_json_globals_from_device_statistics(int page, int offset, int64_
   }
 }
 
-static void print_device_statistics_page(const json::ref & jref, const unsigned char * data, int page)
+static void print_device_statistics_page(const json::ref & jref, const unsigned char * data,
+  int page, unsigned log_sector_size)
 {
   const devstat_entry_info * info = (page < num_devstat_infos ? devstat_infos[page] : 0);
   const char * name = get_device_statistics_page_name(page);
@@ -1936,13 +1947,13 @@ static void print_device_statistics_page(const json::ref & jref, const unsigned 
       jreff["other"] = reserved_flags;
 
     if (valid)
-      set_json_globals_from_device_statistics(page, offset, val);
+      set_json_globals_from_device_statistics(page, offset, val, log_sector_size);
   }
 }
 
 static bool print_device_statistics(ata_device * device, unsigned nsectors,
   const std::vector<int> & single_pages, bool all_pages, bool ssd_page,
-  bool use_gplog)
+  bool use_gplog, unsigned log_sector_size)
 {
   // Read list of supported pages from page 0
   unsigned char page_0[512] = {0, };
@@ -2040,7 +2051,8 @@ static bool print_device_statistics(ata_device * device, unsigned nsectors,
         continue;
 
       int offset = (use_gplog ? 0 : page * 512);
-      print_device_statistics_page(jref["pages"][ji++], pages_buf.data() + offset, page);
+      print_device_statistics_page(jref["pages"][ji++], pages_buf.data() + offset,
+        page, log_sector_size);
     }
 
     jout("%32s|||_ C monitored condition met\n", "");
@@ -4523,7 +4535,8 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
     if (!nsectors)
       pout("Device Statistics (GP/SMART Log 0x04) not supported\n\n");
     else if (!print_device_statistics(device, nsectors, options.devstat_pages,
-               options.devstat_all_pages, options.devstat_ssd_page, use_gplog))
+               options.devstat_all_pages, options.devstat_ssd_page, use_gplog,
+               sizes.log_sector_size                                          ))
       failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
   }
 
