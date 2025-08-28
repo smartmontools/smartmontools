@@ -35,7 +35,9 @@ AC_PROG_INSTALL
 
 m4_pattern_forbid([^PKG_PROG_])
 if test "$cross_compiling" = "no"; then
-  m4_ifdef([PKG_PROG_PKG_CONFIG], [PKG_PROG_PKG_CONFIG],
+  # PKG_PROG_PKG_CONFIG from 'pkgconf' >= 2.3.0 aborts if 'pkg-config' is
+  # missing and the new 2nd parameter is not set
+  m4_ifdef([PKG_PROG_PKG_CONFIG], [PKG_PROG_PKG_CONFIG([], [PKG_CONFIG=])],
     [AC_MSG_WARN([m4/pkg.m4 missing, systemd detection disabled])])
 fi
 
