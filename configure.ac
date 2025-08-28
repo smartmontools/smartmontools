@@ -496,68 +496,17 @@ Please send info about your system to $PACKAGE_BUGREPORT.
     ;;
 esac
 
+# TODO: Remove after smartmontools 8.1
 AC_ARG_WITH(mingw-aslr,
-  [AS_HELP_STRING([--with-mingw-aslr@<:@=auto|yes|low|no@:>@], [Enable ASLR for MinGW executables [auto]])],
-  [], [with_mingw_aslr=auto])
-
-LDFLAGS_set=${LDFLAGS+yes}; test "$LDFLAGS_set" = "yes" || LDFLAGS_set=no
+  [AS_HELP_STRING([--with-mingw-aslr], [(removed)])],
+  [AC_MSG_ERROR([
+The option '--with-mingw-aslr' is no longer supported.  Recent versions
+of the MinGW-w64 toolchain usually enable ASLR by default.
+])])
 
 # MinGW defaults: link statically and indicate DEP and TS compatibility
-case "$host_os:$LDFLAGS_set" in
-  mingw*:no) LDFLAGS="-static -Wl,--nxcompat,--tsaware" ;;
-esac
-
-# Newer versions of MinGW-w64 toolchain enable ASLR and relocation info by default.
-case "$host_os:$with_mingw_aslr:$LDFLAGS_set" in
-  mingw*:auto:no)
-    AC_MSG_CHECKING([whether this $CXX version enables ASLR by default])
-    # Yes: g++ 11.4.0, 12.2.0, clang 15.0.7
-    # No: g++ 6.*, 7.3.*
-    AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
-        #if !(__GNUC__ >= 11 || __clang_major__ >= 15)
-          #error fail
-        #endif]])],
-      [res=yes],[res=no])
-    AC_MSG_RESULT([$res])
-    test "$res" != "yes" || with_mingw_aslr=default
-esac
-
-# ASLR related issues of older MinGW-w64 toolchains and workarounds:
-# 1. '--dynamicbase' only sets DYNAMIC_BASE flag but does not enable relocation info:
-#    Add '-pie' (works despite 'man ld' says: "... currently only supported on ELF platforms")
-# 2. If both '-static' and '-pie' are specified, the entry point is not set properly:
-#    Specify entry point with '-emainCRTStartup' or '-e_mainCRTStartup'.
-# 3. Some versions of '*-w64-mingw32-g++' ignore '-pie' if '-static' is also specified:
-#    Pass '-pie' directly to the linker with '-Wl,-pie'.
-# 4. Linkage of some versions of 'libstdc++.a' fail with "relocation overflow" if a high
-#    '--image-base' is used: Do not use '--high-entropy-va' in these cases.
-
-case "$host:$with_mingw_aslr:$LDFLAGS_set" in
-  x86_64-*-mingw*:auto:no)
-    AC_MSG_CHECKING([whether $CXX supports --high-entropy-va])
-    save_LDFLAGS=$LDFLAGS
-    LDFLAGS="$LDFLAGS -Wl,--dynamicbase,-pie,-emainCRTStartup,--high-entropy-va,--image-base,0x140000000"
-    # Link libstdc++ to detect MinGW-w64 problems with high '--image-base'
-    AC_LINK_IFELSE([AC_LANG_PROGRAM([[
-        #include <string>
-        std::string s(42, '.');]])],
-      [with_mingw_aslr=yes], [with_mingw_aslr=no])
-    LDFLAGS=$save_LDFLAGS
-    AC_MSG_RESULT([$with_mingw_aslr])
-    test "$with_mingw_aslr" = "yes" || with_mingw_aslr=low
-    ;;
-  *-*-mingw*:auto:no)
-    with_mingw_aslr=yes
-    ;;
-esac
-
-case "$host:$with_mingw_aslr" in
-  x86_64-*-mingw*:yes)
-    LDFLAGS="$LDFLAGS -Wl,--dynamicbase,-pie,-emainCRTStartup,--high-entropy-va,--image-base,0x140000000" ;;
-  x86_64-*-mingw*:low)
-    LDFLAGS="$LDFLAGS -Wl,--dynamicbase,-pie,-emainCRTStartup" ;;
-  *-*-mingw*:yes|*-*-mingw*:low)
-    LDFLAGS="$LDFLAGS -Wl,--dynamicbase,-pie,-e_mainCRTStartup" ;;
+case "$host_os:${LDFLAGS+t}" in
+  mingw*:) LDFLAGS="-static -Wl,--nxcompat,--tsaware" ;;
 esac
 
 os_win32_manifest=
