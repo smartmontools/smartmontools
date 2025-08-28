@@ -464,15 +464,25 @@ case "$host_os: $CPPFLAGS $CXXFLAGS" in
     # MinGW 8.0.0 and later may automatically set __USE_MINGW_ANSI_STDIO in certain
     # configurations.  __USE_MINGW_ANSI_STDIO is not needed if the UCRT is used.
     # Make sure __USE_MINGW_ANSI_STDIO or _UCRT is set and fail if format check fails.
-    AC_MSG_CHECKING([whether __USE_MINGW_ANSI_STDIO=1 or _UCRT is predefined])
+    AC_MSG_CHECKING([whether __USE_MINGW_ANSI_STDIO=1 is predefined])
     AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
         #include <stdio.h>
-        #if !(__USE_MINGW_ANSI_STDIO == 1 || defined(_UCRT))
+        #if __USE_MINGW_ANSI_STDIO != 1
           #error fail
         #endif]])],
-      [res=yes],
-      [res=no; CPPFLAGS="${CPPFLAGS}${CPPFLAGS:+ }-D__USE_MINGW_ANSI_STDIO"])
+      [res=yes], [res=no])
     AC_MSG_RESULT([$res])
+    AC_MSG_CHECKING([whether _UCRT is predefined])
+    AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
+        #include <stdio.h>
+        #ifndef _UCRT
+          #error fail
+        #endif]])],
+      [res2=yes], [res2=no])
+    AC_MSG_RESULT([$res2])
+    if test "$res:$res2" = "no:no"; then
+      CPPFLAGS="${CPPFLAGS}${CPPFLAGS:+ }-D__USE_MINGW_ANSI_STDIO"
+    fi
     AC_MSG_CHECKING([whether $CXX supports __USE_MINGW_ANSI_STDIO or UCRT])
     save_CXXFLAGS=$CXXFLAGS
     CXXFLAGS="$CXXFLAGS -Wformat -Werror"
