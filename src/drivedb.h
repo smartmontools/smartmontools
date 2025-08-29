@@ -153,7 +153,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 254,raw48,Free_Fall_Sensor,HDD"
   },
   { "Swissbit C440 Industrial CompactFlash Card",
-    // spec v1.23 found at http://www.farnell.com/datasheets/1821167.pdf
+    // spec v1.23 found at https://www.farnell.com/datasheets/1821167.pdf
     // tested with SFCF4096H2BU4TO-I-MS-527-STD
     "SFCF(2048|4096|8192|16GB|32GB|64GB)H[0-9]BU[24]TO-(C|I)-(MS|QT|NU)-5[0-9]7-STD",
     "", "",
@@ -525,7 +525,7 @@ const drive_settings builtin_knowndrives[] = {
     "This drive may hang after 5184 hours of power-on time:\n"
     "https://www.tomshardware.com/news/Crucial-m4-Firmware-BSOD,14544.html\n"
     "See the following web page for firmware updates:\n"
-    "http://www.crucial.com/usa/en/support-ssd",
+    "https://www.crucial.com/usa/en/support-ssd",
     "-v 170,raw48,Grown_Failing_Block_Ct "
     "-v 171,raw48,Program_Fail_Count "
     "-v 172,raw48,Erase_Fail_Count "
@@ -638,8 +638,6 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 242,raw48,Total_LBAs_Read "
     "-v 245,raw48,Bit_Error_Cnt "
   },
-  // Reference: https://www.micron.com/resource-details/feec878a-265e-49a7-8086-15137c5f9011
-  // TN-FD-34: 5100 SSD SMART Implementation
   { "Micron 5100 / 52x0 / 5300 / 5400 SSDs",
     "(Micron_5100_)?(EE|MT)FDDA[KV](240|480|960|1T9|3T8|7T6)T(BY|CB|CC)(_SED)?|" // Matches both stock and Dell OEM
       // tested with Micron_5100_MTFDDAK3T8TCB/D0MU410, MTFDDAK3T8TCB/D0MU410,
@@ -716,8 +714,7 @@ const drive_settings builtin_knowndrives[] = {
     "S9FM01\\.8",
     "A firmware update is available for this drive.\n"
     "It is HIGHLY RECOMMENDED for drives with specific serial numbers.\n"
-    "See the following web pages for details:\n"
-    "https://www.corsair.com/en-us/force-series-ls-60gb-sata-3-6gb-s-ssd\n"
+    "See the following web page for details:\n"
     "https://www.smartmontools.org/ticket/628",
     "-v 1,raw24/raw32,Raw_Read_Error_Rate "
     "-v 5,raw48,Retired_Block_Count "
@@ -886,7 +883,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 242,raw48,Lifetime_Reads_GiB"
   },
   { "StorFly CFast SATA 6Gbps SSDs",
-    // http://datasheet.octopart.com/VSFCS2CC060G-100-Virtium-datasheet-82287733.pdf
+    // https://datasheet.octopart.com/VSFCS2CC060G-100-Virtium-datasheet-82287733.pdf
     // tested with StorFly VSFCS2CC060G-100/0409-000
     "StorFly VSFCS2C[CI](016|030|060|120|240)G-...",
     // C - commercial, I industrial
@@ -1408,8 +1405,7 @@ const drive_settings builtin_knowndrives[] = {
     "INTEL SSDSA[12]M(040|080|120|160)G2.*",
     "",
     "This drive may require a firmware update to\n"
-    "fix possible drive hangs when reading SMART self-test log:\n"
-    "https://downloadcenter.intel.com/download/26491",
+    "fix possible drive hangs when reading SMART self-test log.",
     "-v 192,raw48,Unsafe_Shutdown_Count "
     "-v 225,raw48,Host_Writes_32MiB "
     "-v 226,raw48,Workld_Media_Wear_Indic "
@@ -1609,8 +1605,6 @@ const drive_settings builtin_knowndrives[] = {
     "-v 242,raw48,Host_Reads_32MiB "
     "-v 249,raw48,NAND_Writes_1GiB"
   },
-  // https://www.intel.com/content/www/us/en/solid-state-drives/ssd-540s-series-spec.html
-  // https://www.intel.com/content/www/us/en/solid-state-drives/ssd-540s-series-m2-spec.html
   { "Intel 540 Series SSDs", // INTEL SSDSC2KW120H6/LSF036C, INTEL SSDSC2KW480H6/LSF036C
     "INTEL SSDSC[K2]KW(120H|180H|240H|360H|480H|010X)6",
     "", "",
@@ -1700,8 +1694,6 @@ const drive_settings builtin_knowndrives[] = {
     "-v 243,raw48,NAND_Writes_32MiB " // S3510/3610
     "-F xerrorlba" // tested with SSDSC2BB600G4/D2010355
   },
-  // https://www.intel.com/content/www/us/en/solid-state-drives/ssd-pro-5400s-series-spec.html
-  // https://www.intel.com/content/www/us/en/solid-state-drives/ssd-pro-5400s-series-m2-spec.html
   { "Intel SSD Pro 5400s Series", // Tested with SSDSC2KF480H6/LSF036P,
       // INTEL SSDSC2KF256H6 SATA 256GB/LBFD16N
     "INTEL SSDSC[2K]KF((120|180|240|256|360|480|512)H|010X)6( .*)?",
@@ -2489,8 +2481,8 @@ const drive_settings builtin_knowndrives[] = {
     "-v 251,raw48,Unkn_SiliconMotion_Attr"
   },
   { "SMART Modular Technologies mSATA XL+ SLC SSDs", // tested with SH9MST6D16GJSI01
-    "SH9MST6D[0-9]*GJSI?[0-9]*", // based on http://www.smartm.com/salesLiterature/embedded/mSATA_overview.pdf
-    "", "", // attributes info from http://www.mouser.com/ds/2/723/smartmodular_09302015_SH9MST6DxxxGJSxxx_rA[1]-770719.pdf
+    "SH9MST6D[0-9]*GJSI?[0-9]*",
+    "", "", // attributes info from https://www.mouser.com/ds/2/723/smartmodular_09302015_SH9MST6DxxxGJSxxx_rA[1]-770719.pdf
     "-v 1,raw48,Uncorrectable_ECC_Cnt "
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
     "-v 9,raw48,Power_On_Hours " // override default raw24(raw8) format
@@ -2521,10 +2513,9 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 242,raw48,Total_LBAs_Read "
     //  247-248 Missing in specification from April 2015
   },
-  { "Smart Storage Systems Xcel-10 SSDs",  // based on http://www.smartm.com/files/salesLiterature/storage/xcel10.pdf
+  { "Smart Storage Systems Xcel-10 SSDs",
     "SMART A25FD-(32|64|128)GI32N", // tested with SMART A25FD-128GI32N/B9F23D4K
-    "",
-    "", // attributes info from http://www.adtron.com/pdf/SMART_Attributes_Xcel-10_810800014_RevB.pdf
+    "", "",
     "-v 1,raw48,Not_Supported "
     "-v 2,raw48,Not_Supported "
   //"-v 9,raw24(raw8),Power_On_Hours "
@@ -2724,7 +2715,7 @@ const drive_settings builtin_knowndrives[] = {
     "(IBM-|Hitachi )?IC35L0[12346]0AVER07.*",
     "",
     "IBM Deskstar 60GXP drives may need upgraded SMART firmware.\n"
-    "Please see http://haque.net/dtla_update/",
+    "Please see https://haque.net/dtla_update/",
     ""
   },
   { "IBM Deskstar 40GV & 75GXP (A5AA/A6AA firmware)",
@@ -2736,7 +2727,7 @@ const drive_settings builtin_knowndrives[] = {
     "(IBM-)?DTLA-30[57]0[123467][05].*",
     "",
     "IBM Deskstar 40GV and 75GXP drives may need upgraded SMART firmware.\n"
-    "Please see http://haque.net/dtla_update/",
+    "Please see https://haque.net/dtla_update/",
     ""
   },
   { "", // ExcelStor J240, J340, J360, J680, J880 and J8160
@@ -2984,8 +2975,7 @@ const drive_settings builtin_knowndrives[] = {
     "drive may result in data loss due to a firmware bug.\n"
     "****** THIS DRIVE MAY OR MAY NOT BE AFFECTED! ******\n"
     "Buggy and fixed firmware report same version number!\n"
-    "See the following web pages for details:\n"
-    "http://knowledge.seagate.com/articles/en_US/FAQ/223571en\n"
+    "See the following web page for details:\n"
     "https://www.smartmontools.org/wiki/SamsungF4EGBadBlocks",
     ""
   },
@@ -3472,12 +3462,12 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Seagate Maxtor DiamondMax 22", // fixed firmware
     "(MAXTOR )?STM3(500320|750330|1000340)AS?",
-    "MX1A", // http://knowledge.seagate.com/articles/en_US/FAQ/207969en
+    "MX1A", // https://knowledge.seagate.com/articles/en_US/FAQ/207969en
     "", ""
   },
   { "Seagate Maxtor DiamondMax 22", // fixed firmware
     "(MAXTOR )?STM3(160813|320614|640323|1000334)AS?",
-    "MX1B", // http://knowledge.seagate.com/articles/en_US/FAQ/207975en
+    "MX1B", // https://knowledge.seagate.com/articles/en_US/FAQ/207975en
     "", ""
   },
   { "Seagate Maxtor DiamondMax 22", // buggy firmware
@@ -3486,8 +3476,8 @@ const drive_settings builtin_knowndrives[] = {
     "There are known problems with these drives,\n"
     "AND THIS FIRMWARE VERSION IS AFFECTED,\n"
     "see the following Seagate web pages:\n"
-    "http://knowledge.seagate.com/articles/en_US/FAQ/207931en\n"
-    "http://knowledge.seagate.com/articles/en_US/FAQ/207969en",
+    "https://knowledge.seagate.com/articles/en_US/FAQ/207931en\n"
+    "https://knowledge.seagate.com/articles/en_US/FAQ/207969en",
     ""
   },
   { "Seagate Maxtor DiamondMax 22", // unknown firmware
@@ -3495,9 +3485,9 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "There are known problems with these drives,\n"
     "see the following Seagate web pages:\n"
-    "http://knowledge.seagate.com/articles/en_US/FAQ/207931en\n"
-    "http://knowledge.seagate.com/articles/en_US/FAQ/207969en\n"
-    "http://knowledge.seagate.com/articles/en_US/FAQ/207975en",
+    "https://knowledge.seagate.com/articles/en_US/FAQ/207931en\n"
+    "https://knowledge.seagate.com/articles/en_US/FAQ/207969en\n"
+    "https://knowledge.seagate.com/articles/en_US/FAQ/207975en",
     ""
   },
   { "Seagate Maxtor DiamondMax 23", // new firmware
@@ -3510,8 +3500,8 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "A firmware update for this drive may be available,\n"
     "see the following Seagate web pages:\n"
-    "http://knowledge.seagate.com/articles/en_US/FAQ/207931en\n"
-    "http://knowledge.seagate.com/articles/en_US/FAQ/213911en",
+    "https://knowledge.seagate.com/articles/en_US/FAQ/207931en\n"
+    "https://knowledge.seagate.com/articles/en_US/FAQ/213911en",
     ""
   },
   { "Maxtor MaXLine Plus II",
@@ -4275,7 +4265,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 173,raw48,Erase_Count "
   },
   { "Toshiba HG6 Series SSD", // TOSHIBA THNSNJ512GCST/JTRA0102
-    // http://www.farnell.com/datasheets/1852757.pdf
+    // https://www.farnell.com/datasheets/1852757.pdf
     // TOSHIBA THNSFJ256GCSU/JULA1102
     // TOSHIBA THNSFJ256GDNU A/JYLA1102
     "TOSHIBA THNS[NF]J(060|128|256|512)G[BCAM8VD][SCN][TU].*",
@@ -4370,7 +4360,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Seagate Momentus XT", // fixed firmware
     "ST9(2505610|3205620|5005620)AS",
-    "SD2[68]", // http://knowledge.seagate.com/articles/en_US/FAQ/215451en
+    "SD2[68]", // https://knowledge.seagate.com/articles/en_US/FAQ/215451en
     "", ""
   },
   { "Seagate Momentus XT", // buggy firmware, tested with ST92505610AS/SD24
@@ -4379,7 +4369,7 @@ const drive_settings builtin_knowndrives[] = {
     "These drives may corrupt large files,\n"
     "AND THIS FIRMWARE VERSION IS AFFECTED,\n"
     "see the following web pages for details:\n"
-    "http://knowledge.seagate.com/articles/en_US/FAQ/215451en\n"
+    "https://knowledge.seagate.com/articles/en_US/FAQ/215451en\n"
     "https://superuser.com/questions/313447/seagate-momentus-xt-corrupting-files-linux-and-mac",
     ""
   },
@@ -4388,7 +4378,7 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "These drives may corrupt large files,\n"
     "see the following web pages for details:\n"
-    "http://knowledge.seagate.com/articles/en_US/FAQ/215451en\n"
+    "https://knowledge.seagate.com/articles/en_US/FAQ/215451en\n"
     "https://superuser.com/questions/313447/seagate-momentus-xt-corrupting-files-linux-and-mac",
     ""
   },
@@ -4492,17 +4482,17 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Seagate Barracuda 7200.11", // unaffected firmware
     "ST3(160813|320[68]13|500[368]20|640[36]23|640[35]30|750[36]30|1000(333|[36]40)|1500341)AS?",
-    "CC.?.?", // http://knowledge.seagate.com/articles/en_US/FAQ/207957en
+    "CC.?.?", // https://knowledge.seagate.com/articles/en_US/FAQ/207957en
     "", ""
   },
   { "Seagate Barracuda 7200.11", // fixed firmware
     "ST3(500[368]20|750[36]30|1000340)AS?",
-    "SD1A", // http://knowledge.seagate.com/articles/en_US/FAQ/207951en
+    "SD1A", // https://knowledge.seagate.com/articles/en_US/FAQ/207951en
     "", ""
   },
   { "Seagate Barracuda 7200.11", // fixed firmware
     "ST3(160813|320[68]13|640[36]23|1000333|1500341)AS?",
-    "SD[12]B", // http://knowledge.seagate.com/articles/en_US/FAQ/207957en
+    "SD[12]B", // https://knowledge.seagate.com/articles/en_US/FAQ/207957en
     "", ""
   },
   { "Seagate Barracuda 7200.11", // buggy or fixed firmware
@@ -4511,8 +4501,8 @@ const drive_settings builtin_knowndrives[] = {
     "There are known problems with these drives,\n"
     "THIS DRIVE MAY OR MAY NOT BE AFFECTED,\n"
     "see the following web pages for details:\n"
-    "http://knowledge.seagate.com/articles/en_US/FAQ/207931en\n"
-    "http://knowledge.seagate.com/articles/en_US/FAQ/207951en\n"
+    "https://knowledge.seagate.com/articles/en_US/FAQ/207931en\n"
+    "https://knowledge.seagate.com/articles/en_US/FAQ/207951en\n"
     "https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=632758",
     ""
   },
@@ -4521,9 +4511,9 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "There are known problems with these drives,\n"
     "see the following Seagate web pages:\n"
-    "http://knowledge.seagate.com/articles/en_US/FAQ/207931en\n"
-    "http://knowledge.seagate.com/articles/en_US/FAQ/207951en\n"
-    "http://knowledge.seagate.com/articles/en_US/FAQ/207957en",
+    "https://knowledge.seagate.com/articles/en_US/FAQ/207931en\n"
+    "https://knowledge.seagate.com/articles/en_US/FAQ/207951en\n"
+    "https://knowledge.seagate.com/articles/en_US/FAQ/207957en",
     ""
   },
   { "Seagate Barracuda 7200.12", // new firmware, tested with ST3500418AS/HP34
@@ -4536,8 +4526,8 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "A firmware update for this drive may be available,\n"
     "see the following Seagate web pages:\n"
-    "http://knowledge.seagate.com/articles/en_US/FAQ/207931en\n"
-    "http://knowledge.seagate.com/articles/en_US/FAQ/213891en",
+    "https://knowledge.seagate.com/articles/en_US/FAQ/207931en\n"
+    "https://knowledge.seagate.com/articles/en_US/FAQ/213891en",
     ""
   },
   { "Seagate Barracuda 7200.12", // tested with ST3160316AS/JC45, ST3250312AS/JC45,
@@ -4565,8 +4555,8 @@ const drive_settings builtin_knowndrives[] = {
     "CC4[679CG]",
     "A firmware update for this drive is available,\n"
     "see the following Seagate web pages:\n"
-    "http://knowledge.seagate.com/articles/en_US/FAQ/207931en\n"
-    "http://knowledge.seagate.com/articles/en_US/FAQ/223651en",
+    "https://knowledge.seagate.com/articles/en_US/FAQ/207931en\n"
+    "https://knowledge.seagate.com/articles/en_US/FAQ/223651en",
     "-v 188,raw16 -v 240,msec24hour32"
   },
   { "Seagate Barracuda 7200.14 (AF)", // unknown firmware
@@ -4574,8 +4564,8 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "A firmware update for this drive may be available,\n"
     "see the following Seagate web pages:\n"
-    "http://knowledge.seagate.com/articles/en_US/FAQ/207931en\n"
-    "http://knowledge.seagate.com/articles/en_US/FAQ/223651en",
+    "https://knowledge.seagate.com/articles/en_US/FAQ/207931en\n"
+    "https://knowledge.seagate.com/articles/en_US/FAQ/223651en",
     "-v 188,raw16 -v 240,msec24hour32"
   },
   { "Seagate Barracuda 7200.14 (AF)", // different part number, tested with
@@ -4630,8 +4620,8 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "A firmware update for this drive may be available,\n"
     "see the following Seagate web pages:\n"
-    "http://knowledge.seagate.com/articles/en_US/FAQ/207931en\n"
-    "http://knowledge.seagate.com/articles/en_US/FAQ/213915en",
+    "https://knowledge.seagate.com/articles/en_US/FAQ/207931en\n"
+    "https://knowledge.seagate.com/articles/en_US/FAQ/213915en",
     "-F xerrorlba" // tested with ST31000520AS/CC32
   },
   { "Seagate Barracuda Green (AF)", // new firmware
@@ -4644,8 +4634,8 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "A firmware update for this drive may be available,\n"
     "see the following Seagate web pages:\n"
-    "http://knowledge.seagate.com/articles/en_US/FAQ/207931en\n"
-    "http://knowledge.seagate.com/articles/en_US/FAQ/218171en",
+    "https://knowledge.seagate.com/articles/en_US/FAQ/207931en\n"
+    "https://knowledge.seagate.com/articles/en_US/FAQ/218171en",
     ""
   },
   { "Seagate Barracuda ES",
@@ -4661,9 +4651,9 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Seagate Barracuda ES.2", // fixed firmware
     "ST3(25031|50032|75033|100034)0NS",
-    "SN[01]6|"         // http://knowledge.seagate.com/articles/en_US/FAQ/207963en
-    "MA(0[^7]|[^0].)", // http://dellfirmware.seagate.com/dell_firmware/DellFirmwareRequest.jsp
-    "",                //        ^^^^^^^^^^^^ down (no DNS A record)
+    "SN[01]6|"         // https://knowledge.seagate.com/articles/en_US/FAQ/207963en
+    "MA(0[^7]|[^0].)",
+    "",
     "-F xerrorlba" // tested with ST31000340NS/SN06
   },
   { "Seagate Barracuda ES.2", // buggy firmware (Dell)
@@ -4679,8 +4669,8 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "There are known problems with these drives,\n"
     "see the following Seagate web pages:\n"
-    "http://knowledge.seagate.com/articles/en_US/FAQ/207931en\n"
-    "http://knowledge.seagate.com/articles/en_US/FAQ/207963en",
+    "https://knowledge.seagate.com/articles/en_US/FAQ/207931en\n"
+    "https://knowledge.seagate.com/articles/en_US/FAQ/207963en",
     ""
   },
   { "Seagate Barracuda Pro", // tested with ST8000DM0004-1ZC11G/DN01
