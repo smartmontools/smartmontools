@@ -5402,6 +5402,11 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   //"-v 22,raw48,Helium_Level" // WD121KRYZ, WD141KRYZ
   },
+  { "Western Digital Re+", // tested with WDC WD6005FRPZ-01S9PB0
+      // WDC WD5005FRPZ, WDC WD6005FRPZ-01S9PB0
+    "WDC WD[56]005FRPZ-.*",
+    "", "", ""
+  },
   { "Western Digital Blue Mobile", // tested with WDC WD5000LPVX-08V0TT2/03.01A03,
       // WDC WD10JPVX-75JC3T0/0301A03,  WDC WD10JPVX-22JC3T0/01.01A01,
       // WDC WD20NPVZ-00WFZT0/01.01A01
