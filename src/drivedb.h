@@ -933,6 +933,7 @@ const drive_settings builtin_knowndrives[] = {
       // Silicon Motion controller (see ticket #801), tested with
       // KINGSTON SA400S37240G/SBFK10D7, KINGSTON SA400S37120G/SBFK71E0, */SBFKB1D1
       // KINGSTON  SA400S37480G/SBFK10D7 (two spaces), KINGSTON SA400M8240G/SBFK61E1
+    "KIOXIA-EXCERIA SATA SSD|" // KIOXIA-EXCERIA SATA SSD/SBFA18.1 (480GB)
     "Patriot (Blast|Blaze|Flare|Ignite)|" // tested with Patriot Blast/SAFM11.3,
       // Patriot Blaze/S9FM02, Patriot Flare/SBFM91.2, Patriot Ignite/SAFM01.7
     "Patriot Burst( (120|240|480|960)GB)?|" // tested with Patriot Burst/SBFM11.2,
@@ -984,7 +985,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 232,raw48,Read_Fail_Count "
     "-v 233,raw48,Flash_Writes_GiB "
     "-v 240,raw48,Not_In_Use "
-    "-v 241,raw48,Lifetime_Writes_GiB "
+    "-v 241,raw48,Lifetime_Writes_GiB " // KIOXIA-EXCERIA SATA SSD/SBFA18.1: 32MiB ?
     "-v 242,raw48,Lifetime_Reads_GiB "
     "-v 244,raw48,Average_Erase_Count "
     "-v 245,raw48,Max_Erase_Count "
