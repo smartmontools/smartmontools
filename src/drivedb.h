@@ -1702,8 +1702,9 @@ const drive_settings builtin_knowndrives[] = {
   },
   // https://www.intel.com/content/www/us/en/solid-state-drives/ssd-pro-5400s-series-spec.html
   // https://www.intel.com/content/www/us/en/solid-state-drives/ssd-pro-5400s-series-m2-spec.html
-  { "Intel SSD Pro 5400s Series", // Tested with SSDSC2KF480H6/LSF036P
-    "INTEL SSDSC[2K]KF(120H|180H|240H|360H|480H|010X)6",
+  { "Intel SSD Pro 5400s Series", // Tested with SSDSC2KF480H6/LSF036P,
+      // INTEL SSDSC2KF256H6 SATA 256GB/LBFD16N
+    "INTEL SSDSC[2K]KF((120|180|240|256|360|480|512)H|010X)6( .*)?",
     "", "",
     "-v 170,raw48,Available_Reservd_Space "
     "-v 171,raw48,Program_Fail_Count "
