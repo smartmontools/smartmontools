@@ -5235,6 +5235,11 @@ const drive_settings builtin_knowndrives[] = {
     "", "",
     "-v 16,raw48,Total_LBAs_Read" // WDC WD1004FBYZ-01YCBB1/RR04
   },
+  { "Western Digital Re+", // tested with WDC WD6005FRPZ-01S9PB0/01.0RRE1
+      // WDC WD6005FRPZ-01S9PB0
+    "WDC WD[56]005FRPZ-.*",
+    "", "", ""
+  },
   { "Western Digital Se", // tested with WDC WD2000F9YZ-09N20L0/01.01A01
     // WD6001F9YZ, WD5001F9YZ, WD4000F9YZ, WD3000F9YZ, WD2000F9YZ, WD1002F9YZ
     "WDC WD(1002|2000|3000|4000|5001|6001)F9YZ-.*",
@@ -5401,11 +5406,6 @@ const drive_settings builtin_knowndrives[] = {
     "WDC WD([12]005[FV]B|4002FY|4003FR|600[23]FR|800[234]FR|([12][02468]1|102)KR)YZ-.*",
     "", "", ""
   //"-v 22,raw48,Helium_Level" // WD121KRYZ, WD141KRYZ
-  },
-  { "Western Digital Re+", // tested with WDC WD6005FRPZ-01S9PB0
-      // WDC WD5005FRPZ, WDC WD6005FRPZ-01S9PB0
-    "WDC WD[56]005FRPZ-.*",
-    "", "", ""
   },
   { "Western Digital Blue Mobile", // tested with WDC WD5000LPVX-08V0TT2/03.01A03,
       // WDC WD10JPVX-75JC3T0/0301A03,  WDC WD10JPVX-22JC3T0/01.01A01,
