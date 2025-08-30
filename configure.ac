@@ -49,6 +49,20 @@ AC_ARG_VAR(MAKENSIS, [NSIS compiler command])
 
 AC_CANONICAL_HOST
 
+# Some make targets are incompatible with cross-compiling.
+# Note: Don't use 'test "$cross_compiling" = "yes"' because it may be "maybe".
+res=yes
+if test "$cross_compiling" != "no"; then
+  AC_MSG_CHECKING([whether executables could be run despite cross-compiling])
+  case "$build:$host" in
+    x86_64-pc-cygwin:i686-w64-mingw32)   ;;
+    x86_64-pc-cygwin:x86_64-w64-mingw32) ;;
+    *) res=no ;;
+  esac
+  AC_MSG_RESULT([$res])
+fi
+AM_CONDITIONAL(REALLY_CROSS_COMPILING, [test "$res" = "no"])
+
 AC_CHECK_TOOL(NM, [nm])
 case "$host_os" in
   mingw*)
@@ -73,11 +87,6 @@ test -z "${SOURCE_DATE_EPOCH+set}" \
 || AC_MSG_ERROR([Malformed SOURCE_DATE_EPOCH: '$SOURCE_DATE_EPOCH'])
 AC_SUBST([SOURCE_DATE_EPOCH])
 AM_CONDITIONAL(REPRODUCIBLE_BUILD, [test -n "$SOURCE_DATE_EPOCH"])
-
-# Some make targets are incompatible with cross-compiling.
-# Note: Don't use 'test "$cross_compiling" = "yes"' because it may be "maybe".
-AC_SUBST(cross_compiling)
-AM_CONDITIONAL(CROSS_COMPILING, [test "$cross_compiling" != "no"])
 
 # Checks for header files.
 AC_CHECK_HEADERS([locale.h])

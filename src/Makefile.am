@@ -750,9 +750,9 @@ update-smart-drivedb.8.pdf: update-smart-drivedb.8
 	$(AM_V_GEN)$(MAN2PDF) update-smart-drivedb.8 > $@
 
 # Default check target
-if CROSS_COMPILING
+if REALLY_CROSS_COMPILING
 check:
-	echo "make check: unavailable if cross-compiling"
+	@echo "make check: unavailable if cross-compiling"
 else
 # Show '-V' output and check drive database syntax
 check:
