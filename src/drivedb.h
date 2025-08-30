@@ -5234,7 +5234,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Western Digital Re+", // tested with WDC WD6005FRPZ-01S9PB0/01.0RRE1
     "WDC WD[56]005FRPZ-.*",
-    "", "", ""
+    "", "",
     "-v 16,raw48,Unknown_WDC_Attribute" // WDC WD6005FRPZ-01S9PB0/01.0RRE1
   },
   { "Western Digital Se", // tested with WDC WD2000F9YZ-09N20L0/01.01A01
