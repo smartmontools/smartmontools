@@ -156,6 +156,8 @@ std::string format_version_info(const char * prog_name, int lines /* = 2 */)
 #endif
 #ifdef __GLIBCXX__
                                     ", GNU libstdc++ " N2S(__GLIBCXX__)
+#elif defined(__clang__) && defined(_LIBCPP_VERSION)
+                                    ", Clang libc++ " N2S(_LIBCPP_VERSION)
 #endif
 #ifdef _MSC_FULL_VER
                                     ", MSVC " N2S(_MSC_FULL_VER)
