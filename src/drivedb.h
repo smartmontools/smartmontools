@@ -4392,9 +4392,10 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Seagate Laptop HDD", // tested with ST500LT012-9WS142/0001SDM1,
-      // ST500LM021-1KJ152/0002LIM1, ST4000LM016-1N2170/0003
+      // ST500LM021-1KJ152/0002LIM1, ST500LM021-1KJ152/0003LIM1, ST4000LM016-1N2170/0003
     "ST((25|32|50)0LT0(12|15|25)|(32|50)0LM0(10|21)|[34]000LM016)-.*",
-    "", "", ""
+    "", "",
+    "-v 1,raw24/raw32 -v 7,raw24/raw32 -v 188,raw16"
   },
   { "Seagate Laptop SSHD", // tested with ST500LM000-1EJ162/SM11
     "ST(500|1000)LM0(00|14)-.*",
