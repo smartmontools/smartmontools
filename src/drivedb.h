@@ -3825,8 +3825,8 @@ const drive_settings builtin_knowndrives[] = {
     "Hitachi HDE7210(50|75|10)SLA330",
     "", "", ""
   },
-  { "Hitachi Deskstar 7K2000",
-    "Hitachi HDS722020ALA330",
+  { "Hitachi Deskstar 7K2000", // tested with HDS722020ALA330 RSD HUA/JKAOA31E
+    "(Hitachi )?HDS722020ALA330( RSD HUA)?",
     "", "", ""
   },
   { "Hitachi Deskstar 7K3000", // tested with Hitachi HDS723030ALA640/MKAOA3B0,
