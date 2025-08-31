@@ -93,10 +93,13 @@ jobs:
       - name: install m32 dependencies
         run: sudo apt-get update && sudo apt-get install gcc-multilib g++-multilib
       - name: build
+        # 'config.guess' from automake 1.16 misdetects 'host=x86_64-pc-linux-gnux32' (x86_64 with x32 ABI).
+        # With 'setarch i686 ...' it correctly detects 'host=i686-pc-linux-gnu'.
+        # TODO: Remove this workaround if 'ubuntu-latest' provides automake >= 1.17.
         run: |
           tar -xvf artifacts/smartmontools-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz &&
           cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
-          ../configure CC="gcc -m32" CXX="g++ -m32" LDFLAGS="-static" SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
+          setarch i686 ../configure CC="gcc -m32" CXX="g++ -m32" LDFLAGS="-static" SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
           make -j BUILD_INFO='"(GHA Build)"' && make check &&
           mkdir -p ${GITHUB_WORKSPACE}/artifacts &&
           make bin-dist bin_distfile="${GITHUB_WORKSPACE}/artifacts/smartmontools-linux-i386-static-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz"
