@@ -15,10 +15,10 @@ myname=$0
 usage()
 {
   cat <<EOF
-Usage: $myname -n
-       $myname -g >> \$GITHUB_ENV
-       $myname -s > version.sh
-       $myname -i < version.sh > version.h
+Usage: $myname -n [REV] [--] [PATH]
+       $myname -g [REV] [--] [PATH] >> \$GITHUB_ENV
+       $myname -s [REV] [--] [PATH] > version.sh
+       $myname -i [REV] [--] [PATH] < version.sh > version.h
 
   -n          Print version string suitable for filenames
   -g          Create version information for \$GITHUB_ENV
@@ -45,11 +45,12 @@ while :; do case $1 in
   -i) i_opt=true ;;
   -n) n_opt=true ;;
   -s) s_opt=true ;;
+  --) break ;;
   -*) usage ;;
   *) break ;;
 esac; shift; done
-case "$#:$g_opt$i_opt$n_opt$s_opt" in
-  *true*true*) usage ;; 0:*true*) ;; *) usage ;;
+case "$g_opt$i_opt$n_opt$s_opt" in
+  *true*true*) usage ;; *true*) ;; *) usage ;;
 esac
 
 if $i_opt; then
@@ -86,6 +87,7 @@ test -n "$(cd "$top_srcdir" && git ls-files README.md 2>/dev/null)" || is_git_co
 dist_version_sh="$srcdir/dist-version.sh"
 if [ -f "$dist_version_sh" ]; then
   ! $is_git_co || error "$dist_version_sh: must not exist in a git checkout"
+  test $# -eq 0 || error "git log is required for '$*'"
 
   x=$(
     sed -e '/^#/d' -e 's/ *#.*$//'\
@@ -120,11 +122,19 @@ ver_win="$ver.0.999"
 origin="(git log not available)"
 
 if $is_git_co; then
-  # Get hash, date and time of current revision
+  # Query specific revision if requested
+  head="HEAD"
+  if [ $# -gt 0 ]; then
+    # Stay in current directory to keep PATH names valid
+    head=$(git log -1 --format='format:%H' "$@" 2>/dev/null) \
+    && [ -n "$head" ] || error "git revision not found for '$*'"
+  fi
+
+  # Get hash, date and time of head revision
   # Note: don't use 'format:%h' because its length depends on clone depth
   x=$(
     cd "$top_srcdir" \
-    && TZ='' LC_ALL=C git log -1 --date=iso-local --format='format:%H %ct %cd' 2>/dev/null
+    && TZ='' LC_ALL=C git log -1 --date=iso-local --format='format:%H %ct %cd' "$head" 2>/dev/null
   ) || exit 1
   rev=${x%% *}; x=${x#* }
   rev_epoch=${x%% *}; x=${x#* }
@@ -133,12 +143,13 @@ if $is_git_co; then
   rev=$(echo "$rev" | cut -c 1-12)
 
   # Check for modifications
+  # (may be incorrect positive if a REV or PATH is specified
   x="$(cd "$top_srcdir" && git status -s -uno)" || exit 1
   modified=${x:+-modified}
   rev="$rev$modified"
 
   # Emulate a svn revision number
-  if x=$(cd "$top_srcdir" && git rev-list --count "$base_git_rev..HEAD" 2>/dev/null) \
+  if x=$(cd "$top_srcdir" && git rev-list --count "$base_git_rev..$head" 2>/dev/null) \
      && [ "$x" -gt 0 ]; then
     svn_rev=$((base_svn_rev + x))
   fi
@@ -163,7 +174,7 @@ if $is_git_co; then
     pre_revs_win=999
     if [ -n "$prev_release" ]; then
       # Get number of revisions since previous PACKAGE_VERSION
-      if x=$(cd "$top_srcdir" && git rev-list --count "$prev_release..HEAD" 2>/dev/null)
+      if x=$(cd "$top_srcdir" && git rev-list --count "$prev_release..$head" 2>/dev/null)
       then
         if [ 0 -lt "$x" ] && [ "$x" -lt 5600 ]; then
           pre_revs=$x
@@ -198,6 +209,7 @@ if $is_git_co; then
   origin="and git log"
 
 else
+  test $# -eq 0 || error "git log is required for '$*'"
   msg="no '$dist_version_sh' or git log available"
   if [ "$SMARTMONTOOLS_TEST_BUILD" != "1" ]; then
     echo "$myname: Error: $msg" >&2
