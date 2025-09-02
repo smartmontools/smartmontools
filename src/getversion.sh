@@ -109,7 +109,11 @@ if [ -f "$dist_version_sh" ]; then
   exit 0
 fi
 
-rev=; rev_date=; rev_time=; pre_revs=
+# svn r5714 - RELEASE_7_5 svn/trunk commit
+base_svn_rev=5714
+base_git_rev="943adaeda55c2d534c722fe66c6b4613a782caa1"
+
+rev=; rev_date=; rev_time=; pre_revs=; svn_rev=
 ver_desc="$pre$ver-unknown"
 ver_fname="$ver-unknown"
 ver_win="$ver.0.999"
@@ -133,6 +137,12 @@ if $is_git_co; then
   modified=${x:+-modified}
   rev="$rev$modified"
 
+  # Emulate a svn revision number
+  if x=$(cd "$top_srcdir" && git rev-list --count "$base_git_rev..HEAD" 2>/dev/null) \
+     && [ "$x" -gt 0 ]; then
+    svn_rev=$((base_svn_rev + x))
+  fi
+
   if [ -n "$pre" ]; then
     # Determine git revision of previous PACKAGE_VERSION
     # Note: this assumes that future versions will be tagged "smartmontools-X.Y"
@@ -147,8 +157,7 @@ if $is_git_co; then
                      git tag -l --sort=-authordate --no-column "$pattern" 2>/dev/null | head -n 1)
       test -n "$prev_release" || warning "$pattern: no matching revisions found"
     else
-      # svn r5714 - RELEASE_7_5 svn/trunk commit
-      prev_release="943adaeda55c2d534c722fe66c6b4613a782caa1"
+      prev_release=$base_git_rev # 7.5
     fi
     pre_revs=
     pre_revs_win=999
@@ -230,6 +239,7 @@ else
   varoutq SMARTMONTOOLS_GIT_REV_DATE "$rev_date" "commit date"
   varoutq SMARTMONTOOLS_GIT_REV_TIME "$rev_time" "commit time (UTC)"
   varout  SMARTMONTOOLS_GIT_PRE_REVS "$pre_revs" "commits since previous release"
+  varout  SMARTMONTOOLS_GIT_SVN_REV "$svn_rev" "emulated svn revision number"
   varoutq SMARTMONTOOLS_GIT_VER_DESC "$ver_desc" "version description"
   varoutq SMARTMONTOOLS_GIT_VER_FNAME "$ver_fname"  "version string for filenames"
   varoutq SMARTMONTOOLS_GIT_VER_WIN "$ver_win" "version for Windows VERSIONINFO"
