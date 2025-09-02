@@ -192,7 +192,6 @@ SectionGroup "!Program files"
 
     SetOutPath "$INSTDIR\bin"
     File "${INPDIR}\bin\drivedb.h"
-    Delete "$INSTDIR\bin\update-smart-drivedb.exe" ; TODO: Remove after smartmontools 7.3
     File "${INPDIR}\bin\update-smart-drivedb.ps1"
 
   SectionEnd
@@ -370,7 +369,6 @@ Section "Start Menu Shortcuts" MENU_SECTION
   CreateShortCut "$SMPROGRAMS\smartmontools\smartmontools Daily Builds.lnk" "https://builds.smartmontools.org/"
 
   ; drivedb.h update
-  Delete "$SMPROGRAMS\smartmontools\drivedb.h update.lnk" ; TODO: Remove after smartmontools 7.3
   ${If} ${FileExists} "$INSTDIR\bin\update-smart-drivedb.ps1"
     SetOutPath "$INSTDIR\bin"
     !insertmacro CreateAdminShortCut "$SMPROGRAMS\smartmontools\drivedb.h update (ps1).lnk" "$INSTDIR\bin\runcmdu.exe" "powershell -NoProfile -ExecutionPolicy Bypass .\update-smart-drivedb.ps1"
@@ -488,7 +486,6 @@ Section "Uninstall"
   Delete "$INSTDIR\bin\drivedb.h.error"
   Delete "$INSTDIR\bin\drivedb.h.lastcheck"
   Delete "$INSTDIR\bin\drivedb.h.old"
-  Delete "$INSTDIR\bin\update-smart-drivedb.exe" ; TODO: Remove after smartmontools 7.3
   Delete "$INSTDIR\bin\update-smart-drivedb.ps1"
   Delete "$INSTDIR\bin\runcmda.exe"
   Delete "$INSTDIR\bin\runcmdu.exe"
