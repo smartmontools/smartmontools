@@ -435,9 +435,9 @@ public:
 
   virtual ~win_smart_device();
 
-  virtual bool is_open() const;
+  virtual bool is_open() const override;
 
-  virtual bool close();
+  virtual bool close() override;
 
 protected:
   /// Set handle for open() in derived classes.
