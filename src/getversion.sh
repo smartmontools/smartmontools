@@ -143,13 +143,13 @@ if $is_git_co; then
       prev_release="smartmontools-$major.$((minor - 1))"
     elif [ "$major" -gt 8 ]; then
       pattern="smartmontools-$((major - 1)).*"
-      prev_release=$(git tag -l --sort=-authordate --no-column "$pattern" 2>/dev/null | head -1)
+      prev_release=$(cd "$top_srcdir" &&
+                     git tag -l --sort=-authordate --no-column "$pattern" 2>/dev/null | head -n 1)
       test -n "$prev_release" || warning "$pattern: no matching revisions found"
     else
       # svn r5714 - RELEASE_7_5 svn/trunk commit
       prev_release="943adaeda55c2d534c722fe66c6b4613a782caa1"
     fi
-
     pre_revs=
     pre_revs_win=999
     if [ -n "$prev_release" ]; then
