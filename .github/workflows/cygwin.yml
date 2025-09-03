@@ -35,8 +35,9 @@ jobs:
           version_sh=$(src/getversion.sh -s) && eval "${version_sh}" &&
           export SOURCE_DATE_EPOCH=${SMARTMONTOOLS_GIT_REV_EPOCH} &&
           SOURCE_DATE_EPOCH=$((SOURCE_DATE_EPOCH + 1)) &&
-          ./autogen.sh && mkdir build && cd build && ../configure &&
-          make -j BUILD_INFO='"(GHA Build)"' && make check &&
+          ./autogen.sh && mkdir build && cd build &&
+          ../configure --with-build-info='(GHA/Cygwin)' &&
+          make -j && make check &&
           make bin-dist bin_distfile="smartmontools-cygwin-x86_64-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz"
         shell: bash --noprofile --norc -e -o igncr '{0}'
 

@@ -42,12 +42,11 @@ jobs:
       - name: Build (${{matrix.env}})
         run: |
           version_sh=$(src/getversion.sh -s) && eval "${version_sh}" &&
-          BUILD_INFO='"(GHA/MSYS2)"' &&
           ./autogen.sh && mkdir build && cd build &&
-          ../configure SOURCE_DATE_EPOCH=$((SMARTMONTOOLS_GIT_REV_EPOCH + 1)) &&
-          make -j BUILD_INFO="$BUILD_INFO" && make check &&
-          make BUILD_INFO="$BUILD_INFO" \
-            distinst_win32="smartmontools-mingw64-${{matrix.env}}-${SMARTMONTOOLS_GIT_VER_FNAME}.exe" \
+          ../configure --with-build-info='(GHA/MSYS2)' \
+            SOURCE_DATE_EPOCH=$((SMARTMONTOOLS_GIT_REV_EPOCH + 1)) &&
+          make -j && make check &&
+          make distinst_win32="smartmontools-mingw64-${{matrix.env}}-${SMARTMONTOOLS_GIT_VER_FNAME}.exe" \
             installer-win32
         shell: msys2 '{0}'
 
