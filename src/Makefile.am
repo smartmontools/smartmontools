@@ -3,9 +3,6 @@
 # src/Makefile.am
 #
 
-# BUILD_INFO can be provided by package maintainers (see INSTALL file)
-BUILD_INFO= "(local build)"
-
 if REPRODUCIBLE_BUILD
 set_source_date_epoch = SOURCE_DATE_EPOCH=$(SOURCE_DATE_EPOCH)
 def_source_date_epoch = -D$(set_source_date_epoch)

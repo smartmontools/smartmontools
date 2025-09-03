@@ -155,6 +155,16 @@ AC_SUBST(CPPFLAGS)
 AC_SUBST(LDFLAGS)
 AC_SUBST(ASFLAGS)
 
+AC_ARG_WITH(build-info,
+  [AS_HELP_STRING([--with-build-info='(TEXT)'],
+    [Build information printed the in first output line [(local build)]])],
+  [ case $withval in
+      *[[\"\'\\]]*) AC_MSG_ERROR([Invalid quoting character(s) in '--with-build-info' argument]) ;;
+      *) BUILD_INFO='"'"$withval"'"' ;;
+    esac
+  ], [BUILD_INFO='"(local build)"'])
+AC_SUBST(BUILD_INFO)
+
 initddir=
 AC_ARG_WITH(initscriptdir,
   [AS_HELP_STRING([--with-initscriptdir=@<:@DIR|no@:>@], [Location of init scripts [no]])],
@@ -855,6 +865,7 @@ info=`
   echo "C compiler flags:       $CFLAGS"
   echo "linker flags:           $LDFLAGS"
   echo "OS specific modules:    $os_deps $os_libs $LIBS"
+  echo "Build information:      $BUILD_INFO"
   if test -n "$SOURCE_DATE_EPOCH"; then
     # GNU date || BSD date
     d=\`date -Iseconds -d "@$SOURCE_DATE_EPOCH" 2>/dev/null ||
