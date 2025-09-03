@@ -19,37 +19,37 @@ jobs:
       artficact-id: ${{ steps.artifact-upload-step.outputs.artifact-id }}
 
     steps:
-    - uses: actions/checkout@v4
-      with:
-        # Provide at least the commit log since last release for 'getversion.sh'.
-        # 'git clone --shallow-since=2025-04-29' would be sufficient but this is
-        # not supported by 'actions/checkout@v4'.
-        fetch-depth: 300
-        # Include (future) release tags for 'getversion.sh'
-        fetch-tags: true
-    - name: Setting environment variables
-      id: set-env
-      run: |
-        src/getversion.sh -g >> $GITHUB_ENV
-        cat $GITHUB_ENV | tee $GITHUB_OUTPUT
+      - uses: actions/checkout@v4
+        with:
+          # Provide at least the commit log since last release for 'getversion.sh'.
+          # 'git clone --shallow-since=2025-04-29' would be sufficient but this is
+          # not supported by 'actions/checkout@v4'.
+          fetch-depth: 300
+          # Include (future) release tags for 'getversion.sh'
+          fetch-tags: true
+      - name: Setting environment variables
+        id: set-env
+        run: |
+          src/getversion.sh -g >> $GITHUB_ENV
+          cat $GITHUB_ENV | tee $GITHUB_OUTPUT
 
-    - name: Creating src.tar.gz
-      run: |
-        ./autogen.sh --force &&
-        mkdir build && cd build &&
-        ../configure SOURCE_DATE_EPOCH=${SMARTMONTOOLS_GIT_REV_EPOCH} &&
-        make dist && tar -tvzf "smartmontools-${SMARTMONTOOLS_PKG_VER}.tar.gz" &&
-        mkdir artifacts &&
-        echo ${SMARTMONTOOLS_GIT_REV_EPOCH} > artifacts/SOURCE_DATE_EPOCH &&
-        mv smartmontools-${SMARTMONTOOLS_PKG_VER}.tar.gz artifacts/smartmontools-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz
+      - name: Creating src.tar.gz
+        run: |
+          ./autogen.sh --force &&
+          mkdir build && cd build &&
+          ../configure SOURCE_DATE_EPOCH=${SMARTMONTOOLS_GIT_REV_EPOCH} &&
+          make dist && tar -tvzf "smartmontools-${SMARTMONTOOLS_PKG_VER}.tar.gz" &&
+          mkdir artifacts &&
+          echo ${SMARTMONTOOLS_GIT_REV_EPOCH} > artifacts/SOURCE_DATE_EPOCH &&
+          mv smartmontools-${SMARTMONTOOLS_PKG_VER}.tar.gz artifacts/smartmontools-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz
 
-    - name: Upload artifacts
-      id: artifact-upload-step
-      uses: actions/upload-artifact@v4
-      with:
-        name: artifacts
-        path: build/artifacts/
-        retention-days: 1
+      - name: Upload artifacts
+        id: artifact-upload-step
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifacts
+          path: build/artifacts/
+          retention-days: 1
 
   compile-linux-static-x86_64:
     name: Creating static x86_64 linux binaries

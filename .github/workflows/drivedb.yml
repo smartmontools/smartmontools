@@ -13,191 +13,191 @@ jobs:
     runs-on: ubuntu-latest
     name: Check drivedb/7.0 with 7.0
     steps:
-    - uses: actions/checkout@v4
-      with:
-        ref: svn/tags/RELEASE_7_0
-    - name: Build
-      run: |
-        cd smartmontools && ./autogen.sh &&
-        mkdir build && cd build && ../configure &&
-        make -j V=0 && ./smartctl -V && make check
-    - name: update-smart-drivedb -u github
-      run: |
-        cd smartmontools &&
-        build/update-smart-drivedb -v -s build/smartctl -u github drivedb.h
-    - name: update-smart-drivedb -u svn
-      run: |
-        cd smartmontools &&
-        build/update-smart-drivedb -v -s build/smartctl -u svn drivedb-svn.h ||
-        echo "::error:: Download from svn failed"
-    - name: Check
-      run: |
-        cd smartmontools &&
-        cd build && make V=0 && make check
-        cd .. && diff -s -U0 drivedb.h drivedb-svn.h ||
-        echo "::warning:: Download from svn differs"
+      - uses: actions/checkout@v4
+        with:
+          ref: svn/tags/RELEASE_7_0
+      - name: Build
+        run: |
+          cd smartmontools && ./autogen.sh &&
+          mkdir build && cd build && ../configure &&
+          make -j V=0 && ./smartctl -V && make check
+      - name: update-smart-drivedb -u github
+        run: |
+          cd smartmontools &&
+          build/update-smart-drivedb -v -s build/smartctl -u github drivedb.h
+      - name: update-smart-drivedb -u svn
+        run: |
+          cd smartmontools &&
+          build/update-smart-drivedb -v -s build/smartctl -u svn drivedb-svn.h ||
+          echo "::error:: Download from svn failed"
+      - name: Check
+        run: |
+          cd smartmontools &&
+          cd build && make V=0 && make check
+          cd .. && diff -s -U0 drivedb.h drivedb-svn.h ||
+          echo "::warning:: Download from svn differs"
 
   check-7-1:
     runs-on: ubuntu-latest
     name: Check drivedb/7.0 with 7.1 # drivedb/7.1 does not exist
     steps:
-    - uses: actions/checkout@v4
-      with:
-        ref: svn/tags/RELEASE_7_1
-    - name: Build
-      run: |
-        cd smartmontools && ./autogen.sh &&
-        mkdir build && cd build && ../configure &&
-        make -j V=0 && ./smartctl -V && make check
-    - name: update-smart-drivedb -u github
-      run: |
-        cd smartmontools &&
-        build/update-smart-drivedb -v -s build/smartctl -u github drivedb.h
-    - name: update-smart-drivedb -u svn
-      run: |
-        cd smartmontools &&
-        build/update-smart-drivedb -v -s build/smartctl -u svn drivedb-svn.h ||
-        echo "::error:: Download from svn failed"
-    - name: Check
-      run: |
-        cd smartmontools &&
-        cd build && make V=0 && make check
-        cd .. && diff -s -U0 drivedb.h drivedb-svn.h ||
-        echo "::warning:: Download from svn differs"
+      - uses: actions/checkout@v4
+        with:
+          ref: svn/tags/RELEASE_7_1
+      - name: Build
+        run: |
+          cd smartmontools && ./autogen.sh &&
+          mkdir build && cd build && ../configure &&
+          make -j V=0 && ./smartctl -V && make check
+      - name: update-smart-drivedb -u github
+        run: |
+          cd smartmontools &&
+          build/update-smart-drivedb -v -s build/smartctl -u github drivedb.h
+      - name: update-smart-drivedb -u svn
+        run: |
+          cd smartmontools &&
+          build/update-smart-drivedb -v -s build/smartctl -u svn drivedb-svn.h ||
+          echo "::error:: Download from svn failed"
+      - name: Check
+        run: |
+          cd smartmontools &&
+          cd build && make V=0 && make check
+          cd .. && diff -s -U0 drivedb.h drivedb-svn.h ||
+          echo "::warning:: Download from svn differs"
 
   check-7-2:
     runs-on: ubuntu-latest
     name: Check drivedb/7.2 with 7.2
     steps:
-    - uses: actions/checkout@v4
-      with:
-        ref: svn/tags/RELEASE_7_2
-    - name: Build
-      run: |
-        cd smartmontools && ./autogen.sh &&
-        mkdir build && cd build && ../configure &&
-        make -j V=0 && ./smartctl -V && make check
-    - name: update-smart-drivedb -u github
-      run: |
-        cd smartmontools &&
-        build/update-smart-drivedb -v -s build/smartctl -u github drivedb.h
-    - name: update-smart-drivedb -u svn
-      run: |
-        cd smartmontools &&
-        build/update-smart-drivedb -v -s build/smartctl -u svn drivedb-svn.h ||
-        echo "::error:: Download from svn failed"
-    - name: Check
-      run: |
-        cd smartmontools &&
-        cd build && make V=0 && make check
-        cd .. && diff -s -U0 drivedb.h drivedb-svn.h ||
-        echo "::warning:: Download from svn differs"
+      - uses: actions/checkout@v4
+        with:
+          ref: svn/tags/RELEASE_7_2
+      - name: Build
+        run: |
+          cd smartmontools && ./autogen.sh &&
+          mkdir build && cd build && ../configure &&
+          make -j V=0 && ./smartctl -V && make check
+      - name: update-smart-drivedb -u github
+        run: |
+          cd smartmontools &&
+          build/update-smart-drivedb -v -s build/smartctl -u github drivedb.h
+      - name: update-smart-drivedb -u svn
+        run: |
+          cd smartmontools &&
+          build/update-smart-drivedb -v -s build/smartctl -u svn drivedb-svn.h ||
+          echo "::error:: Download from svn failed"
+      - name: Check
+        run: |
+          cd smartmontools &&
+          cd build && make V=0 && make check
+          cd .. && diff -s -U0 drivedb.h drivedb-svn.h ||
+          echo "::warning:: Download from svn differs"
 
   check-7-3:
     runs-on: ubuntu-latest
     name: Check drivedb/7.3 with 7.3
     steps:
-    - uses: actions/checkout@v4
-      with:
-        ref: svn/tags/RELEASE_7_3
-    - name: Build
-      run: |
-        cd smartmontools && ./autogen.sh &&
-        mkdir build && cd build && ../configure &&
-        make -j V=0 && ./smartctl -V && make check
-    - name: update-smart-drivedb -u github
-      run: |
-        cd smartmontools &&
-        build/update-smart-drivedb -v -s build/smartctl -u github drivedb.h
-    - name: update-smart-drivedb -u svn
-      run: |
-        cd smartmontools &&
-        build/update-smart-drivedb -v -s build/smartctl -u svn drivedb-svn.h ||
-        echo "::error:: Download from svn failed"
-    - name: Check
-      run: |
-        cd smartmontools &&
-        cd build && make V=0 && make check
-        cd .. && diff -s -U0 drivedb.h drivedb-svn.h ||
-        echo "::warning:: Download from svn differs"
+      - uses: actions/checkout@v4
+        with:
+          ref: svn/tags/RELEASE_7_3
+      - name: Build
+        run: |
+          cd smartmontools && ./autogen.sh &&
+          mkdir build && cd build && ../configure &&
+          make -j V=0 && ./smartctl -V && make check
+      - name: update-smart-drivedb -u github
+        run: |
+          cd smartmontools &&
+          build/update-smart-drivedb -v -s build/smartctl -u github drivedb.h
+      - name: update-smart-drivedb -u svn
+        run: |
+          cd smartmontools &&
+          build/update-smart-drivedb -v -s build/smartctl -u svn drivedb-svn.h ||
+          echo "::error:: Download from svn failed"
+      - name: Check
+        run: |
+          cd smartmontools &&
+          cd build && make V=0 && make check
+          cd .. && diff -s -U0 drivedb.h drivedb-svn.h ||
+          echo "::warning:: Download from svn differs"
 
   check-7-4:
     runs-on: ubuntu-latest
     name: Check drivedb/7.3 with 7.4 # drivedb/7.4 does not exist
     steps:
-    - uses: actions/checkout@v4
-      with:
-        ref: svn/tags/RELEASE_7_4
-    - name: Build
-      run: |
-        cd smartmontools && ./autogen.sh &&
-        mkdir build && cd build && ../configure &&
-        make -j V=0 && ./smartctl -V && make check
-    - name: update-smart-drivedb -u github
-      run: |
-        cd smartmontools &&
-        build/update-smart-drivedb -v -s build/smartctl -u github drivedb.h
-    - name: update-smart-drivedb -u svn
-      run: |
-        cd smartmontools &&
-        build/update-smart-drivedb -v -s build/smartctl -u svn drivedb-svn.h ||
-        echo "::error:: Download from svn failed"
-    - name: Check
-      run: |
-        cd smartmontools &&
-        cd build && make V=0 && make check
-        cd .. && diff -s -U0 drivedb.h drivedb-svn.h ||
-        echo "::warning:: Download from svn differs"
+      - uses: actions/checkout@v4
+        with:
+          ref: svn/tags/RELEASE_7_4
+      - name: Build
+        run: |
+          cd smartmontools && ./autogen.sh &&
+          mkdir build && cd build && ../configure &&
+          make -j V=0 && ./smartctl -V && make check
+      - name: update-smart-drivedb -u github
+        run: |
+          cd smartmontools &&
+          build/update-smart-drivedb -v -s build/smartctl -u github drivedb.h
+      - name: update-smart-drivedb -u svn
+        run: |
+          cd smartmontools &&
+          build/update-smart-drivedb -v -s build/smartctl -u svn drivedb-svn.h ||
+          echo "::error:: Download from svn failed"
+      - name: Check
+        run: |
+          cd smartmontools &&
+          cd build && make V=0 && make check
+          cd .. && diff -s -U0 drivedb.h drivedb-svn.h ||
+          echo "::warning:: Download from svn differs"
 
   check-7-5:
     runs-on: ubuntu-latest
     name: Check drivedb/7.5 with 7.5
     steps:
-    - uses: actions/checkout@v4
-      with:
-        ref: svn/tags/RELEASE_7_5
-    - name: Build
-      run: |
-        cd smartmontools && ./autogen.sh &&
-        mkdir build && cd build && ../configure &&
-        make -j V=0 && ./smartctl -V && make check
-    - name: update-smart-drivedb -u github
-      run: |
-        cd smartmontools &&
-        build/update-smart-drivedb -v -s build/smartctl -u github drivedb.h
-    - name: update-smart-drivedb -u svn
-      run: |
-        cd smartmontools &&
-        build/update-smart-drivedb -v -s build/smartctl -u svn drivedb-svn.h ||
-        echo "::error:: Download from svn failed"
-    - name: Check
-      run: |
-        cd smartmontools &&
-        cd build && make V=0 && make check
-        cd .. && diff -s -U0 drivedb.h drivedb-svn.h ||
-        echo "::warning:: Download from svn differs"
+      - uses: actions/checkout@v4
+        with:
+          ref: svn/tags/RELEASE_7_5
+      - name: Build
+        run: |
+          cd smartmontools && ./autogen.sh &&
+          mkdir build && cd build && ../configure &&
+          make -j V=0 && ./smartctl -V && make check
+      - name: update-smart-drivedb -u github
+        run: |
+          cd smartmontools &&
+          build/update-smart-drivedb -v -s build/smartctl -u github drivedb.h
+      - name: update-smart-drivedb -u svn
+        run: |
+          cd smartmontools &&
+          build/update-smart-drivedb -v -s build/smartctl -u svn drivedb-svn.h ||
+          echo "::error:: Download from svn failed"
+      - name: Check
+        run: |
+          cd smartmontools &&
+          cd build && make V=0 && make check
+          cd .. && diff -s -U0 drivedb.h drivedb-svn.h ||
+          echo "::warning:: Download from svn differs"
 
   check-8-0:
     runs-on: ubuntu-latest
     name: Check drivedb/7.5 with 8.0 # drivedb/8.0 does not exist (yet)
     steps:
-    - uses: actions/checkout@v4
-      with:
-        ref: main
-    - name: Build
-      run: |
-        ./autogen.sh &&
-        mkdir build && cd build && ../configure &&
-        make -j V=0 && make check
-    - name: update-smart-drivedb -u github
-      run: |
-        build/src/update-smart-drivedb -v -s build/src/smartctl -u github src/drivedb.h
-    - name: update-smart-drivedb -u svn
-      run: |
-        build/src/update-smart-drivedb -v -s build/src/smartctl -u svn src/drivedb-svn.h ||
-        echo "::error:: Download from svn failed"
-    - name: Check
-      run: |
-        cd build && make V=0 && make check
-        cd ../src && diff -s -U0 drivedb.h drivedb-svn.h ||
-        echo "::warning:: Download from svn differs"
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Build
+        run: |
+          ./autogen.sh &&
+          mkdir build && cd build && ../configure &&
+          make -j V=0 && make check
+      - name: update-smart-drivedb -u github
+        run: |
+          build/src/update-smart-drivedb -v -s build/src/smartctl -u github src/drivedb.h
+      - name: update-smart-drivedb -u svn
+        run: |
+          build/src/update-smart-drivedb -v -s build/src/smartctl -u svn src/drivedb-svn.h ||
+          echo "::error:: Download from svn failed"
+      - name: Check
+        run: |
+          cd build && make V=0 && make check
+          cd ../src && diff -s -U0 drivedb.h drivedb-svn.h ||
+          echo "::warning:: Download from svn differs"
