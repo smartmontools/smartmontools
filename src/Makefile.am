@@ -954,6 +954,7 @@ $(distinst_win32): os_win32/installer.nsi Makefile os_win32/smartctl_res.rc $(di
 	d64= && if [ -n '$(builddir_win64)' ]; then d64='-DINPDIR64=$(builddir_win64)/$(PACKAGE)-$(VERSION).win64'; fi && \
 	$(ECHO_V) "'$(MAKENSIS)' -V2 -NOCD -DINPDIR=$(distdir_win32) $$d64 -DOUTFILE=$@ -DVERSION=$$version -DYY=$$yy -DVERSTR='$$verstr' $(srcdir)/os_win32/installer.nsi" && \
 	'$(MAKENSIS)' -V2 -NOCD -DINPDIR=$(distdir_win32) $$d64 -DOUTFILE=$@ -DVERSION=$$version -DYY=$$yy -DVERSTR="$$verstr" $(srcdir)/os_win32/installer.nsi
+	$(AM_V_at)test -z '$(SOURCE_DATE_EPOCH)' || touch -d @$(SOURCE_DATE_EPOCH) $@
 	$(AM_V_at)md5sum $@ > $@.md5
 	$(AM_V_at)sha1sum $@ > $@.sha1
 	$(AM_V_at)sha256sum $@ > $@.sha256
@@ -1129,6 +1130,7 @@ $(dmg_darwin):
 	@xorriso -as mkisofs -V 'smartmontools' -no-pad -r -o $(distdir_darwin)/smartmontools-$(VERSION).iso \
 		-hfs-bless "$(distdir_darwin)/dmg/" "$(distdir_darwin)/dmg/"
 	@dmg dmg $(distdir_darwin)/smartmontools-$(VERSION).iso $(dmg_darwin)
+	-test -z '$(SOURCE_DATE_EPOCH)' || touch -d @$(SOURCE_DATE_EPOCH) $@
 	md5sum $@ > $@.md5
 	sha1sum $@ > $@.sha1
 	sha256sum $@ > $@.sha256

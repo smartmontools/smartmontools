@@ -41,6 +41,7 @@ jobs:
           make dist && tar -tvzf "smartmontools-${SMARTMONTOOLS_PKG_VER}.tar.gz" &&
           mkdir artifacts &&
           echo ${SMARTMONTOOLS_GIT_REV_EPOCH} > artifacts/SOURCE_DATE_EPOCH &&
+          touch -d @${SMARTMONTOOLS_GIT_REV_EPOCH} artifacts/SOURCE_DATE_EPOCH &&
           mv smartmontools-${SMARTMONTOOLS_PKG_VER}.tar.gz artifacts/smartmontools-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz
 
       - name: Upload artifacts
