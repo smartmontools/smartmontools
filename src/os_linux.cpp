@@ -3684,17 +3684,18 @@ int linux_smart_interface::ps3stor_pdlist_cmd(int bus_no, std::vector<uint16_t> 
       }
       if (devcount > 0) {
         size_t listsize = sizeof(uint16_t) * devcount;
-        uint16_t *devlist = (uint16_t*)malloc(listsize);
+        uint16_t *devlist = new uint16_t[devcount];
         memset(devlist, 0, listsize);
         if (PS3STOR_ERRNO_SUCCESS != ps3chn()->pd_get_devlist_by_encl(bus_no, eid, devlist, listsize)) {
-          free(devlist);
+          // free(devlist);
+          delete [] devlist;
           devlist = NULL;
           return -1;
         }
         for (int j = 0; j < devcount; j++) {
           devidlist.push_back(devlist[j]);
         }         
-        free(devlist);
+        delete [] devlist;
         devlist = NULL;
       }
 
