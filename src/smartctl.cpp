@@ -270,7 +270,7 @@ static std::string getvalidarglist(int opt)
   case 'f':
     return "old, brief, hex[,id|val]";
   case 'g':
-    return "aam, apm, dsn, lookahead, security, wcache, rcache, wcreorder, wcache-sct";
+    return "all, aam, apm, dsn, lookahead, security, wcache, rcache, wcreorder, wcache-sct";
   case opt_set:
     return "aam,[N|off], apm,[N|off], dsn,[on|off], lookahead,[on|off], security-freeze, "
            "standby,[N|off|now], wcache,[on|off], rcache,[on|off], wcreorder,[on|off[,p]], "

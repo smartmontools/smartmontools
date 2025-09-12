@@ -19,37 +19,38 @@ jobs:
       artficact-id: ${{ steps.artifact-upload-step.outputs.artifact-id }}
 
     steps:
-    - uses: actions/checkout@v4
-      with:
-        # Provide at least the commit log since last release for 'getversion.sh'.
-        # 'git clone --shallow-since=2025-04-29' would be sufficient but this is
-        # not supported by 'actions/checkout@v4'.
-        fetch-depth: 300
-        # Include (future) release tags for 'getversion.sh'
-        fetch-tags: true
-    - name: Setting environment variables
-      id: set-env
-      run: |
-        ./src/getversion.sh -s | sed -re "s/( ?#.*|')//g" -e "/(^\s*$)/d" >> $GITHUB_ENV
-        cat $GITHUB_ENV | tee $GITHUB_OUTPUT
+      - uses: actions/checkout@v4
+        with:
+          # Provide at least the commit log since last release for 'getversion.sh'.
+          # 'git clone --shallow-since=2025-04-29' would be sufficient but this is
+          # not supported by 'actions/checkout@v4'.
+          fetch-depth: 300
+          # Include (future) release tags for 'getversion.sh'
+          fetch-tags: true
+      - name: Setting environment variables
+        id: set-env
+        run: |
+          src/getversion.sh -g >> $GITHUB_ENV
+          cat $GITHUB_ENV | tee $GITHUB_OUTPUT
 
-    - name: Creating src.tar.gz
-      run: |
-        ./autogen.sh --force &&
-        mkdir build && cd build &&
-        ../configure SOURCE_DATE_EPOCH=${SMARTMONTOOLS_GIT_REV_EPOCH} &&
-        make dist && tar -tvzf "smartmontools-${SMARTMONTOOLS_PKG_VER}.tar.gz" &&
-        mkdir artifacts &&
-        echo ${SMARTMONTOOLS_GIT_REV_EPOCH} > artifacts/SOURCE_DATE_EPOCH &&
-        mv smartmontools-${SMARTMONTOOLS_PKG_VER}.tar.gz artifacts/smartmontools-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz
+      - name: Creating src.tar.gz
+        run: |
+          ./autogen.sh --force &&
+          mkdir build && cd build &&
+          ../configure SOURCE_DATE_EPOCH=${SMARTMONTOOLS_GIT_REV_EPOCH} &&
+          make dist && tar -tvzf "smartmontools-${SMARTMONTOOLS_PKG_VER}.tar.gz" &&
+          mkdir artifacts &&
+          echo ${SMARTMONTOOLS_GIT_REV_EPOCH} > artifacts/SOURCE_DATE_EPOCH &&
+          touch -d @${SMARTMONTOOLS_GIT_REV_EPOCH} artifacts/SOURCE_DATE_EPOCH &&
+          mv smartmontools-${SMARTMONTOOLS_PKG_VER}.tar.gz artifacts/smartmontools-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz
 
-    - name: Upload artifacts
-      id: artifact-upload-step
-      uses: actions/upload-artifact@v4
-      with:
-        name: artifacts
-        path: build/artifacts/
-        retention-days: 1
+      - name: Upload artifacts
+        id: artifact-upload-step
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifacts
+          path: build/artifacts/
+          retention-days: 1
 
   compile-linux-static-x86_64:
     name: Creating static x86_64 linux binaries
@@ -67,8 +68,8 @@ jobs:
         run: |
           tar -xvf artifacts/smartmontools-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz &&
           cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
-          ../configure LDFLAGS="-static" SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
-          make -j BUILD_INFO='"(GHA Build)"' && make check &&
+          ../configure --with-build-info='(GHA Build)' LDFLAGS="-static" SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
+          make -j && make check &&
           mkdir -p ${GITHUB_WORKSPACE}/artifacts &&
           make bin-dist bin_distfile="${GITHUB_WORKSPACE}/artifacts/smartmontools-linux-x86_64-static-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz"
       - name: Upload artifacts
@@ -93,11 +94,15 @@ jobs:
       - name: install m32 dependencies
         run: sudo apt-get update && sudo apt-get install gcc-multilib g++-multilib
       - name: build
+        # 'config.guess' from automake 1.16 misdetects 'host=x86_64-pc-linux-gnux32' (x86_64 with x32 ABI).
+        # With 'setarch i686 ...' it correctly detects 'host=i686-pc-linux-gnu'.
+        # TODO: Remove this workaround if 'ubuntu-latest' provides automake >= 1.17.
         run: |
           tar -xvf artifacts/smartmontools-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz &&
           cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
-          ../configure CC="gcc -m32" CXX="g++ -m32" LDFLAGS="-static" SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
-          make -j BUILD_INFO='"(GHA Build)"' && make check &&
+          setarch i686 ../configure --with-build-info='(GHA Build)' \
+            CC="gcc -m32" CXX="g++ -m32" LDFLAGS="-static" SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
+          make -j && make check &&
           mkdir -p ${GITHUB_WORKSPACE}/artifacts &&
           make bin-dist bin_distfile="${GITHUB_WORKSPACE}/artifacts/smartmontools-linux-i386-static-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz"
       - name: Upload artifacts
@@ -130,11 +135,12 @@ jobs:
           tar -xvf artifacts/smartmontools-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz &&
           cd smartmontools-${SMARTMONTOOLS_PKG_VER} &&
           mkdir build && cd build &&
-          ../configure build_alias=$(../config.guess) host_alias=x86_64-apple-darwin14 \
+          ../configure --build=$(../config.guess) --host=x86_64-apple-darwin14 \
+            --sysconfdir=/private/etc --with-build-info='(GHA Build)' \
             'CC=o64-clang' 'CXX=o64-clang++' 'CFLAGS=-arch arm64 -arch x86_64' \
             'CXXFLAGS=-arch arm64 -arch x86_64 -stdlib=libc++' \
-            '--sysconfdir=/private/etc' SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
-          make -j BUILD_INFO='"(GHA Build)"' &&
+            SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
+          make -j &&
           make pkg_darwin=smartmontools-${SMARTMONTOOLS_GIT_VER_FNAME}.pkg dmg_darwin=smartmontools-${SMARTMONTOOLS_GIT_VER_FNAME}.dmg install-darwin &&
           mkdir -p inst ${GITHUB_WORKSPACE}/artifacts &&
           mv ./src/smartmontools-${SMARTMONTOOLS_GIT_VER_FNAME}.dmg ${GITHUB_WORKSPACE}/artifacts
@@ -168,11 +174,11 @@ jobs:
           cd smartmontools-${SMARTMONTOOLS_PKG_VER} &&
           mkdir build && cd build &&
           export TARGET="-target x86_64-unknown-freebsd14 --sysroot=/opt/cross-freebsd-14/" &&
-          ../configure CC="clang $TARGET" CXX="clang++ $TARGET" \
+          ../configure --host=x86_64-pc-freebsd14 --with-build-info='(GHA Build)' \
+            CC="clang $TARGET" CXX="clang++ $TARGET" \
             CPPFLAGS="-isystem /opt/cross-freebsd-14/usr/include/c++/v1" \
-            LDFLAGS="-static" --host=x86_64-pc-freebsd14 \
-            SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
-          make -j BUILD_INFO='"(GHA Build)"' &&
+            LDFLAGS="-static" SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
+          make -j &&
           mkdir -p ${GITHUB_WORKSPACE}/artifacts &&
           make bin-dist bin_distfile="${GITHUB_WORKSPACE}/artifacts/smartmontools-freebsd-14-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz"
       - name: Upload artifacts
@@ -189,11 +195,11 @@ jobs:
           cd smartmontools-${SMARTMONTOOLS_PKG_VER} &&
           mkdir build && cd build &&
           export TARGET="-target x86_64-unknown-freebsd13 --sysroot=/opt/cross-freebsd-13/" &&
-          ../configure CC="clang $TARGET" CXX="clang++ $TARGET" \
+          ../configure --host=x86_64-pc-freebsd13 --with-build-info='(GHA Build)' \
+            CC="clang $TARGET" CXX="clang++ $TARGET" \
             CPPFLAGS="-isystem /opt/cross-freebsd-13/usr/include/c++/v1" \
-            LDFLAGS="-static" --host=x86_64-pc-freebsd13 \
-            SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
-          make -j BUILD_INFO='"(GHA Build)"' &&
+            LDFLAGS="-static" SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
+          make -j &&
           mkdir -p ${GITHUB_WORKSPACE}/artifacts &&
           make bin-dist bin_distfile="${GITHUB_WORKSPACE}/artifacts/smartmontools-freebsd-13-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz"
       - name: Upload artifacts
@@ -225,16 +231,16 @@ jobs:
           tar -xvf artifacts/smartmontools-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz &&
           cd smartmontools-${SMARTMONTOOLS_PKG_VER} &&
           mkdir build && cd build &&
-          ../configure build_alias=$(../config.guess) host_alias=i686-w64-mingw32 \
-            SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH}
-          make -j BUILD_INFO='"(GHA Build)"' && make distdir-win32 &&
+          ../configure --build=$(../config.guess) --host=i686-w64-mingw32 \
+            --with-build-info='(GHA Build)' SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
+          make -j && make distdir-win32 &&
           cd .. && mkdir build64 && cd build64 &&
-          ../configure build_alias=$(../config.guess) host_alias=x86_64-w64-mingw32 \
-            SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} 
-          make -j  BUILD_INFO='"(GHA Build)"' && make distdir-win32 &&
+          ../configure --build=$(../config.guess) --host=x86_64-w64-mingw32 \
+            --with-build-info='(GHA Build)' SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
+          make -j && make distdir-win32 &&
           cd ../build &&
           dest="smartmontools-win32-setup-${SMARTMONTOOLS_GIT_VER_FNAME}.exe" && \
-            make BUILD_INFO="$BUILD_INFO" builddir_win64=../../build64/src distinst_win32="$dest" installer-win32 &&
+            make builddir_win64=../../build64/src distinst_win32="$dest" installer-win32 &&
           mkdir -p inst ${GITHUB_WORKSPACE}/artifacts && make DESTDIR="$(pwd)/inst" install &&
           mv ./src/smartmontools-win32-setup-${SMARTMONTOOLS_GIT_VER_FNAME}.exe ${GITHUB_WORKSPACE}/artifacts
 
@@ -274,8 +280,9 @@ jobs:
         run: |
           tar -xvf artifacts/smartmontools-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz &&
           cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
-          ../configure --build=$(../config.guess) --host=x86_64-pc-cygwin SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
-          make -j BUILD_INFO='"(GHA Build)"' &&
+          ../configure --build=$(../config.guess) --host=x86_64-pc-cygwin \
+            --with-build-info='(GHA Build)' SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
+          make -j &&
           mkdir -p ${GITHUB_WORKSPACE}/artifacts &&
           make bin-dist bin_distfile="${GITHUB_WORKSPACE}/artifacts/smartmontools-cygwin-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz"
       - name: Upload artifacts

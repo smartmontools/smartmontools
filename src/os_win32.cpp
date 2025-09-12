@@ -3,7 +3,7 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2004-24 Christian Franke
+ * Copyright (C) 2004-25 Christian Franke
  *
  * Original AACRaid code:
  *  Copyright (C) 2015    Nidhi Malhotra <nidhi.malhotra@pmcs.com>
@@ -72,8 +72,6 @@ extern unsigned char failuretest_permissive;
 #define stricmp strcasecmp
 #define strnicmp strncasecmp
 #endif
-
-const char * os_win32_cpp_cvsid = "$Id: os_win32.cpp 5641 2024-11-30 12:36:16Z chrfranke $";
 
 /////////////////////////////////////////////////////////////////////////////
 // Windows I/O-controls, some declarations are missing in the include files
@@ -437,9 +435,9 @@ public:
 
   virtual ~win_smart_device();
 
-  virtual bool is_open() const;
+  virtual bool is_open() const override;
 
-  virtual bool close();
+  virtual bool close() override;
 
 protected:
   /// Set handle for open() in derived classes.
@@ -2554,7 +2552,7 @@ public:
   virtual bool close() override;
 
 protected:
-  virtual int ata_command_interface(smart_command_set command, int select, char * data);
+  virtual int ata_command_interface(smart_command_set command, int select, char * data) override;
 
 private:
   bool m_ident_valid, m_smart_valid;

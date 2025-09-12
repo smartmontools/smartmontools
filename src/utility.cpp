@@ -145,8 +145,19 @@ std::string format_version_info(const char * prog_name, int lines /* = 2 */)
 #if defined(__GNUC__) && defined(__VERSION__) // works also with CLang
                                     ", GCC " __VERSION__
 #endif
+#ifdef __GLIBC_MINOR__
+                                    ", GNU libc " N2S(__GLIBC__) "." N2S(__GLIBC_MINOR__)
+#endif
 #ifdef __MINGW64_VERSION_STR
                                     ", MinGW-w64 " __MINGW64_VERSION_STR
+#ifdef _UCRT
+                                                                       "/UCRT"
+#endif
+#endif
+#ifdef __GLIBCXX__
+                                    ", GNU libstdc++ " N2S(__GLIBCXX__)
+#elif defined(__clang__) && defined(_LIBCPP_VERSION)
+                                    ", Clang libc++ " N2S(_LIBCPP_VERSION)
 #endif
 #ifdef _MSC_FULL_VER
                                     ", MSVC " N2S(_MSC_FULL_VER)

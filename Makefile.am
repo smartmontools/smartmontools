@@ -92,16 +92,19 @@ phony += dist-fail
 
 dist-gzip: distdir
 	$(src_dist_tar) $(distdir) > $(distdir).tar
+	-touch -d @$(SOURCE_DATE_EPOCH) $(distdir).tar
 	unset GZIP; gzip $(GZIP_ENV) -f -n $(distdir).tar
 	$(am__post_remove_distdir)
 
 dist-xz: distdir
 	$(src_dist_tar) $(distdir) > $(distdir).tar
+	-touch -d @$(SOURCE_DATE_EPOCH) $(distdir).tar
 	unset XZ_OPT; xz -e -f $(distdir).tar
 	$(am__post_remove_distdir)
 
 dist-zstd: distdir
 	$(src_dist_tar) $(distdir) > $(distdir).tar
+	-touch -d @$(SOURCE_DATE_EPOCH) $(distdir).tar
 	unset ZSTD_CLEVEL; zstd -19 -f -q --rm $(distdir).tar
 	$(am__post_remove_distdir)
 
@@ -125,4 +128,5 @@ bin-dist:
 	$(MAKE) DESTDIR="$$(pwd)/$(bin_distdir)" install
 	( cd $(bin_distdir) && $(bin_dist_tar) ) > $(bin_distdir).tar
 	unset GZIP; gzip $(GZIP_ENV) -n < $(bin_distdir).tar > $(bin_distfile)
+	-test -z '$(SOURCE_DATE_EPOCH)' || touch -d @$(SOURCE_DATE_EPOCH) $(bin_distfile)
 	rm -rf $(bin_distdir) $(bin_distdir).tar

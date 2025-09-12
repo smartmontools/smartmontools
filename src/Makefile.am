@@ -3,9 +3,6 @@
 # src/Makefile.am
 #
 
-# BUILD_INFO can be provided by package maintainers (see INSTALL file)
-BUILD_INFO= "(local build)"
-
 if REPRODUCIBLE_BUILD
 set_source_date_epoch = SOURCE_DATE_EPOCH=$(SOURCE_DATE_EPOCH)
 def_source_date_epoch = -D$(set_source_date_epoch)
@@ -753,14 +750,22 @@ smartd.conf.5.pdf: smartd.conf.5
 update-smart-drivedb.8.pdf: update-smart-drivedb.8
 	$(AM_V_GEN)$(MAN2PDF) update-smart-drivedb.8 > $@
 
-# Check drive database syntax
+# Default check target
+if REALLY_CROSS_COMPILING
 check:
+	@echo "make check: unavailable if cross-compiling"
+else
+# Show '-V' output and check drive database syntax
+check:
+	./smartctl -V
+	@echo "./smartctl -B $(srcdir)/drivedb.h -P showall >/dev/null"
 	@if ./smartctl -P showall >/dev/null && \
 	    ./smartctl -B $(srcdir)/drivedb.h -P showall >/dev/null; then \
 	  echo "$(srcdir)/drivedb.h: OK"; \
 	else \
 	  echo "$(srcdir)/drivedb.h: Syntax check failed"; exit 1; \
 	fi
+endif
 
 # Create cppcheck report
 cppcheck: cppcheck.txt
@@ -953,6 +958,7 @@ $(distinst_win32): os_win32/installer.nsi Makefile os_win32/smartctl_res.rc $(di
 	d64= && if [ -n '$(builddir_win64)' ]; then d64='-DINPDIR64=$(builddir_win64)/$(PACKAGE)-$(VERSION).win64'; fi && \
 	$(ECHO_V) "'$(MAKENSIS)' -V2 -NOCD -DINPDIR=$(distdir_win32) $$d64 -DOUTFILE=$@ -DVERSION=$$version -DYY=$$yy -DVERSTR='$$verstr' $(srcdir)/os_win32/installer.nsi" && \
 	'$(MAKENSIS)' -V2 -NOCD -DINPDIR=$(distdir_win32) $$d64 -DOUTFILE=$@ -DVERSION=$$version -DYY=$$yy -DVERSTR="$$verstr" $(srcdir)/os_win32/installer.nsi
+	$(AM_V_at)test -z '$(SOURCE_DATE_EPOCH)' || touch -d @$(SOURCE_DATE_EPOCH) $@
 	$(AM_V_at)md5sum $@ > $@.md5
 	$(AM_V_at)sha1sum $@ > $@.sha1
 	$(AM_V_at)sha256sum $@ > $@.sha256
@@ -1128,6 +1134,7 @@ $(dmg_darwin):
 	@xorriso -as mkisofs -V 'smartmontools' -no-pad -r -o $(distdir_darwin)/smartmontools-$(VERSION).iso \
 		-hfs-bless "$(distdir_darwin)/dmg/" "$(distdir_darwin)/dmg/"
 	@dmg dmg $(distdir_darwin)/smartmontools-$(VERSION).iso $(dmg_darwin)
+	-test -z '$(SOURCE_DATE_EPOCH)' || touch -d @$(SOURCE_DATE_EPOCH) $@
 	md5sum $@ > $@.md5
 	sha1sum $@ > $@.sha1
 	sha256sum $@ > $@.sha256

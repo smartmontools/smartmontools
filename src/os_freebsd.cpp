@@ -76,9 +76,6 @@
 #define PATHINQ_SETTINGS_SIZE   128
 #endif
 
-const char *os_XXXX_c_cvsid="$Id: os_freebsd.cpp 5468 2023-03-14 20:01:29Z chrfranke $" \
-ATACMDS_H_CVSID CCISS_H_CVSID CONFIG_H_CVSID OS_FREEBSD_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
-
 #define NO_RETURN 0
 #define BAD_SMART 1
 #define NO_DISK_3WARE 2
@@ -142,11 +139,11 @@ public:
 
   virtual ~freebsd_smart_device();
 
-  virtual bool is_open() const;
+  virtual bool is_open() const override;
 
-  virtual bool open();
+  virtual bool open() override;
 
-  virtual bool close();
+  virtual bool close() override;
 
 protected:
   /// Return filedesc for derived classes.
@@ -332,14 +329,14 @@ public:
   : smart_device(intf, dev_name, "atacam", req_type), freebsd_ata_device(intf, dev_name, req_type)
   {}
   
-  virtual bool open();
-  virtual bool close();
+  virtual bool open() override;
+  virtual bool close() override;
   
 protected:
   int m_fd;
   struct cam_device *m_camdev;
 
-  virtual int do_cmd( struct ata_ioc_request* request , bool is_48bit_cmd);
+  virtual int do_cmd( struct ata_ioc_request* request , bool is_48bit_cmd) override;
 };
 
 bool freebsd_atacam_device::open(){

@@ -4,7 +4,7 @@
  * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen
- * Copyright (C) 2008-21 Christian Franke
+ * Copyright (C) 2008-25 Christian Franke
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  * Copyright (C) 2000 Andre Hedrick <andre@linux-ide.org>
  *
@@ -25,9 +25,6 @@
 #include "knowndrives.h"  // get_default_attr_defs()
 #include "utility.h"
 #include "dev_ata_cmd_set.h" // for parsed_ata_device
-
-const char * atacmds_cpp_cvsid = "$Id: atacmds.cpp 5456 2023-02-14 18:26:21Z chrfranke $"
-                                 ATACMDS_H_CVSID;
 
 // Print ATA debug messages?
 unsigned char ata_debugmode = 0;
@@ -2534,16 +2531,16 @@ public:
 
   virtual ~parsed_ata_device();
 
-  virtual bool is_open() const;
+  virtual bool is_open() const override;
 
-  virtual bool open();
+  virtual bool open() override;
 
-  virtual bool close();
+  virtual bool close() override;
 
-  virtual bool ata_identify_is_cached() const;
+  virtual bool ata_identify_is_cached() const override;
 
 protected:
-  virtual int ata_command_interface(smart_command_set command, int select, char * data);
+  virtual int ata_command_interface(smart_command_set command, int select, char * data) override;
 
 private:
   // Table of parsed commands, return value, data

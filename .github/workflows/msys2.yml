@@ -1,0 +1,59 @@
+name: Build smartmontools on MSYS2
+
+on: workflow_dispatch
+
+jobs:
+  build-on-msys2:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        include:
+          - { sys: mingw32, env: i686 }
+          - { sys: mingw64, env: x86_64 }
+          - { sys: ucrt64,  env: ucrt-x86_64 }
+          - { sys: clang64, env: clang-x86_64 }
+
+    steps:
+      - name: Install MSYS2 and ${{matrix.env}} build tools
+        uses: msys2/setup-msys2@v2.29.0
+        with:
+          release: false # try to re-use official MSYS2 GHA Runner Image
+          msystem: ${{matrix.sys}}
+          install: >- # 'nsis' is provided by 'windows-latest'
+            mingw-w64-${{matrix.env}}-gcc
+            autoconf
+            automake
+            dos2unix
+            git
+            groff
+            make
+            man2html
+
+      - run: git config --global core.autocrlf input # prevent CRLF checkout
+      - uses: actions/checkout@v4
+        with:
+          # Provide at least the commit log since last release for 'getversion.sh'.
+          # 'git clone --shallow-since=2025-04-29' would be sufficient but this is
+          # not supported by 'actions/checkout@v4'.
+          fetch-depth: 300
+          # Include (future) release tags for 'getversion.sh'
+          fetch-tags: true
+
+      - name: Build (${{matrix.env}})
+        run: | # 'export SOURCE_DATE_EPOCH' suppresses an extra timestamp set by Clang LLD only
+          version_sh=$(src/getversion.sh -s) && eval "${version_sh}" &&
+          ./autogen.sh && mkdir build && cd build &&
+          SOURCE_DATE_EPOCH=$((SMARTMONTOOLS_GIT_REV_EPOCH + 1)) &&
+          ../configure --with-build-info='(GHA/MSYS2)' SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
+          case ${{matrix.env}} in clang*) export SOURCE_DATE_EPOCH ;; esac &&
+          make -j && make check &&
+          make distinst_win32="smartmontools-mingw64-${{matrix.env}}-${SMARTMONTOOLS_GIT_VER_FNAME}.exe" \
+            installer-win32
+        shell: msys2 '{0}'
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: smartmontools-mingw64-${{matrix.env}}
+          path: build/src/smartmontools-mingw64-${{matrix.env}}-*.exe
+          retention-days: 30

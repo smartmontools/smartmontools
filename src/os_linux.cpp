@@ -92,8 +92,6 @@
 
 #define ARGUSED(x) ((void)(x))
 
-const char * os_linux_cpp_cvsid = "$Id: os_linux.cpp 5666 2025-03-14 15:29:53Z chrfranke $"
-  OS_LINUX_H_CVSID;
 extern unsigned char failuretest_permissive;
 
 namespace os_linux { // No need to publish anything, name provided for Doxygen
@@ -2466,7 +2464,7 @@ public:
   linux_marvell_device(smart_interface * intf, const char * dev_name, const char * req_type);
 
 protected:
-  virtual int ata_command_interface(smart_command_set command, int select, char * data);
+  virtual int ata_command_interface(smart_command_set command, int select, char * data) override;
 };
 
 linux_marvell_device::linux_marvell_device(smart_interface * intf,
@@ -2614,7 +2612,7 @@ public:
     unsigned char controller, unsigned char channel, unsigned char port);
 
 protected:
-  virtual int ata_command_interface(smart_command_set command, int select, char * data);
+  virtual int ata_command_interface(smart_command_set command, int select, char * data) override;;
 
 private:
   unsigned char m_hpt_data[3]; ///< controller/channel/port

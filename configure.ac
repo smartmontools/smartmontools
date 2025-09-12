@@ -35,7 +35,9 @@ AC_PROG_INSTALL
 
 m4_pattern_forbid([^PKG_PROG_])
 if test "$cross_compiling" = "no"; then
-  m4_ifdef([PKG_PROG_PKG_CONFIG], [PKG_PROG_PKG_CONFIG],
+  # PKG_PROG_PKG_CONFIG from 'pkgconf' >= 2.3.0 aborts if 'pkg-config' is
+  # missing and the new 2nd parameter is not set
+  m4_ifdef([PKG_PROG_PKG_CONFIG], [PKG_PROG_PKG_CONFIG([], [PKG_CONFIG=])],
     [AC_MSG_WARN([m4/pkg.m4 missing, systemd detection disabled])])
 fi
 
@@ -46,6 +48,20 @@ AC_ARG_VAR(WINDRES, [Windows resource compiler command])
 AC_ARG_VAR(MAKENSIS, [NSIS compiler command])
 
 AC_CANONICAL_HOST
+
+# Some make targets are incompatible with cross-compiling.
+# Note: Don't use 'test "$cross_compiling" = "yes"' because it may be "maybe".
+res=yes
+if test "$cross_compiling" != "no"; then
+  AC_MSG_CHECKING([whether executables could be run despite cross-compiling])
+  case "$build:$host" in
+    x86_64-pc-cygwin:i686-w64-mingw32)   ;;
+    x86_64-pc-cygwin:x86_64-w64-mingw32) ;;
+    *) res=no ;;
+  esac
+  AC_MSG_RESULT([$res])
+fi
+AM_CONDITIONAL(REALLY_CROSS_COMPILING, [test "$res" = "no"])
 
 AC_CHECK_TOOL(NM, [nm])
 case "$host_os" in
@@ -138,6 +154,16 @@ AC_MSG_RESULT([$gcc_have_attr_packed])
 AC_SUBST(CPPFLAGS)
 AC_SUBST(LDFLAGS)
 AC_SUBST(ASFLAGS)
+
+AC_ARG_WITH(build-info,
+  [AS_HELP_STRING([--with-build-info='(TEXT)'],
+    [Build information printed the in first output line [(local build)]])],
+  [ case $withval in
+      *[[\"\'\\]]*) AC_MSG_ERROR([Invalid quoting character(s) in '--with-build-info' argument]) ;;
+      *) BUILD_INFO='"'"$withval"'"' ;;
+    esac
+  ], [BUILD_INFO='"(local build)"'])
+AC_SUBST(BUILD_INFO)
 
 initddir=
 AC_ARG_WITH(initscriptdir,
@@ -457,15 +483,25 @@ case "$host_os: $CPPFLAGS $CXXFLAGS" in
     # MinGW 8.0.0 and later may automatically set __USE_MINGW_ANSI_STDIO in certain
     # configurations.  __USE_MINGW_ANSI_STDIO is not needed if the UCRT is used.
     # Make sure __USE_MINGW_ANSI_STDIO or _UCRT is set and fail if format check fails.
-    AC_MSG_CHECKING([whether __USE_MINGW_ANSI_STDIO=1 or _UCRT is predefined])
+    AC_MSG_CHECKING([whether __USE_MINGW_ANSI_STDIO=1 is predefined])
     AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
         #include <stdio.h>
-        #if !(__USE_MINGW_ANSI_STDIO == 1 || defined(_UCRT))
+        #if __USE_MINGW_ANSI_STDIO != 1
           #error fail
         #endif]])],
-      [res=yes],
-      [res=no; CPPFLAGS="${CPPFLAGS}${CPPFLAGS:+ }-D__USE_MINGW_ANSI_STDIO"])
+      [res=yes], [res=no])
     AC_MSG_RESULT([$res])
+    AC_MSG_CHECKING([whether _UCRT is predefined])
+    AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
+        #include <stdio.h>
+        #ifndef _UCRT
+          #error fail
+        #endif]])],
+      [res2=yes], [res2=no])
+    AC_MSG_RESULT([$res2])
+    if test "$res:$res2" = "no:no"; then
+      CPPFLAGS="${CPPFLAGS}${CPPFLAGS:+ }-D__USE_MINGW_ANSI_STDIO"
+    fi
     AC_MSG_CHECKING([whether $CXX supports __USE_MINGW_ANSI_STDIO or UCRT])
     save_CXXFLAGS=$CXXFLAGS
     CXXFLAGS="$CXXFLAGS -Wformat -Werror"
@@ -489,68 +525,17 @@ Please send info about your system to $PACKAGE_BUGREPORT.
     ;;
 esac
 
+# TODO: Remove after smartmontools 8.1
 AC_ARG_WITH(mingw-aslr,
-  [AS_HELP_STRING([--with-mingw-aslr@<:@=auto|yes|low|no@:>@], [Enable ASLR for MinGW executables [auto]])],
-  [], [with_mingw_aslr=auto])
-
-LDFLAGS_set=${LDFLAGS+yes}; test "$LDFLAGS_set" = "yes" || LDFLAGS_set=no
+  [AS_HELP_STRING([--with-mingw-aslr], [(removed)])],
+  [AC_MSG_ERROR([
+The option '--with-mingw-aslr' is no longer supported.  Recent versions
+of the MinGW-w64 toolchain usually enable ASLR by default.
+])])
 
 # MinGW defaults: link statically and indicate DEP and TS compatibility
-case "$host_os:$LDFLAGS_set" in
-  mingw*:no) LDFLAGS="-static -Wl,--nxcompat,--tsaware" ;;
-esac
-
-# Newer versions of MinGW-w64 toolchain enable ASLR and relocation info by default.
-case "$host_os:$with_mingw_aslr:$LDFLAGS_set" in
-  mingw*:auto:no)
-    AC_MSG_CHECKING([whether this $CXX version enables ASLR by default])
-    # Yes: g++ 11.4.0, 12.2.0, clang 15.0.7
-    # No: g++ 6.*, 7.3.*
-    AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
-        #if !(__GNUC__ >= 11 || __clang_major__ >= 15)
-          #error fail
-        #endif]])],
-      [res=yes],[res=no])
-    AC_MSG_RESULT([$res])
-    test "$res" != "yes" || with_mingw_aslr=default
-esac
-
-# ASLR related issues of older MinGW-w64 toolchains and workarounds:
-# 1. '--dynamicbase' only sets DYNAMIC_BASE flag but does not enable relocation info:
-#    Add '-pie' (works despite 'man ld' says: "... currently only supported on ELF platforms")
-# 2. If both '-static' and '-pie' are specified, the entry point is not set properly:
-#    Specify entry point with '-emainCRTStartup' or '-e_mainCRTStartup'.
-# 3. Some versions of '*-w64-mingw32-g++' ignore '-pie' if '-static' is also specified:
-#    Pass '-pie' directly to the linker with '-Wl,-pie'.
-# 4. Linkage of some versions of 'libstdc++.a' fail with "relocation overflow" if a high
-#    '--image-base' is used: Do not use '--high-entropy-va' in these cases.
-
-case "$host:$with_mingw_aslr:$LDFLAGS_set" in
-  x86_64-*-mingw*:auto:no)
-    AC_MSG_CHECKING([whether $CXX supports --high-entropy-va])
-    save_LDFLAGS=$LDFLAGS
-    LDFLAGS="$LDFLAGS -Wl,--dynamicbase,-pie,-emainCRTStartup,--high-entropy-va,--image-base,0x140000000"
-    # Link libstdc++ to detect MinGW-w64 problems with high '--image-base'
-    AC_LINK_IFELSE([AC_LANG_PROGRAM([[
-        #include <string>
-        std::string s(42, '.');]])],
-      [with_mingw_aslr=yes], [with_mingw_aslr=no])
-    LDFLAGS=$save_LDFLAGS
-    AC_MSG_RESULT([$with_mingw_aslr])
-    test "$with_mingw_aslr" = "yes" || with_mingw_aslr=low
-    ;;
-  *-*-mingw*:auto:no)
-    with_mingw_aslr=yes
-    ;;
-esac
-
-case "$host:$with_mingw_aslr" in
-  x86_64-*-mingw*:yes)
-    LDFLAGS="$LDFLAGS -Wl,--dynamicbase,-pie,-emainCRTStartup,--high-entropy-va,--image-base,0x140000000" ;;
-  x86_64-*-mingw*:low)
-    LDFLAGS="$LDFLAGS -Wl,--dynamicbase,-pie,-emainCRTStartup" ;;
-  *-*-mingw*:yes|*-*-mingw*:low)
-    LDFLAGS="$LDFLAGS -Wl,--dynamicbase,-pie,-e_mainCRTStartup" ;;
+case "$host_os:${LDFLAGS+t}" in
+  mingw*:) LDFLAGS="-static -Wl,--nxcompat,--tsaware" ;;
 esac
 
 os_win32_manifest=
@@ -750,11 +735,12 @@ if test "$GXX" = "yes"; then
     *\ -W\ *|*\ -Wextra\ *) ;;
     *) CXXFLAGS="$CXXFLAGS -W" ;;
   esac
-  # Add -Wformat=2 (GCC 3.0),
+  # Add -Wformat=2, -Wsuggest-override,
   # -Werror=return-type (G++ >= 8.0 assumes that control never reaches the end of a non-void function),
   # -fstack-protector[-strong] (GCC 4.1[4.9])
   # if supported and no -W or -f option was set in configure cmdline (TODO: -Wformat-signedness)
-  for option in "-Wformat=2" "-Werror=return-type" "-fstack-protector-strong" "-fstack-protector"; do
+  for option in "-Wformat=2" "-Wsuggest-override" "-Werror=return-type" \
+                "-fstack-protector-strong" "-fstack-protector"; do
     case " $orig_CXXFLAGS:$option" in *\ -W*:-W*|*\ -f*:-f*) continue ;; esac
     case " $CXXFLAGS:$option" in *\ -fstack-p*:-fstack-p*) continue ;; esac
     AC_MSG_CHECKING([whether $CXX supports $option])
@@ -879,6 +865,7 @@ info=`
   echo "C compiler flags:       $CFLAGS"
   echo "linker flags:           $LDFLAGS"
   echo "OS specific modules:    $os_deps $os_libs $LIBS"
+  echo "Build information:      $BUILD_INFO"
   if test -n "$SOURCE_DATE_EPOCH"; then
     # GNU date || BSD date
     d=\`date -Iseconds -d "@$SOURCE_DATE_EPOCH" 2>/dev/null ||

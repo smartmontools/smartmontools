@@ -13,9 +13,6 @@
 
 #include "nvmeprint.h"
 
-const char * nvmeprint_cvsid = "$Id: nvmeprint.cpp 5713 2025-04-29 12:47:30Z chrfranke $"
-  NVMEPRINT_H_CVSID;
-
 #include "utility.h"
 #include "dev_interface.h"
 #include "nvmecmds.h"
@@ -36,6 +33,14 @@ static bool le128_is_non_zero(const unsigned char (& val)[16])
       return true;
   }
   return false;
+}
+
+// Convert 128 bit LE integer to uint64_t or its max value on overflow.
+static uint64_t le128_to_uint64(const unsigned char (& val)[16])
+{
+  if (sg_get_unaligned_le64(val + 8))
+    return ~(uint64_t)0;
+  return sg_get_unaligned_le64(val);
 }
 
 // Format 128 bit integer for printing.
@@ -511,12 +516,22 @@ static void print_smart_log(const nvme_smart_log & smart_log,
   jglb["endurance_used"]["current_percent"] = smart_log.percent_used;
   jout("Data Units Read:                    %s\n", le128_to_str(buf, smart_log.data_units_read, 1000*512));
   jref["data_units_read"].set_unsafe_le128(smart_log.data_units_read);
+  jglb["host_reads"]["units"].set_unsafe_le128(smart_log.data_units_read);
+  jglb["host_reads"]["bytes_per_unit"] = 1000*512;
+  jglb["host_reads"]["string"] = format_capacity(buf, sizeof(buf),
+    le128_to_uint64(smart_log.data_units_read) * (1000*512), ".");
   jout("Data Units Written:                 %s\n", le128_to_str(buf, smart_log.data_units_written, 1000*512));
   jref["data_units_written"].set_unsafe_le128(smart_log.data_units_written);
+  jglb["host_writes"]["units"].set_unsafe_le128(smart_log.data_units_written);
+  jglb["host_writes"]["bytes_per_unit"] = 1000*512;
+  jglb["host_writes"]["string"] = format_capacity(buf, sizeof(buf),
+    le128_to_uint64(smart_log.data_units_written) * (1000*512), ".");
   jout("Host Read Commands:                 %s\n", le128_to_str(buf, smart_log.host_reads));
   jref["host_reads"].set_unsafe_le128(smart_log.host_reads);
+  jglb["host_reads"]["commands"].set_unsafe_le128(smart_log.host_reads);
   jout("Host Write Commands:                %s\n", le128_to_str(buf, smart_log.host_writes));
   jref["host_writes"].set_unsafe_le128(smart_log.host_writes);
+  jglb["host_writes"]["commands"].set_unsafe_le128(smart_log.host_writes);
   jout("Controller Busy Time:               %s\n", le128_to_str(buf, smart_log.ctrl_busy_time));
   jref["controller_busy_time"].set_unsafe_le128(smart_log.ctrl_busy_time);
   jout("Power Cycles:                       %s\n", le128_to_str(buf, smart_log.power_cycles));
