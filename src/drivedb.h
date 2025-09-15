@@ -4806,8 +4806,8 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Seagate Exos X20/X22", // tested with ST20000NM007D-3DJ103/SN01, .../SN03,
       // ST22000NM001E-3HM103/SN03, OOS20000G/OOS1
-    "ST(18|20)000NM00[0347]D-.*|" // X20
-    "ST2[02]000NM001E-.*|" // X22
+    "ST(16|18|20)000NM00[0347]D-.*|" // X20
+    "ST(16|2[02])000NM00[01]E-.*|" // X22
     "OOS20000G", // 20TB refurbished and rebranded
     "", "",
     "-v 1,raw24/raw32 -v 7,raw24/raw32 "
