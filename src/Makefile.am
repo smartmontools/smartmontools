@@ -388,6 +388,7 @@ uninstall-sysconfDATA:
 smartdscript_SCRIPTS = smartd_warning.sh
 
 EXTRA_DIST = \
+        clang-scan-build.sh \
         cppcheck.sh \
         getversion.sh \
         smartd.initd.in \
@@ -782,6 +783,7 @@ SHELLCHECKFLAGS=-S warning -e SC3043
 
 SHELLSCRIPTS= \
     $(top_srcdir)/autogen.sh \
+    $(srcdir)/clang-scan-build.sh \
     $(srcdir)/cppcheck.sh \
     $(srcdir)/do_release \
     $(srcdir)/getversion.sh \
