@@ -12,7 +12,7 @@ jobs:
           platform: x86_64
           packages: |
             automake
-            clang
+            clang-analyzer
             gcc-g++
             git
             make
@@ -61,7 +61,10 @@ jobs:
           mkdir build-clang && cd build-clang &&
           export SOURCE_DATE_EPOCH=$((SMARTMONTOOLS_GIT_REV_EPOCH + 1)) &&
           ../configure --with-build-info='(GHA/Cygwin)' CC=clang CXX=clang++ &&
-          make -j && make check &&
+          ../src/clang-scan-build.sh \
+            -f "smartmontools-cygwin-clang-report-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" \
+            make -j &&
+          make check &&
           make bin-dist bin_distfile="smartmontools-cygwin-x86_64-clang-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz"
         shell: bash --noprofile --norc -e -o igncr '{0}'
 
@@ -70,4 +73,11 @@ jobs:
         with:
           name: smartmontools-cygwin-clang
           path: build-clang/smartmontools-cygwin-x86_64-clang-*.tar.gz
+          retention-days: 30
+
+      - name: Upload clang static analyzer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: smartmontools-cygwin-clang-report
+          path: build-clang/smartmontools-cygwin-clang-report-*.tar.gz
           retention-days: 30
