@@ -3130,6 +3130,11 @@ bool linux_smart_interface::scan_smart_devices(smart_device_list & devlist,
   }
 
   if (type_nvme) {
+    if (by_id) {
+      // Scan NVMe devices via persistent symlinks
+      get_dev_list(devlist, "/dev/disk/by-id/*", false, 0, true, type_nvme, false);
+    }
+    // Also scan volatile /dev/nvmeX names
     get_dev_list(devlist, "/dev/nvme[0-9]", false, 0, true, type_nvme, false);
     get_dev_list(devlist, "/dev/nvme[1-9][0-9]", false, 0, true, type_nvme, false);
   }
