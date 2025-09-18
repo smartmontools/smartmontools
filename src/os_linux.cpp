@@ -49,6 +49,7 @@
 #include <linux/bsg.h>
 #include <stdlib.h>
 #include <string.h>
+#include <set>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <sys/utsname.h>
@@ -3131,23 +3132,32 @@ bool linux_smart_interface::scan_smart_devices(smart_device_list & devlist,
 
   if (type_nvme) {
     if (by_id) {
-      // Scan NVMe devices via persistent symlinks, but exclude partitions
+      // Scan NVMe devices via persistent symlinks, accept any symlink pointing to ../../nvme* (not partitions), for any drive/namespace, deduplicate by target
       glob_t globbuf;
       memset(&globbuf, 0, sizeof(globbuf));
       int retglob = glob("/dev/disk/by-id/*", GLOB_ERR, NULL, &globbuf);
       if (!retglob) {
+        std::set<std::string> seen_targets;
         for (int i = 0; i < (int)globbuf.gl_pathc; i++) {
           const char *name = globbuf.gl_pathv[i];
-          size_t len = strlen(name);
-          // Exclude symlinks ending with -partN
-          if (len > 6 && strstr(name, "-part") == name + len - 6)
+          // Exclude partitions
+          if (strstr(name, "-part") != NULL)
             continue;
-          // Only include symlinks that point to NVMe devices
           char target[256];
           int sz = readlink(name, target, sizeof(target)-1);
           if (sz > 0 && sz < (int)sizeof(target)) {
             target[sz] = 0;
-            if (strstr(target, "/nvme") == target || strstr(target, "nvme") != NULL) {
+            // Only include symlinks whose name starts with 'nvme-eui.'
+            const char *basename = strrchr(name, '/');
+            basename = basename ? basename + 1 : name;
+            if (strncmp(basename, "nvme-eui.", 9) != 0)
+              continue;
+            // Accept symlinks pointing to ../../nvme*
+            if (strncmp(target, "../../nvme", 10) == 0) {
+              std::string devtarget = std::string(target);
+              if (seen_targets.count(devtarget))
+                continue;
+              seen_targets.insert(devtarget);
               smart_device *dev = new linux_nvme_device(this, name, type_nvme, 0);
               devlist.push_back(dev);
             }
@@ -3155,10 +3165,12 @@ bool linux_smart_interface::scan_smart_devices(smart_device_list & devlist,
         }
         globfree(&globbuf);
       }
+    } else {
+      // Scan via volatile /dev/nvmeX names
+      get_dev_list(devlist, "/dev/nvme[0-9]", false, 0, true, type_nvme, false);
+      get_dev_list(devlist, "/dev/nvme[1-9][0-9]", false, 0, true, type_nvme, false);
     }
-    // Also scan volatile /dev/nvmeX names
-    get_dev_list(devlist, "/dev/nvme[0-9]", false, 0, true, type_nvme, false);
-    get_dev_list(devlist, "/dev/nvme[1-9][0-9]", false, 0, true, type_nvme, false);
+
   }
 
   return true;
