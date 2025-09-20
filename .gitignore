@@ -43,6 +43,7 @@
 /src/cppcheck.txt
 /src/smartctl
 /src/smartd
+/src/smartd.service
 /src/smartd_warning.sh
 /src/shellcheck.txt
 /src/smartmontools-*.*.win*
