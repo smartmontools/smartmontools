@@ -5,7 +5,7 @@
  *
  * Copyright (C) 2003-11 Bruce Allen
  * Copyright (C) 2003-11 Doug Gilbert <dgilbert@interlog.com>
- * Copyright (C) 2008-22 Christian Franke
+ * Copyright (C) 2008-25 Christian Franke
  *
  * Original AACRaid code:
  *  Copyright (C) 2014    Raghava Aditya <raghava.aditya@pmcs.com>
@@ -3076,7 +3076,7 @@ bool linux_smart_interface::scan_smart_devices(smart_device_list & devlist,
     return set_err(EINVAL, "DEVICESCAN with pattern not implemented yet");
 
   // Scan type list
-  bool by_id = false;
+  bool by_id = false, scan_megaraid = false, scan_sssraid = false;
   const char * type_ata = 0, * type_scsi = 0, * type_sat = 0, * type_nvme = 0;
   for (unsigned i = 0; i < types.size(); i++) {
     const char * type = types[i].c_str();
@@ -3090,16 +3090,23 @@ bool linux_smart_interface::scan_smart_devices(smart_device_list & devlist,
       type_sat = "sat";
     else if (!strcmp(type, "nvme"))
       type_nvme = "nvme";
+    else if (!strcmp(type, "megaraid"))
+      scan_megaraid = true;
+    else if (!strcmp(type, "sssraid"))
+      scan_sssraid = true;
     else
-      return set_err(EINVAL, "Invalid type '%s', valid arguments are: by-id, ata, scsi, sat, nvme",
+      return set_err(EINVAL,
+                     "Invalid type '%s', valid arguments are:"
+                     " by-id, ata, scsi, sat, nvme, megaraid, sssraid",
                      type);
   }
   // Use default if no type specified
-  if (!(type_ata || type_scsi || type_sat || type_nvme)) {
+  if (!(type_ata || type_scsi || type_sat || type_nvme || scan_megaraid || scan_sssraid)) {
      type_ata = type_scsi = type_sat = "";
 #ifdef WITH_NVME_DEVICESCAN // TODO: Remove when NVMe support is no longer EXPERIMENTAL
      type_nvme = "";
 #endif
+     scan_megaraid = scan_sssraid = true;
   }
 
   if (type_ata)
@@ -3122,11 +3129,6 @@ bool linux_smart_interface::scan_smart_devices(smart_device_list & devlist,
 
     get_dev_list(devlist, "/dev/sd[a-z]", true, p_dev_sdxy_seen, false, type_scsi_sat, autodetect);
     get_dev_list(devlist, "/dev/sd[a-z][a-z]", true, p_dev_sdxy_seen, false, type_scsi_sat, autodetect);
-
-    // get device list from the megaraid device
-    get_dev_megasas(devlist);
-    // get device list from the sssraid device
-    get_dev_sssraid(devlist);
   }
 
   if (type_nvme) {
@@ -3134,6 +3136,10 @@ bool linux_smart_interface::scan_smart_devices(smart_device_list & devlist,
     get_dev_list(devlist, "/dev/nvme[1-9][0-9]", false, 0, true, type_nvme, false);
   }
 
+  if (scan_megaraid)
+    get_dev_megasas(devlist);
+  if (scan_sssraid)
+    get_dev_sssraid(devlist);
   return true;
 }
 
