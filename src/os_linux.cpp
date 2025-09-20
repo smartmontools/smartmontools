@@ -2693,7 +2693,7 @@ public:
 
 linux_nvme_device::linux_nvme_device(smart_interface * intf, const char * dev_name,
   const char * req_type, unsigned nsid)
-: smart_device(intf, dev_name, "nvme", req_type),
+: smart_device(intf, dev_name, (nsid ? strprintf("nvme,0x%x", nsid).c_str() : "nvme"), req_type),
   nvme_device(nsid),
   linux_smart_device(O_RDONLY | O_NONBLOCK)
 {
@@ -2965,7 +2965,8 @@ void linux_smart_interface::get_dev_list(smart_device_list & devlist,
         dev = new linux_scsi_device(this, name, type_scsi_sat, true /*scanning*/);
     }
     else if (mi == 4 && type_nvme)
-      dev = new linux_nvme_device(this, name, type_nvme, 0 /* use default nsid */);
+      // Use broadcast NSID for 'by-id' links which always refer to namespace devices
+      dev = new linux_nvme_device(this, name, type_nvme, (by_id ? nvme_broadcast_nsid : 0));
     else if (mi == 6 && type_ata)
       dev = new linux_ata_device(this, name, type_ata);
     else {
