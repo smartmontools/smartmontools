@@ -4588,17 +4588,15 @@ const drive_settings builtin_knowndrives[] = {
     "", "",
     "-v 188,raw16 -v 240,msec24hour32"
   },
-  { "Seagate BarraCuda 3.5 (CMR)", // tested with ST1000DM010-2EP102/CC43,
-      // ST3000DM008-2DM166/CC26, ST4000DM006-2G5107/DN02, ST10000DM0004-1ZC101/DN01,
-      // ST12000DM0007-2GR116/DN01
-    "ST(500DM009|1000DM010|2000DM00[67]|3000DM00[89]|4000DM006|6000DM004|8000DM005|10000DM0004|12000DM0007)-.*",
+  { "Seagate BarraCuda 3.5 (CMR)", // tested with ST1000DM010-2EP102/CC43, ST3000DM008-2DM166/CC26
+    "ST(500DM009|1000DM010|2000DM00[67]|3000DM00[89])-.*",
     "", "",
     "-v 200,raw48,Pressure_Limit "
     "-v 188,raw16 -v 240,msec24hour32"
   },
   { "Seagate BarraCuda 3.5 (SMR)", // tested with ST2000DM008-2FR102/0001,
       // ST4000DM004-2CV104/0001 (TRIM: no), ST4000DM005-2DP166/0001, ST8000DM004-2CX188/0001
-    "ST(2000DM00[589]|3000DM007|4000DM00[45]|6000DM003|8000DM004)-.*",
+    "ST(2000DM00[58]|3000DM007|4000DM00[45]|6000DM003|8000DM004)-.*",
     "", "",
     "-v 9,msec24hour32 " // ST4000DM004-2CV104/0001
     "-v 200,raw48,Pressure_Limit "
@@ -4681,10 +4679,13 @@ const drive_settings builtin_knowndrives[] = {
     "https://knowledge.seagate.com/articles/en_US/FAQ/207963en",
     ""
   },
-  { "Seagate Barracuda Pro", // tested with ST8000DM0004-1ZC11G/DN01
-    "ST(8|10|12)000DM000[47]-.*",
+  { "Seagate BarraCuda Pro", // tested with ST4000DM006-2G5107/DN02, ST8000DM0004-1ZC11G/DN01,
+      // ST10000DM0004-1ZC101/DN01, // ST12000DM0007-2GR116/DN01
+    "ST(2000DM009|4000DM006|6000DM004|8000DM00(5|04)|10000DM0004|12000DM0007)-.*",
     "", "",
-    "-v 9,msec24hour32 -v 188,raw16 -v 240,msec24hour32"
+    "-v 9,msec24hour32 -v 188,raw16 "
+    "-v 200,raw48,Pressure_Limit "
+    "-v 240,msec24hour32"
   },
   { "Seagate Constellation (SATA)", // tested with ST9500530NS/SN03
     "ST9(160511|500530)NS",
