@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "VERSION: 7.2/5852 2025-08-30 12:57:58 +0000 acea80021001",
+  { "VERSION: 7.2/5894 2025-09-23 15:50:03 +0000 594733115da2",
     "-", "-",
     "Version information",
     ""
@@ -645,8 +645,9 @@ const drive_settings builtin_knowndrives[] = {
     "(Micron_5200_)?MTFDDAK(240|480|960|1T9|3T8|7T6)TD(C|D|N)|" // tested with Micron_5200_MTFDDAK240TDN/D1MU005,
       // Micron_5200_MTFDDAK3T8TDD/D1MU505
     "Micron_5210_MTFDDAK(480|960|1T9|3T8|7T6)QDE|" // tested with Micron_5210_MTFDDAK7T6QDE/D2MU804
-    "(Micron_5300(HC)?_)?MTFDDA[KV](240|480|960|1T9|3T8|7T6)TD[STU]|" // tested with Micron_5300_MTFDDAK1T9TDS/D3MU001
-      // Micron_5300HC_MTFDDAK960TDS/D3MN010, MTFDDAK1T9TDT/D3MU001
+    "(Micron_5300(HC)?_)?MTFDDA[KV](240|480|960|1T9|3T8|7T6)TD[STU](_.*)?|" // tested with
+      // Micron_5300_MTFDDAK1T9TDS/D3MU001, Micron_5300HC_MTFDDAK960TDS/D3MN010, MTFDDAK1T9TDT/D3MU001,
+      // Micron_5300_MTFDDAV960TDS_CISCO/D3MU001
     "(Micron_5400_)?(EE|MT)FDDA[KV](240|480|960|1T9|3T8|7T6)TG[ABC](_SED)?|" // tested with
       // Micron_5400_MTFDDAK1T9TGB/D4MU001, Micron_5400_MTFDDAK960TGA_SED/D4CS001
     "VK001920G(WSXK|XAWN)", // HPE OEM, tested with VK001920GWSXK/HPG3 (5200?), VK001920GXAWN/HPG1 (5300?)
@@ -783,6 +784,7 @@ const drive_settings builtin_knowndrives[] = {
       // FM-25S2S-240GBP2/4.2
     "FTM(06|12|24|48)CT25H|" // Supertalent TeraDrive CT, tested with
       // FTM24CT25H/STTMP2P1
+    "KINGSTON RBU-SC400S37(64|128|256)G|" // tested with KINGSTON RBU-SC400S37256G/KD1ABBF0
     "KINGSTON SE50S37?(100|240|480)G|" // tested with KINGSTON SE50S3100G/KE1ABBF0,
       // KINGSTON SE50S37100G/61AABBF0 (E50)
     "KINGSTON SH10[03]S3(90|120|240|480)G|" // HyperX (3K), SF-2281, tested with
@@ -936,9 +938,9 @@ const drive_settings builtin_knowndrives[] = {
       // Patriot Blaze/S9FM02, Patriot Flare/SBFM91.2, Patriot Ignite/SAFM01.7
     "Patriot Burst( (120|240|480|960)GB)?|" // tested with Patriot Burst/SBFM11.2,
       // Patriot Burst 480GB/SBFMLA.5
-    "PNY CS(900|1311|2211) (120G|240G|480G|960G|1T|2T)B SSD|" // tested with PNY CS900 120GB SSD/CS900612,
-      // PNY CS900 240GB SSD/CS900613, PNY CS900 500GB SSD/CS900Y13, PNY CS900 1TB SSD/CS900615,
-      // PNY CS1311 120GB SSD/CS131122, PNY CS2211 240GB SSD/CS221016
+    "PNY CS(900|1311|2211) ((12|24|48|50|96)0G|[12]T)B SSD|" // tested with PNY CS900 120GB SSD/CS900612,
+      // PNY CS900 240GB SSD/CS900613, PNY CS900 500GB SSD/CS900LA5, PNY CS900 500GB SSD/CS900Y13,
+      // PNY CS900 1TB SSD/CS900615, PNY CS1311 120GB SSD/CS131122, PNY CS2211 240GB SSD/CS221016
     "PNY ELITE PSSD|" // tested with PNY ELITE PSSD/CS105P13 (240G)
     "S11-(128|256|512)G-PHISON-SSD-B27|" // tested with: S11-512G-PHISON-SSD-B27/SBFMJ1.3
     "SSD Smartbuy (60|64|120|128|240|256|480|512|960|1024|2000)GB|" // PS3111-S11, tested with
@@ -2063,7 +2065,8 @@ const drive_settings builtin_knowndrives[] = {
     "Samsung SSD 845DC EVO .*|" // Samsung SSD 845DC EVO 960GB/EXT03X3Q
     "SAMSUNG MZ7PA256HMDR-.*|" // PM810 (470 Series), tested with SAMSUNG MZ7PA256HMDR-010H1/AXM07H1Q
     "SAMSUNG MZ[7M]PC(032|064|128|256|512)HBCD-.*|" // PM830, tested with SAMSUNG MZMPC032HBCD-000L1/CXM12L1Q
-    "SAMSUNG MZ7TD(128|256)HAFV-.*|" // 840 Series, tested with SAMSUNG MZ7TD256HAFV-000L7/DXT06L6Q
+    "SAMSUNG MZ7[TP]D(128|256|512)H(AFV|CGM)-.*|" // 840 / 840 Pro (T/P), tested with.
+      // SAMSUNG MZ7TD256HAFV-000L7/DXT06L6Q, SAMSUNG MZ7PD256HCGM-000H7/DXM06H6Q
     "SAMSUNG MZ[7M]TD(128|256|512)HA[GF][LMV]-.*|" // PM841, tested with SAMSUNG MZMTD512HAGL-00000/DXT4200Q,
       // SAMSUNG MZ7TD512HAGM-000L1/DXT06L0Q, SAMSUNG MZMTD128HAFV-000L1/DXT43L0Q
     "SAMSUNG MZ7WD((120|240)H[AC]FV|480H[AC]GM|960H[AC]GP)-.*|" // SM843T(N?) Series, tested with
@@ -3096,10 +3099,6 @@ const drive_settings builtin_knowndrives[] = {
   { "Seagate Samsung SpinPoint M8U (USB)", // tested with ST1000LM025 HN-M101ABB/2AR10001,
       // ST1000LM025 HN-M101ABB/2BA30003 (0x04e8:0x61b6)
     "ST(250|320|500|640|750|1000)LM0[012][3459] HN-M[0-9]*ABB",
-    "", "", ""
-  },
-  { "Seagate Barracuda Pro Compute", // tested with ST1000LM049-2GH172/SDM1
-    "ST(1000LM049|500LM034)-.*",
     "", "", ""
   },
   { "Seagate Samsung SpinPoint M9T", // tested with ST2000LM003 HN-M201RAD/2BC10003
@@ -4349,10 +4348,12 @@ const drive_settings builtin_knowndrives[] = {
     "ST9((80|120|160)411|(250|320)421)ASG?",
     "", "", ""
   },
-  { "Seagate Momentus 7200.4",
+  { "Seagate Momentus 7200.4", // tested with ST9500420AS/0002SDM1
     "ST9(160412|250410|320423|500420)ASG?",
     "", "",
-    "-v 188,raw16 -v 240,msec24hour32"
+    "-v 1,raw24/raw32 -v 7,raw24/raw32 -v 188,raw16 "
+    "-v 195,raw24/raw32,ECC_On_the_Fly_Count "
+    "-v 240,msec24hour32"
   },
   { "Seagate Momentus 7200 FDE.2",
     "ST9((160413|25041[12]|320426|50042[12])AS|(16041[489]|2504[16]4|32042[67]|500426)ASG)",
@@ -4587,17 +4588,15 @@ const drive_settings builtin_knowndrives[] = {
     "", "",
     "-v 188,raw16 -v 240,msec24hour32"
   },
-  { "Seagate BarraCuda 3.5 (CMR)", // tested with ST1000DM010-2EP102/CC43,
-      // ST3000DM008-2DM166/CC26, ST4000DM006-2G5107/DN02, ST10000DM0004-1ZC101/DN01,
-      // ST12000DM0007-2GR116/DN01
-    "ST(500DM009|1000DM010|2000DM00[67]|3000DM00[89]|4000DM006|6000DM004|8000DM005|10000DM0004|12000DM0007)-.*",
+  { "Seagate BarraCuda 3.5 (CMR)", // tested with ST1000DM010-2EP102/CC43, ST3000DM008-2DM166/CC26
+    "ST(500DM009|1000DM010|2000DM00[67]|3000DM00[89]|4000DM005)-.*",
     "", "",
     "-v 200,raw48,Pressure_Limit "
     "-v 188,raw16 -v 240,msec24hour32"
   },
   { "Seagate BarraCuda 3.5 (SMR)", // tested with ST2000DM008-2FR102/0001,
       // ST4000DM004-2CV104/0001 (TRIM: no), ST4000DM005-2DP166/0001, ST8000DM004-2CX188/0001
-    "ST(2000DM00[589]|3000DM007|4000DM00[45]|6000DM003|8000DM004)-.*",
+    "ST(2000DM00[58]|3000DM007|[48]000DM004|6000DM003)-.*",
     "", "",
     "-v 9,msec24hour32 " // ST4000DM004-2CV104/0001
     "-v 200,raw48,Pressure_Limit "
@@ -4647,12 +4646,14 @@ const drive_settings builtin_knowndrives[] = {
     "ST3(250[68]2|32062|40062|50063|75064)0NS",
     "", "", ""
   },
-  // ST5000LM000, ST4000LM024, ST3000LM024, ST2000LM015, ST1000LM048, ST500LM030
-  { "Seagate Barracuda 2.5 5400", // ST2000LM015-2E8174/SDM1, ST4000LM024-2AN17V/0001
-    "ST(5000LM000|[34]000LM024|2000LM015|1000LM048|500LM030)-.*",
-    "",
-    "",
+  { "Seagate BarraCuda 2.5", // tested with ST2000LM015-2E8174/SDM1,
+      // ST4000LM024-2AN17V/0001, ST5000LM000-2AN170/0001, ST1000LM049-2GH172/SDM1
+      // 7200rpm: ST500LM034, ST1000LM049
+    "ST(500LM03[04]|1000LM04[89]|2000LM015|[34]000LM024|5000LM000)-.*",
+    "", "",
+    "-v 1,raw24/raw32 -v 7,raw24/raw32 "
     "-v 183,raw48,SATA_Downshift_Count "
+    "-v 188,raw16"
   },
   { "Seagate Barracuda ES.2", // fixed firmware
     "ST3(25031|50032|75033|100034)0NS",
@@ -4678,10 +4679,13 @@ const drive_settings builtin_knowndrives[] = {
     "https://knowledge.seagate.com/articles/en_US/FAQ/207963en",
     ""
   },
-  { "Seagate Barracuda Pro", // tested with ST8000DM0004-1ZC11G/DN01
-    "ST(8|10|12)000DM000[47]-.*",
+  { "Seagate BarraCuda Pro", // tested with ST4000DM006-2G5107/DN02, ST8000DM0004-1ZC11G/DN01,
+      // ST10000DM0004-1ZC101/DN01, // ST12000DM0007-2GR116/DN01
+    "ST(2000DM009|4000DM006|6000DM004|8000DM00(5|04)|10000DM0004|12000DM0007)-.*",
     "", "",
-    "-v 9,msec24hour32 -v 188,raw16 -v 240,msec24hour32"
+    "-v 9,msec24hour32 -v 188,raw16 "
+    "-v 200,raw48,Pressure_Limit "
+    "-v 240,msec24hour32"
   },
   { "Seagate Constellation (SATA)", // tested with ST9500530NS/SN03
     "ST9(160511|500530)NS",
@@ -4805,9 +4809,11 @@ const drive_settings builtin_knowndrives[] = {
     "-v 240,msec24hour32"
   },
   { "Seagate Exos X20/X22", // tested with ST20000NM007D-3DJ103/SN01, .../SN03,
-      // ST22000NM001E-3HM103/SN03, OOS20000G/OOS1
-    "ST(18|20)000NM00[0347]D-.*|" // X20
-    "ST2[02]000NM001E-.*|" // X22
+      // ST22000NM001E-3HM103/SN03, OOS20000G/OOS1,
+      // ST16000NM000D-3PC101/SN01 (re-certified),
+      // ST16000NM000E-3NV101/ZZF1 (re-certified)
+    "ST(16|18|20)000NM00[0347]D-.*|" // X20
+    "ST(16|2[02])000NM00[01]E-.*|" // X22
     "OOS20000G", // 20TB refurbished and rebranded
     "", "",
     "-v 1,raw24/raw32 -v 7,raw24/raw32 "
@@ -4855,9 +4861,12 @@ const drive_settings builtin_knowndrives[] = {
     "-v 240,msec24hour32"
   },
   { "Seagate IronWolf Pro", // tested with ST4000NE0025-2EW107/EN02,
-      // ST8000NE0004-1ZF11G/EN01, ST8000NE0021-2EN112/EN02, ST12000NT001-3LX101/EN01,
-      // ST16000NE000-2RW103/EN02, ST16000NT001-3LV101/EN01, ST18000NT001-3LU101/EN01
-    "ST([24]000NE0025|4000NE001|6000NE0023|8000NE00(04|08|21)|(1[02468]|2[02])000(NE|NT)(000[478]|001)|16000NE000)-.*",
+      // ST6000NE000-2KR101/EN01, ST8000NE001-2M7101/EN01, ST8000NE0004-1ZF11G/EN01,
+      // ST8000NE0021-2EN112/EN02, ST12000NT001-3LX101/EN01, ST16000NE000-2RW103/EN02,
+      // ST16000NT001-3LV101/EN01, ST18000NE000-3G6101/EN01, ST18000NT001-3LU101/EN01,
+    "ST([24]000NE00([01]|25)|6000NE00(0|23)|8000NE00([01]|0[48]|21))-.*|"
+    "ST(1[02468]|2[02])000NE(000[478]?)-.*|"
+    "ST([2468]|1[02468]|2[02])000NT001-.*",
     "", "",
     "-v 18,raw48,Head_Health " // ST16000NE000, ST18000NT001
     "-v 188,raw16 "
@@ -4930,6 +4939,18 @@ const drive_settings builtin_knowndrives[] = {
   { "Seagate DB35.3",
     "ST3(750640SCE|((80|160)215|(250|320|400)820|500830|750840)[AS]CE)",
     "", "", ""
+  },
+  { "Seagate EE25.2", // tested with ST980818SM/3.AAB
+    "ST9[3468]081[78][AS]M",
+    "", "",
+    "-v 7,raw24/raw32 "
+    "-v 195,raw24/raw32,ECC_On_the_Fly_Count"
+  },
+  { "Seagate LD25.1", // tested with ST9402115AS/3.01
+    "ST9(20217|402115)AS",
+    "", "",
+    "-v 1,raw24/raw32 -v 7,raw24/raw32 "
+    "-v 195,raw24/raw32,ECC_On_the_Fly_Count"
   },
   { "Seagate LD25.2", // tested with ST940210AS/3.ALC
     "ST9(40|80)210AS?",
@@ -5054,10 +5075,12 @@ const drive_settings builtin_knowndrives[] = {
       // WDC WDBNCE2500PNC/X61130WD, WDC WDBNCE0010PNC-WRSN/X41110WD,
       // WDC  WDS200T1R0A-68A4W0/411000WR, WDC  WDS400T1R0A-68A4W0/411000WR
     "WDC WDBNCE(250|500|00[124])0PNC(-.*)?|" // Blue 3D
-    "WDC  ?WDS((120|240|250|480|500)G|[124]00T)(1B|2B|1G|2G|1R)0[AB](-.*)?|"
-      // *B* = Blue, *G* = Green, *2B* = Blue 3D NAND, *1R* = Red SA500
-    "WD Blue SA510 2\\.5 ((25|50|100)0G|[24]T)B|" // tested with
-      // WD Blue SA510 2.5 1000GB/52008100, WD Blue SA510 2.5 4TB/530309WD
+    "WDC  ?WDS((120|240|250|400|480|500)G|[124]00T)(1B|2B|1G|2G|[12]R)0[AB](-.*)?|"
+      // *B* = Blue, *G* = Green, *2B* = Blue 3D NAND, *[12]R* = Red SA500
+    "WD (Blue|Red) SA5[01]0 2\\.5 ((25|50|100)0G|[24]T)B|" // tested with
+      // WD Blue SA510 2.5 1000GB/52008100, WD Blue SA510 2.5 4TB/530309WD,
+      // WD Red SA500 2.5 4TB/540400WD,
+      // WD Red SA500 2.5 4TB/540500WD (printed label: WDS400T2R0A-68CKB0)
     "SanDisk Portable SSD", // tested with SanDisk Portable SSD/UM5004RL
                             // (Sandisk SDSSDE30-2T00, 0x0781:0x55b0)
     "", "",
