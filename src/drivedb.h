@@ -4589,14 +4589,14 @@ const drive_settings builtin_knowndrives[] = {
     "-v 188,raw16 -v 240,msec24hour32"
   },
   { "Seagate BarraCuda 3.5 (CMR)", // tested with ST1000DM010-2EP102/CC43, ST3000DM008-2DM166/CC26
-    "ST(500DM009|1000DM010|2000DM00[67]|3000DM00[89])-.*",
+    "ST(500DM009|1000DM010|2000DM00[67]|3000DM00[89]|4000DM005)-.*",
     "", "",
     "-v 200,raw48,Pressure_Limit "
     "-v 188,raw16 -v 240,msec24hour32"
   },
   { "Seagate BarraCuda 3.5 (SMR)", // tested with ST2000DM008-2FR102/0001,
       // ST4000DM004-2CV104/0001 (TRIM: no), ST4000DM005-2DP166/0001, ST8000DM004-2CX188/0001
-    "ST(2000DM00[58]|3000DM007|4000DM00[45]|6000DM003|8000DM004)-.*",
+    "ST(2000DM00[58]|3000DM007|[48]000DM004|6000DM003)-.*",
     "", "",
     "-v 9,msec24hour32 " // ST4000DM004-2CV104/0001
     "-v 200,raw48,Pressure_Limit "
