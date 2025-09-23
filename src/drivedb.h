@@ -783,6 +783,7 @@ const drive_settings builtin_knowndrives[] = {
       // FM-25S2S-240GBP2/4.2
     "FTM(06|12|24|48)CT25H|" // Supertalent TeraDrive CT, tested with
       // FTM24CT25H/STTMP2P1
+    "KINGSTON RBU-SC400S37(64|128|256)G|" // tested with KINGSTON RBU-SC400S37256G/KD1ABBF0
     "KINGSTON SE50S37?(100|240|480)G|" // tested with KINGSTON SE50S3100G/KE1ABBF0,
       // KINGSTON SE50S37100G/61AABBF0 (E50)
     "KINGSTON SH10[03]S3(90|120|240|480)G|" // HyperX (3K), SF-2281, tested with
