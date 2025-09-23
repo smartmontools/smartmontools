@@ -3098,10 +3098,6 @@ const drive_settings builtin_knowndrives[] = {
     "ST(250|320|500|640|750|1000)LM0[012][3459] HN-M[0-9]*ABB",
     "", "", ""
   },
-  { "Seagate Barracuda Pro Compute", // tested with ST1000LM049-2GH172/SDM1
-    "ST(1000LM049|500LM034)-.*",
-    "", "", ""
-  },
   { "Seagate Samsung SpinPoint M9T", // tested with ST2000LM003 HN-M201RAD/2BC10003
       // (Seagate Expansion Portable)
     "ST(1500|2000)LM0(03|04|06|07|10) HN-M[0-9]*RAD",
@@ -4647,9 +4643,10 @@ const drive_settings builtin_knowndrives[] = {
     "ST3(250[68]2|32062|40062|50063|75064)0NS",
     "", "", ""
   },
-  // ST5000LM000, ST4000LM024, ST3000LM024, ST2000LM015, ST1000LM048, ST500LM030
-  { "Seagate Barracuda 2.5 5400", // ST2000LM015-2E8174/SDM1, ST4000LM024-2AN17V/0001
-    "ST(5000LM000|[34]000LM024|2000LM015|1000LM048|500LM030)-.*",
+  { "Seagate BarraCuda 2.5", // tested with ST2000LM015-2E8174/SDM1,
+      // ST4000LM024-2AN17V/0001, ST5000LM000-2AN170/0001, ST1000LM049-2GH172/SDM1
+      // 7200rpm: ST500LM034, ST1000LM049
+    "ST(500LM03[04]|1000LM04[89]|2000LM015|[34]000LM024|5000LM000)-.*",
     "",
     "",
     "-v 183,raw48,SATA_Downshift_Count "
