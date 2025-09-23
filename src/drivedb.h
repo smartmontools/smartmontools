@@ -4936,6 +4936,12 @@ const drive_settings builtin_knowndrives[] = {
     "ST3(750640SCE|((80|160)215|(250|320|400)820|500830|750840)[AS]CE)",
     "", "", ""
   },
+  { "Seagate LD25.1", // tested with ST9402115AS/3.01
+    "ST9(20217|402115)AS",
+    "", "",
+    "-v 1,raw24/raw32 -v 7,raw24/raw32 "
+    "-v 195,raw24/raw32,ECC_On_the_Fly_Count"
+  },
   { "Seagate LD25.2", // tested with ST940210AS/3.ALC
     "ST9(40|80)210AS?",
     "", "", ""
