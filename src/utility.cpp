@@ -49,11 +49,13 @@
 // CLOCK_MONOTONIC uses QueryPerformanceCounter() which provides <1us resolution.
 #define USE_CLOCK_MONOTONIC 1
 #else
-// Use std::chrono::high_resolution_clock.
-#include <chrono>
 #define USE_CLOCK_MONOTONIC 0
 #endif
 #endif // USE_CLOCK_MONOTONIC
+#if !USE_CLOCK_MONOTONIC
+// Use std::chrono::high_resolution_clock.
+#include <chrono>
+#endif
 
 const char * packet_types[] = {
         "Direct-access (disk)",
