@@ -1098,11 +1098,16 @@ scsiPrintSelfTest(scsi_device * device)
     static const char * fixup_stres7 = " -->    ";  /* only for non-json */
 
     // check if test is running
+    jglb["scsi_self_test_status"]["in_progress"] = false;
     if (!scsiRequestSense(device, &sense_info) &&
                         (sense_info.asc == 0x04 && sense_info.ascq == 0x09 &&
                         sense_info.progress != -1)) {
-        pout("%s execution status:\t\t%d%% of test remaining\n", hname,
-             100 - ((sense_info.progress * 100) / 65535));
+        int test_progress = (sense_info.progress * 100) / 65535;
+
+        jout("%s execution status:\t\t%d%% of test remaining\n", hname,
+             100 - test_progress);
+        jglb["scsi_self_test_status"]["in_progress"] = true;
+        jglb["scsi_self_test_status"]["completion_percent"] = test_progress;
     }
 
     if ((err = scsiLogSense(device, SELFTEST_RESULTS_LPAGE, 0, gBuf,
