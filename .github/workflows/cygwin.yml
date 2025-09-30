@@ -4,8 +4,21 @@ on: workflow_dispatch
 
 jobs:
   build-cygwin-binaries:
-    runs-on: macos-latest
+    runs-on: windows-latest
     steps:
+      - name: Install Cygwin and build tools
+        uses: cygwin/cygwin-install-action@master
+        with:
+          platform: x86_64
+          packages: |
+            automake
+            clang-analyzer
+            gcc-g++
+            git
+            make
+
+        # 'actions/checkout@v4' now uses Cygwin git instead of Windows git.
+      - run: git config --global --add safe.directory /cygdrive/d/a/smartmontools/smartmontools
 
       - uses: actions/checkout@v4
         with:
@@ -18,48 +31,53 @@ jobs:
           # Include (future) release tags for 'getversion.sh'
           fetch-tags: true
 
+      - name: Set environment
+        run: |
+          export PATH=/usr/bin:$(cygpath ${SYSTEMROOT})/system32 && uname -a &&
+          echo "PATH=$PATH" >> $GITHUB_ENV && src/getversion.sh -g >> $GITHUB_ENV
+        shell: bash --noprofile --norc -e -o igncr '{0}'
 
       - run: ./autogen.sh
         shell: bash --noprofile --norc -e -o igncr '{0}'
 
-      # - name: Build with x86_64 gcc
-      #   run: |
-      #     mkdir build-gcc && cd build-gcc &&
-      #     export SOURCE_DATE_EPOCH=$((SMARTMONTOOLS_GIT_REV_EPOCH + 1)) &&
-      #     ../configure --with-build-info='(GHA/Cygwin)' &&
-      #     make -j && make check &&
-      #     make bin-dist bin_distfile="smartmontools-cygwin-x86_64-gcc-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz"
-      #   shell: bash --noprofile --norc -e -o igncr '{0}'
+      - name: Build with x86_64 gcc
+        run: |
+          mkdir build-gcc && cd build-gcc &&
+          export SOURCE_DATE_EPOCH=$((SMARTMONTOOLS_GIT_REV_EPOCH + 1)) &&
+          ../configure --with-build-info='(GHA/Cygwin)' &&
+          make -j && make check &&
+          make bin-dist bin_distfile="smartmontools-cygwin-x86_64-gcc-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz"
+        shell: bash --noprofile --norc -e -o igncr '{0}'
 
-      # - name: Upload gcc artifact
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: smartmontools-cygwin-gcc
-      #     path: build-gcc/smartmontools-cygwin-x86_64-gcc-*.tar.gz
-      #     retention-days: 30
+      - name: Upload gcc artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: smartmontools-cygwin-gcc
+          path: build-gcc/smartmontools-cygwin-x86_64-gcc-*.tar.gz
+          retention-days: 30
 
-      # - name: Build with x86_64 clang
-      #   run: |
-      #     mkdir build-clang && cd build-clang &&
-      #     export SOURCE_DATE_EPOCH=$((SMARTMONTOOLS_GIT_REV_EPOCH + 1)) &&
-      #     ../configure --with-build-info='(GHA/Cygwin)' CC=clang CXX=clang++ &&
-      #     ../src/clang-scan-build.sh \
-      #       -f "smartmontools-cygwin-clang-report-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" \
-      #       make -j &&
-      #     make check &&
-      #     make bin-dist bin_distfile="smartmontools-cygwin-x86_64-clang-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz"
-      #   shell: bash --noprofile --norc -e -o igncr '{0}'
+      - name: Build with x86_64 clang
+        run: |
+          mkdir build-clang && cd build-clang &&
+          export SOURCE_DATE_EPOCH=$((SMARTMONTOOLS_GIT_REV_EPOCH + 1)) &&
+          ../configure --with-build-info='(GHA/Cygwin)' CC=clang CXX=clang++ &&
+          ../src/clang-scan-build.sh \
+            -f "smartmontools-cygwin-clang-report-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" \
+            make -j &&
+          make check &&
+          make bin-dist bin_distfile="smartmontools-cygwin-x86_64-clang-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz"
+        shell: bash --noprofile --norc -e -o igncr '{0}'
 
-      # - name: Upload clang artifact
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: smartmontools-cygwin-clang
-      #     path: build-clang/smartmontools-cygwin-x86_64-clang-*.tar.gz
-      #     retention-days: 30
+      - name: Upload clang artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: smartmontools-cygwin-clang
+          path: build-clang/smartmontools-cygwin-x86_64-clang-*.tar.gz
+          retention-days: 30
 
-      # - name: Upload clang static analyzer artifact
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: smartmontools-cygwin-clang-report
-      #     path: build-clang/smartmontools-cygwin-clang-report-*.tar.gz
-      #     retention-days: 30
+      - name: Upload clang static analyzer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: smartmontools-cygwin-clang-report
+          path: build-clang/smartmontools-cygwin-clang-report-*.tar.gz
+          retention-days: 30
