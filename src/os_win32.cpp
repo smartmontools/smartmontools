@@ -28,7 +28,9 @@
 #include "dev_areca.h"
 
 #include "os_win32/wmiquery.h"
+#ifndef __CYGWIN__
 #include "os_win32/popen.h"
+#endif
 
 // TODO: Move from smartctl.h to other include file
 extern unsigned char failuretest_permissive;
