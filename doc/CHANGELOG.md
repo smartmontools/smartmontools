@@ -2,6 +2,50 @@
 
 ## smartmontools 8.0 (not yet released)
 
+### What's new
+
+- The new JSON values `host_reads: {...}` and `host_writes: {...}` have been added for ATA
+and NVMe.
+
+- The NVMe/SAT autodetection enabled by the options `-d snt*/sat` now also checks for nonempty
+NVMe identify controller data before assuming that a NVMe device is connected.
+
+- Linux: `smartctl --scan -d by-id` and `DEVICESCAN -d by-id` now also include `/dev/by-id`
+links to NVMe devices.
+Duplicates, including multiple namespaces, are removed and option `-d nvme,0xffffffff` is set.
+
+- Linux: `smartctl --scan -d TYPE` and `DEVICESCAN -d TYPE` no longer include devices
+behind `megaraid` or `sssraid` controllers if `TYPE` is `sat` and/or `scsi`.
+The new scan options `-d megaraid` and `-d sssraid` have been added to include these.
+If no `-d TYPE` option is specified, these controllers are included as before.
+
+- HDD, SSD and USB entries have been added to the drive database.
+
+- The new option `--with-build-info='(TEXT)'` has been added to `./configure`.
+It is no longer needed to use `make BUILD_INFO='"(TEXT)"'` but still possible.
+
+### What changed
+
+- The version information string of pre-release builds now use the form `pre-X.Y-NNN` where
+`X.Y` is the version of the next release and `NNN` is the number of git commits since the
+previous release.
+The VERSIONINFO resources of Windows executables are set to `X.Y.0.NNN` for pre-releases
+or to `X.Y.0.1000` for releases.
+
+- The drive database branches now use git branch names `drivedb/X.Y`.
+
+- `update-smart-drivedb` no longer creates `drivedb.h.raw` files.
+
+- `update-smart-drivedb` no longer contains the signing key for drive database branches before
+`7.0`.
+
+- The source tree has been reorganized.
+The source directory `smartmontools` has been renamed to `src`.
+
+### Bug fixes
+
+- `smartd`: fixed the syntax of NVMe self-test related log messages.
+
 ### Moved to GitHub (2025-06-01)
 
 - More than 22 years after the first CVS commit
@@ -24,7 +68,7 @@ to GitHub have been retired and are subject to remove.
 the old svn repository at SourceForge will be updated in the future.
 This will keep the `update-smart-drivedb` scripts of these versions functional.
 
-## smartmontools 5.0 to 7.5
+## smartmontools 5.0 (2002-10-10) to 7.5 (2025-04-30)
 
 Please see
 [doc/old/NEWS-5.0-7.5.txt](https://github.com/smartmontools/smartmontools/blob/main/doc/old/NEWS-5.0-7.5.txt)
