@@ -1104,7 +1104,7 @@ scsiPrintSelfTest(scsi_device * device)
                         sense_info.progress != -1)) {
         int test_progress = (sense_info.progress * 100) / 65535;
 
-        pout("%s execution status:\t\t%d%% of test remaining\n", hname,
+        jout("%s execution status:\t\t%d%% of test remaining\n", hname,
              100 - test_progress);
         jglb["scsi_self_test_status"]["in_progress"] = true;
         jglb["scsi_self_test_status"]["completion_percent"] = test_progress;
