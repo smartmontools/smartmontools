@@ -383,22 +383,25 @@ void dateandtimezoneepoch(char (& buffer)[DATEANDEPOCHLEN], time_t tval)
   int lenm1 = strlen(datebuffer) - 1;
   datebuffer[lenm1>=0?lenm1:0]='\0';
 
-#if defined(_WIN32) && defined(_MSC_VER)
-  // tzname is missing in MSVC14
-  #define tzname _tzname
-#endif
-
-  // correct timezone name
-  const char * timezonename;
+  // Get timezone name
+  const char * timezonename = "";
+#if defined(_WIN32) && defined(_UCRT)
+  // _tzname[] might not always be accurate when linking to UCRT,
+  // use _get_tzname() instead (unavailable in msvcrt.dll).
+  char tzbuf[64] = "";
+  if (tmval->tm_isdst >= 0) {
+    size_t sz;
+    if (!_get_tzname(&sz, tzbuf, sizeof(tzbuf), (!tmval->tm_isdst ? 0 : 1)))
+      timezonename = tzbuf;
+  }
+#else
   if (tmval->tm_isdst==0)
     // standard time zone
     timezonename=tzname[0];
   else if (tmval->tm_isdst>0)
     // daylight savings in effect
     timezonename=tzname[1];
-  else
-    // unable to determine if daylight savings in effect
-    timezonename="";
+#endif // _WIN32 && _UCRT
 
 #ifdef _WIN32
   // Fix long non-ascii timezone names
