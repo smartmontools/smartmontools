@@ -5,6 +5,7 @@ dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.64])
 AC_INIT([smartmontools],[8.0],[smartmontools-support@listi.jpberlin.de],[],[https://www.smartmontools.org/])
 AM_INIT_AUTOMAKE([1.13 foreign subdir-objects tar-ustar])
+LT_INIT([disable_shared])
 
 # Version of drive database branch
 smartmontools_drivedb_version=7.5
@@ -22,7 +23,7 @@ AC_DEFINE_UNQUOTED(SMARTMONTOOLS_CONFIGURE_ARGS, "$ac_configure_args",          
 AC_DEFINE_UNQUOTED(CONFIG_H_CVSID, "", [(TODO: remove this define)])
 
 AC_CONFIG_SRCDIR([src/smartctl.cpp])
-AC_CONFIG_HEADERS([src/config.h])
+AC_CONFIG_HEADERS([include/smartmon/config.h])
 AC_CONFIG_MACRO_DIR([m4])
 
 AM_MAINTAINER_MODE
@@ -303,11 +304,11 @@ AC_ARG_ENABLE([fast-lebe],
   ],[])
 
 AC_ARG_WITH(os-deps,
-  [AS_HELP_STRING([--with-os-deps='os_module.o ...'], [Specify OS dependent module(s) [guessed]])],
+  [AS_HELP_STRING([--with-os-deps='os_module.lo ...'], [Specify OS dependent module(s) [guessed]])],
   [ for x in $with_os_deps; do
       case $x in
-        *.o) ;;
-        *) AC_MSG_ERROR([non-object file specified by --with-os-deps]) ;;
+        *.lo) ;;
+        *) AC_MSG_ERROR(['--with-os-deps' requires '*.lo' arguments]) ;;
       esac
     done
   ],[])
@@ -534,8 +535,9 @@ of the MinGW-w64 toolchain usually enable ASLR by default.
 ])])
 
 # MinGW defaults: link statically and indicate DEP and TS compatibility
-case "$host_os:${LDFLAGS+t}" in
-  mingw*:) LDFLAGS="-static -Wl,--nxcompat,--tsaware" ;;
+# Note: libtool requires '--static' instead of '-static'
+case "$host_os:${LDFLAGS:+nonempty}" in
+  mingw*:) LDFLAGS="--static -Wl,--nxcompat,--tsaware" ;;
 esac
 
 os_win32_manifest=
@@ -570,6 +572,10 @@ else
 fi
 AM_CONDITIONAL(NEED_REGEX, [test "$need_regex" = "yes"])
 
+AC_ARG_WITH(devel,
+  [AS_HELP_STRING([--with-devel@<:@=yes|no@:>@], [Install development headers and library [no]])])
+AM_CONDITIONAL(INSTALL_DEVEL, [test "$with_devel" = "yes"])
+
 # Set platform-specific modules and symbols
 os_libs=
 os_dltools='curl wget lynx'
@@ -588,14 +594,14 @@ os_nvme_devicescan=
 os_nvme_devicescan_changed=no
 case "${host}" in
   *-*-linux*)
-    os_deps='os_linux.o cciss.o dev_areca.o'
+    os_deps='os_linux.lo cciss.lo dev_areca.lo'
     os_dnsdomainname="'dnsdomainname' 'hostname -d'"
     os_nisdomainname="'nisdomainname' 'hostname -y' 'domainname'"
     os_man_filter=Linux
     os_nvme_devicescan=yes
     ;;
   *-*-freebsd*|*-*-dragonfly*|*-*-kfreebsd*-gnu*|*-*-midnightbsd*)
-    os_deps='os_freebsd.o cciss.o dev_areca.o'
+    os_deps='os_freebsd.lo cciss.lo dev_areca.lo'
     os_libs='-lcam -lsbuf'
     os_dltools='fetch curl wget lynx'
     AC_CHECK_LIB(usb, libusb20_dev_get_device_desc)
@@ -603,13 +609,13 @@ case "${host}" in
     os_nvme_devicescan=yes
     ;;
   *-*-solaris*)
-    os_deps='os_solaris.o'
+    os_deps='os_solaris.lo dev_legacy.lo' # TODO: migrate to new interface
     os_mailer='mailx'
     os_solaris=yes
     os_man_filter=Solaris
     ;;
   *-*-netbsd*)
-    os_deps='os_netbsd.o'
+    os_deps='os_netbsd.lo'
     os_libs='-lutil'
     os_man_filter=NetBSD
     os_nvme_devicescan=yes
@@ -617,13 +623,13 @@ case "${host}" in
     os_nvme_devicescan_changed=yes
     ;;
   *-*-openbsd*)
-    os_deps='os_openbsd.o'
+    os_deps='os_openbsd.lo'
     os_libs='-lutil'
     os_dltools='curl wget lynx ftp'
     os_man_filter=OpenBSD
     ;;
   *-*-cygwin*)
-    os_deps='os_win32.o dev_areca.o'
+    os_deps='os_win32.lo dev_areca.lo'
     os_mailer='email'
     os_hostname="'hostname' 'uname -n' 'echo "'"${HOSTNAME?unset}"'"'"
     os_dnsdomainname="'dnsdomainname' 'hostname -d' 'echo "'"${USERDNSDOMAIN?unset}"'"'"
@@ -633,7 +639,7 @@ case "${host}" in
     os_nvme_devicescan=yes
     ;;
   x86_64-*-mingw*)
-    os_deps='os_win32.o dev_areca.o'
+    os_deps='os_win32.lo dev_areca.lo'
     os_posix=no
     os_win32=yes
     os_win32_mingw=yes
@@ -642,7 +648,7 @@ case "${host}" in
     os_nvme_devicescan=yes
     ;;
   *-*-mingw*)
-    os_deps='os_win32.o dev_areca.o'
+    os_deps='os_win32.lo dev_areca.lo'
     os_posix=no
     os_win32=yes
     os_win32_mingw=yes
@@ -650,44 +656,37 @@ case "${host}" in
     os_nvme_devicescan=yes
     ;;
   *-*-darwin*)
-    os_deps='os_darwin.o'
+    os_deps='os_darwin.lo'
     os_libs='-framework CoreFoundation -framework IOKit'
     os_darwin=yes
     os_man_filter=Darwin
     os_nvme_devicescan=yes
     ;;
   *-*-nto-qnx*)
-    os_deps='os_qnxnto.o'
+    os_deps='os_qnxnto.lo dev_legacy.lo' # TODO: migrate to new interface
     ;;
   *-*-os2-*)
-    os_deps='os_os2.o'
+    os_deps='os_os2.lo dev_legacy.lo' # TODO: migrate to new interface
     os_posix=no
     ;;
   *)
-    os_deps='os_generic.o'
+    os_deps='os_generic.lo'
     ;;
 esac
 
 # Replace if '--with-os-deps' was specified
 test -z "$with_os_deps" || os_deps="$with_os_deps"
 
+# Define 'OLD_INTERFACE' if 'dev_legacy.cpp' is still required
+case " $os_deps " in *\ dev_legacy.lo\ *)
+  AC_DEFINE(OLD_INTERFACE, 1, [Define to 1 if os_*.cpp still uses the old interface]) ;;
+esac
+
 AC_MSG_CHECKING([whether the OS provides a POSIX API])
 if test "$os_posix" = "yes"; then
   AC_DEFINE(HAVE_POSIX_API, 1, [Define to 1 if the OS provides a POSIX API])
 fi
 AC_MSG_RESULT([$os_posix])
-
-# Check if we need adapter to old interface (dev_legacy.cpp)
-os_src=`echo "${os_deps}"|sed -n 's,^\([[^ .]]*\)\.o.*$,\1.cpp,p'`
-AC_MSG_CHECKING([whether ${os_src} uses new interface])
-if grep "smart_interface" "${srcdir}/src/${os_src}" >/dev/null 2>&1; then
-  os_new_interface=yes
-else
-  os_new_interface=no
-  os_deps="${os_deps} dev_legacy.o"
-  AC_DEFINE(OLD_INTERFACE, 1, [Define to 1 if os_*.cpp still uses the old interface])
-fi
-AC_MSG_RESULT([$os_new_interface])
 
 # TODO: Remove when NVMe support is no longer EXPERIMENTAL
 case "$os_nvme_devicescan:${with_nvme_devicescan+set}" in
@@ -849,7 +848,7 @@ AC_DEFINE_UNQUOTED(SMARTMONTOOLS_BUILD_HOST,     "${host}",                     
 
 AC_SUBST(CXXFLAGS)
 
-AC_CONFIG_FILES([Makefile src/Makefile])
+AC_CONFIG_FILES([Makefile include/Makefile lib/Makefile src/Makefile])
 AC_OUTPUT
 AC_PROG_MAKE_SET
 
@@ -904,6 +903,13 @@ info=`
       echo "man page install path:  \`eval eval eval echo $mandir\`"
       echo "doc file install path:  \`eval eval eval echo $docdir\`"
       echo "examples install path:  \`eval eval eval echo $exampledir\`"
+      if  test "$with_devel" = "yes"; then
+        echo "header install path:    \`eval eval eval echo $includedir\`"
+        echo "library install path:   \`eval eval eval echo $libdir\`"
+      else
+        echo "header install path:    [[disabled]]"
+        echo "library install path:   [[disabled]]"
+      fi
       if test -n "$drivedbdir"; then
         if test "$drivedbinstdir" != "$drivedbdir"; then
           echo "installed drivedb file: \`eval eval eval echo $drivedbinstdir\`/drivedb.h"

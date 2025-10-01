@@ -15,6 +15,7 @@ jobs:
             clang-analyzer
             gcc-g++
             git
+            libtool
             make
 
         # 'actions/checkout@v4' now uses Cygwin git instead of Windows git.

@@ -11,7 +11,8 @@ force=; warnings=
 while [ $# -gt 0 ]; do case $1 in
   --force) force=$1; shift ;;
   --warnings=?*) warnings="${warnings} $1"; shift ;;
-  *) echo "Usage: $0 [--force] [--warnings=CATEGORY ...]"; exit 1 ;;
+  *) echo "Usage: [AUTOMAKE=...] [ACLOCAL=...] [LIBTOOLIZE=...] \\"
+     echo "       $0 [--force] [--warnings=CATEGORY ...]"; exit 1 ;;
 esac; done
 
 # Check for CR/LF line endings
@@ -31,7 +32,7 @@ else
     break
   done
   if [ -z "$AUTOMAKE" ]; then
-    echo "GNU Automake $minver (up to $maxver) is required to bootstrap smartmontools from SVN."
+    echo "GNU Automake $minver (up to $maxver) is required"
     exit 1
   fi
 fi
@@ -46,8 +47,15 @@ fi
 if [ -z "$ACLOCAL" ]; then
   ACLOCAL="aclocal$(echo "$AUTOMAKE" | sed -n 's,^.*automake\(-[.0-9]*\),\1,p')"
 fi
-
 "$ACLOCAL" --version >/dev/null || exit 1
+
+# Check for [g]libtoolize
+if [ -z "$LIBTOOLIZE" ] && glibtoolize --version >/dev/null 2>&1; then
+  LIBTOOLIZE=glibtoolize
+else
+  test -n "$LIBTOOLIZE" || LIBTOOLIZE=libtoolize
+  "$LIBTOOLIZE" --version >/dev/null || exit 1
+fi
 
 # Warn if Automake version was not tested
 case "$ver" in
@@ -68,7 +76,9 @@ set -e	# stops on error status
 
 test -z "$warnings" || set -x
 
-${ACLOCAL} --install $force $warnings
-autoheader $force $warnings
-${AUTOMAKE} --add-missing --copy ${force:+--force-missing} $warnings
+# Same order as 'autoreconf --install'
+"$ACLOCAL" --install $force $warnings
+"$LIBTOOLIZE" --copy $force $warnings
 autoconf $force $warnings
+autoheader $force $warnings
+"$AUTOMAKE" --add-missing --copy ${force:+--force-missing} $warnings

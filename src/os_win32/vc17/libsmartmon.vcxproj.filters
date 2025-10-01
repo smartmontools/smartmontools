@@ -1,0 +1,141 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="regex">
+      <UniqueIdentifier>{645cec42-1a08-44cf-a11e-33c3db662a63}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="os_win32">
+      <UniqueIdentifier>{809d0187-edae-4930-bf1c-d523ebda1610}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="os_win32\vc">
+      <UniqueIdentifier>{bddfdabe-1c36-45bb-8960-08dee3296d1f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include_smartmon">
+      <UniqueIdentifier>{ecacaa26-ff3d-4168-afc8-cda76652d392}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include_smartmon\os_win32">
+      <UniqueIdentifier>{4ea98242-c3fd-474c-b2f5-c600cf74c0b3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include_smartmon\regex">
+      <UniqueIdentifier>{47565d7c-e488-45d4-83bc-3190350c6603}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\lib\regex\regcomp.c">
+      <Filter>regex</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lib\regex\regex.c">
+      <Filter>regex</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lib\regex\regex_internal.c">
+      <Filter>regex</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lib\regex\regexec.c">
+      <Filter>regex</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lib\os_win32\popen_win32.cpp">
+      <Filter>os_win32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lib\os_win32\wmiquery.cpp">
+      <Filter>os_win32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lib\atacmdnames.cpp" />
+    <ClCompile Include="..\..\..\lib\atacmds.cpp" />
+    <ClCompile Include="..\..\..\lib\cciss.cpp" />
+    <ClCompile Include="..\..\..\lib\dev_areca.cpp" />
+    <ClCompile Include="..\..\..\lib\dev_ata_cmd_set.cpp" />
+    <ClCompile Include="..\..\..\lib\dev_intelliprop.cpp" />
+    <ClCompile Include="..\..\..\lib\dev_interface.cpp" />
+    <ClCompile Include="..\..\..\lib\dev_jmb39x_raid.cpp" />
+    <ClCompile Include="..\..\..\lib\dev_legacy.cpp" />
+    <ClCompile Include="..\..\..\lib\json.cpp" />
+    <ClCompile Include="..\..\..\lib\knowndrives.cpp" />
+    <ClCompile Include="..\..\..\lib\cciss.h" />
+    <ClCompile Include="..\..\..\lib\nvmecmds.cpp" />
+    <ClCompile Include="..\..\..\lib\os_darwin.cpp" />
+    <ClCompile Include="..\..\..\lib\os_win32.cpp" />
+    <ClCompile Include="..\..\..\lib\scsiata.cpp" />
+    <ClCompile Include="..\..\..\lib\scsicmds.cpp" />
+    <ClCompile Include="..\..\..\lib\scsinvme.cpp" />
+    <ClCompile Include="..\..\..\lib\utility.cpp" />
+    <ClCompile Include="..\..\..\lib\os_darwin.h" />
+    <ClCompile Include="..\..\..\lib\os_freebsd.h" />
+    <ClCompile Include="..\..\..\lib\os_generic.h" />
+    <ClCompile Include="..\..\..\lib\os_linux.h" />
+    <ClCompile Include="..\..\..\lib\os_netbsd.h" />
+    <ClCompile Include="..\..\..\lib\os_openbsd.h" />
+    <ClCompile Include="..\..\..\lib\os_os2.h" />
+    <ClCompile Include="..\..\..\lib\os_freebsd.cpp" />
+    <ClCompile Include="..\..\..\lib\os_generic.cpp" />
+    <ClCompile Include="..\..\..\lib\os_linux.cpp" />
+    <ClCompile Include="..\..\..\lib\os_netbsd.cpp" />
+    <ClCompile Include="..\..\..\lib\os_openbsd.cpp" />
+    <ClCompile Include="..\..\..\lib\os_os2.cpp" />
+    <ClCompile Include="..\..\..\lib\os_qnxnto.cpp" />
+    <ClCompile Include="..\..\..\lib\os_qnxnto.h" />
+    <ClCompile Include="..\..\..\lib\os_solaris.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\lib\regex\regex_internal.h">
+      <Filter>regex</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\lib\aacraid.h" />
+    <ClInclude Include="config.h">
+      <Filter>os_win32\vc</Filter>
+    </ClInclude>
+    <ClInclude Include="version.h">
+      <Filter>os_win32\vc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\lib\cissio_freebsd.h" />
+    <ClInclude Include="..\..\..\lib\csmisas.h" />
+    <ClInclude Include="..\..\..\lib\dev_areca.h" />
+    <ClInclude Include="..\..\..\lib\dev_ata_cmd_set.h" />
+    <ClInclude Include="..\..\..\lib\dev_tunnelled.h" />
+    <ClInclude Include="..\..\..\lib\freebsd_nvme_ioctl.h" />
+    <ClInclude Include="..\..\..\include\smartmon\knowndrives.h" />
+    <ClInclude Include="..\..\..\lib\linux_nvme_ioctl.h" />
+    <ClInclude Include="..\..\..\lib\netbsd_nvme_ioctl.h" />
+    <ClInclude Include="..\..\..\lib\sssraid.h" />
+    <ClInclude Include="..\..\..\lib\drivedb.h" />
+    <ClInclude Include="..\..\..\include\smartmon\atacmdnames.h">
+      <Filter>include_smartmon</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\smartmon\atacmds.h">
+      <Filter>include_smartmon</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\smartmon\json.h">
+      <Filter>include_smartmon</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\smartmon\nvmecmds.h">
+      <Filter>include_smartmon</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\smartmon\static_assert.h">
+      <Filter>include_smartmon</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\smartmon\utility.h">
+      <Filter>include_smartmon</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\smartmon\scsicmds.h">
+      <Filter>include_smartmon</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\smartmon\dev_interface.h">
+      <Filter>include_smartmon</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\smartmon\sg_unaligned.h">
+      <Filter>include_smartmon</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\smartmon\os_win32\popen.h">
+      <Filter>include_smartmon\os_win32</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\smartmon\os_win32\wmiquery.h">
+      <Filter>include_smartmon\os_win32</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\smartmon\regex\regex.h">
+      <Filter>include_smartmon\regex</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\lib\megaraid.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\include\smartmon\config.h.in" />
+  </ItemGroup>
+</Project>

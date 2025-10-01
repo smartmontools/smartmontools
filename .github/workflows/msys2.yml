@@ -27,6 +27,7 @@ jobs:
             dos2unix
             git
             groff
+            libtool
             make
             man2html
 

@@ -69,7 +69,7 @@ jobs:
         run: |
           tar -xvf artifacts/smartmontools-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz &&
           cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
-          ../configure --with-build-info='(GHA Build)' LDFLAGS="-static" SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
+          ../configure --with-build-info='(GHA Build)' LDFLAGS="--static" SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
           make -j && make check &&
           mkdir -p ${GITHUB_WORKSPACE}/artifacts &&
           make bin-dist bin_distfile="${GITHUB_WORKSPACE}/artifacts/smartmontools-linux-x86_64-static-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz"
@@ -102,7 +102,7 @@ jobs:
           tar -xvf artifacts/smartmontools-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz &&
           cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
           setarch i686 ../configure --with-build-info='(GHA Build)' \
-            CC="gcc -m32" CXX="g++ -m32" LDFLAGS="-static" SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
+            CC="gcc -m32" CXX="g++ -m32" LDFLAGS="--static" SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
           make -j && make check &&
           mkdir -p ${GITHUB_WORKSPACE}/artifacts &&
           make bin-dist bin_distfile="${GITHUB_WORKSPACE}/artifacts/smartmontools-linux-i386-static-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz"

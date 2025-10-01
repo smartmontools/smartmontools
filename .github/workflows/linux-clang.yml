@@ -22,7 +22,7 @@ jobs:
           version_sh=$(src/getversion.sh -s) && eval "${version_sh}" &&
           ./autogen.sh && mkdir build && cd build &&
           export SOURCE_DATE_EPOCH=$((SMARTMONTOOLS_GIT_REV_EPOCH + 1)) &&
-          ../configure --with-build-info='(GHA/Clang)' CC=clang CXX=clang++ LDFLAGS="-static" &&
+          ../configure --with-build-info='(GHA/Clang)' CC=clang CXX=clang++ LDFLAGS="--static" &&
           ../src/clang-scan-build.sh \
             -f "smartmontools-linux-clang-report-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" \
             make -j &&

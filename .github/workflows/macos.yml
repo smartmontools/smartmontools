@@ -9,6 +9,7 @@ jobs:
       - name: Install build tools
         run: |
           brew install automake
+          brew install libtool
 
       - uses: actions/checkout@v4
         with:
