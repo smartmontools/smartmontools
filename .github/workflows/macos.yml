@@ -1,0 +1,46 @@
+name: Build smartmontools on macOS
+
+on: workflow_dispatch
+
+jobs:
+  build-macos-binaries:
+    runs-on: macos-latest
+    steps:
+      - name: Install build tools
+        run: |
+          brew install automake
+
+      - uses: actions/checkout@v4
+        with:
+          # Done above as the builtin would use a path for Windows git.
+          set-safe-directory: false
+          # Provide at least the commit log since last release for 'getversion.sh'.
+          # 'git clone --shallow-since=2025-04-29' would be sufficient but this is
+          # not supported by 'actions/checkout@v4'.
+          fetch-depth: 300
+          # Include (future) release tags for 'getversion.sh'
+          fetch-tags: true
+
+      - name: Set environment
+        run: src/getversion.sh -g >> $GITHUB_ENV
+
+      - run: ./autogen.sh
+
+      # this hack is needed until we fix 'configure.ac' to properly detect GNU tar on macOS
+      - name: Override system tar with GNU tar
+        run: cp /opt/homebrew/bin/gtar /opt/homebrew/bin/tar
+
+      - name: Build (multiarch)
+        run: |
+          mkdir build && cd build &&
+          export SOURCE_DATE_EPOCH=$((SMARTMONTOOLS_GIT_REV_EPOCH + 1)) &&
+          ../configure --with-build-info='(GHA/macOS)'  'CFLAGS=-arch arm64 -arch x86_64' 'CXXFLAGS=-arch arm64 -arch x86_64' &&
+          make -j && make check &&
+          make bin-dist bin_distfile="smartmontools-macos-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: smartmontools-macos
+          path: build/smartmontools-macos-*.tar.gz
+          retention-days: 30
