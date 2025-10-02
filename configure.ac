@@ -817,32 +817,29 @@ elif test "$res" = "no"; then
   done
 fi
 
+msg="for tar"
+opts=
 if test -n "$SOURCE_DATE_EPOCH"; then
-  AC_MSG_CHECKING([for GNU tar supporting reproducible tarballs])
-  res=no
-  src_dist_tar=false
-  bin_dist_tar=false
-  # aclocal.m4: am__tar="g?tar --format=ustar -chf - "'"$$tardir"'
-  cmd=`echo "$am__tar" | sed -n 's/ - "\$\$tardir"$/ -/p'`
-  if test -n "$cmd"; then
-    cmd="$cmd --sort=name --mtime=@$SOURCE_DATE_EPOCH --clamp-mtime --owner=root:0 --group=root:0"
-    rm -rf conftest.dir
-    mkdir conftest.dir
-    if $cmd conftest.dir >/dev/null 2>&1; then
-      src_dist_tar=$cmd
-      bin_dist_tar="$cmd *"
-      res=${cmd%% *}
-    fi
-    rmdir conftest.dir
-  fi
-  AC_MSG_RESULT([$res])
-else
-  src_dist_tar= # not used in Makefile.am
-  bin_dist_tar=`echo "$am__tar" | sed -n 's/"\$\$tardir"$/*/p'`
-  test -n "$bin_dist_tar" || bin_dist_tar="tar chf - *"
+  msg="for GNU tar supporting reproducible tarballs"
+  opts=" --sort=name --mtime=@$SOURCE_DATE_EPOCH --clamp-mtime --owner=root:0 --group=root:0"
 fi
-AC_SUBST([src_dist_tar])
-AC_SUBST([bin_dist_tar])
+AC_MSG_CHECKING([$msg])
+dist_tar=false
+res=no
+rm -rf conftest.dir
+mkdir conftest.dir
+# Don't use 'am__tar' from automake because it checks 'tar' before 'gtar'
+for t in "gnutar --format=ustar" "gtar --format=ustar" "tar --format=ustar" "tar"; do
+  cmd="${t}${opts} -chf -"
+  if $cmd conftest.dir >/dev/null 2>&1; then
+    dist_tar=$cmd
+    res=${dist_tar%% *}
+    break
+  fi
+done
+rmdir conftest.dir
+AC_MSG_RESULT([$res])
+AC_SUBST([dist_tar])
 
 AC_DEFINE_UNQUOTED(SMARTMONTOOLS_BUILD_HOST,     "${host}",                       [smartmontools Build Host])
 
@@ -1032,7 +1029,12 @@ Please send info about compiler and platform to
 $PACKAGE_BUGREPORT - Thanks!
 ])
 
-test "$src_dist_tar" != "false" || AC_MSG_WARN([
+case "$dist_tar:$SOURCE_DATE_EPOCH" in
+  false:?*) AC_MSG_WARN([
 Reproducible tarballs require GNU tar which is not available.
 'make dist' and 'make bin-dist' will fail.
-])
+]) ;;
+  false:) AC_MSG_WARN([
+No compatible tar found.  'make bin-dist' will fail.
+]) ;;
+esac
