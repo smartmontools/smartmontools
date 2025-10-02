@@ -18,7 +18,6 @@
 #include "atacmds.h"
 #include "knowndrives.h"
 #include "scsicmds.h"
-#include "smartctl.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // Seagate ATA Field Access Reliability Metrics (FARM) log (Log 0xA6)
@@ -77,10 +76,8 @@ bool ataReadFarmLog(ata_device* device, ataFarmLog& farmLog, unsigned nsectors) 
     uint64_t currentFarmLogPage[FARM_PAGE_SIZE / FARM_ATTRIBUTE_SIZE] = { };
     // Read the desired quantity of sectors from the current page into the buffer
     bool readSuccessful = ataReadLogExt(device, 0xA6, 0, page * FARM_SECTORS_PER_PAGE, pageBuffer, numSectorsToRead);
-    if (!readSuccessful) {
-      jerr("Read FARM Log page %u failed\n\n", page);
-      return false;
-    }
+    if (!readSuccessful)
+      return device->set_err(EIO, "Read FARM Log page %u: %s", page, device->get_errmsg());
     // Read the page from the buffer, one attribute (8 bytes) at a time
     for (unsigned pageOffset = 0; pageOffset < FARM_CURRENT_PAGE_DATA_SIZE[page]; pageOffset += FARM_ATTRIBUTE_SIZE) {
       uint64_t currentMetric = 0;
@@ -97,10 +94,8 @@ bool ataReadFarmLog(ata_device* device, ataFarmLog& farmLog, unsigned nsectors) 
       }
       // Page 0 is the log header, so check the log signature to verify this is a FARM log
       if (page == 0 && pageOffset == 0) {
-        if (currentMetric != 0x00004641524D4552) {
-          jerr("FARM log header is invalid (log signature=%" PRIu64 ")\n\n", currentMetric);
-          return false;
-        }
+        if (currentMetric != 0x00004641524D4552)
+          return device->set_err(EIO, "FARM log header is invalid (log signature=0x%" PRIx64 ")", currentMetric);
       }
       // Store value in structure for access to log by metric name
       currentFarmLogPage[pageOffset / FARM_ATTRIBUTE_SIZE] = currentMetric;
@@ -165,10 +160,8 @@ bool scsiReadFarmLog(scsi_device* device, scsiFarmLog& farmLog) {
   uint8_t gBuf[GBUF_SIZE];
   const size_t FARM_ATTRIBUTE_SIZE = 8;
   farmLog = { };
-  if (0 != scsiLogSense(device, SEAGATE_FARM_LPAGE, SEAGATE_FARM_CURRENT_L_SPAGE, gBuf, LOG_RESP_LONG_LEN, 0)) {
-    jerr("Read FARM Log page failed\n\n");
+  if (0 != scsiLogSense(device, SEAGATE_FARM_LPAGE, SEAGATE_FARM_CURRENT_L_SPAGE, gBuf, LOG_RESP_LONG_LEN, 0))
     return false;
-  }
   bool isParameterHeader = true;
   // Log page header
   farmLog.pageHeader.pageCode = gBuf[0];
@@ -286,10 +279,8 @@ bool scsiReadFarmLog(scsi_device* device, scsiFarmLog& farmLog) {
       currentMetric &= 0x00FFFFFFFFFFFFFFULL;
       // Parameter 0 is the log header, so check the log signature to verify this is a FARM log
       if (pageOffset == sizeof(scsiFarmPageHeader)) {
-        if (currentMetric != 0x00004641524D4552) {
-          jerr("FARM log header is invalid (log signature=%" PRIu64 ")\n\n", currentMetric);
-          return false;
-        }
+        if (currentMetric != 0x00004641524D4552)
+          return device->set_err(EIO, "FARM log header is invalid (log signature=0x%" PRIx64 ")", currentMetric);
       }
       // If a parameter header is reached, set the values
     } else if (currentParameterHeader.parameterLength <= currentMetricIndex * FARM_ATTRIBUTE_SIZE) {

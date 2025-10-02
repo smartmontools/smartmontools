@@ -4591,7 +4591,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
         } else {
           ataFarmLog farmLog;
           if (!ataReadFarmLog(device, farmLog, nsectors)) {
-            pout("Read FARM log (GP Log 0xa6) failed\n\n");
+            pout("Read FARM log (GP Log 0xa6) failed: %s\n\n", device->get_errmsg());
             farm_supported = false;
           } else {
             ataPrintFarmLog(farmLog);
