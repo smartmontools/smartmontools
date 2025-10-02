@@ -32,7 +32,6 @@
     <ClCompile Include="..\..\smartctl.cpp" />
     <ClCompile Include="..\..\ataidentify.cpp" />
     <ClCompile Include="..\..\nvmeprint.cpp" />
-    <ClCompile Include="..\..\farmcmds.cpp" />
     <ClCompile Include="..\..\farmprint.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -53,7 +52,6 @@
     <ClInclude Include="..\..\getopt\bits\getopt_ext.h">
       <Filter>getopt</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\farmcmds.h" />
     <ClInclude Include="..\..\farmprint.h" />
     <ClInclude Include="config.h">
       <Filter>os_win32\vc</Filter>

@@ -61,8 +61,6 @@ smartctl_SOURCES = \
         ataidentify.h \
         ataprint.cpp \
         ataprint.h \
-        farmcmds.cpp \
-        farmcmds.h \
         farmprint.cpp \
         farmprint.h \
         nvmeprint.cpp \

@@ -45,6 +45,7 @@ libsmartmon_la_SOURCES = \
         dev_jmb39x_raid.cpp \
         dev_tunnelled.h \
         drivedb.h \
+        farmcmds.cpp \
         knowndrives.cpp \
         nvmecmds.cpp \
         json.cpp \

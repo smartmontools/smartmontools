@@ -23,6 +23,7 @@ incsmartmon_DATA = \
         smartmon/atacmds.h \
         smartmon/config.h \
         smartmon/dev_interface.h \
+        smartmon/farmcmds.h \
         smartmon/json.h \
         smartmon/knowndrives.h \
         smartmon/nvmecmds.h \
@@ -55,6 +56,7 @@ EXTRA_DIST = \
         smartmon/atacmdnames.h \
         smartmon/atacmds.h \
         smartmon/dev_interface.h \
+        smartmon/farmcmds.h \
         smartmon/json.h \
         smartmon/knowndrives.h \
         smartmon/nvmecmds.h \

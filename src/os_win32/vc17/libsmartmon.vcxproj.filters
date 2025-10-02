@@ -48,6 +48,7 @@
     <ClCompile Include="..\..\..\lib\dev_interface.cpp" />
     <ClCompile Include="..\..\..\lib\dev_jmb39x_raid.cpp" />
     <ClCompile Include="..\..\..\lib\dev_legacy.cpp" />
+    <ClCompile Include="..\..\..\lib\farmcmds.cpp" />
     <ClCompile Include="..\..\..\lib\json.cpp" />
     <ClCompile Include="..\..\..\lib\knowndrives.cpp" />
     <ClCompile Include="..\..\..\lib\cciss.h" />
@@ -101,6 +102,9 @@
       <Filter>include_smartmon</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\include\smartmon\atacmds.h">
+      <Filter>include_smartmon</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\smartmon\farmcmds.h">
       <Filter>include_smartmon</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\include\smartmon\json.h">

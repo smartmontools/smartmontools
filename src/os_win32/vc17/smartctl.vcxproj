@@ -290,7 +290,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\ataidentify.cpp" />
-    <ClCompile Include="..\..\farmcmds.cpp" />
     <ClCompile Include="..\..\farmprint.cpp" />
     <ClCompile Include="..\..\nvmeprint.cpp" />
     <ClCompile Include="..\daemon_win32.cpp">
@@ -311,7 +310,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\ataidentify.h" />
-    <ClInclude Include="..\..\farmcmds.h" />
     <ClInclude Include="..\..\farmprint.h" />
     <ClInclude Include="..\..\getopt\bits\getopt_core.h" />
     <ClInclude Include="..\..\getopt\bits\getopt_ext.h" />
