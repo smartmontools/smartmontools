@@ -27,10 +27,6 @@ jobs:
 
       - run: ./autogen.sh
 
-      # this hack is needed until we fix 'configure.ac' to properly detect GNU tar on macOS
-      - name: Override system tar with GNU tar
-        run: cp /opt/homebrew/bin/gtar /opt/homebrew/bin/tar
-
       - name: Build (multiarch)
         run: |
           mkdir build && cd build &&
