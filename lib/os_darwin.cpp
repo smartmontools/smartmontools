@@ -205,12 +205,12 @@ bool darwin_smart_device::open()
   if (devname)
     {
       CFMutableDictionaryRef matcher;
-      matcher = IOBSDNameMatching (kIOMasterPortDefault, 0, devname);
-      disk = IOServiceGetMatchingService (kIOMasterPortDefault, matcher);
+      matcher = IOBSDNameMatching (kIOMainPortDefault, 0, devname);
+      disk = IOServiceGetMatchingService (kIOMainPortDefault, matcher);
     }
   else
     {
-      disk = IORegistryEntryFromPath (kIOMasterPortDefault, pathname);
+      disk = IORegistryEntryFromPath (kIOMainPortDefault, pathname);
     }
   if (! disk)
     {
@@ -312,7 +312,7 @@ static int make_device_names (char*** devlist, const char* name) {
   }
 
   err = IOServiceGetMatchingServices 
-    (kIOMasterPortDefault, IOServiceMatching (kIOBlockStorageDeviceClass), &i);
+    (kIOMainPortDefault, IOServiceMatching (kIOBlockStorageDeviceClass), &i);
   if (err != kIOReturnSuccess)
     return -1;
 
@@ -661,11 +661,11 @@ smart_device * darwin_smart_interface::autodetect_smart_device(const char * name
   // Find the device. This part should be the same for the NVMe and ATA
   if (devname) {
       CFMutableDictionaryRef matcher;
-      matcher = IOBSDNameMatching (kIOMasterPortDefault, 0, devname);
-      disk = IOServiceGetMatchingService (kIOMasterPortDefault, matcher);
+      matcher = IOBSDNameMatching (kIOMainPortDefault, 0, devname);
+      disk = IOServiceGetMatchingService (kIOMainPortDefault, matcher);
   }
   else {
-      disk = IORegistryEntryFromPath (kIOMasterPortDefault, name);
+      disk = IORegistryEntryFromPath (kIOMainPortDefault, name);
   }
   if (! disk) {
       return 0;
