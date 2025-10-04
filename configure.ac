@@ -165,7 +165,8 @@ AC_ARG_WITH(build-info,
 AC_SUBST(BUILD_INFO)
 
 AC_ARG_WITH(devel,
-  [AS_HELP_STRING([--with-devel@<:@=yes|no@:>@], [Install development headers and library [no]])])
+  [AS_HELP_STRING([--with-devel@<:@=yes|no@:>@], [Install development headers and library [yes]])],
+  [], [with_devel=yes])
 AM_CONDITIONAL(INSTALL_DEVEL, [test "$with_devel" = "yes"])
 
 objcopy_deterministic=false
