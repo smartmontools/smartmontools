@@ -30,7 +30,15 @@ AM_CPPFLAGS += -I$(top_srcdir)/include/smartmon/regex -D_REGEX_STANDALONE
 endif
 
 if INSTALL_DEVEL
+
 lib_LTLIBRARIES = libsmartmon.la
+
+if REPRODUCIBLE_BUILD
+# Remove timestamps from static library
+install-exec-hook:
+	$(objcopy_deterministic) $(DESTDIR)$(libdir)/libsmartmon.a
+endif
+
 else
 noinst_LTLIBRARIES = libsmartmon.la
 endif

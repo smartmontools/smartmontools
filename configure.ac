@@ -43,6 +43,7 @@ if test "$cross_compiling" = "no"; then
 fi
 
 AC_ARG_VAR(SOURCE_DATE_EPOCH, [Reproducible build timestamp])
+AC_ARG_VAR(OBJCOPY, [Object file copy command which supports '-D'])
 AC_ARG_VAR(WINDMC, [Windows message compiler command])
 AC_ARG_VAR(WINDRES, [Windows resource compiler command])
 AC_ARG_VAR(MAKENSIS, [NSIS compiler command])
@@ -68,7 +69,6 @@ case "$host_os" in
     AC_CHECK_TOOL(WINDMC, [windmc])
     AC_CHECK_TOOL(WINDRES, [windres])
     test -n "$WINDRES" || AC_MSG_ERROR([Missing Windows resource compiler (windres)])
-
     AC_CHECK_PROG(MAKENSIS, [makensis], [makensis])
     if test -z "$MAKENSIS" && test -n "$PROGRAMFILES"; then
       AC_MSG_CHECKING([for makensis at default install location])
@@ -163,6 +163,31 @@ AC_ARG_WITH(build-info,
     esac
   ], [BUILD_INFO='"(local build)"'])
 AC_SUBST(BUILD_INFO)
+
+AC_ARG_WITH(devel,
+  [AS_HELP_STRING([--with-devel@<:@=yes|no@:>@], [Install development headers and library [no]])])
+AM_CONDITIONAL(INSTALL_DEVEL, [test "$with_devel" = "yes"])
+
+objcopy_deterministic=false
+case "$with_devel:$SOURCE_DATE_EPOCH" in
+  yes:?*)
+    # Use 'objcopy -D' to remove the timestamps from the static library
+    # because libtool offers no way to pass '-D' to 'ranlib'.
+    AC_CHECK_TOOL(OBJCOPY, [objcopy], [false])
+    AC_MSG_CHECKING([whether $OBJCOPY accepts -D])
+    objcopy_deterministic="$OBJCOPY -D"
+    res=yes
+    if ! (rm -f conftest.a && ${AR:-false} cr conftest.a \
+          && $objcopy_deterministic conftest.a) >/dev/null 2>&1; then
+      # Accept missing reproducibility if unsupported and warn below
+      objcopy_deterministic=": unsupported objcopy -D"
+      res=no
+    fi
+    rm -f conftest.a
+    AC_MSG_RESULT([$res])
+    ;;
+esac
+AC_SUBST([objcopy_deterministic])
 
 initddir=
 AC_ARG_WITH(initscriptdir,
@@ -569,10 +594,6 @@ else
   AC_CHECK_FUNCS([regcomp], [], [need_regex=yes])
 fi
 AM_CONDITIONAL(NEED_REGEX, [test "$need_regex" = "yes"])
-
-AC_ARG_WITH(devel,
-  [AS_HELP_STRING([--with-devel@<:@=yes|no@:>@], [Install development headers and library [no]])])
-AM_CONDITIONAL(INSTALL_DEVEL, [test "$with_devel" = "yes"])
 
 # Set platform-specific modules and symbols
 os_libs=
@@ -1025,6 +1046,13 @@ This script was unable to determine a compiler option to enable C++$cxx_missing.
 Please send info about compiler and platform to
 $PACKAGE_BUGREPORT - Thanks!
 ])
+
+case $objcopy_deterministic in
+  :*) AC_MSG_WARN([
+The installed static library will not be reproducible because 'objcopy -D'
+is not available.
+]) ;;
+esac
 
 case "$dist_tar:$SOURCE_DATE_EPOCH" in
   false:?*) AC_MSG_WARN([
