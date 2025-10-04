@@ -43,7 +43,6 @@ if test "$cross_compiling" = "no"; then
 fi
 
 AC_ARG_VAR(SOURCE_DATE_EPOCH, [Reproducible build timestamp])
-AC_ARG_VAR(NM, [Symbol list command])
 AC_ARG_VAR(WINDMC, [Windows message compiler command])
 AC_ARG_VAR(WINDRES, [Windows resource compiler command])
 AC_ARG_VAR(MAKENSIS, [NSIS compiler command])
@@ -64,7 +63,6 @@ if test "$cross_compiling" != "no"; then
 fi
 AM_CONDITIONAL(REALLY_CROSS_COMPILING, [test "$res" = "no"])
 
-AC_CHECK_TOOL(NM, [nm])
 case "$host_os" in
   mingw*)
     AC_CHECK_TOOL(WINDMC, [windmc])
@@ -783,9 +781,7 @@ AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
   #error false
   #endif]])], [res=yes], [res=no])
 AC_MSG_RESULT([$res])
-if test "$res:$NM" = "no:"; then
-  AC_MSG_NOTICE([Skipping _FORTIFY_SOURCE support check because 'nm' is missing.])
-elif test "$res" = "no"; then
+if test "$res" = "no"; then
   # Heuristic to check for _FORTIFY_SOURCE=[23] support.
   # Done after check for -fstack-protector because this may add an additional lib.
   # Note: Even if _FORTIFY_SOURCE is present in the include files, it may not be
@@ -796,6 +792,7 @@ elif test "$res" = "no"; then
     AC_MSG_CHECKING([whether $CXX supports _FORTIFY_SOURCE=$level])
     CPPFLAGS="${CPPFLAGS}${CPPFLAGS:+ }-D_FORTIFY_SOURCE=$level"
     # Use LINK instead of COMPILE to make sure that the required lib is also present.
+    # Check for NM is in 'libtool.m4'.
     AC_LINK_IFELSE([AC_LANG_SOURCE([[
       #include <stdlib.h>
       #include <string.h>
@@ -809,7 +806,7 @@ elif test "$res" = "no"; then
         if (argc >= 2) strcpy(p, argv[1]);
         return p[0];
       }]])],
-      [res=yes; $NM conftest$EXEEXT 2>/dev/null | grep '_strcpy_chk' >/dev/null 2>&1 || res=no],
+      [res=yes; ${NM:-false} conftest$EXEEXT 2>/dev/null | grep '_strcpy_chk' >/dev/null 2>&1 || res=no],
       [res=unknown])
     AC_MSG_RESULT([$res])
     test "$res" != "yes" || break
