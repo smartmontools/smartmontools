@@ -170,8 +170,8 @@ AC_ARG_WITH(devel,
 AM_CONDITIONAL(INSTALL_DEVEL, [test "$with_devel" = "yes"])
 
 objcopy_deterministic=false
-case "$with_devel:$SOURCE_DATE_EPOCH" in
-  yes:?*)
+case "$with_devel:$enable_static:$SOURCE_DATE_EPOCH" in
+  yes:yes:?*)
     # Use 'objcopy -D' to remove the timestamps from the static library
     # because libtool offers no way to pass '-D' to 'ranlib'.
     AC_CHECK_TOOL(OBJCOPY, [objcopy], [false])
@@ -189,6 +189,7 @@ case "$with_devel:$SOURCE_DATE_EPOCH" in
     ;;
 esac
 AC_SUBST([objcopy_deterministic])
+AM_CONDITIONAL(REPRODUCIBLE_BUILD_STATIC_LIB, [test "$objcopy_deterministic" != "false"])
 
 initddir=
 AC_ARG_WITH(initscriptdir,

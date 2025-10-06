@@ -33,7 +33,7 @@ if INSTALL_DEVEL
 
 lib_LTLIBRARIES = libsmartmon.la
 
-if REPRODUCIBLE_BUILD
+if REPRODUCIBLE_BUILD_STATIC_LIB
 # Remove timestamps from static library
 install-exec-hook:
 	$(objcopy_deterministic) $(DESTDIR)$(libdir)/libsmartmon.a
