@@ -4,7 +4,7 @@
  * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2002-10 Bruce Allen
- * Copyright (C) 2008-21 Christian Franke
+ * Copyright (C) 2008-25 Christian Franke
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
@@ -13,7 +13,7 @@
 #ifndef SMARTCTL_H_
 #define SMARTCTL_H_
 
-#define SMARTCTL_H_CVSID "$Id: smartctl.h 5200 2021-02-07 14:19:40Z chrfranke $\n"
+#define SMARTCTL_H_CVSID // TODO: Remove when no longer used
 
 // Return codes (bitmask)
 
@@ -89,6 +89,9 @@ extern json jglb;
 #include "utility.h" // __attribute_format_printf()
 // TODO: move this to a new include file?
 
+// Printing function for items not included in JSON output.
+void pout(const char *fmt, ...)
+  __attribute_format_printf(1, 2);
 // Version of pout() for items already included in JSON output
 void jout(const char *fmt, ...)
   __attribute_format_printf(1, 2);

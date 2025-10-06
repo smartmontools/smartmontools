@@ -252,7 +252,7 @@ static inline void notify_extend_timeout()
     return;
   const char * notify = "EXTEND_TIMEOUT_USEC=20000000"; // typical drive spinup time is 20s tops
   if (debugmode) {
-    pout("sd_notify(0, \"%s\")\n", notify);
+    lib_printf("sd_notify(0, \"%s\")\n", notify);
     return;
   }
   sd_notify(0, notify);
@@ -263,7 +263,7 @@ static void notify_msg(const char * msg, bool ready = false)
   if (!notify_enabled)
     return;
   if (debugmode) {
-    pout("sd_notify(0, \"%sSTATUS=%s\")\n", (ready ? "READY=1\\n" : ""), msg);
+    lib_printf("sd_notify(0, \"%sSTATUS=%s\")\n", (ready ? "READY=1\\n" : ""), msg);
     return;
   }
   sd_notifyf(0, "%sSTATUS=%s", (ready ? "READY=1\n" : ""), msg);
@@ -746,7 +746,7 @@ static bool read_dev_state(const char * path, persistent_dev_state & state)
   stdio_file f(path, "r");
   if (!f) {
     if (errno != ENOENT)
-      pout("Cannot read state file \"%s\"\n", path);
+      lib_printf("Cannot read state file \"%s\"\n", path);
     return false;
   }
 #ifdef __CYGWIN__
@@ -768,10 +768,10 @@ static bool read_dev_state(const char * path, persistent_dev_state & state)
 
   if (bad) {
     if (!good) {
-      pout("%s: format error\n", path);
+      lib_printf("%s: format error\n", path);
       return false;
     }
-    pout("%s: %d invalid line(s) ignored\n", path, bad);
+    lib_printf("%s: %d invalid line(s) ignored\n", path, bad);
   }
 
   // This sets the values missing in the file to 0.
@@ -801,7 +801,7 @@ static bool write_dev_state(const char * path, const persistent_dev_state & stat
 
   stdio_file f(path, "w");
   if (!f) {
-    pout("Cannot create state file \"%s\"\n", path);
+    lib_printf("Cannot create state file \"%s\"\n", path);
     return false;
   }
 
@@ -930,7 +930,7 @@ static bool write_dev_attrlog(const char * path, const dev_state & state)
 {
   stdio_file f(path, "a");
   if (!f) {
-    pout("Cannot create attribute log file \"%s\"\n", path);
+    lib_printf("Cannot create attribute log file \"%s\"\n", path);
     return false;
   }
 
@@ -1406,21 +1406,18 @@ static void vsyslog_lines(int priority, const char * fmt, va_list ap)
 #define vsyslog_lines vsyslog
 #endif // _WIN32
 
-// Printing function for watching ataprint commands, or losing them
-// [From GLIBC Manual: Since the prototype doesn't specify types for
-// optional arguments, in a call to a variadic function the default
-// argument promotions are performed on the optional argument
-// values. This means the objects of type char or short int (whether
-// signed or not) are promoted to either int or unsigned int, as
-// appropriate.]
-void pout(const char *fmt, ...){
-  va_list ap;
+class smartd_hook : public lib_global_hook
+{
+public:
+  virtual void lib_vprintf(const char * fmt, va_list ap) override;
+};
 
-  // get the correct time in syslog()
-  FixGlibcTimeZoneBug();
-  // initialize variable argument list 
-  va_start(ap,fmt);
-  // in debugmode==1 mode we will print the output from the ataprint.o functions!
+static smartd_hook the_smartd_hook;
+
+// Printing function for watching ataprint commands, or losing them
+void smartd_hook::lib_vprintf(const char * fmt, va_list ap)
+{
+  // In debugmode==1 mode we will print the library debug output
   if (debugmode && debugmode != 2) {
     FILE * f = stdout;
 #ifdef _WIN32
@@ -1430,14 +1427,12 @@ void pout(const char *fmt, ...){
     vfprintf(f, fmt, ap);
     fflush(f);
   }
-  // in debugmode==2 mode we print output from knowndrives.o functions
-  else if (debugmode==2 || ata_debugmode || scsi_debugmode) {
+  // In debugmode==2 mode we will print output from knowndrives.o functions
+  else if (debugmode==2 || ata_debugmode || scsi_debugmode || nvme_debugmode) {
     openlog("smartd", LOG_PID, facility);
     vsyslog_lines(LOG_INFO, fmt, ap);
     closelog();
   }
-  va_end(ap);
-  return;
 }
 
 // This function prints either to stdout or to the syslog as needed.
@@ -1469,7 +1464,7 @@ static void PrintOut(int priority, const char *fmt, ...){
 // Used to warn users about invalid checksums. Called from atacmds.cpp.
 void checksumwarning(const char * string)
 {
-  pout("Warning! %s error: invalid SMART checksum.\n", string);
+  lib_printf("Warning! %s error: invalid SMART checksum.\n", string);
 }
 
 #ifndef _WIN32
@@ -6021,9 +6016,9 @@ static bool register_devices(const dev_config_vector & conf_entries, smart_devic
     // Get unique device "name [type]" (with symlinks resolved) for duplicate detection
     std::string unique_name = smi()->get_unique_dev_name(cfg.dev_name.c_str(), cfg.dev_type.c_str());
     if (debugmode && unique_name != cfg.dev_name) {
-      pout("Device: %s%s%s%s, unique name: %s\n", cfg.name.c_str(),
-           (!cfg.dev_type.empty() ? " [" : ""), cfg.dev_type.c_str(),
-           (!cfg.dev_type.empty() ? "]" : ""), unique_name.c_str());
+      lib_printf("Device: %s%s%s%s, unique name: %s\n", cfg.name.c_str(),
+                 (!cfg.dev_type.empty() ? " [" : ""), cfg.dev_type.c_str(),
+                 (!cfg.dev_type.empty() ? "]" : ""), unique_name.c_str());
     }
 
     if (cfg.ignore) {
@@ -6105,6 +6100,9 @@ static bool register_devices(const dev_config_vector & conf_entries, smart_devic
 // Main program without exception handling
 static int main_worker(int argc, char **argv)
 {
+  // Register lib_vprintf()
+  lib_global_hook::set(the_smartd_hook);
+
   // Initialize interface
   smart_interface::init();
   if (!smi())

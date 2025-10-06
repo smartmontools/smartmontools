@@ -39,9 +39,6 @@
 #include "scsicmds.h"
 #include "utility.h"
 
-const char * cciss_cpp_cvsid = "$Id: cciss.cpp 4977 2019-11-22 19:57:04Z chrfranke $"
-  CCISS_H_CVSID;
-
 typedef struct _ReportLUNdata_struct
 {
   uint32_t LUNListLength;	/* always big-endian */
@@ -80,7 +77,7 @@ int cciss_io_interface(int device, int target, struct scsi_cmnd_io * iop, int re
  
      int status = cciss_getlun(device, target, phylun, report);
      if (report > 0)
-         pout("  cciss_getlun(%d, %d) = 0x%x; scsi3addr: %02x %02x %02x %02x %02x %02x %02x %02x\n",
+         lib_printf("  cciss_getlun(%d, %d) = 0x%x; scsi3addr: %02x %02x %02x %02x %02x %02x %02x %02x\n",
               device, target, status,
               phylun[0], phylun[1], phylun[2], phylun[3], phylun[4], phylun[5], phylun[6], phylun[7]);
      if (status) {
@@ -96,13 +93,13 @@ int cciss_io_interface(int device, int target, struct scsi_cmnd_io * iop, int re
      if (0 == status)
      {
          if (report > 0)
-             pout("  status=0\n");
+             lib_printf("  status=0\n");
          if (DXFER_FROM_DEVICE == iop->dxfer_dir)
          {
              if (report > 1)
              {
                  int trunc = (iop->dxfer_len > 256) ? 1 : 0;
-                 pout("  Incoming data, len=%d%s:\n", (int)iop->dxfer_len,
+                 lib_printf("  Incoming data, len=%d%s:\n", (int)iop->dxfer_len,
                       (trunc ? " [only first 256 bytes shown]" : ""));
                  dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
              }
@@ -123,25 +120,25 @@ int cciss_io_interface(int device, int target, struct scsi_cmnd_io * iop, int re
          iop->resp_sense_len = len;
          if (report > 1)
          {
-             pout("  >>> Sense buffer, len=%d:\n", (int)len);
+             lib_printf("  >>> Sense buffer, len=%d:\n", (int)len);
              dStrHex((const uint8_t *)pBuf, len , 1);
          }
      }
      if (report)
      {
          if (SCSI_STATUS_CHECK_CONDITION == iop->scsi_status) {
-             pout("  status=%x: sense_key=%x asc=%x ascq=%x\n", status & 0xff,
+             lib_printf("  status=%x: sense_key=%x asc=%x ascq=%x\n", status & 0xff,
                   pBuf[2] & 0xf, pBuf[12], pBuf[13]);
          }
          else
-             pout("  status=0x%x\n", status);
+             lib_printf("  status=0x%x\n", status);
      }
      if (iop->scsi_status > 0)
          return 0;
      else
      {
          if (report > 0)
-             pout("  ioctl status=0x%x but scsi status=0, fail with ENXIO\n", status);
+             lib_printf("  ioctl status=0x%x but scsi status=0, fail with ENXIO\n", status);
          return -ENXIO;      /* give up, assume no device there */
      }
 } 
@@ -172,7 +169,7 @@ static int cciss_sendpassthru(unsigned int cmdtype, unsigned char *CDB,
     }
     else 
     {
-        pout("cciss_sendpassthru: bad cmdtype\n");
+        lib_printf("cciss_sendpassthru: bad cmdtype\n");
         return 1;
     }
 
@@ -188,7 +185,7 @@ static int cciss_sendpassthru(unsigned int cmdtype, unsigned char *CDB,
 
     if ((err = ioctl(fd, CCISS_PASSTHRU, &iocommand))) 
     {
-        pout("CCISS ioctl error %d (fd %d CDBLen %u buf_size %u)\n",
+        lib_printf("CCISS ioctl error %d (fd %d CDBLen %u buf_size %u)\n",
              fd, err, CDBlen, size);
     }
     return err;
@@ -223,14 +220,14 @@ static int cciss_getlun(int device, int target, unsigned char *physlun, int repo
       unsigned int i,j;
       unsigned char *stuff = (unsigned char *)luns;
 
-      pout("\n===== [%s] DATA START (BASE-16) =====\n", "LUN DATA");
+      lib_printf("\n===== [%s] DATA START (BASE-16) =====\n", "LUN DATA");
       for (i=0; i<(sizeof(_ReportLUNdata_struct)+15)/16; i++){
-	pout("%03d-%03d: ", 16*i, 16*(i+1)-1);
+	lib_printf("%03d-%03d: ", 16*i, 16*(i+1)-1);
 	for (j=0; j<15; j++)
-	  pout("%02x ",*stuff++);
-	pout("%02x\n",*stuff++);
+	  lib_printf("%02x ",*stuff++);
+	lib_printf("%02x\n",*stuff++);
       }
-      pout("===== [%s] DATA END (%u Bytes) =====\n\n", "LUN DATA", (unsigned)sizeof(_ReportLUNdata_struct));
+      lib_printf("===== [%s] DATA END (%u Bytes) =====\n\n", "LUN DATA", (unsigned)sizeof(_ReportLUNdata_struct));
     }
 
     if (target >= 0 && target < (int) be32toh(luns->LUNListLength) / 8)

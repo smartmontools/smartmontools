@@ -27,8 +27,6 @@
 #include "scsicmds.h"
 #include "utility.h"
 
-const char * os_solaris_cpp_cvsid = "$Id: os_solaris.cpp 5393 2022-05-29 05:08:10Z dpgilbert $";
-
 // print examples for smartctl
 void print_smartctl_examples(){
   printf("=================================================== SMARTCTL EXAMPLES =====\n\n"
@@ -219,7 +217,7 @@ int deviceclose(int fd){
 // Interface to ATA devices.
 int ata_command_interface(int, smart_command_set, int, char *)
 {
-    pout("Device type 'ata' not implemented, try '-d sat' or '-d sat,12' instead.\n");
+    lib_printf("Device type 'ata' not implemented, try '-d sat' or '-d sat,12' instead.\n");
     errno = ENOSYS;
     return -1;
 }
@@ -241,15 +239,15 @@ int do_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
     const char * np;
 
     np = scsi_get_opcode_name(ucp);
-    pout(" [%s: ", np ? np : "<unknown opcode>");
+    lib_printf(" [%s: ", np ? np : "<unknown opcode>");
     for (k = 0; k < (int)iop->cmnd_len; ++k)
-      pout("%02x ", ucp[k]);
-    pout("]\n");
+      lib_printf("%02x ", ucp[k]);
+    lib_printf("]\n");
     if ((report > 1) && 
         (DXFER_TO_DEVICE == iop->dxfer_dir) && (iop->dxferp)) {
       int trunc = (iop->dxfer_len > 256) ? 1 : 0;
 
-      pout("  Outgoing data, len=%d%s:\n", (int)iop->dxfer_len,
+      lib_printf("  Outgoing data, len=%d%s:\n", (int)iop->dxfer_len,
            (trunc ? " [only first 256 bytes shown]" : ""));
       dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
     }
@@ -299,26 +297,26 @@ int do_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
     if ((SCSI_STATUS_CHECK_CONDITION == iop->scsi_status) &&
         iop->sensep && (len > 3)) {
       if ((iop->sensep[0] & 0x7f) > 0x71)
-        pout("  status=%x: [desc] sense_key=%x asc=%x ascq=%x\n",
+        lib_printf("  status=%x: [desc] sense_key=%x asc=%x ascq=%x\n",
              iop->scsi_status, iop->sensep[1] & 0xf,
              iop->sensep[2], iop->sensep[3]);
       else
-        pout("  status=%x: sense_key=%x asc=%x ascq=%x\n",
+        lib_printf("  status=%x: sense_key=%x asc=%x ascq=%x\n",
              iop->scsi_status, iop->sensep[2] & 0xf,
              iop->sensep[12], iop->sensep[13]);
       if (report > 1) {
-          pout("  >>> Sense buffer, len=%d:\n", len);
+          lib_printf("  >>> Sense buffer, len=%d:\n", len);
           dStrHex(iop->sensep, ((len > 252) ? 252 : len) , 1);
       }
     } else if (iop->scsi_status)
-      pout("  status=%x\n", iop->scsi_status);
+      lib_printf("  status=%x\n", iop->scsi_status);
     if (iop->resid)
-      pout("  dxfer_len=%d, resid=%d\n", iop->dxfer_len, iop->resid);
+      lib_printf("  dxfer_len=%d, resid=%d\n", iop->dxfer_len, iop->resid);
     if (report > 1) {
       len = iop->dxfer_len - iop->resid;
       if (len > 0) {
         trunc = (len > 256) ? 1 : 0;
-        pout("  Incoming data, len=%d%s:\n", len,
+        lib_printf("  Incoming data, len=%d%s:\n", len,
              (trunc ? " [only first 256 bytes shown]" : ""));
         dStrHex(iop->dxferp, (trunc ? 256 : len) , 1);
       }

@@ -1,7 +1,7 @@
 /*
  * os_qnxnto.cpp
  *
- * Home page of code is: http://www.smartmontools.org
+ * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2007 Joerg Hering
  *
@@ -21,14 +21,6 @@
 // os_generic.h
 #include "os_qnxnto.h"
 #include <errno.h>
-
-// Needed by '-V' option (CVS versioning) of smartd/smartctl.  You
-// should have one *_H_CVSID macro appearing below for each file
-// appearing with #include "*.h" above.  Please list these (below) in
-// alphabetic/dictionary order.
-const char *os_XXXX_c_cvsid="$Id: os_qnxnto.cpp 4842 2018-12-02 16:07:26Z chrfranke $" \
-ATACMDS_H_CVSID CONFIG_H_CVSID OS_QNXNTO_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
-
 
 // This is here to prevent compiler warnings for unused arguments of
 // functions.
@@ -304,7 +296,7 @@ int                  status,rc;
          cdb->ata_pass_thru.command     = ATA_CHECK_POWER_MODE;
          break;
     default:
-         pout("Unrecognized command %d in ata_command_interface()\n", command);
+         lib_printf("Unrecognized command %d in ata_command_interface()\n", command);
          errno=ENOSYS;
          return(-1);
    }
@@ -534,7 +526,7 @@ struct cam_pass_thru	cpt;
     icnt++;
    }
   if((status=devctlv(fd,DCMD_CAM_PASS_THRU,icnt,icnt,iov,iov,NULL)))
-    pout("ata_pass_thru devctl:  %s\n",strerror(status));
+    lib_printf("ata_pass_thru devctl:  %s\n",strerror(status));
   pcpt->cam_status=cpt.cam_status;
   pcpt->cam_scsi_status=cpt.cam_scsi_status;
   return(status);

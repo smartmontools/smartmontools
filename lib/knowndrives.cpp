@@ -25,9 +25,6 @@
 
 #include <stdexcept>
 
-const char * knowndrives_cpp_cvsid = "$Id: knowndrives.cpp 5376 2022-05-01 12:49:30Z chrfranke $"
-                                     KNOWNDRIVES_H_CVSID;
-
 #define MODEL_STRING_LENGTH                         40
 #define FIRMWARE_STRING_LENGTH                       8
 #define TABLEPRINTWIDTH                             19
@@ -180,8 +177,8 @@ static void parse_version(std::string & dbversion, const char * verstr)
 static bool compile(regular_expression & regex, const char *pattern)
 {
   if (!regex.compile(pattern)) {
-    pout("Internal error: unable to compile regular expression \"%s\": %s\n"
-         "Please inform smartmontools developers at " PACKAGE_BUGREPORT "\n",
+    lib_printf("Internal error: unable to compile regular expression \"%s\": %s\n"
+               "Please inform smartmontools developers at " PACKAGE_BUGREPORT "\n",
       pattern, regex.get_errmsg());
     return false;
   }
@@ -376,8 +373,8 @@ static int showonepreset(const drive_settings * dbentry)
         && dbentry->firmwareregexp
         && dbentry->warningmsg
         && dbentry->presets                             )) {
-    pout("Invalid drive database entry. Please report\n"
-         "this error to smartmontools developers at " PACKAGE_BUGREPORT ".\n");
+    lib_printf("Invalid drive database entry. Please report\n"
+               "this error to smartmontools developers at " PACKAGE_BUGREPORT ".\n");
     return 1;
   }
 
@@ -387,18 +384,18 @@ static int showonepreset(const drive_settings * dbentry)
   // print and check model and firmware regular expressions
   int errcnt = 0;
   regular_expression regex;
-  pout("%-*s %s\n", TABLEPRINTWIDTH, (!usb ? "MODEL REGEXP:" : "USB Vendor:Product:"),
+  lib_printf("%-*s %s\n", TABLEPRINTWIDTH, (!usb ? "MODEL REGEXP:" : "USB Vendor:Product:"),
        dbentry->modelregexp);
   if (!compile(regex, dbentry->modelregexp))
     errcnt++;
 
-  pout("%-*s %s\n", TABLEPRINTWIDTH, (!usb ? "FIRMWARE REGEXP:" : "USB bcdDevice:"),
+  lib_printf("%-*s %s\n", TABLEPRINTWIDTH, (!usb ? "FIRMWARE REGEXP:" : "USB bcdDevice:"),
        *dbentry->firmwareregexp ? dbentry->firmwareregexp : ".*"); // preserve old output (TODO: Change)
   if (*dbentry->firmwareregexp && !compile(regex, dbentry->firmwareregexp))
     errcnt++;
 
   if (!usb) {
-    pout("%-*s %s\n", TABLEPRINTWIDTH, "MODEL FAMILY:", dbentry->modelfamily);
+    lib_printf("%-*s %s\n", TABLEPRINTWIDTH, "MODEL FAMILY:", dbentry->modelfamily);
 
     // if there are any presets, then show them
     firmwarebug_defs firmwarebugs;
@@ -407,13 +404,13 @@ static int showonepreset(const drive_settings * dbentry)
       ata_vendor_attr_defs defs;
       if (type == DBENTRY_ATA_DEFAULT) {
         if (!parse_default_presets(dbentry->presets, defs)) {
-          pout("Syntax error in DEFAULT option string \"%s\"\n", dbentry->presets);
+          lib_printf("Syntax error in DEFAULT option string \"%s\"\n", dbentry->presets);
           errcnt++;
         }
       }
       else {
         if (!parse_presets(dbentry->presets, defs, firmwarebugs)) {
-          pout("Syntax error in preset option string \"%s\"\n", dbentry->presets);
+          lib_printf("Syntax error in preset option string \"%s\"\n", dbentry->presets);
           errcnt++;
         }
       }
@@ -422,12 +419,12 @@ static int showonepreset(const drive_settings * dbentry)
         if (defs[i].priority != PRIOR_DEFAULT || !defs[i].name.empty()) {
           std::string name = ata_get_smart_attr_name(i, defs);
           // Use leading zeros instead of spaces so that everything lines up.
-          pout("%-*s %03d %s\n", TABLEPRINTWIDTH, first_preset ? "ATTRIBUTE OPTIONS:" : "",
+          lib_printf("%-*s %03d %s\n", TABLEPRINTWIDTH, first_preset ? "ATTRIBUTE OPTIONS:" : "",
                i, name.c_str());
           // Check max name length suitable for smartctl -A output
           const unsigned maxlen = 23;
           if (name.size() > maxlen) {
-            pout("%*s\n", TABLEPRINTWIDTH+6+maxlen, "Error: Attribute name too long ------^");
+            lib_printf("%*s\n", TABLEPRINTWIDTH+6+maxlen, "Error: Attribute name too long ------^");
             errcnt++;
           }
           first_preset = false;
@@ -435,7 +432,7 @@ static int showonepreset(const drive_settings * dbentry)
       }
     }
     if (first_preset)
-      pout("%-*s %s\n", TABLEPRINTWIDTH, "ATTRIBUTE OPTIONS:", "None preset; no -v options are required.");
+      lib_printf("%-*s %s\n", TABLEPRINTWIDTH, "ATTRIBUTE OPTIONS:", "None preset; no -v options are required.");
 
     // describe firmwarefix
     for (int b = BUG_NOLOGDIR; b <= BUG_XERRORLBA; b++) {
@@ -462,28 +459,28 @@ static int showonepreset(const drive_settings * dbentry)
           fixdesc = "UNKNOWN"; errcnt++;
           break;
       }
-      pout("%-*s %s\n", TABLEPRINTWIDTH, "OTHER PRESETS:", fixdesc);
+      lib_printf("%-*s %s\n", TABLEPRINTWIDTH, "OTHER PRESETS:", fixdesc);
     }
   }
   else {
     // Print USB info
     usb_dev_info info; parse_usb_names(dbentry->modelfamily, info);
-    pout("%-*s %s\n", TABLEPRINTWIDTH, "USB Device:",
+    lib_printf("%-*s %s\n", TABLEPRINTWIDTH, "USB Device:",
       (!info.usb_device.empty() ? info.usb_device.c_str() : "[unknown]"));
-    pout("%-*s %s\n", TABLEPRINTWIDTH, "USB Bridge:",
+    lib_printf("%-*s %s\n", TABLEPRINTWIDTH, "USB Bridge:",
       (!info.usb_bridge.empty() ? info.usb_bridge.c_str() : "[unknown]"));
 
     if (*dbentry->presets && !parse_usb_type(dbentry->presets, info.usb_type)) {
-      pout("Syntax error in USB type string \"%s\"\n", dbentry->presets);
+      lib_printf("Syntax error in USB type string \"%s\"\n", dbentry->presets);
       errcnt++;
     }
-    pout("%-*s %s\n", TABLEPRINTWIDTH, "USB Type",
+    lib_printf("%-*s %s\n", TABLEPRINTWIDTH, "USB Type",
       (!info.usb_type.empty() ? info.usb_type.c_str() : "[unsupported]"));
   }
 
   // Print any special warnings
   if (*dbentry->warningmsg)
-    pout("%-*s %s\n", TABLEPRINTWIDTH, "WARNINGS:", dbentry->warningmsg);
+    lib_printf("%-*s %s\n", TABLEPRINTWIDTH, "WARNINGS:", dbentry->warningmsg);
   return errcnt;
 }
 
@@ -496,19 +493,19 @@ int showallpresets()
   int errcnt = 0;
   for (unsigned i = 0; i < knowndrives.size(); i++) {
     errcnt += showonepreset(&knowndrives[i]);
-    pout("\n");
+    lib_printf("\n");
   }
 
-  pout("Total number of entries  :%5u\n"
+  lib_printf("Total number of entries  :%5u\n"
        "Entries read from file(s):%5u\n\n",
     knowndrives.size(), knowndrives.custom_size());
 
-  pout("For information about adding a drive to the database see the FAQ on the\n");
-  pout("smartmontools home page: " PACKAGE_URL "\n");
+  lib_printf("For information about adding a drive to the database see the FAQ on the\n");
+  lib_printf("smartmontools home page: " PACKAGE_URL "\n");
 
   if (errcnt > 0)
-    pout("\nFound %d syntax error(s) in database.\n"
-         "Please inform smartmontools developers at " PACKAGE_BUGREPORT "\n", errcnt);
+    lib_printf("\nFound %d syntax error(s) in database.\n"
+               "Please inform smartmontools developers at " PACKAGE_BUGREPORT "\n", errcnt);
   return errcnt;
 }
 
@@ -527,22 +524,22 @@ int showmatchingpresets(const char *model, const char *firmware)
         continue;
     // Found
     if (++cnt == 1)
-      pout("Drive found in smartmontools Database.  Drive identity strings:\n"
-           "%-*s %s\n"
-           "%-*s %s\n"
-           "match smartmontools Drive Database entry:\n",
-           TABLEPRINTWIDTH, "MODEL:", model, TABLEPRINTWIDTH, "FIRMWARE:", firmwaremsg);
+      lib_printf("Drive found in smartmontools Database.  Drive identity strings:\n"
+                 "%-*s %s\n"
+                 "%-*s %s\n"
+                 "match smartmontools Drive Database entry:\n",
+                 TABLEPRINTWIDTH, "MODEL:", model, TABLEPRINTWIDTH, "FIRMWARE:", firmwaremsg);
     else if (cnt == 2)
-      pout("and match these additional entries:\n");
+      lib_printf("and match these additional entries:\n");
     showonepreset(&knowndrives[i]);
-    pout("\n");
+    lib_printf("\n");
   }
   if (cnt == 0)
-    pout("No presets are defined for this drive.  Its identity strings:\n"
-         "MODEL:    %s\n"
-         "FIRMWARE: %s\n"
-         "do not match any of the known regular expressions.\n",
-         model, firmwaremsg);
+    lib_printf("No presets are defined for this drive.  Its identity strings:\n"
+               "MODEL:    %s\n"
+               "FIRMWARE: %s\n"
+               "do not match any of the known regular expressions.\n",
+               model, firmwaremsg);
   return cnt;
 }
 
@@ -559,21 +556,21 @@ void show_presets(const ata_identify_device * drive)
   const drive_settings * dbentry = lookup_drive(model, firmware);
   if (!dbentry) {
     // no matches found
-    pout("No presets are defined for this drive.  Its identity strings:\n"
-         "MODEL:    %s\n"
-         "FIRMWARE: %s\n"
-         "do not match any of the known regular expressions.\n"
-         "Use -P showall to list all known regular expressions.\n",
-         model, firmware);
+    lib_printf("No presets are defined for this drive.  Its identity strings:\n"
+               "MODEL:    %s\n"
+               "FIRMWARE: %s\n"
+               "do not match any of the known regular expressions.\n"
+               "Use -P showall to list all known regular expressions.\n",
+               model, firmware);
     return;
   }
   
   // We found a matching drive.  Print out all information about it.
-  pout("Drive found in smartmontools Database.  Drive identity strings:\n"
-       "%-*s %s\n"
-       "%-*s %s\n"
-       "match smartmontools Drive Database entry:\n",
-       TABLEPRINTWIDTH, "MODEL:", model, TABLEPRINTWIDTH, "FIRMWARE:", firmware);
+  lib_printf("Drive found in smartmontools Database.  Drive identity strings:\n"
+             "%-*s %s\n"
+             "%-*s %s\n"
+             "match smartmontools Drive Database entry:\n",
+             TABLEPRINTWIDTH, "MODEL:", model, TABLEPRINTWIDTH, "FIRMWARE:", firmware);
   showonepreset(dbentry);
 }
 
@@ -598,7 +595,7 @@ const drive_settings * lookup_drive_apply_presets(
   if (*dbentry->presets) {
     // Apply presets
     if (!parse_presets(dbentry->presets, defs, firmwarebugs))
-      pout("Syntax error in preset option string \"%s\"\n", dbentry->presets);
+      lib_printf("Syntax error in preset option string \"%s\"\n", dbentry->presets);
   }
   return dbentry;
 }
@@ -678,7 +675,7 @@ static parse_ptr skip_white(parse_ptr src, const char * path, int & line)
           ++src; ++src;
           for (;;) {
             if (!*src) {
-              pout("%s(%d): Missing '*/'\n", path, line);
+              lib_printf("%s(%d): Missing '*/'\n", path, line);
               return src;
             }
             char c = *src; ++src;
@@ -727,7 +724,7 @@ static parse_ptr get_token(parse_ptr src, token_info & token, const char * path,
         for (++src; *src != '"'; ++src) {
           char c = *src;
           if (!c || c == '\n' || (c == '\\' && !src[1])) {
-            pout("%s(%d): Missing terminating '\"'\n", path, line);
+            lib_printf("%s(%d): Missing terminating '\"'\n", path, line);
             token.type = '?'; token.line = line;
             return src;
           }
@@ -738,7 +735,7 @@ static parse_ptr get_token(parse_ptr src, token_info & token, const char * path,
               case '\n': ++line; break;
               case '\\': case '"': break;
               default:
-                pout("%s(%d): Unknown escape sequence '\\%c'\n", path, line, c);
+                lib_printf("%s(%d): Unknown escape sequence '\\%c'\n", path, line, c);
                 token.type = '?'; token.line = line;
                 continue;
             }
@@ -756,7 +753,7 @@ static parse_ptr get_token(parse_ptr src, token_info & token, const char * path,
       break;
 
     default:
-      pout("%s(%d): Syntax error, invalid char '%c'\n", path, line, *src);
+      lib_printf("%s(%d): Syntax error, invalid char '%c'\n", path, line, *src);
       token.type = '?'; token.line = line;
       while (*src && *src != '\n')
         ++src;
@@ -784,7 +781,7 @@ static bool parse_drive_database(parse_ptr src, drive_database & db, const char 
     const char expect[] = "{\",},";
     if (token.type != expect[state]) {
       if (token.type != '?')
-        pout("%s(%d): Syntax error, '%c' expected\n", path, token.line, expect[state]);
+        lib_printf("%s(%d): Syntax error, '%c' expected\n", path, token.line, expect[state]);
       ok = false;
       // Skip to next entry
       while (token.type && token.type != '{')
@@ -806,12 +803,12 @@ static bool parse_drive_database(parse_ptr src, drive_database & db, const char 
             if (!token.value.empty()) {
               regular_expression regex;
               if (!regex.compile(token.value.c_str())) {
-                pout("%s(%d): Error in regular expression: %s\n", path, token.line, regex.get_errmsg());
+                lib_printf("%s(%d): Error in regular expression: %s\n", path, token.line, regex.get_errmsg());
                 ok = false;
               }
             }
             else if (field == 1) {
-              pout("%s(%d): Missing regular expression for drive model\n", path, token.line);
+              lib_printf("%s(%d): Missing regular expression for drive model\n", path, token.line);
               ok = false;
             }
             break;
@@ -822,21 +819,21 @@ static bool parse_drive_database(parse_ptr src, drive_database & db, const char 
                 case DBENTRY_ATA_DEFAULT: {
                   ata_vendor_attr_defs defs;
                   if (!parse_default_presets(token.value.c_str(), defs)) {
-                    pout("%s(%d): Syntax error in DEFAULT option string\n", path, token.line);
+                    lib_printf("%s(%d): Syntax error in DEFAULT option string\n", path, token.line);
                     ok = false;
                   }
                 } break;
                 default: { // DBENTRY_ATA
                   ata_vendor_attr_defs defs; firmwarebug_defs fix;
                   if (!parse_presets(token.value.c_str(), defs, fix)) {
-                    pout("%s(%d): Syntax error in preset option string\n", path, token.line);
+                    lib_printf("%s(%d): Syntax error in preset option string\n", path, token.line);
                     ok = false;
                   }
                 } break;
                 case DBENTRY_USB: {
                   std::string type;
                   if (!parse_usb_type(token.value.c_str(), type)) {
-                    pout("%s(%d): Syntax error in USB type string\n", path, token.line);
+                    lib_printf("%s(%d): Syntax error in USB type string\n", path, token.line);
                     ok = false;
                   }
                 } break;
@@ -866,7 +863,7 @@ static bool parse_drive_database(parse_ptr src, drive_database & db, const char 
         state = 0;
         break;
       default:
-        pout("Bad state %d\n", state);
+        lib_printf("Bad state %d\n", state);
         return false;
     }
     src = get_token(src, token, path, line);
@@ -883,7 +880,7 @@ bool read_drive_database(const char * path)
 #endif
                          );
   if (!f) {
-    pout("%s: cannot open drive database file\n", path);
+    lib_printf("%s: cannot open drive database file\n", path);
     return false;
   }
 
@@ -969,11 +966,11 @@ static bool init_default_attr_defs()
     if (!entry)
       throw std::logic_error("DEFAULT entry missing in builtin drive database");
 
-    pout("Warning: DEFAULT entry missing in drive database file(s)\n");
+    lib_printf("Warning: DEFAULT entry missing in drive database file(s)\n");
   }
 
   if (!parse_default_presets(entry->presets, default_attr_defs)) {
-    pout("Syntax error in DEFAULT drive database entry\n");
+    lib_printf("Syntax error in DEFAULT drive database entry\n");
     return false;
   }
 

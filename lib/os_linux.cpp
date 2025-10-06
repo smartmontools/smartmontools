@@ -167,7 +167,7 @@ bool linux_smart_device::open()
     // in AVC messages on SELinux-enabled systems.
     if (-1 == fcntl(m_fd, F_SETFD, FD_CLOEXEC))
       // TODO: Provide an error printing routine in class smart_interface
-      pout("fcntl(set  FD_CLOEXEC) failed, errno=%d [%s]\n", errno, strerror(errno));
+      lib_printf("fcntl(set  FD_CLOEXEC) failed, errno=%d [%s]\n", errno, strerror(errno));
   }
 
   return true;
@@ -335,7 +335,7 @@ int linux_ata_device::ata_command_interface(smart_command_set command, int selec
     buff[1]=ATA_SMART_STATUS;
     break;
   default:
-    pout("Unrecognized command %d in linux_ata_command_interface()\n"
+    lib_printf("Unrecognized command %d in linux_ata_command_interface()\n"
          "Please contact " PACKAGE_BUGREPORT "\n", command);
     errno=ENOSYS;
     return -1;
@@ -369,7 +369,7 @@ int linux_ata_device::ata_command_interface(smart_command_set command, int selec
 
     if (ioctl(get_fd(), HDIO_DRIVE_TASKFILE, task)) {
       if (errno==EINVAL)
-        pout("Kernel lacks HDIO_DRIVE_TASKFILE support; compile kernel with CONFIG_IDE_TASK_IOCTL set\n");
+        lib_printf("Kernel lacks HDIO_DRIVE_TASKFILE support; compile kernel with CONFIG_IDE_TASK_IOCTL set\n");
       return -1;
     }
     return 0;
@@ -395,8 +395,8 @@ int linux_ata_device::ata_command_interface(smart_command_set command, int selec
 
     if (ioctl(get_fd(), HDIO_DRIVE_TASK, buff)) {
       if (errno==EINVAL) {
-        pout("Error SMART Status command via HDIO_DRIVE_TASK failed");
-        pout("Rebuild older linux 2.2 kernels with HDIO_DRIVE_TASK support added\n");
+        lib_printf("Error SMART Status command via HDIO_DRIVE_TASK failed");
+        lib_printf("Rebuild older linux 2.2 kernels with HDIO_DRIVE_TASK support added\n");
       }
       else
         syserror("Error SMART Status command failed");
@@ -413,15 +413,15 @@ int linux_ata_device::ata_command_interface(smart_command_set command, int selec
 
     // We haven't gotten output that makes sense; print out some debugging info
     syserror("Error SMART Status command failed");
-    pout("Please get assistance from " PACKAGE_URL "\n");
-    pout("Register values returned from SMART Status command are:\n");
-    pout("ST =0x%02x\n",(int)buff[0]);
-    pout("ERR=0x%02x\n",(int)buff[1]);
-    pout("NS =0x%02x\n",(int)buff[2]);
-    pout("SC =0x%02x\n",(int)buff[3]);
-    pout("CL =0x%02x\n",(int)buff[4]);
-    pout("CH =0x%02x\n",(int)buff[5]);
-    pout("SEL=0x%02x\n",(int)buff[6]);
+    lib_printf("Please get assistance from " PACKAGE_URL "\n");
+    lib_printf("Register values returned from SMART Status command are:\n");
+    lib_printf("ST =0x%02x\n",(int)buff[0]);
+    lib_printf("ERR=0x%02x\n",(int)buff[1]);
+    lib_printf("NS =0x%02x\n",(int)buff[2]);
+    lib_printf("SC =0x%02x\n",(int)buff[3]);
+    lib_printf("CL =0x%02x\n",(int)buff[4]);
+    lib_printf("CH =0x%02x\n",(int)buff[5]);
+    lib_printf("SEL=0x%02x\n",(int)buff[6]);
     return -1;
   }
 
@@ -525,11 +525,11 @@ static int sg_io_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report,
         int n = iop->cmnd_len;
         const unsigned char * ucp = iop->cmnd;
 
-        pout(">>>>>>>> %s: cdb seems invalid, opcode=0x%x, len=%d, cdb:\n",
+        lib_printf(">>>>>>>> %s: cdb seems invalid, opcode=0x%x, len=%d, cdb:\n",
              __func__, ((n > 0) ? ucp[0] : 0), n);
         if (n > 0) {
             if (n > 16)
-                pout("  <<truncating to first 16 bytes>>\n");
+                lib_printf("  <<truncating to first 16 bytes>>\n");
             dStrHex((const uint8_t *)ucp, ((n > 16) ? 16 : n), 1);
         }
      }
@@ -543,7 +543,7 @@ static int sg_io_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report,
         char buff[256];
         const int sz = (int)sizeof(buff);
 
-        pout(">>>> %s: sg_io_ifc=%d\n", __func__, (int)sg_io_ifc);
+        lib_printf(">>>> %s: sg_io_ifc=%d\n", __func__, (int)sg_io_ifc);
         np = scsi_get_opcode_name(ucp);
         j = snprintf(buff, sz, " [%s: ", np ? np : "<unknown opcode>");
         for (k = 0; k < (int)iop->cmnd_len; ++k)
@@ -559,8 +559,8 @@ static int sg_io_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report,
         }
         else
             snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n");
-        pout("%s", buff);
-        pout("%s\n", buff);
+        lib_printf("%s", buff);
+        lib_printf("%s\n", buff);
     }
 #endif
 
@@ -600,7 +600,7 @@ static int sg_io_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report,
             io_hdr_v4.dout_xferp =      __u64(iop->dxferp);
             break;
         default:
-            pout("do_scsi_cmnd_io: bad dxfer_dir\n");
+            lib_printf("do_scsi_cmnd_io: bad dxfer_dir\n");
             return -EINVAL;
     }
 
@@ -625,7 +625,7 @@ static int sg_io_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report,
 
     if (ioctl(dev_fd, SG_IO, io_hdr) < 0) {
         if (report)
-            pout("  SG_IO ioctl failed, errno=%d [%s], SG_IO_V%d\n", errno,
+            lib_printf("  SG_IO ioctl failed, errno=%d [%s], SG_IO_V%d\n", errno,
                  strerror(errno), (int)sg_io_ifc);
         return -errno;
     }
@@ -666,7 +666,7 @@ static int sg_io_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report,
 
 #if 0
     if (report > 0) {
-        pout("  scsi_status=0x%x, sg_transport_status=0x%x, sg_driver_status=0x%x\n"
+        lib_printf("  scsi_status=0x%x, sg_transport_status=0x%x, sg_driver_status=0x%x\n"
              "  sg_info=0x%x  sg_duration=%d milliseconds  resid=%d\n", iop->scsi_status,
              sg_transport_status, sg_driver_status, sg_info,
              sg_duration, iop->resid);
@@ -678,11 +678,11 @@ static int sg_io_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report,
                 len = iop->dxfer_len - iop->resid;
                 trunc = (len > 256) ? 1 : 0;
                 if (len > 0) {
-                    pout("  Incoming data, len=%d%s:\n", len,
+                    lib_printf("  Incoming data, len=%d%s:\n", len,
                          (trunc ? " [only first 256 bytes shown]" : ""));
                     dStrHex(iop->dxferp, (trunc ? 256 : len), 1);
                 } else
-                    pout("  Incoming data trimmed to nothing by resid\n");
+                    lib_printf("  Incoming data trimmed to nothing by resid\n");
             }
         }
     }
@@ -713,7 +713,7 @@ static int sg_io_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report,
         if ((SCSI_STATUS_CHECK_CONDITION == iop->scsi_status) &&
             iop->sensep && (iop->resp_sense_len > 0)) {
             if (report > 1) {
-                pout("  >>> Sense buffer, len=%d:\n",
+                lib_printf("  >>> Sense buffer, len=%d:\n",
                      (int)iop->resp_sense_len);
                 dStrHex(iop->sensep, iop->resp_sense_len , 1);
             }
@@ -721,16 +721,16 @@ static int sg_io_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report,
         if (report) {
             if (SCSI_STATUS_CHECK_CONDITION == iop->scsi_status && iop->sensep) {
                 if ((iop->sensep[0] & 0x7f) > 0x71)
-                    pout("  status=%x: [desc] sense_key=%x asc=%x ascq=%x\n",
+                    lib_printf("  status=%x: [desc] sense_key=%x asc=%x ascq=%x\n",
                          iop->scsi_status, iop->sensep[1] & 0xf,
                          iop->sensep[2], iop->sensep[3]);
                 else
-                    pout("  status=%x: sense_key=%x asc=%x ascq=%x\n",
+                    lib_printf("  status=%x: sense_key=%x asc=%x ascq=%x\n",
                          iop->scsi_status, iop->sensep[2] & 0xf,
                          iop->sensep[12], iop->sensep[13]);
             }
             else
-                pout("  status=0x%x\n", iop->scsi_status);
+                lib_printf("  status=0x%x\n", iop->scsi_status);
         }
     }
     return 0;
@@ -781,7 +781,7 @@ static int do_normal_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop,
         /* use SG_IO V3 or V4 ioctl, depending on availabiliy */
         return sg_io_cmnd_io(dev_fd, iop, report, sg_io_interface);
     default:
-        pout(">>>> do_scsi_cmnd_io: bad sg_io_interface=%d\n",
+        lib_printf(">>>> do_scsi_cmnd_io: bad sg_io_interface=%d\n",
              (int)sg_io_interface);
         sg_io_interface = SG_IO_USE_DETECT;
         return -EIO;    /* report error and reset state */
@@ -945,7 +945,7 @@ bool linux_aacraid_device::scsi_pass_through(scsi_cmnd_io *iop)
     else
       snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n");
 
-    pout("%s", buff);
+    lib_printf("%s", buff);
   }
 
 
@@ -993,7 +993,7 @@ bool linux_aacraid_device::scsi_pass_through(scsi_cmnd_io *iop)
       pSrb->flags = SRB_DataOut;
       break;
     default:
-      pout("aacraid: bad dxfer_dir\n");
+      lib_printf("aacraid: bad dxfer_dir\n");
       return set_err(EINVAL, "aacraid: bad dxfer_dir\n");
   }
 
@@ -1140,7 +1140,7 @@ smart_device * linux_megaraid_device::autodetect_open()
       return this;
 
   if (report)
-    pout("Got MegaRAID inquiry.. %s\n", req_buff+8);
+    lib_printf("Got MegaRAID inquiry.. %s\n", req_buff+8);
 
   // Use INQUIRY to detect type
   {
@@ -1183,14 +1183,14 @@ bool linux_megaraid_device::open()
       if (sscanf(line, "%d megaraid_sas_ioctl%n", &mjr, &n1) == 1 && n1 == 22) {
         n1=mknod("/dev/megaraid_sas_ioctl_node", S_IFCHR|0600, makedev(mjr, 0));
         if(report > 0)
-          pout("Creating /dev/megaraid_sas_ioctl_node = %d\n", n1 >= 0 ? 0 : errno);
+          lib_printf("Creating /dev/megaraid_sas_ioctl_node = %d\n", n1 >= 0 ? 0 : errno);
         if (n1 >= 0 || errno == EEXIST)
           break;
       }
       else if (sscanf(line, "%d megadev%n", &mjr, &n1) == 1 && n1 == 11) {
         n1=mknod("/dev/megadev0", S_IFCHR|0600, makedev(mjr, 0));
         if(report > 0)
-          pout("Creating /dev/megadev0 = %d\n", n1 >= 0 ? 0 : errno);
+          lib_printf("Creating /dev/megadev0 = %d\n", n1 >= 0 ? 0 : errno);
         if (n1 >= 0 || errno == EEXIST)
           break;
       }
@@ -1249,7 +1249,7 @@ bool linux_megaraid_device::scsi_pass_through(scsi_cmnd_io *iop)
         }
         else
             snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n");
-        pout("%s", buff);
+        lib_printf("%s", buff);
   }
 
   // Controller rejects Test Unit Ready
@@ -1305,7 +1305,7 @@ bool linux_megaraid_device::megasas_cmd(int cdbLen, void *cdb,
       pthru->flags = MFI_FRAME_DIR_WRITE;
       break;
     default:
-      pout("megasas_cmd: bad dxfer_dir\n");
+      lib_printf("megasas_cmd: bad dxfer_dir\n");
       return set_err(EINVAL, "megasas_cmd: bad dxfer_dir\n");
   }
 
@@ -1436,7 +1436,7 @@ bool linux_sssraid_device::scsi_pass_through(scsi_cmnd_io *iop)
     }
     else
       snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n");
-    pout("%s", buff);
+    lib_printf("%s", buff);
   }
 
   bool r = scsi_cmd(iop);
@@ -1481,7 +1481,7 @@ bool linux_sssraid_device::scsi_cmd(scsi_cmnd_io *iop)
       bsg_param.ioctl_pthru.opcode = ADM_RAID_WRITE;
       break;
     default:
-      pout("scsi_cmd: bad dxfer_dir\n");
+      lib_printf("scsi_cmd: bad dxfer_dir\n");
       return set_err(EINVAL, "scsi_cmd: bad dxfer_dir\n");
   }
 
@@ -1618,7 +1618,7 @@ static int setup_3ware_nodes(const char *nodename, const char *driver_name)
 
   /* First try to open up /proc/devices */
   if (!(file = fopen("/proc/devices", "r"))) {
-    pout("Error opening /proc/devices to check/create 3ware device nodes\n");
+    lib_printf("Error opening /proc/devices to check/create 3ware device nodes\n");
     syserror("fopen");
     return 0;  // don't fail here: user might not have /proc !
   }
@@ -1636,7 +1636,7 @@ static int setup_3ware_nodes(const char *nodename, const char *driver_name)
 
   /* See if we found a major device number */
   if (!tw_major) {
-    pout("No major number for /dev/%s listed in /proc/devices. Is the %s driver loaded?\n", nodename, driver_name);
+    lib_printf("No major number for /dev/%s listed in /proc/devices. Is the %s driver loaded?\n", nodename, driver_name);
     return 2;
   }
 #ifdef HAVE_LIBSELINUX
@@ -1644,9 +1644,9 @@ static int setup_3ware_nodes(const char *nodename, const char *driver_name)
    * and save the current context */
   if (selinux_enabled) {
     if (matchpathcon_init_prefix(NULL, "/dev") < 0)
-      pout("Error initializing contexts database for /dev");
+      lib_printf("Error initializing contexts database for /dev");
     if (getfscreatecon(&orig_context) < 0) {
-      pout("Error retrieving original SELinux fscreate context");
+      lib_printf("Error retrieving original SELinux fscreate context");
       if (selinux_enforced) {
         matchpathcon_fini();
         return 6;
@@ -1661,14 +1661,14 @@ static int setup_3ware_nodes(const char *nodename, const char *driver_name)
     /* Get context of the node and set it as the default */
     if (selinux_enabled) {
       if (matchpathcon(nodestring, S_IRUSR | S_IWUSR, &node_context) < 0) {
-        pout("Could not retrieve context for %s", nodestring);
+        lib_printf("Could not retrieve context for %s", nodestring);
         if (selinux_enforced) {
           retval = 6;
           break;
         }
       }
       if (setfscreatecon(node_context) < 0) {
-        pout ("Error setting default fscreate context");
+        lib_printf("Error setting default fscreate context");
         if (selinux_enforced) {
           retval = 6;
           break;
@@ -1678,10 +1678,10 @@ static int setup_3ware_nodes(const char *nodename, const char *driver_name)
 #endif
     /* Try to stat the node */
     if ((stat(nodestring, &stat_buf))) {
-      pout("Node %s does not exist and must be created. Check the udev rules.\n", nodestring);
+      lib_printf("Node %s does not exist and must be created. Check the udev rules.\n", nodestring);
       /* Create a new node if it doesn't exist */
       if (mknod(nodestring, S_IFCHR|0600, makedev(tw_major, index))) {
-        pout("problem creating 3ware device nodes %s", nodestring);
+        lib_printf("problem creating 3ware device nodes %s", nodestring);
         syserror("mknod");
         retval = 3;
         break;
@@ -1700,11 +1700,11 @@ static int setup_3ware_nodes(const char *nodename, const char *driver_name)
     if ((tw_major != (int)(major(stat_buf.st_rdev))) ||
         (index    != (int)(minor(stat_buf.st_rdev))) ||
         (!S_ISCHR(stat_buf.st_mode))) {
-      pout("Node %s has wrong major/minor number and must be created anew."
+      lib_printf("Node %s has wrong major/minor number and must be created anew."
           " Check the udev rules.\n", nodestring);
       /* Delete the old node */
       if (unlink(nodestring)) {
-        pout("problem unlinking stale 3ware device node %s", nodestring);
+        lib_printf("problem unlinking stale 3ware device node %s", nodestring);
         syserror("unlink");
         retval = 4;
         break;
@@ -1712,7 +1712,7 @@ static int setup_3ware_nodes(const char *nodename, const char *driver_name)
 
       /* Make a new node */
       if (mknod(nodestring, S_IFCHR|0600, makedev(tw_major, index))) {
-        pout("problem creating 3ware device nodes %s", nodestring);
+        lib_printf("problem creating 3ware device nodes %s", nodestring);
         syserror("mknod");
         retval = 5;
         break;
@@ -1729,7 +1729,7 @@ static int setup_3ware_nodes(const char *nodename, const char *driver_name)
 #ifdef HAVE_LIBSELINUX
   if (selinux_enabled) {
     if(setfscreatecon(orig_context) < 0) {
-      pout("Error re-setting original fscreate context");
+      lib_printf("Error re-setting original fscreate context");
       if (selinux_enforced)
         retval = 6;
     }
@@ -2041,7 +2041,7 @@ static int find_areca_in_proc()
     // check data formwat
     FILE *fp=fopen("/proc/scsi/sg/device_hdr", "r");
     if (!fp) {
-        pout("Unable to open /proc/scsi/sg/device_hdr for reading\n");
+        lib_printf("Unable to open /proc/scsi/sg/device_hdr for reading\n");
         return 1;
      }
 
@@ -2051,14 +2051,14 @@ static int find_areca_in_proc()
      char *out = fgets(linebuf, 256, fp);
      fclose(fp);
      if (!out) {
-         pout("Unable to read contents of /proc/scsi/sg/device_hdr\n");
+         lib_printf("Unable to read contents of /proc/scsi/sg/device_hdr\n");
          return 2;
      }
 
      if (strcmp(linebuf, proc_format_string)) {
         // wrong format!
         // Fix this by comparing only tokens not white space!!
-        pout("Unexpected format %s in /proc/scsi/sg/device_hdr\n", proc_format_string);
+        lib_printf("Unexpected format %s in /proc/scsi/sg/device_hdr\n", proc_format_string);
         return 3;
      }
 
@@ -2072,7 +2072,7 @@ static int find_areca_in_proc()
         dev++;
         if (id == 16 && type == 3) {
            // devices with id=16 and type=3 might be Areca controllers
-           pout("Device /dev/sg%d appears to be an Areca controller.\n", dev);
+           lib_printf("Device /dev/sg%d appears to be an Areca controller.\n", dev);
         }
     }
     fclose(fp);
@@ -2287,7 +2287,7 @@ int linux_marvell_device::ata_command_interface(smart_command_set command, int s
     buff[1]=select;
     break;
   default:
-    pout("Unrecognized command %d in mvsata_os_specific_handler()\n", command);
+    lib_printf("Unrecognized command %d in mvsata_os_specific_handler()\n", command);
     errno = EINVAL;
     return -1;
   }
@@ -2319,15 +2319,15 @@ int linux_marvell_device::ata_command_interface(smart_command_set command, int s
       return 1;
     // We haven't gotten output that makes sense; print out some debugging info
     syserror("Error SMART Status command failed");
-    pout("Please get assistance from %s\n",PACKAGE_BUGREPORT);
-    pout("Register values returned from SMART Status command are:\n");
-    pout("CMD =0x%02x\n",(int)buff[0]);
-    pout("FR =0x%02x\n",(int)buff[1]);
-    pout("NS =0x%02x\n",(int)buff[2]);
-    pout("SC =0x%02x\n",(int)buff[3]);
-    pout("CL =0x%02x\n",(int)buff[4]);
-    pout("CH =0x%02x\n",(int)buff[5]);
-    pout("SEL=0x%02x\n",(int)buff[6]);
+    lib_printf("Please get assistance from %s\n",PACKAGE_BUGREPORT);
+    lib_printf("Register values returned from SMART Status command are:\n");
+    lib_printf("CMD =0x%02x\n",(int)buff[0]);
+    lib_printf("FR =0x%02x\n",(int)buff[1]);
+    lib_printf("NS =0x%02x\n",(int)buff[2]);
+    lib_printf("SC =0x%02x\n",(int)buff[3]);
+    lib_printf("CL =0x%02x\n",(int)buff[4]);
+    lib_printf("CH =0x%02x\n",(int)buff[5]);
+    lib_printf("SEL=0x%02x\n",(int)buff[6]);
     return -1;
   }
 
@@ -2458,7 +2458,7 @@ int linux_highpoint_device::ata_command_interface(smart_command_set command, int
     buff[1]=ATA_SMART_STATUS;
     break;
   default:
-    pout("Unrecognized command %d in linux_highpoint_command_interface()\n"
+    lib_printf("Unrecognized command %d in linux_highpoint_command_interface()\n"
          "Please contact " PACKAGE_BUGREPORT "\n", command);
     errno=ENOSYS;
     return -1;
@@ -2517,15 +2517,15 @@ int linux_highpoint_device::ata_command_interface(smart_command_set command, int
       return 1;
 
     syserror("Error SMART Status command failed");
-    pout("Please get assistance from " PACKAGE_URL "\n");
-    pout("Register values returned from SMART Status command are:\n");
-    pout("CMD=0x%02x\n",(int)buff[0]);
-    pout("FR =0x%02x\n",(int)buff[1]);
-    pout("NS =0x%02x\n",(int)buff[2]);
-    pout("SC =0x%02x\n",(int)buff[3]);
-    pout("CL =0x%02x\n",(int)buff[4]);
-    pout("CH =0x%02x\n",(int)buff[5]);
-    pout("SEL=0x%02x\n",(int)buff[6]);
+    lib_printf("Please get assistance from " PACKAGE_URL "\n");
+    lib_printf("Register values returned from SMART Status command are:\n");
+    lib_printf("CMD=0x%02x\n",(int)buff[0]);
+    lib_printf("FR =0x%02x\n",(int)buff[1]);
+    lib_printf("NS =0x%02x\n",(int)buff[2]);
+    lib_printf("SC =0x%02x\n",(int)buff[3]);
+    lib_printf("CL =0x%02x\n",(int)buff[4]);
+    lib_printf("CH =0x%02x\n",(int)buff[5]);
+    lib_printf("SEL=0x%02x\n",(int)buff[6]);
     return -1;
   }
 
@@ -2569,19 +2569,19 @@ void printwarning(smart_command_set command){
 
   if (command==AUTO_OFFLINE && !printed[0]) {
     printed[0]=1;
-    pout("The SMART AUTO-OFFLINE ENABLE command (smartmontools -o on option/Directive)\n%s", message);
+    lib_printf("The SMART AUTO-OFFLINE ENABLE command (smartmontools -o on option/Directive)\n%s", message);
   }
   else if (command==AUTOSAVE && !printed[1]) {
     printed[1]=1;
-    pout("The SMART AUTOSAVE ENABLE command (smartmontools -S on option/Directive)\n%s", message);
+    lib_printf("The SMART AUTOSAVE ENABLE command (smartmontools -S on option/Directive)\n%s", message);
   }
   else if (command==STATUS_CHECK && !printed[2]) {
     printed[2]=1;
-    pout("The SMART RETURN STATUS return value (smartmontools -H option/Directive)\n%s", message);
+    lib_printf("The SMART RETURN STATUS return value (smartmontools -H option/Directive)\n%s", message);
   }
   else if (command==WRITE_LOG && !printed[3])  {
     printed[3]=1;
-    pout("The SMART WRITE LOG command (smartmontools -t selective) only supported via char /dev/tw[ae] interface\n");
+    lib_printf("The SMART WRITE LOG command (smartmontools -t selective) only supported via char /dev/tw[ae] interface\n");
   }
 
   return;
@@ -2655,7 +2655,7 @@ smart_device * linux_scsi_device::autodetect_open()
 
     // TODO: Remove after smartmontools 7.5
     if (len >= 42 && !memcmp(req_buff + 36, "MVSATA", 6))
-      pout("Warning: device type 'marvell' is deprecated and no longer autodetected\n");
+      lib_printf("Warning: device type 'marvell' is deprecated and no longer autodetected\n");
   }
 
   // SAT or USB ?
@@ -2792,10 +2792,10 @@ static bool get_usb_id(const char * name, unsigned short & vendor_id,
   } while (access((dir + "/idVendor").c_str(), 0));
 
   if (scsi_debugmode > 1) {
-    pout("Found idVendor in: %s\n", dir.c_str());
+    lib_printf("Found idVendor in: %s\n", dir.c_str());
     char * p = realpath(dir.c_str(), (char *)0);
     if (p) {
-      pout("         realpath: %s\n", p);
+      lib_printf("         realpath: %s\n", p);
       free(p);
     }
   }
@@ -2807,7 +2807,7 @@ static bool get_usb_id(const char * name, unsigned short & vendor_id,
     return false;
 
   if (scsi_debugmode > 1)
-    pout("USB ID = 0x%04x:0x%04x (0x%03x)\n", vendor_id, product_id, version);
+    lib_printf("USB ID = 0x%04x:0x%04x (0x%03x)\n", vendor_id, product_id, version);
   return true;
 }
 
@@ -2885,19 +2885,19 @@ void linux_smart_interface::get_dev_list(smart_device_list & devlist,
     // glob failed: free memory and return
     globfree(&globbuf);
     if (debug)
-      pout("glob(\"%s\", .): error %d\n", pattern, retglob);
+      lib_printf("glob(\"%s\", .): error %d\n", pattern, retglob);
     if (retglob == GLOB_NOSPACE)
       throw std::bad_alloc();
     return;
   }
   if (debug)
-      pout("glob(\"%s\", .): %d entrie(s)\n", pattern, (int)globbuf.gl_pathc);
+      lib_printf("glob(\"%s\", .): %d entrie(s)\n", pattern, (int)globbuf.gl_pathc);
 
   // did we find too many paths?
   const int max_pathc = 1024;
   int n = (int)globbuf.gl_pathc;
   if (n > max_pathc) {
-    pout("glob(3) found %d > MAX=%d devices matching pattern %s: ignoring %d paths\n",
+    lib_printf("glob(3) found %d > MAX=%d devices matching pattern %s: ignoring %d paths\n",
          n, max_pathc, pattern, n - max_pathc);
     n = max_pathc;
   }
@@ -2918,7 +2918,7 @@ void linux_smart_interface::get_dev_list(smart_device_list & devlist,
       // Skip NVMe namespace EUI to use model+serial instead
       if (strstr(name, "/nvme-eui.")) {
         if (debug)
-          pout("%s, %s: NVMe EUI link ignored\n", name, chk_name);
+          lib_printf("%s, %s: NVMe EUI link ignored\n", name, chk_name);
         continue;
       }
     }
@@ -2932,7 +2932,7 @@ void linux_smart_interface::get_dev_list(smart_device_list & devlist,
     regular_expression::match_range match[nmatch];
     if (!regex.execute(chk_name, nmatch, match)) {
       if (debug)
-        pout("%s, %s: device type ignored\n", name, chk_name);
+        lib_printf("%s, %s: device type ignored\n", name, chk_name);
       continue;
     }
     int mi = 2; // 2 = sd*, 4 = nvme* (without namespace), 6 = hd*
@@ -2945,7 +2945,7 @@ void linux_smart_interface::get_dev_list(smart_device_list & devlist,
     std::string key(chk_name + match[mi].rm_so, match[mi].rm_eo - match[mi].rm_so);
     if (devs_seen.count(key)) {
       if (debug)
-        pout("%s, %s: duplicate ignored\n", name, key.c_str());
+        lib_printf("%s, %s: duplicate ignored\n", name, key.c_str());
       continue;
     }
     devs_seen.insert(key);
@@ -2957,7 +2957,7 @@ void linux_smart_interface::get_dev_list(smart_device_list & devlist,
         dev = autodetect_smart_device(name);
         if (!dev) {
           if (debug)
-            pout("%s, %s: autodetection failed\n", name, key.c_str());
+            lib_printf("%s, %s: autodetection failed\n", name, key.c_str());
           continue;
         }
       }
@@ -2971,13 +2971,13 @@ void linux_smart_interface::get_dev_list(smart_device_list & devlist,
       dev = new linux_ata_device(this, name, type_ata);
     else {
       if (debug)
-        pout("%s, %s: device type excluded\n", name, key.c_str());
+        lib_printf("%s, %s: device type excluded\n", name, key.c_str());
       continue;
     }
 
     devlist.push_back(dev);
     if (debug)
-      pout("%s, %s: '%s' device added (requested type: '%s')\n", name, key.c_str(),
+      lib_printf("%s, %s: '%s' device added (requested type: '%s')\n", name, key.c_str(),
            dev->get_dev_type(), dev->get_req_type());
   }
 
@@ -3002,7 +3002,7 @@ bool linux_smart_interface::get_dev_megasas(smart_device_list & devlist)
       scan_megasas = true;
       n1=mknod("/dev/megaraid_sas_ioctl_node", S_IFCHR|0600, makedev(mjr, 0));
       if(scsi_debugmode > 0)
-        pout("Creating /dev/megaraid_sas_ioctl_node = %d\n", n1 >= 0 ? 0 : errno);
+        lib_printf("Creating /dev/megaraid_sas_ioctl_node = %d\n", n1 >= 0 ? 0 : errno);
       if (n1 >= 0 || errno == EEXIST)
         break;
     }
@@ -3301,7 +3301,7 @@ linux_smart_interface::sssraid_pdlist_cmd(int bus_no, uint16_t start_idx_param, 
   char line[128];
   snprintf(line, sizeof(line) - 1, "/dev/bsg/sssraid%d", bus_no);
   if ((fd = ::open(line, O_RDONLY)) < 0) {
-    pout("open %s error %d\n", line, fd);
+    lib_printf("open %s error %d\n", line, fd);
     return (errno);
   }
 
@@ -3313,9 +3313,9 @@ linux_smart_interface::sssraid_pdlist_cmd(int bus_no, uint16_t start_idx_param, 
 
   if (statusp != NULL) {
     *statusp = (io_hdr_v4.transport_status << 0x8) | io_hdr_v4.device_status;
-    pout("statusp = 0x%x\n", *statusp);
+    lib_printf("statusp = 0x%x\n", *statusp);
     if (*statusp) {
-      pout("controller returns an error - 0x%x", *statusp);
+      lib_printf("controller returns an error - 0x%x", *statusp);
       return (-1);
     }
   }
@@ -3403,7 +3403,7 @@ static bool is_hpsa_in_raid_mode(const char * name)
     proc_name[n - 1] = 0;
 
   if (scsi_debugmode > 1)
-    pout("%s -> %s: \"%s\"\n", name, path, proc_name);
+    lib_printf("%s -> %s: \"%s\"\n", name, path, proc_name);
 
   if (strcmp(proc_name, "hpsa"))
     return false;

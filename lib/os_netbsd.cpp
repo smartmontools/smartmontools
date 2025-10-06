@@ -25,9 +25,6 @@
 // based on "sys/dev/ic/nvmeio.h" from NetBSD kernel sources
 #include "netbsd_nvme_ioctl.h" // NVME_PASSTHROUGH_CMD, nvme_completion_is_error
 
-const char * os_netbsd_cpp_cvsid = "$Id: os_netbsd.cpp 5393 2022-05-29 05:08:10Z dpgilbert $"
-  OS_NETBSD_H_CVSID;
-
 #define ARGUSED(x) ((void)(x))
 
 /////////////////////////////////////////////////////////////////////////////
@@ -358,19 +355,19 @@ bool netbsd_scsi_device::scsi_pass_through(scsi_cmnd_io * iop)
     const char * np;
 
     np = scsi_get_opcode_name(ucp);
-    pout(" [%s: ", np ? np : "<unknown opcode>");
+    lib_printf(" [%s: ", np ? np : "<unknown opcode>");
     for (k = 0; k < iop->cmnd_len; ++k)
-      pout("%02x ", ucp[k]);
+      lib_printf("%02x ", ucp[k]);
     if ((scsi_debugmode > 1) &&
       (DXFER_TO_DEVICE == iop->dxfer_dir) && (iop->dxferp)) {
     int trunc = (iop->dxfer_len > 256) ? 1 : 0;
 
-    pout("]\n  Outgoing data, len=%d%s:\n", (int)iop->dxfer_len,
+    lib_printf("]\n  Outgoing data, len=%d%s:\n", (int)iop->dxfer_len,
       (trunc ? " [only first 256 bytes shown]" : ""));
     dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
       }
       else
-        pout("]\n");
+        lib_printf("]\n");
   }
 
   memset(&sc, 0, sizeof(sc));
@@ -386,7 +383,7 @@ bool netbsd_scsi_device::scsi_pass_through(scsi_cmnd_io * iop)
 
   if (ioctl(fd, SCIOCCOMMAND, &sc) < 0) {
     if (scsi_debugmode) {
-      pout("  error sending SCSI ccb\n");
+      lib_printf("  error sending SCSI ccb\n");
     }
     return set_err(EIO);
   }
@@ -399,10 +396,10 @@ bool netbsd_scsi_device::scsi_pass_through(scsi_cmnd_io * iop)
   if (scsi_debugmode) {
     int trunc;
 
-    pout("  status=0\n");
+    lib_printf("  status=0\n");
     trunc = (iop->dxfer_len > 256) ? 1 : 0;
 
-    pout("  Incoming data, len=%d%s:\n", (int) iop->dxfer_len,
+    lib_printf("  Incoming data, len=%d%s:\n", (int) iop->dxfer_len,
       (trunc ? " [only first 256 bytes shown]" : ""));
     dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len), 1);
   }
@@ -575,19 +572,19 @@ int netbsd_smart_interface::get_dev_names(char ***names, const char *prefix)
   sysctl_mib[0] = CTL_HW;
   sysctl_mib[1] = HW_DISKNAMES;
   if (-1 == sysctl(sysctl_mib, 2, NULL, &sysctl_len, NULL, 0)) {
-    pout("Failed to get value of sysctl `hw.disknames'\n");
+    lib_printf("Failed to get value of sysctl `hw.disknames'\n");
     return -1;
   }
   if (!(disknames = (char *)malloc(sysctl_len))) {
-    pout("Out of memory constructing scan device list\n");
+    lib_printf("Out of memory constructing scan device list\n");
     return -1;
   }
   if (-1 == sysctl(sysctl_mib, 2, disknames, &sysctl_len, NULL, 0)) {
-    pout("Failed to get value of sysctl `hw.disknames'\n");
+    lib_printf("Failed to get value of sysctl `hw.disknames'\n");
     return -1;
   }
   if (!(mp = (char **) calloc(strlen(disknames) / 2, sizeof(char *)))) {
-    pout("Out of memory constructing scan device list\n");
+    lib_printf("Out of memory constructing scan device list\n");
     return -1;
   }
   for (p = strtok(disknames, " "); p; p = strtok(NULL, " ")) {
@@ -596,7 +593,7 @@ int netbsd_smart_interface::get_dev_names(char ***names, const char *prefix)
     }
     mp[n] = (char *)malloc(strlen(net_dev_raw_prefix) + strlen(p) + 2);
     if (!mp[n]) {
-      pout("Out of memory constructing scan device list\n");
+      lib_printf("Out of memory constructing scan device list\n");
       return -1;
     }
     sprintf(mp[n], "%s%s%c", net_dev_raw_prefix, p, 'a' + getrawpartition());
@@ -611,7 +608,7 @@ int netbsd_smart_interface::get_dev_names(char ***names, const char *prefix)
 
   char ** tmp = (char **)realloc(mp, n * (sizeof(char *)));
   if (NULL == tmp) {
-    pout("Out of memory constructing scan device list\n");
+    lib_printf("Out of memory constructing scan device list\n");
     free(mp);
     return -1;
   }

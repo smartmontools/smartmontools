@@ -4,7 +4,7 @@
  * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen
- * Copyright (C) 2008-23 Christian Franke
+ * Copyright (C) 2008-25 Christian Franke
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
@@ -13,7 +13,7 @@
 #ifndef UTILITY_H_
 #define UTILITY_H_
 
-#define UTILITY_H_CVSID "$Id: utility.h 5519 2023-07-24 15:57:54Z chrfranke $"
+#define UTILITY_H_CVSID // TODO: Remove when no longer used
 
 #include <float.h> // *DBL_MANT_DIG
 #include <time.h>
@@ -38,6 +38,36 @@
 #else
 #define __attribute_format_printf(x, y)  __attribute__((format (printf, x, y)))
 #endif
+
+ /// Class to register an application specific lib_vprintf() function.
+class lib_global_hook
+{
+public:
+  lib_global_hook() = default;
+  virtual ~lib_global_hook() = default;
+  lib_global_hook(const lib_global_hook &) = delete;
+  void operator=(const lib_global_hook &) = delete;
+
+  /// Get the current hook.
+  static lib_global_hook & get();
+
+  /// Set the hook.
+  static void set(lib_global_hook & hook);
+
+  /// Reset to default hook.
+  static void reset();
+
+  /// Called by global lib_vprintf().
+  /// The default implementation calls vprintf().
+  virtual void lib_vprintf(const char * fmt, va_list ap);
+};
+
+/// Like vprintf() but calls lib_global_hook::get().lib_vprintf()
+void lib_vprintf(const char * fmt, va_list ap);
+
+/// Like printf() but calls lib_vprintf().
+void lib_printf(const char * fmt, ...)
+  __attribute_format_printf(1, 2);
 
 // Make version information string
 // lines: 1: version only, 2: version+copyright, >=3: full information
@@ -64,15 +94,8 @@ struct tm * time_to_tm_local(struct tm * tp, time_t t);
 #define DATEANDEPOCHLEN 64
 void dateandtimezoneepoch(char (& buffer)[DATEANDEPOCHLEN], time_t tval);
 
-// like printf() except that we can control it better. Note --
-// although the prototype is given here in utility.h, the function
-// itself is defined differently in smartctl and smartd.  So the
-// function definition(s) are in smartd.c and in smartctl.c.
-void pout(const char *fmt, ...)  
-    __attribute_format_printf(1, 2);
-
 // replacement for perror() with redirected output.
-void syserror(const char *message);
+void syserror(const char * message);
 
 // Function for processing -t selective... option in smartctl
 int split_selective_arg(char *s, uint64_t *start, uint64_t *stop, int *mode);

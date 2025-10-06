@@ -25,8 +25,6 @@
 
 #include <errno.h>
 
-const char * dev_jmb39x_raid_cpp_svnid = "$Id: dev_jmb39x_raid.cpp 5644 2024-12-10 14:39:22Z chrfranke $";
-
 static void jmbassert_failed(int line, const char * expr)
 {
   char msg[128];
@@ -407,7 +405,7 @@ bool jmb39x_device::run_jmb_command(const uint8_t * cmd, unsigned cmdsize, uint8
   jmb_set_request_sector(request, m_version, m_cmd_id, cmd, cmdsize);
 
   if (ata_debugmode) {
-    pout("JMB39x: Write request sector #%d\n", m_cmd_id);
+    lib_printf("JMB39x: Write request sector #%d\n", m_cmd_id);
     if (ata_debugmode > 1)
       dStrHex(request, sizeof(request), 0);
   }
@@ -429,7 +427,7 @@ bool jmb39x_device::run_jmb_command(const uint8_t * cmd, unsigned cmdsize, uint8
   jmb_xor(response);
 
   if (ata_debugmode) {
-    pout("JMB39x: Read response sector #%d\n", m_cmd_id);
+    lib_printf("JMB39x: Read response sector #%d\n", m_cmd_id);
     if (ata_debugmode > 1)
       dStrHex(response, sizeof(response), 0);
   }
@@ -458,7 +456,7 @@ bool jmb39x_device::run_jmb_command(const uint8_t * cmd, unsigned cmdsize, uint8
 void jmb39x_device::report_orig_data_lost() const
 {
   bool zf = !nonempty(m_orig_data, sizeof(m_orig_data));
-  pout("JMB39x: WARNING: Data (%szero filled) at LBA %d lost\n", (zf ? "" : "not "), m_lba);
+  lib_printf("JMB39x: WARNING: Data (%szero filled) at LBA %d lost\n", (zf ? "" : "not "), m_lba);
   if (!zf) // Dump lost data
     dStrHex(m_orig_data, sizeof(m_orig_data), 0);
 }
@@ -466,7 +464,7 @@ void jmb39x_device::report_orig_data_lost() const
 bool jmb39x_device::restore_orig_data()
 {
   if (ata_debugmode)
-    pout("JMB39x: Restore original sector (%szero filled)\n",
+    lib_printf("JMB39x: Restore original sector (%szero filled)\n",
          (nonempty(m_orig_data, sizeof(m_orig_data)) ? "not " : ""));
   if (!raw_write(m_orig_data)) {
     report_orig_data_lost();
@@ -501,7 +499,7 @@ bool jmb39x_device::open()
 
   // Read original data
   if (ata_debugmode)
-    pout("JMB39x: Read original data at LBA %d\n", m_lba);
+    lib_printf("JMB39x: Read original data at LBA %d\n", m_lba);
   if (!raw_read(m_orig_data)) {
     error_info err = get_err();
     tunnelled_device<ata_device, smart_device>::close();
@@ -524,7 +522,7 @@ bool jmb39x_device::open()
     if (st) {
       // Zero fill to reset protocol state
       if (ata_debugmode)
-        pout("JMB39x: Zero filling original data\n");
+        lib_printf("JMB39x: Zero filling original data\n");
       memset(m_orig_data, 0, sizeof(m_orig_data));
     }
   }
@@ -536,7 +534,7 @@ bool jmb39x_device::open()
   for (int id = 0; id < 4; id++) {
     jmb_set_wakeup_sector(dataout, id);
     if (ata_debugmode) {
-      pout("JMB39x: Write wakeup sector #%d\n", id+1);
+      lib_printf("JMB39x: Write wakeup sector #%d\n", id+1);
       if (ata_debugmode > 1)
         dStrHex(dataout, sizeof(dataout), 0);
     }

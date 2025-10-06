@@ -10,10 +10,6 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-// THIS FILE IS INTENDED FOR UTILITY ROUTINES THAT ARE APPLICABLE TO
-// BOTH SCSI AND ATA DEVICES, AND THAT MAY BE USED IN SMARTD,
-// SMARTCTL, OR BOTH.
-
 #include "config.h"
 #define __STDC_FORMAT_MACROS 1 // enable PRI* for C++
 
@@ -56,6 +52,45 @@
 // Use std::chrono::high_resolution_clock.
 #include <chrono>
 #endif
+
+// Default library hook
+
+static lib_global_hook the_lib_global_hook;
+static lib_global_hook * current_global_hook = &the_lib_global_hook;
+
+lib_global_hook & lib_global_hook::get()
+{
+  return *current_global_hook;
+}
+
+void lib_global_hook::set(lib_global_hook & hook)
+{
+  current_global_hook = &hook;
+}
+
+void lib_global_hook::reset()
+{
+  current_global_hook = &the_lib_global_hook;
+}
+
+void lib_global_hook::lib_vprintf(const char * fmt, va_list ap)
+{
+  vprintf(fmt, ap);
+}
+
+void lib_vprintf(const char * fmt, va_list ap)
+{
+  lib_global_hook::get().lib_vprintf(fmt, ap);
+}
+
+void lib_printf(const char * fmt, ...)
+{
+  va_list ap;
+  va_start(ap, fmt);
+  lib_vprintf(fmt, ap);
+  va_end(ap);
+}
+
 
 const char * packet_types[] = {
         "Direct-access (disk)",
@@ -430,12 +465,12 @@ void syserror(const char *message){
     // Check that caller has handed a sensible string, and provide
     // appropriate output. See perror(3) man page to understand better.
     if (message && *message)
-      pout("%s: %s\n",message, errormessage);
+      lib_printf("%s: %s\n", message, errormessage);
     else
-      pout("%s\n",errormessage);
+      lib_printf("%s\n", errormessage);
   }
   else if (message && *message)
-    pout("%s\n",message);
+    lib_printf("%s\n", message);
   
   return;
 }

@@ -56,8 +56,6 @@
 #include "dev_tunnelled.h" // tunnelled_device<>
 #include "sg_unaligned.h"
 
-const char * scsiata_cpp_cvsid = "$Id: scsiata.cpp 5482 2023-06-25 16:46:49Z chrfranke $";
-
 /* This is a slightly stretched SCSI sense "descriptor" format header.
    The addition is to allow the 0x70 and 0x71 response codes. The idea
    is to place the salient data of both "fixed" and "descriptor" sense
@@ -383,8 +381,8 @@ bool sat_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
     scsi_device * scsidev = get_tunnel_dev();
     if (!scsidev->scsi_pass_through(&io_hdr)) {
         if (scsi_debugmode > 0)
-            pout("sat_device::ata_pass_through: scsi_pass_through() failed, "
-                 "errno=%d [%s]\n", scsidev->get_errno(), scsidev->get_errmsg());
+            lib_printf("sat_device::ata_pass_through: scsi_pass_through() failed, "
+                       "errno=%d [%s]\n", scsidev->get_errno(), scsidev->get_errmsg());
         return set_err(scsidev->get_err());
     }
     ardp = NULL;
@@ -413,17 +411,17 @@ bool sat_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
         if (   status && ck_cond && ardp && ard_len > 13
             && (ardp[13] & 0xc1) == 0x40 /* !BSY && DRDY && !ERR */) {
             if (scsi_debugmode > 0)
-                pout("ATA status (0x%02x) indicates success, ignoring SCSI sense_key\n",
+                lib_printf("ATA status (0x%02x) indicates success, ignoring SCSI sense_key\n",
                      ardp[13]);
             status = 0;
         }
 
         if (0 != status) {  /* other than no_sense and recovered_error */
             if (scsi_debugmode > 0) {
-                pout("sat_device::ata_pass_through: scsi error: %s\n",
+                lib_printf("sat_device::ata_pass_through: scsi error: %s\n",
                      scsiErrString(status));
                 if (ardp && (scsi_debugmode > 1)) {
-                    pout("Values from ATA Return Descriptor are:\n");
+                    lib_printf("Values from ATA Return Descriptor are:\n");
                     dStrHex((const uint8_t *)ardp, ard_len, 1);
                 }
             }
@@ -436,7 +434,7 @@ bool sat_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
         if (have_sense) {
             if (ardp) {
                 if (scsi_debugmode > 1) {
-                    pout("Values from ATA Return Descriptor are:\n");
+                    lib_printf("Values from ATA Return Descriptor are:\n");
                     dStrHex((const uint8_t *)ardp, ard_len, 1);
                 }
                 // Set output registers
@@ -494,14 +492,14 @@ bool sat_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
                 (SCSI_ASCQ_ATA_PASS_THROUGH == ssh.ascq)) {
                 if (scsi_debugmode > 0) {
                     if (sense_descriptor && ardp) {
-                        pout("Values from ATA Return Descriptor are:\n");
+                        lib_printf("Values from ATA Return Descriptor are:\n");
                         dStrHex((const uint8_t *)ardp, ard_len, 1);
                     } else if (! sense_descriptor) {
-                        pout("Values from ATA fixed format sense are:\n");
-                        pout("  Error: 0x%x\n", io_hdr.sensep[3]);
-                        pout("  Status: 0x%x\n", io_hdr.sensep[4]);
-                        pout("  Device: 0x%x\n", io_hdr.sensep[5]);
-                        pout("  Count: 0x%x\n", io_hdr.sensep[6]);
+                        lib_printf("Values from ATA fixed format sense are:\n");
+                        lib_printf("  Error: 0x%x\n", io_hdr.sensep[3]);
+                        lib_printf("  Status: 0x%x\n", io_hdr.sensep[4]);
+                        lib_printf("  Device: 0x%x\n", io_hdr.sensep[5]);
+                        lib_printf("  Count: 0x%x\n", io_hdr.sensep[6]);
                     }
                 }
             }
@@ -748,8 +746,8 @@ int usbcypress_device::ata_command_interface(smart_command_set command, int sele
         ck_cond = 1;
         break;
     default:
-        pout("Unrecognized command %d in usbcypress_device::ata_command_interface()\n"
-             "Please contact " PACKAGE_BUGREPORT "\n", command);
+        lib_printf("Unrecognized command %d in usbcypress_device::ata_command_interface()\n"
+                   "Please contact " PACKAGE_BUGREPORT "\n", command);
         errno=ENOSYS;
         return -1;
     }
@@ -797,8 +795,8 @@ int usbcypress_device::ata_command_interface(smart_command_set command, int sele
     scsi_device * scsidev = get_tunnel_dev();
     if (!scsidev->scsi_pass_through(&io_hdr)) {
         if (scsi_debugmode > 0)
-            pout("usbcypress_device::ata_command_interface: scsi_pass_through() failed, "
-                 "errno=%d [%s]\n", scsidev->get_errno(), scsidev->get_errmsg());
+            lib_printf("usbcypress_device::ata_command_interface: scsi_pass_through() failed, "
+                       "errno=%d [%s]\n", scsidev->get_errno(), scsidev->get_errmsg());
         set_err(scsidev->get_err());
         return -1;
     }
@@ -815,7 +813,7 @@ int usbcypress_device::ata_command_interface(smart_command_set command, int sele
         /* XXX this is racy if there other scsi command between
          * the first usbcypress command and this one
          */
-        //pout("If you got strange result, please retry without traffic on the disc\n");
+        //lib_printf("If you got strange result, please retry without traffic on the disc\n");
         /* we use the same command as before, but we set
          * * the read taskfile bit, for not executing usbcypress command,
          * * but reading register selected in srb->cmnd[4]
@@ -839,8 +837,8 @@ int usbcypress_device::ata_command_interface(smart_command_set command, int sele
 
         if (!scsidev->scsi_pass_through(&io_hdr)) {
             if (scsi_debugmode > 0)
-                pout("usbcypress_device::ata_command_interface: scsi_pass_through() failed, "
-                     "errno=%d [%s]\n", scsidev->get_errno(), scsidev->get_errmsg());
+                lib_printf("usbcypress_device::ata_command_interface: scsi_pass_through() failed, "
+                           "errno=%d [%s]\n", scsidev->get_errno(), scsidev->get_errmsg());
             set_err(scsidev->get_err());
             return -1;
         }
@@ -853,7 +851,7 @@ int usbcypress_device::ata_command_interface(smart_command_set command, int sele
 
 
         if (scsi_debugmode > 1) {
-            pout("Values from ATA Return Descriptor are:\n");
+            lib_printf("Values from ATA Return Descriptor are:\n");
             dStrHex((const uint8_t *)ardp, ard_len, 1);
         }
 
@@ -867,10 +865,10 @@ int usbcypress_device::ata_command_interface(smart_command_set command, int sele
             // We haven't gotten output that makes sense so
             // print out some debugging info
             syserror("Error SMART Status command failed");
-            pout("This may be due to a race in usbcypress\n");
-            pout("Retry without other disc access\n");
-            pout("Please get assistance from " PACKAGE_URL "\n");
-            pout("Values from ATA Return Descriptor are:\n");
+            lib_printf("This may be due to a race in usbcypress\n");
+            lib_printf("Retry without other disc access\n");
+            lib_printf("Please get assistance from " PACKAGE_URL "\n");
+            lib_printf("Values from ATA Return Descriptor are:\n");
             dStrHex((const uint8_t *)ardp, ard_len, 1);
             return -1;
         }

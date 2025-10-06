@@ -388,7 +388,7 @@ static const char * preg(const ata_register & r, char (& buf)[8])
 static void print_regs(const char * prefix, const ata_in_regs & r, const char * suffix = "\n")
 {
   char bufs[7][8];
-  pout("%s FR=%s, SC=%s, LL=%s, LM=%s, LH=%s, DEV=%s, CMD=%s%s", prefix,
+  lib_printf("%s FR=%s, SC=%s, LL=%s, LM=%s, LH=%s, DEV=%s, CMD=%s%s", prefix,
     preg(r.features, bufs[0]), preg(r.sector_count, bufs[1]), preg(r.lba_low, bufs[2]),
     preg(r.lba_mid, bufs[3]), preg(r.lba_high, bufs[4]), preg(r.device, bufs[5]),
     preg(r.command, bufs[6]), suffix);
@@ -397,20 +397,20 @@ static void print_regs(const char * prefix, const ata_in_regs & r, const char * 
 static void print_regs(const char * prefix, const ata_out_regs & r, const char * suffix = "\n")
 {
   char bufs[7][8];
-  pout("%sERR=%s, SC=%s, LL=%s, LM=%s, LH=%s, DEV=%s, STS=%s%s", prefix,
+  lib_printf("%sERR=%s, SC=%s, LL=%s, LM=%s, LH=%s, DEV=%s, STS=%s%s", prefix,
     preg(r.error, bufs[0]), preg(r.sector_count, bufs[1]), preg(r.lba_low, bufs[2]),
     preg(r.lba_mid, bufs[3]), preg(r.lba_high, bufs[4]), preg(r.device, bufs[5]),
     preg(r.status, bufs[6]), suffix);
 }
 
 static void prettyprint(const unsigned char *p, const char *name){
-  pout("\n===== [%s] DATA START (BASE-16) =====\n", name);
+  lib_printf("\n===== [%s] DATA START (BASE-16) =====\n", name);
   for (int i=0; i<512; i+=16, p+=16)
 #define P(n) (' ' <= p[n] && p[n] <= '~' ? (int)p[n] : '.')
     // print complete line to avoid slow tty output and extra lines in syslog.
-    pout("%03d-%03d: %02x %02x %02x %02x %02x %02x %02x %02x "
-                    "%02x %02x %02x %02x %02x %02x %02x %02x"
-                    " |%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c|"
+    lib_printf("%03d-%03d: %02x %02x %02x %02x %02x %02x %02x %02x "
+                          "%02x %02x %02x %02x %02x %02x %02x %02x"
+                          " |%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c|"
          "%c",
          i, i+16-1,
          p[ 0], p[ 1], p[ 2], p[ 3], p[ 4], p[ 5], p[ 6], p[ 7],
@@ -419,7 +419,7 @@ static void prettyprint(const unsigned char *p, const char *name){
          P( 8), P( 9), P(10), P(11), P(12), P(13), P(14), P(15),
          '\n');
 #undef P
-  pout("===== [%s] DATA END (512 Bytes) =====\n\n", name);
+  lib_printf("===== [%s] DATA END (512 Bytes) =====\n\n", name);
 }
 
 // This function provides the pretty-print reporting for SMART
@@ -446,15 +446,15 @@ int smartcommandhandler(ata_device * device, smart_command_set command, int sele
                          command==IMMEDIATE_OFFLINE ||
                          command==WRITE_LOG);
                   
-    pout("\nREPORT-IOCTL: Device=%s Command=%s", device->get_dev_name(), commandstrings[command]);
+    lib_printf("\nREPORT-IOCTL: Device=%s Command=%s", device->get_dev_name(), commandstrings[command]);
     if (usesparam)
-      pout(" InputParameter=%d\n", select);
+      lib_printf(" InputParameter=%d\n", select);
     else
-      pout("\n");
+      lib_printf("\n");
   }
   
   if ((getsdata || sendsdata) && !data){
-    pout("REPORT-IOCTL: Unable to execute command %s : data destination address is NULL\n", commandstrings[command]);
+    lib_printf("REPORT-IOCTL: Unable to execute command %s : data destination address is NULL\n", commandstrings[command]);
     return -1;
   }
   
@@ -471,7 +471,7 @@ int smartcommandhandler(ata_device * device, smart_command_set command, int sele
 
   // if requested, pretty-print the input data structure
   if (ata_debugmode > 1 && sendsdata)
-    //pout("REPORT-IOCTL: Device=%s Command=%s\n", device->get_dev_name(), commandstrings[command]);
+    //lib_printf("REPORT-IOCTL: Device=%s Command=%s\n", device->get_dev_name(), commandstrings[command]);
     prettyprint((unsigned char *)data, commandstrings[command]);
 
   // now execute the command
@@ -547,8 +547,8 @@ int smartcommandhandler(ata_device * device, smart_command_set command, int sele
         in.in_regs.lba_low = select;
         break;
       default:
-        pout("Unrecognized command %d in smartcommandhandler()\n"
-             "Please contact " PACKAGE_BUGREPORT "\n", command);
+        lib_printf("Unrecognized command %d in smartcommandhandler()\n"
+                   "Please contact " PACKAGE_BUGREPORT "\n", command);
         device->set_err(ENOSYS);
         return -1;
     }
@@ -567,7 +567,7 @@ int smartcommandhandler(ata_device * device, smart_command_set command, int sele
     if (start_usec >= 0) {
       auto duration_usec = get_timer_usec() - start_usec;
       if (duration_usec > 0)
-        pout(" [Duration: %.6fs]\n", duration_usec / 1000000.0);
+        lib_printf(" [Duration: %.6fs]\n", duration_usec / 1000000.0);
     }
 
     if (ata_debugmode && out.out_regs.is_set())
@@ -583,7 +583,7 @@ int smartcommandhandler(ata_device * device, smart_command_set command, int sele
           retval = 0;
         }
         else {
-          pout("CHECK POWER MODE: incomplete response, ATA output registers missing\n");
+          lib_printf("CHECK POWER MODE: incomplete response, ATA output registers missing\n");
           device->set_err(ENOSYS);
           retval = -1;
         }
@@ -600,13 +600,13 @@ int smartcommandhandler(ata_device * device, smart_command_set command, int sele
         else if (out.out_regs.lba_mid == SMART_CYL_LOW) {
           retval = 0;
           if (ata_debugmode)
-            pout("SMART STATUS RETURN: half healthy response sequence, "
-                 "probable SAT/USB truncation\n");
+            lib_printf("SMART STATUS RETURN: half healthy response sequence, "
+                       "probable SAT/USB truncation\n");
           } else if (out.out_regs.lba_mid == SRET_STATUS_MID_EXCEEDED) {
           retval = 1;
           if (ata_debugmode)
-            pout("SMART STATUS RETURN: half unhealthy response sequence, "
-                 "probable SAT/USB truncation\n");
+            lib_printf("SMART STATUS RETURN: half unhealthy response sequence, "
+                       "probable SAT/USB truncation\n");
         }
         else if (!out.out_regs.is_set()) {
           device->set_err(ENOSYS, "Incomplete response, ATA output registers missing");
@@ -614,9 +614,9 @@ int smartcommandhandler(ata_device * device, smart_command_set command, int sele
         }
         else {
           // We haven't gotten output that makes sense; print out some debugging info
-          pout("SMART Status command failed\n");
-          pout("Please get assistance from %s\n", PACKAGE_URL);
-          pout("Register values returned from SMART Status command are:\n");
+          lib_printf("SMART Status command failed\n");
+          lib_printf("Please get assistance from %s\n", PACKAGE_URL);
+          lib_printf("Register values returned from SMART Status command are:\n");
           print_regs(" ", out.out_regs);
           device->set_err(ENOSYS, "Invalid ATA output register values");
           retval = -1;
@@ -632,17 +632,17 @@ int smartcommandhandler(ata_device * device, smart_command_set command, int sele
   // If reporting is enabled, say what output was produced by the command
   if (ata_debugmode) {
     if (retval && device->get_errno())
-      pout("REPORT-IOCTL: Device=%s Command=%s returned %d errno=%d [%s]\n",
+      lib_printf("REPORT-IOCTL: Device=%s Command=%s returned %d errno=%d [%s]\n",
            device->get_dev_name(), commandstrings[command], retval,
            device->get_errno(), device->get_errmsg());
     else
-      pout("REPORT-IOCTL: Device=%s Command=%s returned %d\n",
+      lib_printf("REPORT-IOCTL: Device=%s Command=%s returned %d\n",
            device->get_dev_name(), commandstrings[command], retval);
     
     // if requested, pretty-print the output data structure
     if (ata_debugmode > 1 && getsdata) {
       if (command==CHECK_POWER_MODE)
-	pout("Sector Count Register (BASE-16): %02x\n", (unsigned char)(*data));
+	lib_printf("Sector Count Register (BASE-16): %02x\n", (unsigned char)(*data));
       else
 	prettyprint((unsigned char *)data, commandstrings[command]);
     }
@@ -1087,7 +1087,7 @@ bool ataWriteLogExt(ata_device * device, unsigned char logaddr,
   ata_cmd_out out;
   if (!device->ata_pass_through(in, out)) { // TODO: Debug output
     if (nsectors <= 1) {
-      pout("ATA_WRITE_LOG_EXT (addr=0x%02x, page=%u, n=%u) failed: %s\n",
+      lib_printf("ATA_WRITE_LOG_EXT (addr=0x%02x, page=%u, n=%u) failed: %s\n",
            logaddr, page, nsectors, device->get_errmsg());
       return false;
     }
@@ -1118,7 +1118,7 @@ bool ataReadLogExt(ata_device * device, unsigned char logaddr,
 
   if (!device->ata_pass_through(in)) { // TODO: Debug output
     if (nsectors <= 1) {
-      pout("ATA_READ_LOG_EXT (addr=0x%02x:0x%02x, page=%u, n=%u) failed: %s\n",
+      lib_printf("ATA_READ_LOG_EXT (addr=0x%02x:0x%02x, page=%u, n=%u) failed: %s\n",
            logaddr, features, page, nsectors, device->get_errmsg());
       return false;
     }
@@ -1149,7 +1149,7 @@ bool ataReadSmartLog(ata_device * device, unsigned char logaddr,
   in.in_regs.lba_low  = logaddr;
 
   if (!device->ata_pass_through(in)) { // TODO: Debug output
-    pout("ATA_SMART_READ_LOG failed: %s\n", device->get_errmsg());
+    lib_printf("ATA_SMART_READ_LOG failed: %s\n", device->get_errmsg());
     return false;
   }
   return true;
@@ -1213,7 +1213,7 @@ int ataWriteSelectiveSelfTestLog(ata_device * device, ata_selective_selftest_arg
 {
   // Disk size must be known
   if (!num_sectors) {
-    pout("Disk size is unknown, unable to check selective self-test spans\n");
+    lib_printf("Disk size is unknown, unable to check selective self-test spans\n");
     return -1;
   }
 
@@ -1221,8 +1221,8 @@ int ataWriteSelectiveSelfTestLog(ata_device * device, ata_selective_selftest_arg
   struct ata_selective_self_test_log sstlog, *data=&sstlog;
   unsigned char *ptr=(unsigned char *)data;
   if (ataReadSelectiveSelfTestLog(device, data)) {
-    pout("SMART Read Selective Self-test Log failed: %s\n", device->get_errmsg());
-    pout("Since Read failed, will not attempt to WRITE Selective Self-test Log\n");
+    lib_printf("SMART Read Selective Self-test Log failed: %s\n", device->get_errmsg());
+    lib_printf("Since Read failed, will not attempt to WRITE Selective Self-test Log\n");
     return -1;
   }
   
@@ -1232,7 +1232,7 @@ int ataWriteSelectiveSelfTestLog(ata_device * device, ata_selective_selftest_arg
   // Host is NOT allowed to write selective self-test log if a selective
   // self-test is in progress.
   if (0<data->currentspan && data->currentspan<6 && ((sv->self_test_exec_status)>>4)==15) {
-    pout("SMART Selective or other Self-test in progress\n");
+    lib_printf("SMART Selective or other Self-test in progress\n");
     return -4;
   }
 
@@ -1245,11 +1245,11 @@ int ataWriteSelectiveSelfTestLog(ata_device * device, ata_selective_selftest_arg
     if (mode == SEL_CONT) {// redo or next depending on last test status
       switch (sv->self_test_exec_status >> 4) {
         case 1: case 2: // Aborted/Interrupted by host
-          pout("Continue Selective Self-Test: Redo last span\n");
+          lib_printf("Continue Selective Self-Test: Redo last span\n");
           mode = SEL_REDO;
           break;
         default: // All others
-          pout("Continue Selective Self-Test: Start next span\n");
+          lib_printf("Continue Selective Self-Test: Start next span\n");
           mode = SEL_NEXT;
           break;
       }
@@ -1294,26 +1294,26 @@ int ataWriteSelectiveSelfTestLog(ata_device * device, ata_selective_selftest_arg
             uint64_t spans = (num_sectors + oldsize-1) / oldsize;
             uint64_t newsize = (num_sectors + spans-1) / spans;
             uint64_t newstart = num_sectors - newsize, newend = num_sectors - 1;
-            pout("Span %d changed from %" PRIu64 "-%" PRIu64 " (%" PRIu64 " sectors)\n",
+            lib_printf("Span %d changed from %" PRIu64 "-%" PRIu64 " (%" PRIu64 " sectors)\n",
                  i, start, end, oldsize);
-            pout("                 to %" PRIu64 "-%" PRIu64 " (%" PRIu64 " sectors) (%" PRIu64 " spans)\n",
+            lib_printf("                 to %" PRIu64 "-%" PRIu64 " (%" PRIu64 " sectors) (%" PRIu64 " spans)\n",
                  newstart, newend, newsize, spans);
             start = newstart; end = newend;
           }
         }
         break;
       default:
-        pout("ataWriteSelectiveSelfTestLog: Invalid mode %d\n", mode);
+        lib_printf("ataWriteSelectiveSelfTestLog: Invalid mode %d\n", mode);
         return -1;
     }
     // Range check
     if (start < num_sectors && num_sectors <= end) {
       if (end != ~(uint64_t)0) // -t select,N-max
-        pout("Size of self-test span %d decreased according to disk size\n", i);
+        lib_printf("Size of self-test span %d decreased according to disk size\n", i);
       end = num_sectors - 1;
     }
     if (!(start <= end && end < num_sectors)) {
-      pout("Invalid selective self-test span %d: %" PRIu64 "-%" PRIu64 " (%" PRIu64 " sectors)\n",
+      lib_printf("Invalid selective self-test span %d: %" PRIu64 "-%" PRIu64 " (%" PRIu64 " sectors)\n",
         i, start, end, num_sectors);
       return -1;
     }
@@ -1377,7 +1377,7 @@ int ataWriteSelectiveSelfTestLog(ata_device * device, ata_selective_selftest_arg
 
   // write new selective self-test log
   if (smartcommandhandler(device, WRITE_LOG, 0x09, (char *)data)){
-    pout("Write Selective Self-test Log failed: %s\n", device->get_errmsg());
+    lib_printf("Write Selective Self-test Log failed: %s\n", device->get_errmsg());
     return -3;
   }
 
@@ -1637,10 +1637,10 @@ int ataSmartTest(ata_device * device, int testtype, bool force,
   // Check whether another test is already running
   if (type && (sv->self_test_exec_status >> 4) == 0xf) {
     if (!force) {
-      pout("Can't start self-test without aborting current test (%d0%% remaining),\n"
-           "%srun 'smartctl -X' to abort test.\n",
-           sv->self_test_exec_status & 0x0f,
-           (!select ? "add '-t force' option to override, or " : ""));
+      lib_printf("Can't start self-test without aborting current test (%d0%% remaining),\n"
+                 "%srun 'smartctl -X' to abort test.\n",
+                 sv->self_test_exec_status & 0x0f,
+                 (!select ? "add '-t force' option to override, or " : ""));
       return -1;
     }
   }
@@ -1652,7 +1652,7 @@ int ataSmartTest(ata_device * device, int testtype, bool force,
   ata_selective_selftest_args selargs_io = selargs; // filled with info about actual spans
   if (select && (retval = ataWriteSelectiveSelfTestLog(device, selargs_io, sv, num_sectors))) {
     if (retval==-4)
-      pout("Can't start selective self-test without aborting current test: use '-X' option to smartctl.\n");
+      lib_printf("Can't start selective self-test without aborting current test: use '-X' option to smartctl.\n");
     return retval;
   }
 
@@ -1663,13 +1663,13 @@ int ataSmartTest(ata_device * device, int testtype, bool force,
     snprintf(cmdmsg, sizeof(cmdmsg), "SMART EXECUTE OFF-LINE IMMEDIATE subcommand 0x%02x", testtype);
   else
     snprintf(cmdmsg, sizeof(cmdmsg), "Execute SMART %s routine immediately in %s mode", type, captive);
-  pout("Sending command: \"%s\".\n",cmdmsg);
+  lib_printf("Sending command: \"%s\".\n",cmdmsg);
 
   if (select) {
     int i;
-    pout("SPAN         STARTING_LBA           ENDING_LBA\n");
+    lib_printf("SPAN         STARTING_LBA           ENDING_LBA\n");
     for (i = 0; i < selargs_io.num_spans; i++)
-      pout("   %d %20" PRId64 " %20" PRId64 "\n", i,
+      lib_printf("   %d %20" PRId64 " %20" PRId64 "\n", i,
            selargs_io.span[i].start,
            selargs_io.span[i].end);
   }
@@ -1677,18 +1677,18 @@ int ataSmartTest(ata_device * device, int testtype, bool force,
   // Now send the command to test
   if (smartcommandhandler(device, IMMEDIATE_OFFLINE, testtype, NULL)) {
     if (!(cap && device->get_errno() == EIO)) {
-      pout("Command \"%s\" failed: %s\n", cmdmsg, device->get_errmsg());
+      lib_printf("Command \"%s\" failed: %s\n", cmdmsg, device->get_errmsg());
       return -1;
     }
   }
   
   // Since the command succeeded, tell user
   if (testtype==ABORT_SELF_TEST)
-    pout("Self-testing aborted!\n");
+    lib_printf("Self-testing aborted!\n");
   else {
-    pout("Drive command \"%s\" successful.\n", cmdmsg);
+    lib_printf("Drive command \"%s\" successful.\n", cmdmsg);
     if (type)
-      pout("Testing has begun%s.\n", (force ? " (previous test aborted)" : ""));
+      lib_printf("Testing has begun%s.\n", (force ? " (previous test aborted)" : ""));
   }
   return 0;
 }
@@ -2187,7 +2187,7 @@ int ataReadSCTStatus(ata_device * device, ata_sct_status_response * sts)
   // read SCT status via SMART log 0xe0
   memset(sts, 0, sizeof(*sts));
   if (smartcommandhandler(device, READ_LOG, 0xe0, (char *)sts)){
-    pout("Read SCT Status failed: %s\n", device->get_errmsg());
+    lib_printf("Read SCT Status failed: %s\n", device->get_errmsg());
     return -1;
   }
 
@@ -2207,7 +2207,7 @@ int ataReadSCTStatus(ata_device * device, ata_sct_status_response * sts)
 
   // Check format version
   if (!(sts->format_version == 2 || sts->format_version == 3)) {
-    pout("Unknown SCT Status format version %u, should be 2 or 3.\n", sts->format_version);
+    lib_printf("Unknown SCT Status format version %u, should be 2 or 3.\n", sts->format_version);
     return -1;
   }
   return 0;
@@ -2221,8 +2221,8 @@ int ataReadSCTTempHist(ata_device * device, ata_sct_temperature_history_table * 
 
   // Do nothing if other SCT command is executing
   if (sts->ext_status_code == 0xffff) {
-    pout("Another SCT command is executing, abort Read Data Table\n"
-         "(SCT ext_status_code 0x%04x, action_code=%u, function_code=%u)\n",
+    lib_printf("Another SCT command is executing, abort Read Data Table\n"
+               "(SCT ext_status_code 0x%04x, action_code=%u, function_code=%u)\n",
       sts->ext_status_code, sts->action_code, sts->function_code);
     return -1;
   }
@@ -2242,14 +2242,14 @@ int ataReadSCTTempHist(ata_device * device, ata_sct_temperature_history_table * 
 
   // write command via SMART log page 0xe0
   if (smartcommandhandler(device, WRITE_LOG, 0xe0, (char *)&cmd)){
-    pout("Write SCT Data Table failed: %s\n", device->get_errmsg());
+    lib_printf("Write SCT Data Table failed: %s\n", device->get_errmsg());
     return -1;
   }
 
   // read SCT data via SMART log page 0xe1
   memset(tmh, 0, sizeof(*tmh));
   if (smartcommandhandler(device, READ_LOG, 0xe1, (char *)tmh)){
-    pout("Read SCT Data Table failed: %s\n", device->get_errmsg());
+    lib_printf("Read SCT Data Table failed: %s\n", device->get_errmsg());
     return -1;
   }
 
@@ -2258,7 +2258,7 @@ int ataReadSCTTempHist(ata_device * device, ata_sct_temperature_history_table * 
     return -1;
 
   if (!(sts->ext_status_code == 0 && sts->action_code == 5 && sts->function_code == 1)) {
-    pout("Unexpected SCT status 0x%04x (action_code=%u, function_code=%u)\n",
+    lib_printf("Unexpected SCT status 0x%04x (action_code=%u, function_code=%u)\n",
       sts->ext_status_code, sts->action_code, sts->function_code);
     return -1;
   }
@@ -2286,8 +2286,8 @@ static int ataGetSetSCTFeatureControl(ata_device * device, unsigned short featur
 
   // Do nothing if other SCT command is executing
   if (sts.ext_status_code == 0xffff) {
-    pout("Another SCT command is executing, abort Feature Control\n"
-         "(SCT ext_status_code 0x%04x, action_code=%u, function_code=%u)\n",
+    lib_printf("Another SCT command is executing, abort Feature Control\n"
+               "(SCT ext_status_code 0x%04x, action_code=%u, function_code=%u)\n",
       sts.ext_status_code, sts.action_code, sts.function_code);
     return -1;
   }
@@ -2324,7 +2324,7 @@ static int ataGetSetSCTFeatureControl(ata_device * device, unsigned short featur
 
   ata_cmd_out out;
   if (!device->ata_pass_through(in, out)) {
-    pout("Write SCT (%cet) Feature Control Command failed: %s\n",
+    lib_printf("Write SCT (%cet) Feature Control Command failed: %s\n",
       (!set ? 'G' : 'S'), device->get_errmsg());
     return -1;
   }
@@ -2335,7 +2335,7 @@ static int ataGetSetSCTFeatureControl(ata_device * device, unsigned short featur
     return -1;
 
   if (!(sts.ext_status_code == 0 && sts.action_code == 4 && sts.function_code == (set ? 1 : 2))) {
-    pout("Unexpected SCT status 0x%04x (action_code=%u, function_code=%u)\n",
+    lib_printf("Unexpected SCT status 0x%04x (action_code=%u, function_code=%u)\n",
       sts.ext_status_code, sts.action_code, sts.function_code);
     return -1;
   }
@@ -2366,8 +2366,8 @@ int ataSetSCTTempInterval(ata_device * device, unsigned interval, bool persisten
 
   // Do nothing if other SCT command is executing
   if (sts.ext_status_code == 0xffff) {
-    pout("Another SCT command is executing, abort Feature Control\n"
-         "(SCT ext_status_code 0x%04x, action_code=%u, function_code=%u)\n",
+    lib_printf("Another SCT command is executing, abort Feature Control\n"
+               "(SCT ext_status_code 0x%04x, action_code=%u, function_code=%u)\n",
       sts.ext_status_code, sts.action_code, sts.function_code);
     return -1;
   }
@@ -2391,7 +2391,7 @@ int ataSetSCTTempInterval(ata_device * device, unsigned interval, bool persisten
 
   // write command via SMART log page 0xe0
   if (smartcommandhandler(device, WRITE_LOG, 0xe0, (char *)&cmd)){
-    pout("Write SCT Feature Control Command failed: %s\n", device->get_errmsg());
+    lib_printf("Write SCT Feature Control Command failed: %s\n", device->get_errmsg());
     return -1;
   }
 
@@ -2400,7 +2400,7 @@ int ataSetSCTTempInterval(ata_device * device, unsigned interval, bool persisten
     return -1;
 
   if (!(sts.ext_status_code == 0 && sts.action_code == 4 && sts.function_code == 1)) {
-    pout("Unexpected SCT status 0x%04x (action_code=%u, function_code=%u)\n",
+    lib_printf("Unexpected SCT status 0x%04x (action_code=%u, function_code=%u)\n",
       sts.ext_status_code, sts.action_code, sts.function_code);
     return -1;
   }
@@ -2419,8 +2419,8 @@ static int ataGetSetSCTErrorRecoveryControltime(ata_device * device, unsigned ty
 
   // Do nothing if other SCT command is executing
   if (sts.ext_status_code == 0xffff) {
-    pout("Another SCT command is executing, abort Error Recovery Control\n"
-         "(SCT ext_status_code 0x%04x, action_code=%u, function_code=%u)\n",
+    lib_printf("Another SCT command is executing, abort Error Recovery Control\n"
+               "(SCT ext_status_code 0x%04x, action_code=%u, function_code=%u)\n",
       sts.ext_status_code, sts.action_code, sts.function_code);
     return -1;
   }
@@ -2466,7 +2466,7 @@ static int ataGetSetSCTErrorRecoveryControltime(ata_device * device, unsigned ty
 
   ata_cmd_out out;
   if (!device->ata_pass_through(in, out)) {
-    pout("Write SCT (%cet) Error Recovery Control Command failed: %s\n",
+    lib_printf("Write SCT (%cet) Error Recovery Control Command failed: %s\n",
       (!set ? 'G' : 'S'), device->get_errmsg());
     return -1;
   }
@@ -2476,7 +2476,7 @@ static int ataGetSetSCTErrorRecoveryControltime(ata_device * device, unsigned ty
     return -1;
 
   if (!(sts.ext_status_code == 0 && sts.action_code == 3 && sts.function_code == saved_function_code)) {
-    pout("Unexpected SCT status 0x%04x (action_code=%u, function_code=%u)\n",
+    lib_printf("Unexpected SCT status 0x%04x (action_code=%u, function_code=%u)\n",
       sts.ext_status_code, sts.action_code, sts.function_code);
     return -1;
   }
@@ -2486,13 +2486,13 @@ static int ataGetSetSCTErrorRecoveryControltime(ata_device * device, unsigned ty
     if (!(out.out_regs.sector_count.is_set() && out.out_regs.lba_low.is_set())) {
       // TODO: Output register support should be checked within each ata_pass_through()
       // implementation before command is issued.
-      pout("SMART WRITE LOG does not return COUNT and LBA_LOW register\n");
+      lib_printf("SMART WRITE LOG does not return COUNT and LBA_LOW register\n");
       return -1;
     }
     if (   out.out_regs.sector_count == in.in_regs.sector_count
         && out.out_regs.lba_low      == in.in_regs.lba_low     ) {
       // 0xe001 (5734.5s) - this is most likely a broken ATA pass-through implementation
-      pout("SMART WRITE LOG returns COUNT and LBA_LOW register unchanged\n");
+      lib_printf("SMART WRITE LOG returns COUNT and LBA_LOW register unchanged\n");
       return -1;
     }
 
@@ -2759,9 +2759,9 @@ bool parsed_ata_device::open()
 bool parsed_ata_device::close()
 {
   if (m_replay_out_of_sync)
-      pout("REPLAY-IOCTL: Warning: commands replayed out of sync\n");
+      lib_printf("REPLAY-IOCTL: Warning: commands replayed out of sync\n");
   else if (m_next_replay_command != 0)
-      pout("REPLAY-IOCTL: Warning: %d command(s) not replayed\n", m_num_commands-m_next_replay_command);
+      lib_printf("REPLAY-IOCTL: Warning: %d command(s) not replayed\n", m_num_commands-m_next_replay_command);
 
   for (int i = 0; i < m_num_commands; i++) {
     if (m_command_table[i].data) {
@@ -2788,7 +2788,7 @@ int parsed_ata_device::ata_command_interface(smart_command_set command, int sele
   int i = m_next_replay_command;
   for (int j = 0; ; j++) {
     if (j >= m_num_commands) {
-      pout("REPLAY-IOCTL: Warning: Command not found\n");
+      lib_printf("REPLAY-IOCTL: Warning: Command not found\n");
       errno = ENOSYS;
       return -1;
     }
@@ -2796,7 +2796,7 @@ int parsed_ata_device::ata_command_interface(smart_command_set command, int sele
       break;
     if (!m_replay_out_of_sync) {
       m_replay_out_of_sync = true;
-      pout("REPLAY-IOCTL: Warning: Command #%d is out of sync\n", i+1);
+      lib_printf("REPLAY-IOCTL: Warning: Command #%d is out of sync\n", i+1);
     }
     if (++i >= m_num_commands)
       i = 0;
@@ -2817,7 +2817,7 @@ int parsed_ata_device::ata_command_interface(smart_command_set command, int sele
       break;
     case WRITE_LOG:
       if (!(m_command_table[i].data && !memcmp(data, m_command_table[i].data, 512)))
-        pout("REPLAY-IOCTL: Warning: WRITE LOG data does not match\n");
+        lib_printf("REPLAY-IOCTL: Warning: WRITE LOG data does not match\n");
       break;
     case CHECK_POWER_MODE:
       data[0] = (char)0xff;

@@ -11,9 +11,6 @@
 #include "config.h"
 #include "nvmecmds.h"
 
-const char * nvmecmds_cvsid = "$Id: nvmecmds.cpp 5630 2024-10-23 17:15:56Z chrfranke $"
-  NVMECMDS_H_CVSID;
-
 #include "dev_interface.h"
 #include "atacmds.h" // swapx(), dont_print_serial_number
 #include "scsicmds.h" // dStrHex()
@@ -46,7 +43,7 @@ static void debug_hex_dump(const void * data, unsigned size)
 
   dStrHex((const uint8_t *)p, sz, 0);
   if (sz < size)
-    pout(" ...\n");
+    lib_printf(" ...\n");
 }
 
 // Call NVMe pass-through and print debug info if requested.
@@ -54,12 +51,12 @@ static bool nvme_pass_through(nvme_device * device, const nvme_cmd_in & in,
   nvme_cmd_out & out)
 {
   if (nvme_debugmode) {
-    pout(" [NVMe call: opcode=0x%02x, size=0x%04x, nsid=0x%08x, cdw10=0x%08x",
+    lib_printf(" [NVMe call: opcode=0x%02x, size=0x%04x, nsid=0x%08x, cdw10=0x%08x",
       in.opcode, in.size, in.nsid, in.cdw10);
     if (in.cdw11 || in.cdw12 || in.cdw13 || in.cdw14 || in.cdw15)
-      pout(",\n  cdw1x=0x%08x, 0x%08x, 0x%08x, 0x%08x, 0x%08x",
-       in.cdw11, in.cdw12, in.cdw13, in.cdw14, in.cdw15);
-    pout("]\n");
+      lib_printf(",\n  cdw1x=0x%08x, 0x%08x, 0x%08x, 0x%08x, 0x%08x",
+        in.cdw11, in.cdw12, in.cdw13, in.cdw14, in.cdw15);
+    lib_printf("]\n");
   }
 
   auto start_usec = (nvme_debugmode ? get_timer_usec() : -1);
@@ -69,7 +66,7 @@ static bool nvme_pass_through(nvme_device * device, const nvme_cmd_in & in,
   if (start_usec >= 0) {
     auto duration_usec = get_timer_usec() - start_usec;
     if (duration_usec > 0)
-      pout(" [Duration: %.6fs]\n", duration_usec / 1000000.0);
+      lib_printf(" [Duration: %.6fs]\n", duration_usec / 1000000.0);
   }
 
   if (dont_print_serial_number && ok && in.opcode == nvme_admin_identify) {
@@ -87,21 +84,21 @@ static bool nvme_pass_through(nvme_device * device, const nvme_cmd_in & in,
 
   if (nvme_debugmode) {
     if (!ok) {
-      pout(" [NVMe call failed: ");
+      lib_printf(" [NVMe call failed: ");
       if (out.status_valid)
-        pout("NVMe Status=0x%04x", out.status);
+        lib_printf("NVMe Status=0x%04x", out.status);
       else
-        pout("%s", device->get_errmsg());
+        lib_printf("%s", device->get_errmsg());
     }
     else {
-      pout(" [NVMe call succeeded: result=0x%08x", out.result);
+      lib_printf(" [NVMe call succeeded: result=0x%08x", out.result);
       if (nvme_debugmode > 1 && in.direction() == nvme_cmd_in::data_in) {
-        pout("\n");
+        lib_printf("\n");
         debug_hex_dump(in.buffer, in.size);
-        pout(" ");
+        lib_printf(" ");
       }
     }
-    pout("]\n");
+    lib_printf("]\n");
   }
 
   return ok;

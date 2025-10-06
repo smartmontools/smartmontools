@@ -13,9 +13,6 @@
 #include "dev_interface.h"
 #include "dev_areca.h"
 
-const char * dev_areca_cpp_cvsid = "$Id: dev_areca.cpp 5337 2022-02-27 07:53:55Z dpgilbert $"
-  DEV_ARECA_H_CVSID;
-
 #include "atacmds.h"
 #include "scsicmds.h"
 
@@ -229,19 +226,19 @@ int generic_areca_device::arcmsr_command_handler(unsigned long arcmsr_cmd, unsig
   // Deal with the different error cases
   if ( arcmsr_cmd == ARCMSR_RETURN_CODE_3F )
   {
-    // Silence the ARCMSR_IOCTL_RETURN_CODE_3F's error, no pout(...)
+    // Silence the ARCMSR_IOCTL_RETURN_CODE_3F's error, no lib_printf(...)
     return -4;
   }
 
   if ( ioctlreturn )
   {
-    pout("do_scsi_cmnd_io with write buffer failed code = %x\n", ioctlreturn);
+    lib_printf("do_scsi_cmnd_io with write buffer failed code = %x\n", ioctlreturn);
     return -2;
   }
 
   if ( iop.scsi_status )
   {
-    pout("io_hdr.scsi_status with write buffer failed code = %x\n", iop.scsi_status);
+    lib_printf("io_hdr.scsi_status with write buffer failed code = %x\n", iop.scsi_status);
     return -3;
   }
 

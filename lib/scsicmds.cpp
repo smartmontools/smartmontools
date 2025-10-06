@@ -36,9 +36,6 @@
 #include "utility.h"
 #include "sg_unaligned.h"
 
-const char *scsicmds_c_cvsid="$Id: scsicmds.cpp 5664 2025-02-24 14:20:16Z chrfranke $"
-  SCSICMDS_H_CVSID;
-
 static const char * logSenStr = "Log Sense";
 
 // Print SCSI debug messages?
@@ -64,12 +61,12 @@ chk_lsense_spc(scsi_device * device)
                       LOG_SENSE, 0, rp, RSOC_1_CMD_CTDP_0, r_len);
     if (err) {
         if (scsi_debugmode)
-            pout("%s Failed [%s]\n", __func__, scsiErrString(err));
+            lib_printf("%s Failed [%s]\n", __func__, scsiErrString(err));
         return SC_NO_SUPPORT;
     }
     if (r_len < 8) {
         if (scsi_debugmode)
-            pout("%s response to short [%d]\n", __func__, r_len);
+            lib_printf("%s response to short [%d]\n", __func__, r_len);
         return SC_NO_SUPPORT;
     }
     /* check the "subpage code" field in LOG SENSE cdb usage data */
@@ -96,12 +93,12 @@ scsi_device::query_cmd_support()
     if (err) {
         rsoc_sup = SC_NO_SUPPORT;
         if (scsi_debugmode)
-            pout("%s Failed [%s]\n", __func__, scsiErrString(err));
+            lib_printf("%s Failed [%s]\n", __func__, scsiErrString(err));
         res = false;
         goto fini;
     }
     if (r_len < 4) {
-        pout("%s response too short\n", __func__);
+        lib_printf("%s response too short\n", __func__);
         res = false;
         goto fini;
     }
@@ -109,8 +106,8 @@ scsi_device::query_cmd_support()
     cd_len = sg_get_unaligned_be32(rp + 0);
     if (cd_len > max_bytes_of_cmds) {
         if (scsi_debugmode)
-            pout("%s: truncate %d byte response to %d bytes\n", __func__,
-                 cd_len, max_bytes_of_cmds);
+            lib_printf("%s: truncate %d byte response to %d bytes\n", __func__,
+                       cd_len, max_bytes_of_cmds);
         cd_len = max_bytes_of_cmds;
     }
     last_rp = rp + cd_len;
@@ -149,16 +146,16 @@ scsi_device::query_cmd_support()
         }
     }
     if (scsi_debugmode > 3) {
-        pout("%s: decoded %d supported commands\n", __func__, k);
-        pout("  LOG SENSE %ssupported\n",
+        lib_printf("%s: decoded %d supported commands\n", __func__, k);
+        lib_printf("  LOG SENSE %ssupported\n",
              (SC_SUPPORT == logsense_sup) ? "" : "not ");
-        pout("  LOG SENSE subpage code %ssupported\n",
+        lib_printf("  LOG SENSE subpage code %ssupported\n",
              (SC_SUPPORT == logsense_spc_sup) ? "" : "not ");
-        pout("  READ DEFECT 10 %ssupported\n",
+        lib_printf("  READ DEFECT 10 %ssupported\n",
              (SC_SUPPORT == rdefect10_sup) ? "" : "not ");
-        pout("  READ DEFECT 12 %ssupported\n",
+        lib_printf("  READ DEFECT 12 %ssupported\n",
              (SC_SUPPORT == rdefect12_sup) ? "" : "not ");
-        pout("  READ CAPACITY 16 %ssupported\n",
+        lib_printf("  READ CAPACITY 16 %ssupported\n",
              (SC_SUPPORT == rcap16_sup) ? "" : "not ");
     }
 
@@ -339,7 +336,7 @@ dStrHexHelper(const uint8_t * up, int len, int no_ascii,
 
 /* Read binary starting at 'up' for 'len' bytes and output as ASCII
  * hexadecimal into file pointer (fp). If fp is nullptr, then send to
- * pout(). See dStrHex() below for more. */
+ * lib_printf(). See dStrHex() below for more. */
 void
 dStrHexFp(const uint8_t * up, int len, int no_ascii, FILE * fp)
 {
@@ -353,11 +350,11 @@ dStrHexFp(const uint8_t * up, int len, int no_ascii, FILE * fp)
                       fp);
     else
         dStrHexHelper(up, len, no_ascii,
-                      [](const char * s, void *){ pout("%s", s); });
+                      [](const char * s, void *){ lib_printf("%s", s); });
 }
 
 /* Read binary starting at 'up' for 'len' bytes and output as ASCII
- * hexadecimal into pout(). 16 bytes per line are output with an
+ * hexadecimal into lib_printf(). 16 bytes per line are output with an
  * additional space between 8th and 9th byte on each line (for readability).
  * 'no_ascii' selects one of 3 output format types:
  *     > 0     each line has address then up to 16 ASCII-hex bytes
@@ -369,7 +366,7 @@ dStrHex(const uint8_t * up, int len, int no_ascii)
 {
     /* N.B. Use of lamba requires C++11 or later. */
     dStrHexHelper(up, len, no_ascii,
-                  [](const char * s, void *){ pout("%s", s); });
+                  [](const char * s, void *){ lib_printf("%s", s); });
 }
 
 /* This is a heuristic that takes into account the command bytes and length
@@ -1575,10 +1572,10 @@ scsi_pass_through_yield_sense(scsi_device * device, scsi_cmnd_io * iop,
             ddir = dout ? "out" : "in";
         }
         np = scsi_get_opcode_name(iop->cmnd);
-        pout(" [%s: ", np ? np : "<unknown opcode>");
-        pout("SCSI opcode=0x%x, CDB length=%u, data length=0x%u, data "
-             "dir=%s]\n", opcode, (unsigned int)iop->cmnd_len,
-             (unsigned int)iop->dxfer_len, ddir);
+        lib_printf(" [%s: ", np ? np : "<unknown opcode>");
+        lib_printf("SCSI opcode=0x%x, CDB length=%u, data length=0x%u, data "
+                   "dir=%s]\n", opcode, (unsigned int)iop->cmnd_len,
+                   (unsigned int)iop->dxfer_len, ddir);
         if (dout && (scsi_debugmode > 3))  /* output hex without address */
             dStrHexFp(iop->dxferp, iop->dxfer_len, -1, nullptr);
     }
@@ -1593,8 +1590,8 @@ scsi_pass_through_yield_sense(scsi_device * device, scsi_cmnd_io * iop,
         if ((req_len > 0) && (DXFER_FROM_DEVICE == iop->dxfer_dir) &&
             (iop->resid >= 0) && (req_len >= (unsigned int)iop->resid)) {
             act_len = req_len - (unsigned int)iop->resid;
-            pout("  [data-in buffer: req_len=%u, resid=%d, gives %u "
-                 "bytes]\n", req_len, iop->resid, act_len);
+            lib_printf("  [data-in buffer: req_len=%u, resid=%d, gives %u "
+                       "bytes]\n", req_len, iop->resid, act_len);
             dStrHexFp(iop->dxferp, act_len, -1, nullptr);
         }
     }
@@ -1612,8 +1609,8 @@ scsi_pass_through_yield_sense(scsi_device * device, scsi_cmnd_io * iop,
     /* There can be multiple UAs pending, allow for three */
     for (k = 0; (k < 3) && (SCSI_SK_UNIT_ATTENTION == sinfo.sense_key); ++k) {
         if (scsi_debugmode > 0)
-            pout("%s Unit Attention %d: asc/ascq=0x%x,0x%x, retrying\n",
-                 __func__, k + 1, sinfo.asc, sinfo.ascq);
+            lib_printf("%s Unit Attention %d: asc/ascq=0x%x,0x%x, retrying\n",
+                       __func__, k + 1, sinfo.asc, sinfo.ascq);
         if (! device->scsi_pass_through(iop))
             return false;
         scsi_do_sense_disect(iop, &sinfo);
@@ -1743,7 +1740,7 @@ scsiGetSize(scsi_device * device, bool avoid_rcap16,
         res = scsiReadCapacity10(device, &last_lba, &lb_size);
         if (res) {
             if (scsi_debugmode)
-                pout("%s: READ CAPACITY(10) failed, res=%d\n", __func__, res);
+                lib_printf("%s: READ CAPACITY(10) failed, res=%d\n", __func__, res);
             try_16 = true;
         } else {        /* rcap10 succeeded */
             if (0xffffffff == last_lba) {
@@ -1768,7 +1765,7 @@ scsiGetSize(scsi_device * device, bool avoid_rcap16,
         res = scsiReadCapacity16(device, rc16resp, sizeof(rc16resp));
         if (res) {
             if (scsi_debugmode)
-                pout("%s: READ CAPACITY(16) failed, res=%d\n", __func__, res);
+                lib_printf("%s: READ CAPACITY(16) failed, res=%d\n", __func__, res);
             if (try_16)         /* so already tried rcap10 */
                 return 0;
             try_12 = true;
@@ -1793,7 +1790,7 @@ scsiGetSize(scsi_device * device, bool avoid_rcap16,
         res = scsiReadCapacity10(device, &last_lba, &lb_size);
         if (res) {
             if (scsi_debugmode)
-                pout("%s: 2nd READ CAPACITY(10) failed, res=%d\n", __func__,
+                lib_printf("%s: 2nd READ CAPACITY(10) failed, res=%d\n", __func__,
                      res);
             return 0;
         } else {        /* rcap10 succeeded */
@@ -1827,14 +1824,14 @@ scsiModePageOffset(const uint8_t * resp, int len, int modese_len)
             offset = bd_len + 4;
         }
         if ((offset + 2) >= len) {
-            pout("scsiModePageOffset: raw_curr too small, offset=%d "
-                 "resp_len=%d bd_len=%d\n", offset, resp_len, bd_len);
+            lib_printf("scsiModePageOffset: raw_curr too small, offset=%d "
+                       "resp_len=%d bd_len=%d\n", offset, resp_len, bd_len);
             offset = -1;
         } else if ((offset + 2) >= resp_len) {
              if ((resp_len > 2) || scsi_debugmode)
-                pout("scsiModePageOffset: response length too short, "
-                     "resp_len=%d offset=%d bd_len=%d\n", resp_len,
-                     offset, bd_len);
+                lib_printf("scsiModePageOffset: response length too short, "
+                           "resp_len=%d offset=%d bd_len=%d\n", resp_len,
+                           offset, bd_len);
             offset = -1;
         }
     }
@@ -1988,7 +1985,7 @@ scsiSetExceptionControlAndWarning(scsi_device * device, int enabled,
         }
         if (0 == memcmp(&rout[offset + 2], &iecp->raw_chg[offset + 2], 10)) {
             if (scsi_debugmode > 0)
-                pout("scsiSetExceptionControlAndWarning: already enabled\n");
+                lib_printf("scsiSetExceptionControlAndWarning: already enabled\n");
             return 0;
         }
     } else { /* disabling Exception Control and (temperature) Warnings */
@@ -1996,7 +1993,7 @@ scsiSetExceptionControlAndWarning(scsi_device * device, int enabled,
         int wEnabled = (rout[offset + 2] & EWASC_ENABLE) ? 1 : 0;
         if ((! eCEnabled) && (! wEnabled)) {
             if (scsi_debugmode > 0)
-                pout("scsiSetExceptionControlAndWarning: already disabled\n");
+                lib_printf("scsiSetExceptionControlAndWarning: already disabled\n");
             return 0;   /* nothing to do, leave other setting alone */
         }
         if (wEnabled)
@@ -2025,7 +2022,7 @@ scsiGetTemp(scsi_device * device, uint8_t *currenttemp, uint8_t *triptemp)
                             sizeof(tBuf), 0))) {
         *currenttemp = 0;
         *triptemp = 0;
-        pout("%s for temperature failed [%s]\n", logSenStr,
+        lib_printf("%s for temperature failed [%s]\n", logSenStr,
              scsiErrString(err));
         return err;
     }
@@ -2061,13 +2058,13 @@ scsiCheckIE(scsi_device * device, int hasIELogPage, int hasTempLogPage,
     if (hasIELogPage) {
         if ((err = scsiLogSense(device, IE_LPAGE, 0, tBuf,
                                 sizeof(tBuf), 0))) {
-            pout("%s failed, IE page [%s]\n", logSenStr, scsiErrString(err));
+            lib_printf("%s failed, IE page [%s]\n", logSenStr, scsiErrString(err));
             return err;
         }
         // pull out page size from response, don't forget to add 4
         unsigned short pagesize = sg_get_unaligned_be16(tBuf + 2) + 4;
         if ((pagesize < 4) || tBuf[4] || tBuf[5]) {
-            pout("%s failed, IE page, bad parameter code or length\n",
+            lib_printf("%s failed, IE page, bad parameter code or length\n",
                  logSenStr);
             return SIMPLE_ERR_BAD_PARAM;
         }
@@ -2085,7 +2082,7 @@ scsiCheckIE(scsi_device * device, int hasIELogPage, int hasTempLogPage,
     if (0 == sense_info.asc) {
         /* ties in with MRIE field of 6 in IEC mode page (0x1c) */
         if ((err = scsiRequestSense(device, &sense_info))) {
-            pout("Request Sense failed, [%s]\n", scsiErrString(err));
+            lib_printf("Request Sense failed, [%s]\n", scsiErrString(err));
             return err;
         }
     }
@@ -2509,7 +2506,7 @@ scsiSmartDefaultSelfTest(scsi_device * device)
 
     res = scsiSendDiagnostic(device, SCSI_DIAG_DEF_SELF_TEST, nullptr, 0);
     if (res)
-        pout("Default self test failed [%s]\n", scsiErrString(res));
+        lib_printf("Default self test failed [%s]\n", scsiErrString(res));
     return res;
 }
 
@@ -2520,7 +2517,7 @@ scsiSmartShortSelfTest(scsi_device * device)
 
     res = scsiSendDiagnostic(device, SCSI_DIAG_BG_SHORT_SELF_TEST, nullptr, 0);
     if (res)
-        pout("Short offline self test failed [%s]\n", scsiErrString(res));
+        lib_printf("Short offline self test failed [%s]\n", scsiErrString(res));
     return res;
 }
 
@@ -2531,7 +2528,7 @@ scsiSmartExtendSelfTest(scsi_device * device)
 
     res = scsiSendDiagnostic(device, SCSI_DIAG_BG_EXTENDED_SELF_TEST, nullptr, 0);
     if (res)
-        pout("Long (extended) offline self test failed [%s]\n",
+        lib_printf("Long (extended) offline self test failed [%s]\n",
              scsiErrString(res));
     return res;
 }
@@ -2543,7 +2540,7 @@ scsiSmartShortCapSelfTest(scsi_device * device)
 
     res = scsiSendDiagnostic(device, SCSI_DIAG_FG_SHORT_SELF_TEST, nullptr, 0);
     if (res)
-        pout("Short foreground self test failed [%s]\n", scsiErrString(res));
+        lib_printf("Short foreground self test failed [%s]\n", scsiErrString(res));
     return res;
 }
 
@@ -2554,7 +2551,7 @@ scsiSmartExtendCapSelfTest(scsi_device * device)
 
     res = scsiSendDiagnostic(device, SCSI_DIAG_FG_EXTENDED_SELF_TEST, nullptr, 0);
     if (res)
-        pout("Long (extended) foreground self test failed [%s]\n",
+        lib_printf("Long (extended) foreground self test failed [%s]\n",
              scsiErrString(res));
     return res;
 }
@@ -2566,7 +2563,7 @@ scsiSmartSelfTestAbort(scsi_device * device)
 
     res = scsiSendDiagnostic(device, SCSI_DIAG_ABORT_SELF_TEST, nullptr, 0);
     if (res)
-        pout("Abort self test failed [%s]\n", scsiErrString(res));
+        lib_printf("Abort self test failed [%s]\n", scsiErrString(res));
     return res;
 }
 
@@ -2747,12 +2744,12 @@ scsiCountFailedSelfTests(scsi_device * fd, int noisy)
     if ((err = scsiLogSense(fd, SELFTEST_RESULTS_LPAGE, 0, resp,
                             LOG_RESP_SELF_TEST_LEN, 0))) {
         if (noisy)
-            pout("scsiCountSelfTests Failed [%s]\n", scsiErrString(err));
+            lib_printf("scsiCountSelfTests Failed [%s]\n", scsiErrString(err));
         return -1;
     }
     if ((resp[0] & 0x3f) != SELFTEST_RESULTS_LPAGE) {
         if (noisy)
-            pout("Self-test %s Failed, page mismatch\n", logSenStr);
+            lib_printf("Self-test %s Failed, page mismatch\n", logSenStr);
         return -1;
     }
     // compute page length
@@ -2760,7 +2757,7 @@ scsiCountFailedSelfTests(scsi_device * fd, int noisy)
     // Log sense page length 0x190 bytes
     if (num != 0x190) {
         if (noisy)
-            pout("Self-test %s length is 0x%x not 0x190 bytes\n", logSenStr,
+            lib_printf("Self-test %s length is 0x%x not 0x190 bytes\n", logSenStr,
                  num);
         return -1;
     }

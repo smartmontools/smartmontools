@@ -1379,16 +1379,23 @@ static void vjpout(bool is_js_impl, const char * msg_severity,
   }
 }
 
+static bool pout_enabled()
+{
+  if (printing_is_off)
+    return false;
+  if (print_as_json && !(print_as_json_output
+      || print_as_json_impl || print_as_json_unimpl))
+    return false;
+  return true;
+}
+
 // Default: print to stdout
 // --json: ignore
 // --json=o: append to "output" array
 // --json=u: add "smartctl_NNNN_u" element(s)
 void pout(const char *fmt, ...)
 {
-  if (printing_is_off)
-    return;
-  if (print_as_json && !(print_as_json_output
-      || print_as_json_impl || print_as_json_unimpl))
+  if (!pout_enabled())
     return;
 
   va_list ap;
@@ -1450,6 +1457,23 @@ void jerr(const char *fmt, ...)
   va_start(ap, fmt);
   vjpout(true, "error", fmt, ap);
   va_end(ap);
+}
+
+class smartctl_hook : public lib_global_hook
+{
+public:
+  virtual void lib_vprintf(const char * fmt, va_list ap) override;
+};
+
+static smartctl_hook the_smartctl_hook;
+
+
+void smartctl_hook::lib_vprintf(const char * fmt, va_list ap)
+{
+  // Same as pout()
+  if (!pout_enabled())
+    return;
+  vjpout(false, 0, fmt, ap);
 }
 
 static char startup_datetime_buf[DATEANDEPOCHLEN];
@@ -1586,6 +1610,9 @@ static int main_worker(int argc, char **argv)
 {
   // Throw if runtime environment does not match compile time test.
   check_config();
+
+  // Register lib_vprintf()
+  lib_global_hook::set(the_smartctl_hook);
 
   // Initialize interface
   smart_interface::init();

@@ -100,9 +100,9 @@ void printwarning(int msgNo, const char* extra) {
       };
 
       printed[msgNo] = 1;
-      pout("%s", message[msgNo]);
+      lib_printf("%s", message[msgNo]);
       if (extra)
-        pout("%s",extra);
+        lib_printf("%s",extra);
     }
   }
   return;
@@ -731,7 +731,7 @@ bool freebsd_escalade_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_ou
 
   if (ata->status || (ata->command & 0x21)) {
     if (scsi_debugmode)
-      pout("Command failed, ata.status=(0x%2.2x), ata.command=(0x%2.2x), ata.flags=(0x%2.2x)\n",ata->status,ata->command,ata->flags);
+      lib_printf("Command failed, ata.status=(0x%2.2x), ata.command=(0x%2.2x), ata.flags=(0x%2.2x)\n",ata->status,ata->command,ata->flags);
     return set_err(EIO);
   }
 
@@ -837,7 +837,7 @@ smart_device * freebsd_megaraid_device::autodetect_open()
       return this;
 
   if (report)
-    pout("Got MegaRAID inquiry.. %s\n", req_buff+8);
+    lib_printf("Got MegaRAID inquiry.. %s\n", req_buff+8);
 
   // Use INQUIRY to detect type
   {
@@ -901,7 +901,7 @@ bool freebsd_megaraid_device::scsi_pass_through(scsi_cmnd_io *iop)
         }
         else
             snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n");
-        pout("%s", buff);
+        lib_printf("%s", buff);
   }
 
   // Controller rejects Test Unit Ready
@@ -1128,8 +1128,8 @@ int freebsd_highpoint_device::ata_command_interface(smart_command_set command, i
     pide_pt_hdr->protocol=HPT_WRITE;
     break;
   default:
-    pout("Unrecognized command %d in highpoint_command_interface()\n"
-         "Please contact " PACKAGE_BUGREPORT "\n", command);
+    lib_printf("Unrecognized command %d in highpoint_command_interface()\n"
+               "Please contact " PACKAGE_BUGREPORT "\n", command);
     errno=ENOSYS;
     return -1;
   }
@@ -1251,30 +1251,30 @@ bool freebsd_scsi_device::scsi_pass_through(scsi_cmnd_io * iop)
     const char * np;
 
     np = scsi_get_opcode_name(ucp);
-    pout(" [%s: ", np ? np : "<unknown opcode>");
+    lib_printf(" [%s: ", np ? np : "<unknown opcode>");
     for (k = 0; k < iop->cmnd_len; ++k)
-      pout("%02x ", ucp[k]);
+      lib_printf("%02x ", ucp[k]);
     if ((scsi_debugmode > 1) && 
       (DXFER_TO_DEVICE == iop->dxfer_dir) && (iop->dxferp)) {
     int trunc = (iop->dxfer_len > 256) ? 1 : 0;
 
-    pout("]\n  Outgoing data, len=%d%s:\n", (int)iop->dxfer_len,
+    lib_printf("]\n  Outgoing data, len=%d%s:\n", (int)iop->dxfer_len,
       (trunc ? " [only first 256 bytes shown]" : ""));
     dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
       }
       else
-        pout("]\n");
+        lib_printf("]\n");
   }
 
   if(m_camdev==NULL) {
     if (scsi_debugmode)
-      pout("  error: camdev=0!\n");
+      lib_printf("  error: camdev=0!\n");
     return set_err(ENOTTY);
   }
 
   if (!(ccb = cam_getccb(m_camdev))) {
     if (scsi_debugmode)
-      pout("  error allocating ccb\n");
+      lib_printf("  error allocating ccb\n");
     return set_err(ENOMEM);
   }
 
@@ -1313,7 +1313,7 @@ bool freebsd_scsi_device::scsi_pass_through(scsi_cmnd_io * iop)
 
   if (cam_send_ccb(m_camdev,ccb) < 0) {
     if (scsi_debugmode) {
-      pout("  error sending SCSI ccb\n");
+      lib_printf("  error sending SCSI ccb\n");
       cam_error_print(m_camdev,ccb,CAM_ESF_ALL,CAM_EPF_ALL,stderr);
     }
     cam_freeccb(ccb);
@@ -1321,7 +1321,7 @@ bool freebsd_scsi_device::scsi_pass_through(scsi_cmnd_io * iop)
   }
 
   if (scsi_debugmode) {
-    pout("  CAM status=0x%x, SCSI status=0x%x, resid=0x%x\n",
+    lib_printf("  CAM status=0x%x, SCSI status=0x%x, resid=0x%x\n",
          ccb->ccb_h.status, ccb->csio.scsi_status, ccb->csio.resid);
     if ((scsi_debugmode > 1) && (DXFER_FROM_DEVICE == iop->dxfer_dir)) {
       int trunc, len;
@@ -1329,12 +1329,12 @@ bool freebsd_scsi_device::scsi_pass_through(scsi_cmnd_io * iop)
       len = iop->dxfer_len - ccb->csio.resid;
       trunc = (len > 256) ? 1 : 0;
       if (len > 0) {
-        pout("  Incoming data, len=%d%s:\n", len,
+        lib_printf("  Incoming data, len=%d%s:\n", len,
              (trunc ? " [only first 256 bytes shown]" : ""));
         dStrHex(iop->dxferp, (trunc ? 256 : len), 1);
       }
       else
-        pout("  Incoming data trimmed to nothing by resid\n");
+        lib_printf("  Incoming data trimmed to nothing by resid\n");
     }
   }
 
@@ -1349,7 +1349,7 @@ bool freebsd_scsi_device::scsi_pass_through(scsi_cmnd_io * iop)
   iop->scsi_status = ccb->csio.scsi_status;
   if (iop->sensep && (ccb->ccb_h.status & CAM_AUTOSNS_VALID) != 0) {
     if (scsi_debugmode)
-      pout("  sense_len=0x%x, sense_resid=0x%x\n",
+      lib_printf("  sense_len=0x%x, sense_resid=0x%x\n",
            ccb->csio.sense_len, ccb->csio.sense_resid);
     iop->resp_sense_len = ccb->csio.sense_len - ccb->csio.sense_resid;
     /* Some SCSI controller device drivers miscalculate the sense_resid
@@ -1360,24 +1360,24 @@ bool freebsd_scsi_device::scsi_pass_through(scsi_cmnd_io * iop)
       memcpy(iop->sensep, &(ccb->csio.sense_data), iop->resp_sense_len);
       if (scsi_debugmode) {
         if (scsi_debugmode > 1) {
-          pout("  >>> Sense buffer, len=%zu:\n", iop->resp_sense_len);
+          lib_printf("  >>> Sense buffer, len=%zu:\n", iop->resp_sense_len);
           dStrHex(iop->sensep, iop->resp_sense_len, 1);
         }
         if ((iop->sensep[0] & 0x7f) > 0x71)
-          pout("  status=0x%x: [desc] sense_key=0x%x asc=0x%x ascq=0x%x\n",
+          lib_printf("  status=0x%x: [desc] sense_key=0x%x asc=0x%x ascq=0x%x\n",
                iop->scsi_status, iop->sensep[1] & 0xf,
                iop->sensep[2], iop->sensep[3]);
         else
-          pout("  status=0x%x: sense_key=0x%x asc=0x%x ascq=0x%x\n",
+          lib_printf("  status=0x%x: sense_key=0x%x asc=0x%x ascq=0x%x\n",
                iop->scsi_status, iop->sensep[2] & 0xf,
                iop->sensep[12], iop->sensep[13]);
       }
     }
     else if (scsi_debugmode)
-      pout("  status=0x%x\n", iop->scsi_status);
+      lib_printf("  status=0x%x\n", iop->scsi_status);
   }
   else if (scsi_debugmode)
-    pout("  status=0x%x\n", iop->scsi_status);
+    lib_printf("  status=0x%x\n", iop->scsi_status);
 
   cam_freeccb(ccb);
 
@@ -1386,7 +1386,7 @@ bool freebsd_scsi_device::scsi_pass_through(scsi_cmnd_io * iop)
   if((!strcmp("mfi", m_camdev->sim_name) || !strcmp("mpt", m_camdev->sim_name))
    && iop->cmnd[0] == INQUIRY) {
      if (scsi_debugmode) {
-        pout("  device on %s controller, patching PDT\n", m_camdev->sim_name);
+        lib_printf("  device on %s controller, patching PDT\n", m_camdev->sim_name);
      }
      iop->dxferp[0] = iop->dxferp[0] & 0xe0;
   }
@@ -1761,7 +1761,7 @@ bool get_dev_names_cam(std::vector<std::string> & names, bool show_all)
     if (errno == ENOENT) /* There are no CAM device on this computer */
       return 0;
     int serrno = errno;
-    pout("%s control device couldn't opened: %s\n", XPT_DEVICE, strerror(errno));
+    lib_printf("%s control device couldn't opened: %s\n", XPT_DEVICE, strerror(errno));
     errno = serrno;
     return false;
   }
@@ -1797,7 +1797,7 @@ bool get_dev_names_cam(std::vector<std::string> & names, bool show_all)
   do {
     if (ioctl(fd, CAMIOCOMMAND, &ccb) == -1) {
       int serrno = errno;
-      pout("error sending CAMIOCOMMAND ioctl: %s\n", strerror(errno));
+      lib_printf("error sending CAMIOCOMMAND ioctl: %s\n", strerror(errno));
       free(ccb.cdm.matches);
       close(fd);
       errno = serrno;
@@ -1807,7 +1807,7 @@ bool get_dev_names_cam(std::vector<std::string> & names, bool show_all)
     if ((ccb.ccb_h.status != CAM_REQ_CMP)
       || ((ccb.cdm.status != CAM_DEV_MATCH_LAST)
       && (ccb.cdm.status != CAM_DEV_MATCH_MORE))) {
-      pout("got CAM error %#x, CDM error %d\n", ccb.ccb_h.status, ccb.cdm.status);
+      lib_printf("got CAM error %#x, CDM error %d\n", ccb.ccb_h.status, ccb.cdm.status);
       free(ccb.cdm.matches);
       close(fd);
       errno = ENXIO;
@@ -1893,14 +1893,14 @@ int get_dev_names_ata(char*** names) {
     if (errno == ENOENT) /* There are no ATA device on this computer */
       return 0;
     serrno = errno;
-    pout("%s control device can't be opened: %s\n", ATA_DEVICE, strerror(errno));
+    lib_printf("%s control device can't be opened: %s\n", ATA_DEVICE, strerror(errno));
     n = -1;
     goto end;
   };
 
   if (ioctl(fd, IOCATAGMAXCHANNEL, &maxchannel) < 0) {
     serrno = errno;
-    pout("ioctl(IOCATAGMAXCHANNEL) on /dev/ata failed: %s\n", strerror(errno));
+    lib_printf("ioctl(IOCATAGMAXCHANNEL) on /dev/ata failed: %s\n", strerror(errno));
     n = -1;
     goto end;
   };
@@ -1909,7 +1909,7 @@ int get_dev_names_ata(char*** names) {
   mp =  (char **)calloc(MAX_NUM_DEV, sizeof(char*));
   if (mp == NULL) {
     serrno=errno;
-    pout("Out of memory constructing scan device list (on line %d)\n", __LINE__);
+    lib_printf("Out of memory constructing scan device list (on line %d)\n", __LINE__);
     n = -1;
     goto end;
   };
@@ -1920,7 +1920,7 @@ int get_dev_names_ata(char*** names) {
     if (ioctl(fd, IOCATADEVICES, &devices) < 0) {
       if (errno == ENXIO)
         continue; /* such channel not exist */
-      pout("ioctl(IOCATADEVICES) on %s channel %d failed: %s\n", ATA_DEVICE, devices.channel, strerror(errno));
+      lib_printf("ioctl(IOCATADEVICES) on %s channel %d failed: %s\n", ATA_DEVICE, devices.channel, strerror(errno));
       n = -1;
       goto end;
     };
@@ -1928,7 +1928,7 @@ int get_dev_names_ata(char*** names) {
       if (devices.name[j][0] != '\0') {
         asprintf(mp+n, "%s%s", _PATH_DEV, devices.name[j]);
         if (mp[n] == NULL) {
-          pout("Out of memory constructing scan ATA device list (on line %d)\n", __LINE__);
+          lib_printf("Out of memory constructing scan ATA device list (on line %d)\n", __LINE__);
           n = -1;
           goto end;
         };
@@ -1941,7 +1941,7 @@ int get_dev_names_ata(char*** names) {
   mp = (char **)reallocf(mp,n*(sizeof (char*))); // shrink to correct size
   if (mp == NULL) {
     serrno=errno;
-    pout("Out of memory constructing scan device list (on line %d)\n", __LINE__);
+    lib_printf("Out of memory constructing scan device list (on line %d)\n", __LINE__);
     n = -1;
     goto end;
   };
@@ -2333,20 +2333,20 @@ smart_device * freebsd_smart_interface::autodetect_smart_device(const char * nam
   }
   else {
     if (numata < 0)
-      pout("Unable to get ATA device list\n");
+      lib_printf("Unable to get ATA device list\n");
   }
 
   // check CAM
   std::vector<std::string> scsinames;
   if (!get_dev_names_cam(scsinames, true))
-    pout("Unable to get CAM device list\n");
+    lib_printf("Unable to get CAM device list\n");
   else if (!scsinames.empty()) {
     // check all devices on CAM bus
     for (i = 0; i < (int)scsinames.size(); i++) {
       if(strcmp(scsinames[i].c_str(), test_name)==0)
       { // our disk device is CAM
         if(strncmp(scsinames[i].c_str(), "/dev/pmp", strlen("/dev/pmp")) == 0) {
-          pout("Skipping port multiplier [%s]\n", scsinames[i].c_str());
+          lib_printf("Skipping port multiplier [%s]\n", scsinames[i].c_str());
           set_err(EINVAL);
           return 0;
         }

@@ -377,7 +377,7 @@ namespace os_win32 { // no need to publish anything, name provided for Doxygen
 static int is_permissive()
 {
   if (!failuretest_permissive) {
-    pout("To continue, add one or more '-T permissive' options.\n");
+    lib_printf("To continue, add one or more '-T permissive' options.\n");
     return 0;
   }
   failuretest_permissive--;
@@ -485,16 +485,16 @@ bool win_smart_device::close()
 
 static void print_ide_regs(const IDEREGS * r, int out)
 {
-  pout("%s=0x%02x,%s=0x%02x, SC=0x%02x, SN=0x%02x, CL=0x%02x, CH=0x%02x, SEL=0x%02x\n",
+  lib_printf("%s=0x%02x,%s=0x%02x, SC=0x%02x, SN=0x%02x, CL=0x%02x, CH=0x%02x, SEL=0x%02x\n",
     (out?"STS":"CMD"), r->bCommandReg, (out?"ERR":" FR"), r->bFeaturesReg,
     r->bSectorCountReg, r->bSectorNumberReg, r->bCylLowReg, r->bCylHighReg, r->bDriveHeadReg);
 }
 
 static void print_ide_regs_io(const IDEREGS * ri, const IDEREGS * ro)
 {
-  pout("    Input : "); print_ide_regs(ri, 0);
+  lib_printf("    Input : "); print_ide_regs(ri, 0);
   if (ro) {
-    pout("    Output: "); print_ide_regs(ro, 1);
+    lib_printf("    Output: "); print_ide_regs(ro, 1);
   }
 }
 
@@ -511,20 +511,20 @@ static int smart_get_version(HANDLE hdevice, GETVERSIONINPARAMS_EX * ata_version
   if (!DeviceIoControl(hdevice, SMART_GET_VERSION,
     NULL, 0, &vers, sizeof(vers), &num_out, NULL)) {
     if (ata_debugmode)
-      pout("  SMART_GET_VERSION failed, Error=%u\n", (unsigned)GetLastError());
+      lib_printf("  SMART_GET_VERSION failed, Error=%u\n", (unsigned)GetLastError());
     errno = ENOSYS;
     return -1;
   }
   assert(num_out == sizeof(GETVERSIONINPARAMS));
 
   if (ata_debugmode > 1) {
-    pout("  SMART_GET_VERSION succeeded, bytes returned: %u\n"
-         "    Vers = %d.%d, Caps = 0x%x, DeviceMap = 0x%02x\n",
+    lib_printf("  SMART_GET_VERSION succeeded, bytes returned: %u\n"
+               "    Vers = %d.%d, Caps = 0x%x, DeviceMap = 0x%02x\n",
       (unsigned)num_out, vers.bVersion, vers.bRevision,
       (unsigned)vers.fCapabilities, vers.bIDEDeviceMap);
     if (vers_ex.wIdentifier == SMART_VENDOR_3WARE)
-      pout("    Identifier = %04x(3WARE), ControllerId=%u, DeviceMapEx = 0x%08x\n",
-      vers_ex.wIdentifier, vers_ex.wControllerId, (unsigned)vers_ex.dwDeviceMapEx);
+      lib_printf("    Identifier = %04x(3WARE), ControllerId=%u, DeviceMapEx = 0x%08x\n",
+        vers_ex.wIdentifier, vers_ex.wControllerId, (unsigned)vers_ex.dwDeviceMapEx);
   }
 
   if (ata_version_ex)
@@ -589,7 +589,7 @@ static int smart_ioctl(HANDLE hdevice, IDEREGS * regs, char * data, unsigned dat
     // CAUTION: DO NOT change "regs" Parameter in this case, see win_ata_device::ata_pass_through()
     long err = GetLastError();
     if (ata_debugmode && (err != ERROR_INVALID_PARAMETER || ata_debugmode > 1)) {
-      pout("  %s failed, Error=%ld\n", name, err);
+      lib_printf("  %s failed, Error=%ld\n", name, err);
       print_ide_regs_io(regs, NULL);
     }
     errno = (   err == ERROR_INVALID_FUNCTION/*9x*/
@@ -603,7 +603,7 @@ static int smart_ioctl(HANDLE hdevice, IDEREGS * regs, char * data, unsigned dat
 
   if (outpar->DriverStatus.bDriverError) {
     if (ata_debugmode) {
-      pout("  %s failed, DriverError=0x%02x, IDEError=0x%02x\n", name,
+      lib_printf("  %s failed, DriverError=0x%02x, IDEError=0x%02x\n", name,
         outpar->DriverStatus.bDriverError, outpar->DriverStatus.bIDEError);
       print_ide_regs_io(regs, NULL);
     }
@@ -612,7 +612,7 @@ static int smart_ioctl(HANDLE hdevice, IDEREGS * regs, char * data, unsigned dat
   }
 
   if (ata_debugmode > 1) {
-    pout("  %s succeeded, bytes returned: %u (buffer %u)\n", name,
+    lib_printf("  %s succeeded, bytes returned: %u (buffer %u)\n", name,
       (unsigned)num_out, (unsigned)outpar->cBufferSize);
     print_ide_regs_io(regs, (regs->bFeaturesReg == ATA_SMART_STATUS ?
       (const IDEREGS *)(outpar->bBuffer) : NULL));
@@ -625,7 +625,7 @@ static int smart_ioctl(HANDLE hdevice, IDEREGS * regs, char * data, unsigned dat
       memcpy(regs, outpar->bBuffer, sizeof(IDEREGS));
     else {  // Workaround for driver not returning regs
       if (ata_debugmode)
-        pout("  WARNING: driver does not return ATA registers in output buffer!\n");
+        lib_printf("  WARNING: driver does not return ATA registers in output buffer!\n");
       *regs = inpar.irDriveRegs;
     }
   }
@@ -665,7 +665,7 @@ static int ide_pass_through_ioctl(HANDLE hdevice, IDEREGS * regs, char * data, u
     buf, size, buf, size, &num_out, NULL)) {
     long err = GetLastError();
     if (ata_debugmode) {
-      pout("  IOCTL_IDE_PASS_THROUGH failed, Error=%ld\n", err);
+      lib_printf("  IOCTL_IDE_PASS_THROUGH failed, Error=%ld\n", err);
       print_ide_regs_io(regs, NULL);
     }
     VirtualFree(buf, 0, MEM_RELEASE);
@@ -676,7 +676,7 @@ static int ide_pass_through_ioctl(HANDLE hdevice, IDEREGS * regs, char * data, u
   // Check ATA status
   if (buf->IdeReg.bCommandReg/*Status*/ & 0x01) {
     if (ata_debugmode) {
-      pout("  IOCTL_IDE_PASS_THROUGH command failed:\n");
+      lib_printf("  IOCTL_IDE_PASS_THROUGH command failed:\n");
       print_ide_regs_io(regs, &buf->IdeReg);
     }
     VirtualFree(buf, 0, MEM_RELEASE);
@@ -689,7 +689,7 @@ static int ide_pass_through_ioctl(HANDLE hdevice, IDEREGS * regs, char * data, u
     if (   num_out != size
         || (buf->DataBuffer[0] == magic && !nonempty(buf->DataBuffer+1, datasize-1))) {
       if (ata_debugmode) {
-        pout("  IOCTL_IDE_PASS_THROUGH output data missing (%u, %u)\n",
+        lib_printf("  IOCTL_IDE_PASS_THROUGH output data missing (%u, %u)\n",
           (unsigned)num_out, (unsigned)buf->DataBufferSize);
         print_ide_regs_io(regs, &buf->IdeReg);
       }
@@ -701,7 +701,7 @@ static int ide_pass_through_ioctl(HANDLE hdevice, IDEREGS * regs, char * data, u
   }
 
   if (ata_debugmode > 1) {
-    pout("  IOCTL_IDE_PASS_THROUGH succeeded, bytes returned: %u (buffer %u)\n",
+    lib_printf("  IOCTL_IDE_PASS_THROUGH succeeded, bytes returned: %u (buffer %u)\n",
       (unsigned)num_out, (unsigned)buf->DataBufferSize);
     print_ide_regs_io(regs, &buf->IdeReg);
   }
@@ -786,7 +786,7 @@ static int ata_pass_through_ioctl(HANDLE hdevice, IDEREGS * regs, IDEREGS * prev
     &ab, size, &ab, size, &num_out, NULL)) {
     long err = GetLastError();
     if (ata_debugmode) {
-      pout("  IOCTL_ATA_PASS_THROUGH failed, Error=%ld\n", err);
+      lib_printf("  IOCTL_ATA_PASS_THROUGH failed, Error=%ld\n", err);
       print_ide_regs_io(regs, NULL);
     }
     errno = (err == ERROR_INVALID_FUNCTION || err == ERROR_NOT_SUPPORTED ? ENOSYS : EIO);
@@ -796,7 +796,7 @@ static int ata_pass_through_ioctl(HANDLE hdevice, IDEREGS * regs, IDEREGS * prev
   // Check ATA status
   if (ctfregs->bCommandReg/*Status*/ & (0x01/*Err*/|0x08/*DRQ*/)) {
     if (ata_debugmode) {
-      pout("  IOCTL_ATA_PASS_THROUGH command failed:\n");
+      lib_printf("  IOCTL_ATA_PASS_THROUGH command failed:\n");
       print_ide_regs_io(regs, ctfregs);
     }
     errno = EIO;
@@ -808,7 +808,7 @@ static int ata_pass_through_ioctl(HANDLE hdevice, IDEREGS * regs, IDEREGS * prev
     if (   num_out != size
         || (ab.ucDataBuf[0] == magic && !nonempty(ab.ucDataBuf+1, datasize-1))) {
       if (ata_debugmode) {
-        pout("  IOCTL_ATA_PASS_THROUGH output data missing (%u)\n", (unsigned)num_out);
+        lib_printf("  IOCTL_ATA_PASS_THROUGH output data missing (%u)\n", (unsigned)num_out);
         print_ide_regs_io(regs, ctfregs);
       }
       errno = EIO;
@@ -818,7 +818,7 @@ static int ata_pass_through_ioctl(HANDLE hdevice, IDEREGS * regs, IDEREGS * prev
   }
 
   if (ata_debugmode > 1) {
-    pout("  IOCTL_ATA_PASS_THROUGH succeeded, bytes returned: %u\n", (unsigned)num_out);
+    lib_printf("  IOCTL_ATA_PASS_THROUGH succeeded, bytes returned: %u\n", (unsigned)num_out);
     print_ide_regs_io(regs, ctfregs);
   }
   *regs = *ctfregs;
@@ -921,7 +921,7 @@ static int ata_via_scsi_miniport_smart_ioctl(HANDLE hdevice, IDEREGS * regs, cha
     &sb, size, &sb, size, &num_out, NULL)) {
     long err = GetLastError();
     if (ata_debugmode) {
-      pout("  IOCTL_SCSI_MINIPORT_%s failed, Error=%ld\n", name, err);
+      lib_printf("  IOCTL_SCSI_MINIPORT_%s failed, Error=%ld\n", name, err);
       print_ide_regs_io(regs, NULL);
     }
     errno = (err == ERROR_INVALID_FUNCTION || err == ERROR_NOT_SUPPORTED ? ENOSYS : EIO);
@@ -931,7 +931,7 @@ static int ata_via_scsi_miniport_smart_ioctl(HANDLE hdevice, IDEREGS * regs, cha
   // Check result
   if (sb.srbc.ReturnCode) {
     if (ata_debugmode) {
-      pout("  IOCTL_SCSI_MINIPORT_%s failed, ReturnCode=0x%08x\n", name, (unsigned)sb.srbc.ReturnCode);
+      lib_printf("  IOCTL_SCSI_MINIPORT_%s failed, ReturnCode=0x%08x\n", name, (unsigned)sb.srbc.ReturnCode);
       print_ide_regs_io(regs, NULL);
     }
     errno = EIO;
@@ -940,7 +940,7 @@ static int ata_via_scsi_miniport_smart_ioctl(HANDLE hdevice, IDEREGS * regs, cha
 
   if (sb.params.out.DriverStatus.bDriverError) {
     if (ata_debugmode) {
-      pout("  IOCTL_SCSI_MINIPORT_%s failed, DriverError=0x%02x, IDEError=0x%02x\n", name,
+      lib_printf("  IOCTL_SCSI_MINIPORT_%s failed, DriverError=0x%02x, IDEError=0x%02x\n", name,
         sb.params.out.DriverStatus.bDriverError, sb.params.out.DriverStatus.bIDEError);
       print_ide_regs_io(regs, NULL);
     }
@@ -949,7 +949,7 @@ static int ata_via_scsi_miniport_smart_ioctl(HANDLE hdevice, IDEREGS * regs, cha
   }
 
   if (ata_debugmode > 1) {
-    pout("  IOCTL_SCSI_MINIPORT_%s succeeded, bytes returned: %u (buffer %u)\n", name,
+    lib_printf("  IOCTL_SCSI_MINIPORT_%s succeeded, bytes returned: %u (buffer %u)\n", name,
       (unsigned)num_out, (unsigned)sb.params.out.cBufferSize);
     print_ide_regs_io(regs, (code == IOCTL_SCSI_MINIPORT_RETURN_STATUS ?
                              (const IDEREGS *)(sb.params.out.bBuffer) : 0));
@@ -995,7 +995,7 @@ static int ata_via_3ware_miniport_ioctl(HANDLE hdevice, IDEREGS * regs, char * d
     &sb, sizeof(sb), &sb, sizeof(sb), &num_out, NULL)) {
     long err = GetLastError();
     if (ata_debugmode) {
-      pout("  ATA via IOCTL_SCSI_MINIPORT failed, Error=%ld\n", err);
+      lib_printf("  ATA via IOCTL_SCSI_MINIPORT failed, Error=%ld\n", err);
       print_ide_regs_io(regs, NULL);
     }
     errno = (err == ERROR_INVALID_FUNCTION ? ENOSYS : EIO);
@@ -1004,7 +1004,7 @@ static int ata_via_3ware_miniport_ioctl(HANDLE hdevice, IDEREGS * regs, char * d
 
   if (sb.srbc.ReturnCode) {
     if (ata_debugmode) {
-      pout("  ATA via IOCTL_SCSI_MINIPORT failed, ReturnCode=0x%08x\n", (unsigned)sb.srbc.ReturnCode);
+      lib_printf("  ATA via IOCTL_SCSI_MINIPORT failed, ReturnCode=0x%08x\n", (unsigned)sb.srbc.ReturnCode);
       print_ide_regs_io(regs, NULL);
     }
     errno = EIO;
@@ -1016,7 +1016,7 @@ static int ata_via_3ware_miniport_ioctl(HANDLE hdevice, IDEREGS * regs, char * d
     memcpy(data, sb.buffer, datasize);
 
   if (ata_debugmode > 1) {
-    pout("  ATA via IOCTL_SCSI_MINIPORT succeeded, bytes returned: %u\n", (unsigned)num_out);
+    lib_printf("  ATA via IOCTL_SCSI_MINIPORT succeeded, bytes returned: %u\n", (unsigned)num_out);
     print_ide_regs_io(regs, &sb.regs);
   }
   *regs = sb.regs;
@@ -1046,18 +1046,18 @@ static int update_3ware_devicemap_ioctl(HANDLE hdevice)
     &srbc, sizeof(srbc), &srbc, sizeof(srbc), &num_out, NULL)) {
     long err = GetLastError();
     if (ata_debugmode)
-      pout("  UPDATE DEVICEMAP via IOCTL_SCSI_MINIPORT failed, Error=%ld\n", err);
+      lib_printf("  UPDATE DEVICEMAP via IOCTL_SCSI_MINIPORT failed, Error=%ld\n", err);
     errno = (err == ERROR_INVALID_FUNCTION ? ENOSYS : EIO);
     return -1;
   }
   if (srbc.ReturnCode) {
     if (ata_debugmode)
-      pout("  UPDATE DEVICEMAP via IOCTL_SCSI_MINIPORT failed, ReturnCode=0x%08x\n", (unsigned)srbc.ReturnCode);
+      lib_printf("  UPDATE DEVICEMAP via IOCTL_SCSI_MINIPORT failed, ReturnCode=0x%08x\n", (unsigned)srbc.ReturnCode);
     errno = EIO;
     return -1;
   }
   if (ata_debugmode > 1)
-    pout("  UPDATE DEVICEMAP via IOCTL_SCSI_MINIPORT succeeded\n");
+    lib_printf("  UPDATE DEVICEMAP via IOCTL_SCSI_MINIPORT succeeded\n");
   return 0;
 }
 
@@ -1082,22 +1082,22 @@ static int storage_query_property_ioctl(HANDLE hdevice, STORAGE_DEVICE_DESCRIPTO
   if (!DeviceIoControl(hdevice, IOCTL_STORAGE_QUERY_PROPERTY,
     &query, sizeof(query), data, sizeof(*data), &num_out, NULL)) {
     if (ata_debugmode > 1 || scsi_debugmode > 1)
-      pout("  IOCTL_STORAGE_QUERY_PROPERTY failed, Error=%u\n", (unsigned)GetLastError());
+      lib_printf("  IOCTL_STORAGE_QUERY_PROPERTY failed, Error=%u\n", (unsigned)GetLastError());
     errno = ENOSYS;
     return -1;
   }
 
   if (ata_debugmode > 1 || scsi_debugmode > 1) {
-    pout("  IOCTL_STORAGE_QUERY_PROPERTY returns:\n"
-         "    Vendor:   \"%s\"\n"
-         "    Product:  \"%s\"\n"
-         "    Revision: \"%s\"\n"
-         "    Removable: %s\n"
-         "    BusType:   0x%02x\n",
-         (data->desc.VendorIdOffset        ? data->raw+data->desc.VendorIdOffset : "(null)"),
-         (data->desc.ProductIdOffset       ? data->raw+data->desc.ProductIdOffset : "(null)"),
-         (data->desc.ProductRevisionOffset ? data->raw+data->desc.ProductRevisionOffset : "(null)"),
-         (data->desc.RemovableMedia? "Yes":"No"), data->desc.BusType
+    lib_printf("  IOCTL_STORAGE_QUERY_PROPERTY returns:\n"
+               "    Vendor:   \"%s\"\n"
+               "    Product:  \"%s\"\n"
+               "    Revision: \"%s\"\n"
+               "    Removable: %s\n"
+               "    BusType:   0x%02x\n",
+               (data->desc.VendorIdOffset        ? data->raw+data->desc.VendorIdOffset : "(null)"),
+               (data->desc.ProductIdOffset       ? data->raw+data->desc.ProductIdOffset : "(null)"),
+               (data->desc.ProductRevisionOffset ? data->raw+data->desc.ProductRevisionOffset : "(null)"),
+               (data->desc.RemovableMedia? "Yes":"No"), data->desc.BusType
     );
   }
   return 0;
@@ -1120,18 +1120,18 @@ static int storage_predict_failure_ioctl(HANDLE hdevice, char * data = 0)
   if (!DeviceIoControl(hdevice, IOCTL_STORAGE_PREDICT_FAILURE,
     0, 0, &pred, sizeof(pred), &num_out, NULL)) {
     if (ata_debugmode > 1)
-      pout("  IOCTL_STORAGE_PREDICT_FAILURE failed, Error=%u\n", (unsigned)GetLastError());
+      lib_printf("  IOCTL_STORAGE_PREDICT_FAILURE failed, Error=%u\n", (unsigned)GetLastError());
     errno = ENOSYS;
     return -1;
   }
 
   if (ata_debugmode > 1) {
-    pout("  IOCTL_STORAGE_PREDICT_FAILURE returns:\n"
-         "    PredictFailure: 0x%08x\n"
-         "    VendorSpecific: 0x%02x,0x%02x,0x%02x,...,0x%02x\n",
-         (unsigned)pred.PredictFailure,
-         pred.VendorSpecific[0], pred.VendorSpecific[1], pred.VendorSpecific[2],
-         pred.VendorSpecific[sizeof(pred.VendorSpecific)-1]
+    lib_printf("  IOCTL_STORAGE_PREDICT_FAILURE returns:\n"
+               "    PredictFailure: 0x%08x\n"
+               "    VendorSpecific: 0x%02x,0x%02x,0x%02x,...,0x%02x\n",
+               (unsigned)pred.PredictFailure,
+               pred.VendorSpecific[0], pred.VendorSpecific[1], pred.VendorSpecific[2],
+               pred.VendorSpecific[sizeof(pred.VendorSpecific)-1]
     );
   }
   if (data)
@@ -1191,7 +1191,7 @@ static bool get_serial_from_wmi(int drive, ata_identify_device * id)
   wbem_services ws;
   if (!ws.connect()) {
     if (debug)
-      pout("WMI connect failed\n");
+      lib_printf("WMI connect failed\n");
     return false;
   }
 
@@ -1202,7 +1202,7 @@ static bool get_serial_from_wmi(int drive, ata_identify_device * id)
 
   std::string serial = wo.get_str("SerialNumber");
   if (debug)
-    pout("  WMI:PhysicalDrive%d: \"%s\", S/N:\"%s\"\n", drive, wo.get_str("Model").c_str(), serial.c_str());
+    lib_printf("  WMI:PhysicalDrive%d: \"%s\", S/N:\"%s\"\n", drive, wo.get_str("Model").c_str(), serial.c_str());
 
   copy_swapped(id->serial_no, serial.c_str(), sizeof(id->serial_no));
   return true;
@@ -1222,7 +1222,7 @@ static bool get_usb_id(int phydrive, int logdrive,
   wbem_services ws;
   if (!ws.connect()) {
     if (debug)
-      pout("WMI connect failed\n");
+      lib_printf("WMI connect failed\n");
     return false;
   }
 
@@ -1238,7 +1238,7 @@ static bool get_usb_id(int phydrive, int logdrive,
 
     std::string partid = wo.get_str("DeviceID");
     if (debug)
-      pout("%c: --> \"%s\" -->\n", 'A'+logdrive, partid.c_str());
+      lib_printf("%c: --> \"%s\" -->\n", 'A'+logdrive, partid.c_str());
 
     // Partition ID -> Physical drive info
     if (!ws.query1(wo, "ASSOCIATORS OF {Win32_DiskPartition.DeviceID=\"%s\"} WHERE ResultClass = Win32_DiskDrive",
@@ -1247,7 +1247,7 @@ static bool get_usb_id(int phydrive, int logdrive,
 
     name = wo.get_str("Model");
     if (debug)
-      pout("%s --> \"%s\":\n", wo.get_str("DeviceID").c_str(), name.c_str());
+      lib_printf("%s --> \"%s\":\n", wo.get_str("DeviceID").c_str(), name.c_str());
   }
 
   else if (phydrive >= 0) {
@@ -1257,7 +1257,7 @@ static bool get_usb_id(int phydrive, int logdrive,
 
     name = wo.get_str("Model");
     if (debug)
-      pout("\\.\\\\PHYSICALDRIVE%d --> \"%s\":\n", phydrive, name.c_str());
+      lib_printf("\\.\\\\PHYSICALDRIVE%d --> \"%s\":\n", phydrive, name.c_str());
   }
   else
     return false;
@@ -1282,13 +1282,13 @@ static bool get_usb_id(int phydrive, int logdrive,
     dep = wo.get_str("Dependent");
 
     if (debug && ant != prev_ant)
-      pout(" %s:\n", ant.c_str());
+      lib_printf(" %s:\n", ant.c_str());
 
     // Extract DeviceID
     regular_expression::match_range match[2];
     if (!(regex.execute(dep.c_str(), 2, match) && match[1].rm_so >= 0)) {
       if (debug)
-        pout("  | (\"%s\")\n", dep.c_str());
+        lib_printf("  | (\"%s\")\n", dep.c_str());
       continue;
     }
 
@@ -1303,12 +1303,12 @@ static bool get_usb_id(int phydrive, int logdrive,
       }
       prev_usb_ant = ant;
       if (debug)
-        pout("  +-> \"%s\" [0x%04x:0x%04x]\n", devid.c_str(), prev_usb_venid, prev_usb_proid);
+        lib_printf("  +-> \"%s\" [0x%04x:0x%04x]\n", devid.c_str(), prev_usb_venid, prev_usb_proid);
     }
     else if (str_starts_with(devid, "USBSTOR\\\\") || str_starts_with(devid, "SCSI\\\\")) {
       // USBSTORage or SCSI device found
       if (debug)
-        pout("  +--> \"%s\"\n", devid.c_str());
+        lib_printf("  +--> \"%s\"\n", devid.c_str());
 
       // Retrieve name
       wbem_object wo2;
@@ -1319,14 +1319,14 @@ static bool get_usb_id(int phydrive, int logdrive,
       // Continue if not name of physical disk drive
       if (name2 != name) {
         if (debug)
-          pout("  +---> (\"%s\")\n", name2.c_str());
+          lib_printf("  +---> (\"%s\")\n", name2.c_str());
         continue;
       }
 
       // Fail if previous USB bridge is associated to other controller or ID is unknown
       if (!(ant == prev_usb_ant && prev_usb_venid)) {
         if (debug)
-          pout("  +---> \"%s\" (Error: No USB bridge found)\n", name2.c_str());
+          lib_printf("  +---> \"%s\" (Error: No USB bridge found)\n", name2.c_str());
         return false;
       }
 
@@ -1335,7 +1335,7 @@ static bool get_usb_id(int phydrive, int logdrive,
         // Fail if multiple devices with same name have different USB bridge types
         if (!(usb_venid == prev_usb_venid && usb_proid == prev_usb_proid)) {
           if (debug)
-            pout("  +---> \"%s\" (Error: More than one USB ID found)\n", name2.c_str());
+            lib_printf("  +---> \"%s\" (Error: More than one USB ID found)\n", name2.c_str());
           return false;
         }
       }
@@ -1344,13 +1344,13 @@ static bool get_usb_id(int phydrive, int logdrive,
       usb_venid = prev_usb_venid;
       usb_proid = prev_usb_proid;
       if (debug)
-        pout("  +===> \"%s\" [0x%04x:0x%04x]\n", name2.c_str(), usb_venid, usb_proid);
+        lib_printf("  +===> \"%s\" [0x%04x:0x%04x]\n", name2.c_str(), usb_venid, usb_proid);
 
       // Continue to check for duplicate names ...
     }
     else {
       if (debug)
-        pout("  |   \"%s\"\n", devid.c_str());
+        lib_printf("  |   \"%s\"\n", devid.c_str());
     }
   }
 
@@ -1376,7 +1376,7 @@ static int get_device_power_state(HANDLE hdevice)
   if (!GetDevicePowerState(hdevice, &state)) {
     long err = GetLastError();
     if (ata_debugmode)
-      pout("  GetDevicePowerState() failed, Error=%ld\n", err);
+      lib_printf("  GetDevicePowerState() failed, Error=%ld\n", err);
     errno = (err == ERROR_INVALID_FUNCTION ? ENOSYS : EIO);
     // TODO: This may not work as expected on transient errors,
     // because smartd interprets -1 as SLEEP mode regardless of errno.
@@ -1384,7 +1384,7 @@ static int get_device_power_state(HANDLE hdevice)
   }
 
   if (ata_debugmode > 1)
-    pout("  GetDevicePowerState() succeeded, state=%d\n", state);
+    lib_printf("  GetDevicePowerState() succeeded, state=%d\n", state);
   return state;
 }
 
@@ -1532,13 +1532,13 @@ bool win_ata_device::open(int phydrive, int logdrive, const char * options, int 
   if (!m_admin && !query_device) {
     static bool noadmin_warning = false;
     if (!noadmin_warning) {
-      pout("Warning: Limited functionality due to missing admin rights\n");
+      lib_printf("Warning: Limited functionality due to missing admin rights\n");
       noadmin_warning = true;
     }
   }
 
   if (ata_debugmode > 1)
-    pout("%s: successfully opened%s\n", devpath, (!m_admin ? " (without admin rights)" :""));
+    lib_printf("%s: successfully opened%s\n", devpath, (!m_admin ? " (without admin rights)" :""));
 
   m_usr_options = false;
   if (*options) {
@@ -1570,7 +1570,7 @@ bool win_ata_device::open(int phydrive, int logdrive, const char * options, int 
   if (devmap >= 0) {
     // 3ware RAID: check vendor id
     if (!m_is_3ware) {
-      pout("SMART_GET_VERSION returns unknown Identifier = 0x%04x\n"
+      lib_printf("SMART_GET_VERSION returns unknown Identifier = 0x%04x\n"
            "This is no 3ware 9000 controller or driver has no SMART support.\n",
            vers_ex.wIdentifier);
       devmap = -1;
@@ -1579,7 +1579,7 @@ bool win_ata_device::open(int phydrive, int logdrive, const char * options, int 
       portmap = vers_ex.dwDeviceMapEx;
   }
   if (devmap < 0) {
-    pout("%s: ATA driver has no SMART support\n", devpath);
+    lib_printf("%s: ATA driver has no SMART support\n", devpath);
     if (!is_permissive()) {
       close();
       return set_err(ENOSYS);
@@ -2053,10 +2053,10 @@ int csmi_device::get_phy_info(CSMI_SAS_PHY_INFO & phy_info, port_2_index_map & p
   const CSMI_SAS_DRIVER_INFO & driver_info = driver_info_buf.Information;
 
   if (scsi_debugmode > 1) {
-    pout("CSMI_SAS_DRIVER_INFO:\n");
-    pout("  Name:        \"%.81s\"\n", driver_info.szName);
-    pout("  Description: \"%.81s\"\n", driver_info.szDescription);
-    pout("  Revision:    %d.%d\n", driver_info.usMajorRevision, driver_info.usMinorRevision);
+    lib_printf("CSMI_SAS_DRIVER_INFO:\n");
+    lib_printf("  Name:        \"%.81s\"\n", driver_info.szName);
+    lib_printf("  Description: \"%.81s\"\n", driver_info.szDescription);
+    lib_printf("  Revision:    %d.%d\n", driver_info.usMajorRevision, driver_info.usMinorRevision);
   }
 
   // Get Phy info
@@ -2082,12 +2082,12 @@ int csmi_device::get_phy_info(CSMI_SAS_PHY_INFO & phy_info, port_2_index_map & p
   const CSMI_SAS_RAID_INFO & raid_info = raid_info_buf.Information;
 
   if (scsi_debugmode > 1 && nonempty(&raid_info_buf, sizeof(raid_info_buf))) {
-    pout("CSMI_SAS_RAID_INFO:\n");
-    pout("  NumRaidSets:  %u\n", (unsigned)raid_info.uNumRaidSets);
-    pout("  MaxDrvPerSet: %u\n", (unsigned)raid_info.uMaxDrivesPerSet);
-    pout("  MaxRaidSets:  %u\n", (unsigned)raid_info.uMaxRaidSets);
-    pout("  MaxRaidTypes: %d\n", raid_info.bMaxRaidTypes);
-    pout("  MaxPhyDrives: %u\n", (unsigned)raid_info.uMaxPhysicalDrives);
+    lib_printf("CSMI_SAS_RAID_INFO:\n");
+    lib_printf("  NumRaidSets:  %u\n", (unsigned)raid_info.uNumRaidSets);
+    lib_printf("  MaxDrvPerSet: %u\n", (unsigned)raid_info.uMaxDrivesPerSet);
+    lib_printf("  MaxRaidSets:  %u\n", (unsigned)raid_info.uMaxRaidSets);
+    lib_printf("  MaxRaidTypes: %d\n", raid_info.bMaxRaidTypes);
+    lib_printf("  MaxPhyDrives: %u\n", (unsigned)raid_info.uMaxPhysicalDrives);
   }
 
   // Create port -> index map
@@ -2148,7 +2148,7 @@ int csmi_device::get_phy_info(CSMI_SAS_PHY_INFO & phy_info, port_2_index_map & p
   }
 
   if (scsi_debugmode > 1) {
-    pout("CSMI_SAS_PHY_INFO: NumberOfPhys=%d\n", phy_info.bNumberOfPhys);
+    lib_printf("CSMI_SAS_PHY_INFO: NumberOfPhys=%d\n", phy_info.bNumberOfPhys);
     for (int i = 0; i < max_number_of_ports; i++) {
       const CSMI_SAS_PHY_ENTITY & pe = phy_info.Phy[i];
       if (!nonempty(&pe, sizeof(pe)))
@@ -2161,19 +2161,19 @@ int csmi_device::get_phy_info(CSMI_SAS_PHY_INFO & phy_info, port_2_index_map & p
           port = p;
       }
 
-      pout("Phy[%d] Port:  %2d%s\n", i, port, (i >= first_guessed_index ? " (*guessed*)" : ""));
-      pout("  Type:        0x%02x, 0x%02x\n", id.bDeviceType, at.bDeviceType);
-      pout("  InitProto:   0x%02x, 0x%02x\n", id.bInitiatorPortProtocol, at.bInitiatorPortProtocol);
-      pout("  TargetProto: 0x%02x, 0x%02x\n", id.bTargetPortProtocol, at.bTargetPortProtocol);
-      pout("  PortIdent:   0x%02x\n", pe.bPortIdentifier);
-      pout("  PhyIdent:    0x%02x, 0x%02x\n", id.bPhyIdentifier, at.bPhyIdentifier);
-      pout("  SignalClass: 0x%02x, 0x%02x\n", id.bSignalClass, at.bSignalClass);
-      pout("  Restricted:  0x%02x, 0x%02x\n", id.bRestricted, at.bRestricted);
+      lib_printf("Phy[%d] Port:  %2d%s\n", i, port, (i >= first_guessed_index ? " (*guessed*)" : ""));
+      lib_printf("  Type:        0x%02x, 0x%02x\n", id.bDeviceType, at.bDeviceType);
+      lib_printf("  InitProto:   0x%02x, 0x%02x\n", id.bInitiatorPortProtocol, at.bInitiatorPortProtocol);
+      lib_printf("  TargetProto: 0x%02x, 0x%02x\n", id.bTargetPortProtocol, at.bTargetPortProtocol);
+      lib_printf("  PortIdent:   0x%02x\n", pe.bPortIdentifier);
+      lib_printf("  PhyIdent:    0x%02x, 0x%02x\n", id.bPhyIdentifier, at.bPhyIdentifier);
+      lib_printf("  SignalClass: 0x%02x, 0x%02x\n", id.bSignalClass, at.bSignalClass);
+      lib_printf("  Restricted:  0x%02x, 0x%02x\n", id.bRestricted, at.bRestricted);
       const unsigned char * b = id.bSASAddress;
-      pout("  SASAddress:  %02x %02x %02x %02x %02x %02x %02x %02x, ",
+      lib_printf("  SASAddress:  %02x %02x %02x %02x %02x %02x %02x %02x, ",
         b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7]);
       b = at.bSASAddress;
-      pout(               "%02x %02x %02x %02x %02x %02x %02x %02x\n",
+      lib_printf(               "%02x %02x %02x %02x %02x %02x %02x %02x\n",
         b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7]);
     }
   }
@@ -2455,7 +2455,7 @@ bool win_csmi_device::open_scsi()
   }
 
   if (scsi_debugmode > 1)
-    pout(" %s: successfully opened\n", devpath);
+    lib_printf(" %s: successfully opened\n", devpath);
 
   m_fh = h;
   m_port = port;
@@ -2509,7 +2509,7 @@ bool win_csmi_device::csmi_ioctl(unsigned code, IOCTL_HEADER * csmi_buffer,
     csmi_buffer, csmi_bufsiz, csmi_buffer, csmi_bufsiz, &num_out, (OVERLAPPED*)0)) {
     long err = GetLastError();
     if (scsi_debugmode)
-      pout("  IOCTL_SCSI_MINIPORT(CC_CSMI_%u) failed, Error=%ld\n", code, err);
+      lib_printf("  IOCTL_SCSI_MINIPORT(CC_CSMI_%u) failed, Error=%ld\n", code, err);
     if (   err == ERROR_INVALID_FUNCTION
         || err == ERROR_NOT_SUPPORTED
         || err == ERROR_DEV_NOT_EXIST)
@@ -2521,14 +2521,14 @@ bool win_csmi_device::csmi_ioctl(unsigned code, IOCTL_HEADER * csmi_buffer,
   // Check result
   if (csmi_buffer->ReturnCode) {
     if (scsi_debugmode) {
-      pout("  IOCTL_SCSI_MINIPORT(CC_CSMI_%u) failed, ReturnCode=%u\n",
+      lib_printf("  IOCTL_SCSI_MINIPORT(CC_CSMI_%u) failed, ReturnCode=%u\n",
         code, (unsigned)csmi_buffer->ReturnCode);
     }
     return set_err(EIO, "CSMI(%u) failed with ReturnCode=%u", code, (unsigned)csmi_buffer->ReturnCode);
   }
 
   if (scsi_debugmode > 1)
-    pout("  IOCTL_SCSI_MINIPORT(CC_CSMI_%u) succeeded, bytes returned: %u\n", code, (unsigned)num_out);
+    lib_printf("  IOCTL_SCSI_MINIPORT(CC_CSMI_%u) succeeded, bytes returned: %u\n", code, (unsigned)num_out);
 
   return true;
 }
@@ -2627,7 +2627,7 @@ bool win_tw_cli_device::open()
     char cmd[100];
     snprintf(cmd, sizeof(cmd), "tw_cli /%s show all", name+n1);
     if (ata_debugmode > 1)
-      pout("%s: Run: \"%s\"\n", name, cmd);
+      lib_printf("%s: Run: \"%s\"\n", name, cmd);
     FILE * f = popen(cmd, "rb");
     if (f) {
       size = fread(buffer, 1, sizeof(buffer), f);
@@ -2639,7 +2639,7 @@ bool win_tw_cli_device::open()
   }
 
   if (ata_debugmode > 1)
-    pout("%s: Read %d bytes\n", name, size);
+    lib_printf("%s: Read %d bytes\n", name, size);
   if (size <= 0)
     return set_err(ENOENT);
   if (size >= (int)sizeof(buffer))
@@ -2647,7 +2647,7 @@ bool win_tw_cli_device::open()
 
   buffer[size] = 0;
   if (ata_debugmode > 1)
-    pout("[\n%.100s%s\n]\n", buffer, (size>100?"...":""));
+    lib_printf("[\n%.100s%s\n]\n", buffer, (size>100?"...":""));
 
   // Fake identify sector
   STATIC_ASSERT(sizeof(ata_identify_device) == 512);
@@ -2924,7 +2924,7 @@ bool win_scsi_device::scsi_pass_through(struct scsi_cmnd_io * iop)
     }
     else
       j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n");
-    pout("%s", buff);
+    lib_printf("%s", buff);
   }
 
   SCSI_PASS_THROUGH_DIRECT_WITH_BUFFER sb;
@@ -2993,15 +2993,15 @@ bool win_scsi_device::scsi_pass_through(struct scsi_cmnd_io * iop)
     iop->resp_sense_len = slen;
     if (report) {
       if (report > 1) {
-        pout("  >>> Sense buffer, len=%d:\n", slen);
+        lib_printf("  >>> Sense buffer, len=%d:\n", slen);
         dStrHex(iop->sensep, slen , 1);
       }
       if ((iop->sensep[0] & 0x7f) > 0x71)
-        pout("  status=%x: [desc] sense_key=%x asc=%x ascq=%x\n",
+        lib_printf("  status=%x: [desc] sense_key=%x asc=%x ascq=%x\n",
              iop->scsi_status, iop->sensep[1] & 0xf,
              iop->sensep[2], iop->sensep[3]);
       else
-        pout("  status=%x: sense_key=%x asc=%x ascq=%x\n",
+        lib_printf("  status=%x: sense_key=%x asc=%x ascq=%x\n",
              iop->scsi_status, iop->sensep[2] & 0xf,
              iop->sensep[12], iop->sensep[13]);
     }
@@ -3015,7 +3015,7 @@ bool win_scsi_device::scsi_pass_through(struct scsi_cmnd_io * iop)
 
   if ((iop->dxfer_dir == DXFER_FROM_DEVICE) && (report > 1)) {
      int trunc = (iop->dxfer_len > 256) ? 1 : 0;
-     pout("  Incoming data, len=%d, resid=%d%s:\n", (int)iop->dxfer_len, iop->resid,
+     lib_printf("  Incoming data, len=%d, resid=%d%s:\n", (int)iop->dxfer_len, iop->resid,
         (trunc ? " [only first 256 bytes shown]" : ""));
         dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
   }
@@ -3053,7 +3053,7 @@ static long scsi_pass_through_direct(HANDLE fd, UCHAR targetid, struct scsi_cmnd
     }
     else
       j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n");
-    pout("%s", buff);
+    lib_printf("%s", buff);
   }
 
   SCSI_PASS_THROUGH_DIRECT_WITH_BUFFER sb;
@@ -3123,15 +3123,15 @@ static long scsi_pass_through_direct(HANDLE fd, UCHAR targetid, struct scsi_cmnd
     iop->resp_sense_len = slen;
     if (report) {
       if (report > 1) {
-        pout("  >>> Sense buffer, len=%d:\n", slen);
+        lib_printf("  >>> Sense buffer, len=%d:\n", slen);
         dStrHex(iop->sensep, slen , 1);
       }
       if ((iop->sensep[0] & 0x7f) > 0x71)
-        pout("  status=%x: [desc] sense_key=%x asc=%x ascq=%x\n",
+        lib_printf("  status=%x: [desc] sense_key=%x asc=%x ascq=%x\n",
              iop->scsi_status, iop->sensep[1] & 0xf,
              iop->sensep[2], iop->sensep[3]);
       else
-        pout("  status=%x: sense_key=%x asc=%x ascq=%x\n",
+        lib_printf("  status=%x: sense_key=%x asc=%x ascq=%x\n",
              iop->scsi_status, iop->sensep[2] & 0xf,
              iop->sensep[12], iop->sensep[13]);
     }
@@ -3145,7 +3145,7 @@ static long scsi_pass_through_direct(HANDLE fd, UCHAR targetid, struct scsi_cmnd
 
   if ((iop->dxfer_dir == DXFER_FROM_DEVICE) && (report > 1)) {
      int trunc = (iop->dxfer_len > 256) ? 1 : 0;
-     pout("  Incoming data, len=%d, resid=%d%s:\n", (int)iop->dxfer_len, iop->resid,
+     lib_printf("  Incoming data, len=%d, resid=%d%s:\n", (int)iop->dxfer_len, iop->resid,
         (trunc ? " [only first 256 bytes shown]" : ""));
         dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
   }
@@ -3490,7 +3490,7 @@ bool win_aacraid_device::scsi_pass_through(struct scsi_cmnd_io *iop)
       }
     else
       j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n");
-    pout("buff %s\n",buff);
+    lib_printf("buff %s\n",buff);
   }
 
   // Create buffer with appropriate size
@@ -3521,7 +3521,7 @@ bool win_aacraid_device::scsi_pass_through(struct scsi_cmnd_io *iop)
       pScsiIO->SrbFlags |= SRB_DataOut;
       break;
     default:
-      pout("aacraid: bad dxfer_dir\n");
+      lib_printf("aacraid: bad dxfer_dir\n");
       return set_err(EINVAL, "aacraid: bad dxfer_dir\n");
   }
   pScsiIO->DataTransferLength = (ULONG)iop->dxfer_len;
@@ -3570,15 +3570,15 @@ bool win_aacraid_device::scsi_pass_through(struct scsi_cmnd_io *iop)
     iop->resp_sense_len = slen;
     if (report) {
       if (report > 1) {
-        pout("  >>> Sense buffer, len=%d:\n", slen);
+        lib_printf("  >>> Sense buffer, len=%d:\n", slen);
         dStrHex(iop->sensep, slen , 1);
       }
       if ((iop->sensep[0] & 0x7f) > 0x71)
-        pout("  status=%x: [desc] sense_key=%x asc=%x ascq=%x\n",
+        lib_printf("  status=%x: [desc] sense_key=%x asc=%x ascq=%x\n",
           iop->scsi_status, iop->sensep[1] & 0xf,
           iop->sensep[2], iop->sensep[3]);
       else
-        pout("  status=%x: sense_key=%x asc=%x ascq=%x\n",
+        lib_printf("  status=%x: sense_key=%x asc=%x ascq=%x\n",
           iop->scsi_status, iop->sensep[2] & 0xf,
           iop->sensep[12], iop->sensep[13]);
     }
@@ -3592,7 +3592,7 @@ bool win_aacraid_device::scsi_pass_through(struct scsi_cmnd_io *iop)
   }
   if((iop->dxfer_dir == DXFER_FROM_DEVICE) && (report > 1)){
     int trunc = (iop->dxfer_len > 256) ? 1 : 0;
-    pout("  Incoming data, len=%d, resid=%d%s:\n", (int)iop->dxfer_len, iop->resid,
+    lib_printf("  Incoming data, len=%d, resid=%d%s:\n", (int)iop->dxfer_len, iop->resid,
       (trunc ? " [only first 256 bytes shown]" : ""));
     dStrHex((const uint8_t *)pDataIO, (trunc ? 256 : (int)(iop->dxfer_len)) , 1);
   }
@@ -3647,7 +3647,7 @@ bool win_nvme_device::open_scsi(int n)
   if (h == INVALID_HANDLE_VALUE) {
     long err = GetLastError();
     if (nvme_debugmode > 1)
-      pout("  %s: Open failed, Error=%ld\n", devpath, err);
+      lib_printf("  %s: Open failed, Error=%ld\n", devpath, err);
     if (err == ERROR_FILE_NOT_FOUND)
       set_err(ENOENT, "%s: not found", devpath);
     else if (err == ERROR_ACCESS_DENIED)
@@ -3658,7 +3658,7 @@ bool win_nvme_device::open_scsi(int n)
   }
 
   if (nvme_debugmode > 1)
-    pout("  %s: successfully opened\n", devpath);
+    lib_printf("  %s: successfully opened\n", devpath);
 
   set_fh(h);
   return true;
@@ -3681,7 +3681,7 @@ bool win_nvme_device::probe()
 
   bool ok = nvme_pass_through(in, out);
   if (!ok && nvme_debugmode > 1)
-    pout("  nvme probe failed: %s\n", get_errmsg());
+    lib_printf("  nvme probe failed: %s\n", get_errmsg());
   return ok;
 }
 
@@ -3875,7 +3875,7 @@ bool win10_nvme_device::open(int phydrive, int logdrive)
   if (h == INVALID_HANDLE_VALUE) {
     long err = GetLastError();
     if (nvme_debugmode > 1)
-      pout("  %s: Open failed, Error=%ld\n", devpath, err);
+      lib_printf("  %s: Open failed, Error=%ld\n", devpath, err);
     if (err == ERROR_FILE_NOT_FOUND)
       set_err(ENOENT, "%s: not found", devpath);
     else if (err == ERROR_ACCESS_DENIED)
@@ -3886,7 +3886,7 @@ bool win10_nvme_device::open(int phydrive, int logdrive)
   }
 
   if (nvme_debugmode > 1)
-    pout("  %s: successfully opened%s\n", devpath, (!admin ? " (without admin rights)" : ""));
+    lib_printf("  %s: successfully opened%s\n", devpath, (!admin ? " (without admin rights)" : ""));
 
   set_fh(h);
 
@@ -3948,7 +3948,7 @@ bool win10_nvme_device::nvme_storage_query_property(const nvme_cmd_in & in, nvme
     memcpy(spsq->DataBuffer, in.buffer, in.size);
 
   if (nvme_debugmode > 1)
-    pout("  [STORAGE_QUERY_PROPERTY: Id=%u, Type=%u, Value=0x%08x, SubVal=0x%08x]\n",
+    lib_printf("  [STORAGE_QUERY_PROPERTY: Id=%u, Type=%u, Value=0x%08x, SubVal=0x%08x]\n",
          (unsigned)spsq->PropertyQuery.PropertyId,
          (unsigned)spsq->ProtocolSpecific.DataType,
          (unsigned)spsq->ProtocolSpecific.ProtocolDataRequestValue,
@@ -3964,7 +3964,7 @@ bool win10_nvme_device::nvme_storage_query_property(const nvme_cmd_in & in, nvme
   }
 
   if (nvme_debugmode > 1)
-    pout("  [STORAGE_QUERY_PROPERTY: ReturnData=0x%08x, Reserved[3]={0x%x, 0x%x, 0x%x}]\n",
+    lib_printf("  [STORAGE_QUERY_PROPERTY: ReturnData=0x%08x, Reserved[3]={0x%x, 0x%x, 0x%x}]\n",
       (unsigned)spsq->ProtocolSpecific.FixedProtocolReturnData,
       (unsigned)spsq->ProtocolSpecific.Reserved[0],
       (unsigned)spsq->ProtocolSpecific.Reserved[1],
@@ -4012,7 +4012,7 @@ bool win10_nvme_device::nvme_storage_protocol_command(const nvme_cmd_in & in, nv
   nvcm->u.GENERAL.CDW10 = in.cdw10;
 
   if (nvme_debugmode > 1)
-    pout("  [IOCTL_STORAGE_PROTOCOL_COMMAND(NVMe): CDW0.OPC=0x%02x, NSID=0x%04x, CDW10=0x%04x]\n",
+    lib_printf("  [IOCTL_STORAGE_PROTOCOL_COMMAND(NVMe): CDW0.OPC=0x%02x, NSID=0x%04x, CDW10=0x%04x]\n",
       (unsigned)nvcm->CDW0.OPC,
       (unsigned)nvcm->NSID,
       (unsigned)nvcm->u.GENERAL.CDW10);
@@ -4451,7 +4451,7 @@ static win_dev_type get_controller_type(const char * path, GETVERSIONINPARAMS_EX
       return DEV_UNKNOWN;
   }
   if (ata_debugmode > 1 || scsi_debugmode > 1)
-    pout(" %s: successfully opened%s\n", path, (!admin ? " (without admin rights)" :""));
+    lib_printf(" %s: successfully opened%s\n", path, (!admin ? " (without admin rights)" :""));
   win_dev_type type = get_controller_type(h, admin, ata_version_ex);
   CloseHandle(h);
   return type;

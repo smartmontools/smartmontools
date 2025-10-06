@@ -3,7 +3,7 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2012-23 Christian Franke
+ * Copyright (C) 2012-25 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -13,9 +13,7 @@
 
 #include "ataidentify.h"
 
-const char * ataidentify_cpp_cvsid = "$Id: ataidentify.cpp 5517 2023-07-24 13:53:08Z chrfranke $"
-  ATAIDENTIFY_H_CVSID;
-
+#include "smartctl.h"
 #include "utility.h"
 
 #include <inttypes.h>

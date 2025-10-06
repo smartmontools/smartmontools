@@ -1,7 +1,7 @@
 /*
  * os_os2.c
  *
- * Home page of code is: http://www.smartmontools.org
+ * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2004-8 Yuri Dario
  *
@@ -25,10 +25,6 @@
 
 // This is to include whatever prototypes you define in os_generic.h
 #include "os_os2.h"
-
-// Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_XXXX_c_cvsid="$Id: os_os2.cpp 5376 2022-05-01 12:49:30Z chrfranke $" \
-ATACMDS_H_CVSID OS_XXXX_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // global handle to device driver
 static HFILE hDevice;
@@ -206,7 +202,7 @@ int deviceopen(const char *pathname, char * /* type */ ){
   }
 
   if(!activedev) {
-     pout("Error: please specify hdX or ahciX device name\n");
+     lib_printf("Error: please specify hdX or ahciX device name\n");
      return -1;
   }
   //printf( "deviceopen pathname %s\n", pathname);
@@ -484,8 +480,8 @@ int ata_command_interface(int device, smart_command_set command, int select, cha
   //  buff[1]=ATA_SMART_STATUS;
   //  break;
   default:
-    pout("Unrecognized command %d in linux_ata_command_interface()\n"
-         "Please contact " PACKAGE_BUGREPORT "\n", command);
+    lib_printf("Unrecognized command %d in linux_ata_command_interface()\n"
+               "Please contact " PACKAGE_BUGREPORT "\n", command);
     errno=ENOSYS;
     return -1;
   }
@@ -508,7 +504,7 @@ int ata_command_interface(int device, smart_command_set command, int select, cha
 
     // We haven't gotten output that makes sense; print out some debugging info
     syserror("Error SMART Status command failed");
-    pout("Please get assistance from " PACKAGE_URL "\n");
+    lib_printf("Please get assistance from " PACKAGE_URL "\n");
     return -1;
   }
 
@@ -526,6 +522,6 @@ int ata_command_interface(int device, smart_command_set command, int select, cha
 
 // Interface to SCSI devices. N/A under OS/2
 int do_scsi_cmnd_io(int /* fd */, struct scsi_cmnd_io * /* iop */, int /* report */) {
-  pout("SCSI interface is not implemented\n");
+  lib_printf("SCSI interface is not implemented\n");
   return -ENOSYS;
 }

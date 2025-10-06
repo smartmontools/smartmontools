@@ -15,8 +15,6 @@
 #include "dev_tunnelled.h"
 #include <errno.h>
 
-const char * dev_intelliprop_cpp_cvsid = "$Id: dev_intelliprop.cpp 5449 2023-02-05 14:44:07Z chrfranke $";
-
 //Vendor Specific log addresses
 #define LOG_C0           0xc0
 
@@ -137,36 +135,36 @@ static uint16_t iprop_crc16_1(uint8_t * buffer, uint32_t len, bool check_crc)
 
 static void iprop_dump_log_structure(struct iprop_internal_log const * const log)
 {
-  pout("Dumping LOG Structure:\n");
-  pout("  drive_select:           0x%08x\n", log->drive_select);
-  pout("  obsolete:               0x%08x\n", log->obsolete);
-  pout("  mode_control:           0x%02x\n", log->mode_control);
-  pout("  log_passthrough:        0x%02x\n", log->log_passthrough);
-  pout("  tier_id:                0x%04x\n", log->tier_id);
-  pout("  hw_version:             0x%08x\n", log->hw_version);
-  pout("  fw_version:             0x%08x\n", log->fw_version);
-  pout("  variant:                \"");
+  lib_printf("Dumping LOG Structure:\n");
+  lib_printf("  drive_select:           0x%08x\n", log->drive_select);
+  lib_printf("  obsolete:               0x%08x\n", log->obsolete);
+  lib_printf("  mode_control:           0x%02x\n", log->mode_control);
+  lib_printf("  log_passthrough:        0x%02x\n", log->log_passthrough);
+  lib_printf("  tier_id:                0x%04x\n", log->tier_id);
+  lib_printf("  hw_version:             0x%08x\n", log->hw_version);
+  lib_printf("  fw_version:             0x%08x\n", log->fw_version);
+  lib_printf("  variant:                \"");
   for (int ii = 0; ii < 8; ii++) {
-    pout("%c", (char)log->variant[ii]);
+    lib_printf("%c", (char)log->variant[ii]);
   }
-  pout("\"\n");
-  pout("  port_0_settings(Gen 1): 0x%08x\n", log->port_0_settings[0]);
-  pout("  port_0_settings(Gen 2): 0x%08x\n", log->port_0_settings[1]);
-  pout("  port_0_settings(Gen 3): 0x%08x\n", log->port_0_settings[2]);
-  pout("  port_1_settings(Gen 1): 0x%08x\n", log->port_1_settings[0]);
-  pout("  port_1_settings(Gen 2): 0x%08x\n", log->port_1_settings[1]);
-  pout("  port_1_settings(Gen 3): 0x%08x\n", log->port_1_settings[2]);
-  pout("  port_2_settings(Gen 1): 0x%08x\n", log->port_2_settings[0]);
-  pout("  port_2_settings(Gen 2): 0x%08x\n", log->port_2_settings[1]);
-  pout("  port_2_settings(Gen 3): 0x%08x\n", log->port_2_settings[2]);
-  pout("  port_3_settings(Gen 1): 0x%08x\n", log->port_3_settings[0]);
-  pout("  port_3_settings(Gen 2): 0x%08x\n", log->port_3_settings[1]);
-  pout("  port_3_settings(Gen 3): 0x%08x\n", log->port_3_settings[2]);
-  pout("  port_4_settings(Gen 1): 0x%08x\n", log->port_4_settings[0]);
-  pout("  port_4_settings(Gen 2): 0x%08x\n", log->port_4_settings[1]);
-  pout("  port_4_settings(Gen 3): 0x%08x\n", log->port_4_settings[2]);
-  pout("  crc:                    0x%04x\n", log->crc);
-  pout("\n");
+  lib_printf("\"\n");
+  lib_printf("  port_0_settings(Gen 1): 0x%08x\n", log->port_0_settings[0]);
+  lib_printf("  port_0_settings(Gen 2): 0x%08x\n", log->port_0_settings[1]);
+  lib_printf("  port_0_settings(Gen 3): 0x%08x\n", log->port_0_settings[2]);
+  lib_printf("  port_1_settings(Gen 1): 0x%08x\n", log->port_1_settings[0]);
+  lib_printf("  port_1_settings(Gen 2): 0x%08x\n", log->port_1_settings[1]);
+  lib_printf("  port_1_settings(Gen 3): 0x%08x\n", log->port_1_settings[2]);
+  lib_printf("  port_2_settings(Gen 1): 0x%08x\n", log->port_2_settings[0]);
+  lib_printf("  port_2_settings(Gen 2): 0x%08x\n", log->port_2_settings[1]);
+  lib_printf("  port_2_settings(Gen 3): 0x%08x\n", log->port_2_settings[2]);
+  lib_printf("  port_3_settings(Gen 1): 0x%08x\n", log->port_3_settings[0]);
+  lib_printf("  port_3_settings(Gen 2): 0x%08x\n", log->port_3_settings[1]);
+  lib_printf("  port_3_settings(Gen 3): 0x%08x\n", log->port_3_settings[2]);
+  lib_printf("  port_4_settings(Gen 1): 0x%08x\n", log->port_4_settings[0]);
+  lib_printf("  port_4_settings(Gen 2): 0x%08x\n", log->port_4_settings[1]);
+  lib_printf("  port_4_settings(Gen 3): 0x%08x\n", log->port_4_settings[2]);
+  lib_printf("  crc:                    0x%04x\n", log->crc);
+  lib_printf("\n");
 }
 
 static bool iprop_switch_routed_drive(ata_device * device, int drive_select)
@@ -186,7 +184,7 @@ static bool iprop_switch_routed_drive(ata_device * device, int drive_select)
    //as long as everything else in the log is zeroed. So there is no need to return false.
   if (crc_check != 0) {
     if (ata_debugmode)
-      pout("Intelliprop WARNING: Received log crc(0x%04X) is invalid!\n", crc_check);
+      lib_printf("Intelliprop WARNING: Received log crc(0x%04X) is invalid!\n", crc_check);
     iprop_dump_log_structure(&write_payload);
     memset(&write_payload, 0, sizeof(struct iprop_internal_log));
   }
@@ -198,7 +196,7 @@ static bool iprop_switch_routed_drive(ata_device * device, int drive_select)
   // Modify the current drive select to what we were given
   write_payload.drive_select = (uint32_t)drive_select;
   if (ata_debugmode)
-    pout("Intelliprop - Change to port 0x%08X.\n", write_payload.drive_select);
+    lib_printf("Intelliprop - Change to port 0x%08X.\n", write_payload.drive_select);
   write_payload.log_passthrough = 0; // TEST (Set to 1, non hydra member drive will abort --> test error handling)
   write_payload.tier_id = 0; // TEST (Set to non-zero, non hydra member drive will abort --> test error handling)
 

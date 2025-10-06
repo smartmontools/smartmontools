@@ -222,7 +222,7 @@ bool sntjmicron_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out &
       if (lid == 0x6 && in.size > 0x218) {
         unsigned size = 0x218;
         cdw10 = lid | ((size/4 - 1) << 16);
-        pout("Warning: self-test output truncated to 19 items to workaround controller bug\n");
+        lib_printf("Warning: self-test output truncated to 19 items to workaround controller bug\n");
       }
     }
     unsigned char cdb[SNT_JMICRON_CDB_LEN] = { 0 };
@@ -390,7 +390,7 @@ bool sntrealtek_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out &
       if (size > 0x200) { // Reading more apparently returns old data from previous command
         // TODO: Add ability to return short reads to caller
         size = 0x200;
-        pout("Warning: NVMe Get Log truncated to 0x%03x bytes, 0x%03x bytes zero filled\n", size, in.size - size);
+        lib_printf("Warning: NVMe Get Log truncated to 0x%03x bytes, 0x%03x bytes zero filled\n", size, in.size - size);
       }
       break;
     default:
