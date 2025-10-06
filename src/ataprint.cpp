@@ -2135,7 +2135,7 @@ static bool print_pending_defects_log(ata_device * device, unsigned nsectors,
 static void PrintSataPhyEventCounters(const unsigned char * data, bool reset)
 {
   if (checksum(data))
-    checksumwarning("SATA Phy Event Counters");
+    lib_ata_hook::get().on_checksum_error("SATA Phy Event Counters");
   jout("SATA Phy Event Counters (GP Log 0x11)\n");
   if (data[0] || data[1] || data[2] || data[3])
     pout("[Reserved: 0x%02x 0x%02x 0x%02x 0x%02x]\n",

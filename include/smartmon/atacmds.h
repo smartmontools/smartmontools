@@ -4,7 +4,7 @@
  * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen
- * Copyright (C) 2008-19 Christian Franke
+ * Copyright (C) 2008-25 Christian Franke
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
@@ -13,7 +13,7 @@
 #ifndef ATACMDS_H_
 #define ATACMDS_H_
 
-#define ATACMDS_H_CVSID "$Id: atacmds.h 5166 2021-01-15 18:02:19Z chrfranke $"
+#define ATACMDS_H_CVSID // TODO: Remove when no longer used
 
 #include "dev_interface.h" // ata_device
 #include "static_assert.h"
@@ -601,6 +601,31 @@ struct ata_sct_temperature_history_table
 #pragma pack()
 STATIC_ASSERT(sizeof(ata_sct_temperature_history_table) == 512);
 
+/// Class to register an application specific checksum error handler.
+class lib_ata_hook
+{
+public:
+  lib_ata_hook() = default;
+  virtual ~lib_ata_hook() = default;
+  lib_ata_hook(const lib_ata_hook &) = delete;
+  void operator=(const lib_ata_hook &) = delete;
+
+  /// Get the current hook.
+  static lib_ata_hook & get();
+
+  /// Set the hook.
+  static void set(lib_ata_hook & hook);
+
+  /// Reset to default hook.
+  static void reset();
+
+  /// Handle an incorrect checksum in an ATA structure: Do nothing, print a
+  /// message, or print a message and throw.  The parameter describes the ATA
+  /// data structure.
+  /// The default implementation prints a warning via lib_printf().
+  virtual void on_checksum_error(const char * datatype);
+};
+
 // Possible values for span_args.mode
 enum {
   SEL_RANGE, // MIN-MAX
@@ -927,12 +952,6 @@ std::string ata_format_attr_raw_value(const ata_smart_attribute & attr,
 std::string ata_get_smart_attr_name(unsigned char id,
                                     const ata_vendor_attr_defs & defs,
                                     int rpm = 0);
-
-// External handler function, for when a checksum is not correct.  Can
-// simply return if no action is desired, or can print error messages
-// as needed, or exit.  Is passed a string with the name of the Data
-// Structure with the incorrect checksum.
-void checksumwarning(const char *string);
 
 // Find attribute index for attribute id, -1 if not found.
 int ata_find_attr_index(unsigned char id, const ata_smart_values & smartval);

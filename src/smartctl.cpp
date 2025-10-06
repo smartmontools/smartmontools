@@ -1459,14 +1459,14 @@ void jerr(const char *fmt, ...)
   va_end(ap);
 }
 
-class smartctl_hook : public lib_global_hook
+class smartctl_hook : public lib_global_hook, public lib_ata_hook
 {
 public:
   virtual void lib_vprintf(const char * fmt, va_list ap) override;
+  virtual void on_checksum_error(const char * datatype) override;
 };
 
 static smartctl_hook the_smartctl_hook;
-
 
 void smartctl_hook::lib_vprintf(const char * fmt, va_list ap)
 {
@@ -1474,6 +1474,17 @@ void smartctl_hook::lib_vprintf(const char * fmt, va_list ap)
   if (!pout_enabled())
     return;
   vjpout(false, 0, fmt, ap);
+}
+
+void smartctl_hook::on_checksum_error(const char * datatype)
+{
+  if (checksum_err_mode == CHECKSUM_ERR_IGNORE)
+    // Ignore checksum errors
+    return;
+  pout("Warning! %s error: invalid SMART checksum.\n", datatype);
+  if (checksum_err_mode == CHECKSUM_ERR_EXIT)
+    // Fail on checksum errors
+    throw int(FAILSMART);
 }
 
 static char startup_datetime_buf[DATEANDEPOCHLEN];
@@ -1510,21 +1521,6 @@ void failuretest(failure_type type, int returnvalue)
   }
 
   throw std::logic_error("failuretest: Unknown type");
-}
-
-// Used to warn users about invalid checksums. Called from atacmds.cpp.
-// Action to be taken may be altered by the user.
-void checksumwarning(const char * string)
-{
-  // user has asked us to ignore checksum errors
-  if (checksum_err_mode == CHECKSUM_ERR_IGNORE)
-    return;
-
-  pout("Warning! %s error: invalid SMART checksum.\n", string);
-
-  // user has asked us to fail on checksum errors
-  if (checksum_err_mode == CHECKSUM_ERR_EXIT)
-    throw int(FAILSMART);
 }
 
 // Return info string about device protocol
@@ -1611,8 +1607,9 @@ static int main_worker(int argc, char **argv)
   // Throw if runtime environment does not match compile time test.
   check_config();
 
-  // Register lib_vprintf()
+  // Register lib_vprintf() and on_checksum_error()
   lib_global_hook::set(the_smartctl_hook);
+  lib_ata_hook::set(the_smartctl_hook);
 
   // Initialize interface
   smart_interface::init();

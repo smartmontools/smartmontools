@@ -1461,12 +1461,6 @@ static void PrintOut(int priority, const char *fmt, ...){
   return;
 }
 
-// Used to warn users about invalid checksums. Called from atacmds.cpp.
-void checksumwarning(const char * string)
-{
-  lib_printf("Warning! %s error: invalid SMART checksum.\n", string);
-}
-
 #ifndef _WIN32
 
 // Wait for the pid file to show up, this makes sure a calling program knows

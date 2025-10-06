@@ -44,6 +44,34 @@ bool dont_print_serial_number = false;
 #define SRET_STATUS_HI_EXCEEDED 0x2C
 #define SRET_STATUS_MID_EXCEEDED 0xF4
 
+static lib_ata_hook the_lib_ata_hook;
+static lib_ata_hook * current_lib_ata_hook = &the_lib_ata_hook;
+
+lib_ata_hook & lib_ata_hook::get()
+{
+  return *current_lib_ata_hook;
+}
+
+void lib_ata_hook::set(lib_ata_hook & hook)
+{
+  current_lib_ata_hook = &hook;
+}
+
+void lib_ata_hook::reset()
+{
+  current_lib_ata_hook = &the_lib_ata_hook;
+}
+
+void lib_ata_hook::on_checksum_error(const char * datatype)
+{
+  lib_printf("Warning! %s error: invalid SMART checksum.\n", datatype);
+}
+
+// Old function used below to warn users about invalid checksums.
+static void checksumwarning(const char * datatype)
+{
+  lib_ata_hook::get().on_checksum_error(datatype);
+}
 
 // Get ID and increase flag of current pending or offline
 // uncorrectable attribute.
