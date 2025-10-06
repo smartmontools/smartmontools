@@ -32,9 +32,6 @@
 #include "os_win32/popen.h"
 #endif
 
-// TODO: Move from smartctl.h to other include file
-extern unsigned char failuretest_permissive;
-
 #include <errno.h>
 
 #ifdef _DEBUG

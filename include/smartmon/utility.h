@@ -69,6 +69,9 @@ void lib_vprintf(const char * fmt, va_list ap);
 void lib_printf(const char * fmt, ...)
   __attribute_format_printf(1, 2);
 
+// Global to set failure tolerance
+extern unsigned char failuretest_permissive;
+
 // Make version information string
 // lines: 1: version only, 2: version+copyright, >=3: full information
 std::string format_version_info(const char * prog_name, int lines = 2);

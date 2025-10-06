@@ -92,8 +92,6 @@
 
 #define ARGUSED(x) ((void)(x))
 
-extern unsigned char failuretest_permissive;
-
 namespace os_linux { // No need to publish anything, name provided for Doxygen
 
 /////////////////////////////////////////////////////////////////////////////

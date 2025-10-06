@@ -120,8 +120,6 @@ void printwarning(int msgNo, const char* extra) {
 
 #define ARGUSED(x) ((void)(x))
 
-extern unsigned char failuretest_permissive;
-
 /////////////////////////////////////////////////////////////////////////////
 
 namespace os_freebsd { // No need to publish anything, name provided for Doxygen

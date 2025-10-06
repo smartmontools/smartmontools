@@ -91,6 +91,8 @@ void lib_printf(const char * fmt, ...)
   va_end(ap);
 }
 
+// Global to set failure tolerance
+unsigned char failuretest_permissive = 0;
 
 const char * packet_types[] = {
         "Direct-access (disk)",

@@ -1495,9 +1495,8 @@ void jout_startup_datetime(const char *prefix)
   jout("%s%s\n", prefix, startup_datetime_buf);
 }
 
-// Globals to set failuretest() policy
+// Global for '-T conservative'
 bool failuretest_conservative = false;
-unsigned char failuretest_permissive = 0;
 
 // Compares failure type to policy in effect, and either exits or
 // simply returns to the calling routine.

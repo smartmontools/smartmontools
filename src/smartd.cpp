@@ -198,9 +198,6 @@ static int facility=LOG_DAEMON;
 static bool do_fork=true;
 #endif
 
-// TODO: This smartctl only variable is also used in some os_*.cpp
-unsigned char failuretest_permissive = 0;
-
 // set to one if we catch a USR1 (check devices now)
 static volatile int caughtsigUSR1=0;
 
