@@ -3384,7 +3384,7 @@ bool linux_smart_interface::scan_smart_devices(smart_device_list & devlist,
 #ifdef WITH_NVME_DEVICESCAN // TODO: Remove when NVMe support is no longer EXPERIMENTAL
      type_nvme = "";
 #endif
-     scan_megaraid = scan_sssraid = true;
+     scan_megaraid = scan_sssraid = scan_ps3stor = true;
   }
 
   const char * type_scsi_sat = ((type_scsi && type_sat) ? "" // detect both
