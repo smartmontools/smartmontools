@@ -1379,16 +1379,23 @@ static void vjpout(bool is_js_impl, const char * msg_severity,
   }
 }
 
+static bool pout_enabled()
+{
+  if (printing_is_off)
+    return false;
+  if (print_as_json && !(print_as_json_output
+      || print_as_json_impl || print_as_json_unimpl))
+    return false;
+  return true;
+}
+
 // Default: print to stdout
 // --json: ignore
 // --json=o: append to "output" array
 // --json=u: add "smartctl_NNNN_u" element(s)
 void pout(const char *fmt, ...)
 {
-  if (printing_is_off)
-    return;
-  if (print_as_json && !(print_as_json_output
-      || print_as_json_impl || print_as_json_unimpl))
+  if (!pout_enabled())
     return;
 
   va_list ap;
@@ -1452,6 +1459,34 @@ void jerr(const char *fmt, ...)
   va_end(ap);
 }
 
+class smartctl_hook : public lib_global_hook, public lib_ata_hook
+{
+public:
+  virtual void lib_vprintf(const char * fmt, va_list ap) override;
+  virtual void on_checksum_error(const char * datatype) override;
+};
+
+static smartctl_hook the_smartctl_hook;
+
+void smartctl_hook::lib_vprintf(const char * fmt, va_list ap)
+{
+  // Same as pout()
+  if (!pout_enabled())
+    return;
+  vjpout(false, 0, fmt, ap);
+}
+
+void smartctl_hook::on_checksum_error(const char * datatype)
+{
+  if (checksum_err_mode == CHECKSUM_ERR_IGNORE)
+    // Ignore checksum errors
+    return;
+  pout("Warning! %s error: invalid SMART checksum.\n", datatype);
+  if (checksum_err_mode == CHECKSUM_ERR_EXIT)
+    // Fail on checksum errors
+    throw int(FAILSMART);
+}
+
 static char startup_datetime_buf[DATEANDEPOCHLEN];
 
 // Print smartctl start-up date and time and timezone
@@ -1460,9 +1495,8 @@ void jout_startup_datetime(const char *prefix)
   jout("%s%s\n", prefix, startup_datetime_buf);
 }
 
-// Globals to set failuretest() policy
+// Global for '-T conservative'
 bool failuretest_conservative = false;
-unsigned char failuretest_permissive = 0;
 
 // Compares failure type to policy in effect, and either exits or
 // simply returns to the calling routine.
@@ -1486,21 +1520,6 @@ void failuretest(failure_type type, int returnvalue)
   }
 
   throw std::logic_error("failuretest: Unknown type");
-}
-
-// Used to warn users about invalid checksums. Called from atacmds.cpp.
-// Action to be taken may be altered by the user.
-void checksumwarning(const char * string)
-{
-  // user has asked us to ignore checksum errors
-  if (checksum_err_mode == CHECKSUM_ERR_IGNORE)
-    return;
-
-  pout("Warning! %s error: invalid SMART checksum.\n", string);
-
-  // user has asked us to fail on checksum errors
-  if (checksum_err_mode == CHECKSUM_ERR_EXIT)
-    throw int(FAILSMART);
 }
 
 // Return info string about device protocol
@@ -1586,6 +1605,10 @@ static int main_worker(int argc, char **argv)
 {
   // Throw if runtime environment does not match compile time test.
   check_config();
+
+  // Register lib_vprintf() and on_checksum_error()
+  lib_global_hook::set(the_smartctl_hook);
+  lib_ata_hook::set(the_smartctl_hook);
 
   // Initialize interface
   smart_interface::init();

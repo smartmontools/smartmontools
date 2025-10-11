@@ -15,27 +15,31 @@ indent_style = tab
 indent_size = 8
 
 # TODO: Fix files with other indent styles
-[/src/scsiata.cpp]
+[/lib/scsiata.cpp]
 # indent_size = 2 and 4
 
-[/src/scsicmds.*]
+[/lib/scsicmds.*]
 indent_size = 4
 
 [/src/scsiprint.cpp]
 indent_size = 4
 
 # Keep indent style of imported files as is
-[/src/*_nvme_ioctl.h]
+[/lib/*_nvme_ioctl.h]
 indent_style = tab
 indent_size = 8
 
-[/src/csmisas.h]
+[/lib/csmisas.h]
 indent_size = 3
 
 [/src/getopt/getopt.*]
 indent_style = tab
 indent_size = 2
 
-[/src/regex/reg*.*]
+[/include/smartmon/regex/regex.h]
+indent_style = tab
+indent_size = 2
+
+[/lib/regex/reg*.*]
 indent_style = tab
 indent_size = 2

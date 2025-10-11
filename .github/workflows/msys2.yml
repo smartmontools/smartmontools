@@ -19,13 +19,15 @@ jobs:
         with:
           release: false # try to re-use official MSYS2 GHA Runner Image
           msystem: ${{matrix.sys}}
-          install: >- # 'nsis' is provided by 'windows-latest'
+          install: >-
             mingw-w64-${{matrix.env}}-gcc
+            mingw-w64-${{matrix.env}}-nsis
             autoconf
             automake
             dos2unix
             git
             groff
+            libtool
             make
             man2html
 

@@ -33,9 +33,6 @@
 
 #define GBUF_SIZE 65532
 
-const char * scsiprint_c_cvsid = "$Id: scsiprint.cpp 5658 2025-02-02 17:56:14Z chrfranke $"
-                                 SCSIPRINT_H_CVSID;
-
 #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
 
 uint8_t gBuf[GBUF_SIZE];
@@ -1098,11 +1095,16 @@ scsiPrintSelfTest(scsi_device * device)
     static const char * fixup_stres7 = " -->    ";  /* only for non-json */
 
     // check if test is running
+    jglb["scsi_self_test_status"]["in_progress"] = false;
     if (!scsiRequestSense(device, &sense_info) &&
                         (sense_info.asc == 0x04 && sense_info.ascq == 0x09 &&
                         sense_info.progress != -1)) {
-        pout("%s execution status:\t\t%d%% of test remaining\n", hname,
-             100 - ((sense_info.progress * 100) / 65535));
+        int test_progress = (sense_info.progress * 100) / 65535;
+
+        jout("%s execution status:\t\t%d%% of test remaining\n", hname,
+             100 - test_progress);
+        jglb["scsi_self_test_status"]["in_progress"] = true;
+        jglb["scsi_self_test_status"]["completion_percent"] = test_progress;
     }
 
     if ((err = scsiLogSense(device, SELFTEST_RESULTS_LPAGE, 0, gBuf,
@@ -3793,7 +3795,7 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
             } else {
                 scsiFarmLog farmLog;
                 if (!scsiReadFarmLog(device, farmLog)) {
-                    pout("\nRead FARM log (SCSI Log page 0x3d, sub-page 0x3) failed\n\n");
+                    pout("\nRead FARM log (SCSI Log page 0x3d, sub-page 0x3) failed: %s\n\n", device->get_errmsg());
                     farm_supported = false;
                 } else {
                     scsiPrintFarmLog(farmLog);

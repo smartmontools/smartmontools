@@ -11,6 +11,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "runcmd", "runcmd.vcxproj", 
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wtssendmsg", "wtssendmsg.vcxproj", "{0B6B7D19-07AE-41DD-B70E-2F74362A4EC0}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libsmartmon", "libsmartmon.vcxproj", "{AE0D5304-6782-4A6A-B848-4B9EF745FE69}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -87,6 +89,22 @@ Global
 		{0B6B7D19-07AE-41DD-B70E-2F74362A4EC0}.Release-static|Win32.Build.0 = Release-static|Win32
 		{0B6B7D19-07AE-41DD-B70E-2F74362A4EC0}.Release-static|x64.ActiveCfg = Release-static|x64
 		{0B6B7D19-07AE-41DD-B70E-2F74362A4EC0}.Release-static|x64.Build.0 = Release-static|x64
+		{AE0D5304-6782-4A6A-B848-4B9EF745FE69}.Debug|Win32.ActiveCfg = Debug|Win32
+		{AE0D5304-6782-4A6A-B848-4B9EF745FE69}.Debug|Win32.Build.0 = Debug|Win32
+		{AE0D5304-6782-4A6A-B848-4B9EF745FE69}.Debug|x64.ActiveCfg = Debug|x64
+		{AE0D5304-6782-4A6A-B848-4B9EF745FE69}.Debug|x64.Build.0 = Debug|x64
+		{AE0D5304-6782-4A6A-B848-4B9EF745FE69}.Debug-static|Win32.ActiveCfg = Debug-static|Win32
+		{AE0D5304-6782-4A6A-B848-4B9EF745FE69}.Debug-static|Win32.Build.0 = Debug-static|Win32
+		{AE0D5304-6782-4A6A-B848-4B9EF745FE69}.Debug-static|x64.ActiveCfg = Debug-static|x64
+		{AE0D5304-6782-4A6A-B848-4B9EF745FE69}.Debug-static|x64.Build.0 = Debug-static|x64
+		{AE0D5304-6782-4A6A-B848-4B9EF745FE69}.Release|Win32.ActiveCfg = Release|Win32
+		{AE0D5304-6782-4A6A-B848-4B9EF745FE69}.Release|Win32.Build.0 = Release|Win32
+		{AE0D5304-6782-4A6A-B848-4B9EF745FE69}.Release|x64.ActiveCfg = Release|x64
+		{AE0D5304-6782-4A6A-B848-4B9EF745FE69}.Release|x64.Build.0 = Release|x64
+		{AE0D5304-6782-4A6A-B848-4B9EF745FE69}.Release-static|Win32.ActiveCfg = Release-static|Win32
+		{AE0D5304-6782-4A6A-B848-4B9EF745FE69}.Release-static|Win32.Build.0 = Release-static|Win32
+		{AE0D5304-6782-4A6A-B848-4B9EF745FE69}.Release-static|x64.ActiveCfg = Release-static|x64
+		{AE0D5304-6782-4A6A-B848-4B9EF745FE69}.Release-static|x64.Build.0 = Release-static|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

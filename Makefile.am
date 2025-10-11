@@ -3,6 +3,8 @@
 # Makefile.am
 #
 
+ACLOCAL_AMFLAGS = -I m4
+
 docsdir=$(docdir)
 docs_DATA = \
         doc/AUTHORS \
@@ -55,35 +57,48 @@ MAINTAINERCLEANFILES = \
         $(srcdir)/config.sub \
         $(srcdir)/depcomp \
         $(srcdir)/install-sh \
+        $(srcdir)/ltmain.sh \
         $(srcdir)/missing \
+        $(srcdir)/m4/libtool.m4 \
+        $(srcdir)/m4/lt*.m4 \
         $(srcdir)/m4/pkg.m4
 
-SUBDIRS = src
+SUBDIRS = include lib src
 
 #
 # Additional targets in 'src/Makefile.am'
 #
 SRC_TARGETS = cppcheck htmlman pdfman shellcheck
+INC_SRC_TARGETS =
+LIB_SRC_TARGETS =
+
 if OS_WIN32_MINGW
-SRC_TARGETS += cleandist-win32 dist-win32 distdir-win32 install-win32 installer-win32
-SRC_TARGETS += clean-vc config-vc distclean-vc maintainer-clean-vc
+SRC_TARGETS += cleandist-win32 clean-vc distclean-vc maintainer-clean-vc
+INC_SRC_TARGETS += config-vc
+LIB_SRC_TARGETS += dist-win32 distdir-win32 install-win32 installer-win32
 endif
 
 if OS_DARWIN
-SRC_TARGETS += install-darwin install-darwin-cleanup
+LIB_SRC_TARGETS += install-darwin install-darwin-cleanup
 endif
 
 # Avoid automake warning: '.PHONY was already defined in condition ...'
-phony = bin-dist $(SRC_TARGETS)
+phony = bin-dist $(SRC_TARGETS) $(INC_SRC_TARGETS) $(LIB_SRC_TARGETS)
 .PHONY: $(phony)
 
-$(SRC_TARGETS):
+$(SRC_TARGETS) $(INC_SRC_TARGETS) $(LIB_SRC_TARGETS):
+	@case ' $(INC_SRC_TARGETS) $(LIB_SRC_TARGETS) ' in *\ $@\ *) \
+	  echo $(MAKE) -C include; $(MAKE) -C include ;; \
+	esac
+	@case ' $(LIB_SRC_TARGETS) ' in *\ $@\ *) \
+	  echo $(MAKE) -C lib; $(MAKE) -C lib ;; \
+	esac
 	$(MAKE) -C src $@
 
 # Add version information to distribution directory
 dist-hook:
-	$(MAKE) -C src version.sh
-	cp src/version.sh $(distdir)/src/dist-version.sh
+	$(MAKE) -C include smartmon/version.sh
+	cp include/smartmon/version.sh $(distdir)/src/dist-version.sh
 
 if REPRODUCIBLE_BUILD
 # Override the builtin 'dist-*' rules to create reproducible tarballs
@@ -91,19 +106,19 @@ if REPRODUCIBLE_BUILD
 phony += dist-fail
 
 dist-gzip: distdir
-	$(src_dist_tar) $(distdir) > $(distdir).tar
+	$(dist_tar) $(distdir) > $(distdir).tar
 	-touch -d @$(SOURCE_DATE_EPOCH) $(distdir).tar
 	unset GZIP; gzip $(GZIP_ENV) -f -n $(distdir).tar
 	$(am__post_remove_distdir)
 
 dist-xz: distdir
-	$(src_dist_tar) $(distdir) > $(distdir).tar
+	$(dist_tar) $(distdir) > $(distdir).tar
 	-touch -d @$(SOURCE_DATE_EPOCH) $(distdir).tar
 	unset XZ_OPT; xz -e -f $(distdir).tar
 	$(am__post_remove_distdir)
 
 dist-zstd: distdir
-	$(src_dist_tar) $(distdir) > $(distdir).tar
+	$(dist_tar) $(distdir) > $(distdir).tar
 	-touch -d @$(SOURCE_DATE_EPOCH) $(distdir).tar
 	unset ZSTD_CLEVEL; zstd -19 -f -q --rm $(distdir).tar
 	$(am__post_remove_distdir)
@@ -126,7 +141,7 @@ bin_distfile = $(bin_distdir).tar.gz
 
 bin-dist:
 	$(MAKE) DESTDIR="$$(pwd)/$(bin_distdir)" install
-	( cd $(bin_distdir) && $(bin_dist_tar) ) > $(bin_distdir).tar
+	( cd $(bin_distdir) && $(dist_tar) * ) > $(bin_distdir).tar
 	unset GZIP; gzip $(GZIP_ENV) -n < $(bin_distdir).tar > $(bin_distfile)
 	-test -z '$(SOURCE_DATE_EPOCH)' || touch -d @$(SOURCE_DATE_EPOCH) $(bin_distfile)
 	rm -rf $(bin_distdir) $(bin_distdir).tar

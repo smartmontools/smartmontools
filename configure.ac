@@ -5,6 +5,7 @@ dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ([2.64])
 AC_INIT([smartmontools],[8.0],[smartmontools-support@listi.jpberlin.de],[],[https://www.smartmontools.org/])
 AM_INIT_AUTOMAKE([1.13 foreign subdir-objects tar-ustar])
+LT_INIT([disable_shared])
 
 # Version of drive database branch
 smartmontools_drivedb_version=7.5
@@ -22,7 +23,7 @@ AC_DEFINE_UNQUOTED(SMARTMONTOOLS_CONFIGURE_ARGS, "$ac_configure_args",          
 AC_DEFINE_UNQUOTED(CONFIG_H_CVSID, "", [(TODO: remove this define)])
 
 AC_CONFIG_SRCDIR([src/smartctl.cpp])
-AC_CONFIG_HEADERS([src/config.h])
+AC_CONFIG_HEADERS([include/smartmon/config.h])
 AC_CONFIG_MACRO_DIR([m4])
 
 AM_MAINTAINER_MODE
@@ -42,7 +43,7 @@ if test "$cross_compiling" = "no"; then
 fi
 
 AC_ARG_VAR(SOURCE_DATE_EPOCH, [Reproducible build timestamp])
-AC_ARG_VAR(NM, [Symbol list command])
+AC_ARG_VAR(OBJCOPY, [Object file copy command which supports '-D'])
 AC_ARG_VAR(WINDMC, [Windows message compiler command])
 AC_ARG_VAR(WINDRES, [Windows resource compiler command])
 AC_ARG_VAR(MAKENSIS, [NSIS compiler command])
@@ -63,13 +64,11 @@ if test "$cross_compiling" != "no"; then
 fi
 AM_CONDITIONAL(REALLY_CROSS_COMPILING, [test "$res" = "no"])
 
-AC_CHECK_TOOL(NM, [nm])
 case "$host_os" in
   mingw*)
     AC_CHECK_TOOL(WINDMC, [windmc])
     AC_CHECK_TOOL(WINDRES, [windres])
     test -n "$WINDRES" || AC_MSG_ERROR([Missing Windows resource compiler (windres)])
-
     AC_CHECK_PROG(MAKENSIS, [makensis], [makensis])
     if test -z "$MAKENSIS" && test -n "$PROGRAMFILES"; then
       AC_MSG_CHECKING([for makensis at default install location])
@@ -164,6 +163,33 @@ AC_ARG_WITH(build-info,
     esac
   ], [BUILD_INFO='"(local build)"'])
 AC_SUBST(BUILD_INFO)
+
+AC_ARG_WITH(devel,
+  [AS_HELP_STRING([--with-devel@<:@=yes|no@:>@], [Install development headers and library [yes]])],
+  [], [with_devel=yes])
+AM_CONDITIONAL(INSTALL_DEVEL, [test "$with_devel" = "yes"])
+
+objcopy_deterministic=false
+case "$with_devel:$enable_static:$SOURCE_DATE_EPOCH" in
+  yes:yes:?*)
+    # Use 'objcopy -D' to remove the timestamps from the static library
+    # because libtool offers no way to pass '-D' to 'ranlib'.
+    AC_CHECK_TOOL(OBJCOPY, [objcopy], [false])
+    AC_MSG_CHECKING([whether $OBJCOPY accepts -D])
+    objcopy_deterministic="$OBJCOPY -D"
+    res=yes
+    if ! (rm -f conftest.a && ${AR:-false} cr conftest.a \
+          && $objcopy_deterministic conftest.a) >/dev/null 2>&1; then
+      # Accept missing reproducibility if unsupported and warn below
+      objcopy_deterministic=": unsupported objcopy -D"
+      res=no
+    fi
+    rm -f conftest.a
+    AC_MSG_RESULT([$res])
+    ;;
+esac
+AC_SUBST([objcopy_deterministic])
+AM_CONDITIONAL(REPRODUCIBLE_BUILD_STATIC_LIB, [test "$objcopy_deterministic" != "false"])
 
 initddir=
 AC_ARG_WITH(initscriptdir,
@@ -303,11 +329,11 @@ AC_ARG_ENABLE([fast-lebe],
   ],[])
 
 AC_ARG_WITH(os-deps,
-  [AS_HELP_STRING([--with-os-deps='os_module.o ...'], [Specify OS dependent module(s) [guessed]])],
+  [AS_HELP_STRING([--with-os-deps='os_module.lo ...'], [Specify OS dependent module(s) [guessed]])],
   [ for x in $with_os_deps; do
       case $x in
-        *.o) ;;
-        *) AC_MSG_ERROR([non-object file specified by --with-os-deps]) ;;
+        *.lo) ;;
+        *) AC_MSG_ERROR(['--with-os-deps' requires '*.lo' arguments]) ;;
       esac
     done
   ],[])
@@ -534,8 +560,9 @@ of the MinGW-w64 toolchain usually enable ASLR by default.
 ])])
 
 # MinGW defaults: link statically and indicate DEP and TS compatibility
-case "$host_os:${LDFLAGS+t}" in
-  mingw*:) LDFLAGS="-static -Wl,--nxcompat,--tsaware" ;;
+# Note: libtool requires '--static' instead of '-static'
+case "$host_os:${LDFLAGS:+nonempty}" in
+  mingw*:) LDFLAGS="--static -Wl,--nxcompat,--tsaware" ;;
 esac
 
 os_win32_manifest=
@@ -588,14 +615,14 @@ os_nvme_devicescan=
 os_nvme_devicescan_changed=no
 case "${host}" in
   *-*-linux*)
-    os_deps='os_linux.o cciss.o dev_areca.o dev_ps3stor.o'
+    os_deps='os_linux.lo cciss.lo dev_areca.lo dev_ps3stor.lo'
     os_dnsdomainname="'dnsdomainname' 'hostname -d'"
     os_nisdomainname="'nisdomainname' 'hostname -y' 'domainname'"
     os_man_filter=Linux
     os_nvme_devicescan=yes
     ;;
   *-*-freebsd*|*-*-dragonfly*|*-*-kfreebsd*-gnu*|*-*-midnightbsd*)
-    os_deps='os_freebsd.o cciss.o dev_areca.o'
+    os_deps='os_freebsd.lo cciss.lo dev_areca.lo'
     os_libs='-lcam -lsbuf'
     os_dltools='fetch curl wget lynx'
     AC_CHECK_LIB(usb, libusb20_dev_get_device_desc)
@@ -603,13 +630,13 @@ case "${host}" in
     os_nvme_devicescan=yes
     ;;
   *-*-solaris*)
-    os_deps='os_solaris.o'
+    os_deps='os_solaris.lo dev_legacy.lo' # TODO: migrate to new interface
     os_mailer='mailx'
     os_solaris=yes
     os_man_filter=Solaris
     ;;
   *-*-netbsd*)
-    os_deps='os_netbsd.o'
+    os_deps='os_netbsd.lo'
     os_libs='-lutil'
     os_man_filter=NetBSD
     os_nvme_devicescan=yes
@@ -617,13 +644,13 @@ case "${host}" in
     os_nvme_devicescan_changed=yes
     ;;
   *-*-openbsd*)
-    os_deps='os_openbsd.o'
+    os_deps='os_openbsd.lo'
     os_libs='-lutil'
     os_dltools='curl wget lynx ftp'
     os_man_filter=OpenBSD
     ;;
   *-*-cygwin*)
-    os_deps='os_win32.o dev_areca.o'
+    os_deps='os_win32.lo dev_areca.lo'
     os_mailer='email'
     os_hostname="'hostname' 'uname -n' 'echo "'"${HOSTNAME?unset}"'"'"
     os_dnsdomainname="'dnsdomainname' 'hostname -d' 'echo "'"${USERDNSDOMAIN?unset}"'"'"
@@ -633,7 +660,7 @@ case "${host}" in
     os_nvme_devicescan=yes
     ;;
   x86_64-*-mingw*)
-    os_deps='os_win32.o dev_areca.o'
+    os_deps='os_win32.lo dev_areca.lo'
     os_posix=no
     os_win32=yes
     os_win32_mingw=yes
@@ -642,7 +669,7 @@ case "${host}" in
     os_nvme_devicescan=yes
     ;;
   *-*-mingw*)
-    os_deps='os_win32.o dev_areca.o'
+    os_deps='os_win32.lo dev_areca.lo'
     os_posix=no
     os_win32=yes
     os_win32_mingw=yes
@@ -650,44 +677,37 @@ case "${host}" in
     os_nvme_devicescan=yes
     ;;
   *-*-darwin*)
-    os_deps='os_darwin.o'
+    os_deps='os_darwin.lo'
     os_libs='-framework CoreFoundation -framework IOKit'
     os_darwin=yes
     os_man_filter=Darwin
     os_nvme_devicescan=yes
     ;;
   *-*-nto-qnx*)
-    os_deps='os_qnxnto.o'
+    os_deps='os_qnxnto.lo dev_legacy.lo' # TODO: migrate to new interface
     ;;
   *-*-os2-*)
-    os_deps='os_os2.o'
+    os_deps='os_os2.lo dev_legacy.lo' # TODO: migrate to new interface
     os_posix=no
     ;;
   *)
-    os_deps='os_generic.o'
+    os_deps='os_generic.lo'
     ;;
 esac
 
 # Replace if '--with-os-deps' was specified
 test -z "$with_os_deps" || os_deps="$with_os_deps"
 
+# Define 'OLD_INTERFACE' if 'dev_legacy.cpp' is still required
+case " $os_deps " in *\ dev_legacy.lo\ *)
+  AC_DEFINE(OLD_INTERFACE, 1, [Define to 1 if os_*.cpp still uses the old interface]) ;;
+esac
+
 AC_MSG_CHECKING([whether the OS provides a POSIX API])
 if test "$os_posix" = "yes"; then
   AC_DEFINE(HAVE_POSIX_API, 1, [Define to 1 if the OS provides a POSIX API])
 fi
 AC_MSG_RESULT([$os_posix])
-
-# Check if we need adapter to old interface (dev_legacy.cpp)
-os_src=`echo "${os_deps}"|sed -n 's,^\([[^ .]]*\)\.o.*$,\1.cpp,p'`
-AC_MSG_CHECKING([whether ${os_src} uses new interface])
-if grep "smart_interface" "${srcdir}/src/${os_src}" >/dev/null 2>&1; then
-  os_new_interface=yes
-else
-  os_new_interface=no
-  os_deps="${os_deps} dev_legacy.o"
-  AC_DEFINE(OLD_INTERFACE, 1, [Define to 1 if os_*.cpp still uses the old interface])
-fi
-AC_MSG_RESULT([$os_new_interface])
 
 # TODO: Remove when NVMe support is no longer EXPERIMENTAL
 case "$os_nvme_devicescan:${with_nvme_devicescan+set}" in
@@ -784,9 +804,7 @@ AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
   #error false
   #endif]])], [res=yes], [res=no])
 AC_MSG_RESULT([$res])
-if test "$res:$NM" = "no:"; then
-  AC_MSG_NOTICE([Skipping _FORTIFY_SOURCE support check because 'nm' is missing.])
-elif test "$res" = "no"; then
+if test "$res" = "no"; then
   # Heuristic to check for _FORTIFY_SOURCE=[23] support.
   # Done after check for -fstack-protector because this may add an additional lib.
   # Note: Even if _FORTIFY_SOURCE is present in the include files, it may not be
@@ -797,6 +815,7 @@ elif test "$res" = "no"; then
     AC_MSG_CHECKING([whether $CXX supports _FORTIFY_SOURCE=$level])
     CPPFLAGS="${CPPFLAGS}${CPPFLAGS:+ }-D_FORTIFY_SOURCE=$level"
     # Use LINK instead of COMPILE to make sure that the required lib is also present.
+    # Check for NM is in 'libtool.m4'.
     AC_LINK_IFELSE([AC_LANG_SOURCE([[
       #include <stdlib.h>
       #include <string.h>
@@ -810,7 +829,7 @@ elif test "$res" = "no"; then
         if (argc >= 2) strcpy(p, argv[1]);
         return p[0];
       }]])],
-      [res=yes; $NM conftest$EXEEXT 2>/dev/null | grep '_strcpy_chk' >/dev/null 2>&1 || res=no],
+      [res=yes; ${NM:-false} conftest$EXEEXT 2>/dev/null | grep '_strcpy_chk' >/dev/null 2>&1 || res=no],
       [res=unknown])
     AC_MSG_RESULT([$res])
     test "$res" != "yes" || break
@@ -818,38 +837,35 @@ elif test "$res" = "no"; then
   done
 fi
 
+msg="for tar"
+opts=
 if test -n "$SOURCE_DATE_EPOCH"; then
-  AC_MSG_CHECKING([for GNU tar supporting reproducible tarballs])
-  res=no
-  src_dist_tar=false
-  bin_dist_tar=false
-  # aclocal.m4: am__tar="g?tar --format=ustar -chf - "'"$$tardir"'
-  cmd=`echo "$am__tar" | sed -n 's/ - "\$\$tardir"$/ -/p'`
-  if test -n "$cmd"; then
-    cmd="$cmd --sort=name --mtime=@$SOURCE_DATE_EPOCH --clamp-mtime --owner=root:0 --group=root:0"
-    rm -rf conftest.dir
-    mkdir conftest.dir
-    if $cmd conftest.dir >/dev/null 2>&1; then
-      src_dist_tar=$cmd
-      bin_dist_tar="$cmd *"
-      res=${cmd%% *}
-    fi
-    rmdir conftest.dir
-  fi
-  AC_MSG_RESULT([$res])
-else
-  src_dist_tar= # not used in Makefile.am
-  bin_dist_tar=`echo "$am__tar" | sed -n 's/"\$\$tardir"$/*/p'`
-  test -n "$bin_dist_tar" || bin_dist_tar="tar chf - *"
+  msg="for GNU tar supporting reproducible tarballs"
+  opts=" --sort=name --mtime=@$SOURCE_DATE_EPOCH --clamp-mtime --owner=root:0 --group=root:0"
 fi
-AC_SUBST([src_dist_tar])
-AC_SUBST([bin_dist_tar])
+AC_MSG_CHECKING([$msg])
+dist_tar=false
+res=no
+rm -rf conftest.dir
+mkdir conftest.dir
+# Don't use 'am__tar' from automake because it checks 'tar' before 'gtar'
+for t in "gnutar --format=ustar" "gtar --format=ustar" "tar --format=ustar" "tar"; do
+  cmd="${t}${opts} -chf -"
+  if $cmd conftest.dir >/dev/null 2>&1; then
+    dist_tar=$cmd
+    res=${dist_tar%% *}
+    break
+  fi
+done
+rmdir conftest.dir
+AC_MSG_RESULT([$res])
+AC_SUBST([dist_tar])
 
 AC_DEFINE_UNQUOTED(SMARTMONTOOLS_BUILD_HOST,     "${host}",                       [smartmontools Build Host])
 
 AC_SUBST(CXXFLAGS)
 
-AC_CONFIG_FILES([Makefile src/Makefile])
+AC_CONFIG_FILES([Makefile include/Makefile lib/Makefile src/Makefile])
 AC_OUTPUT
 AC_PROG_MAKE_SET
 
@@ -904,6 +920,13 @@ info=`
       echo "man page install path:  \`eval eval eval echo $mandir\`"
       echo "doc file install path:  \`eval eval eval echo $docdir\`"
       echo "examples install path:  \`eval eval eval echo $exampledir\`"
+      if  test "$with_devel" = "yes"; then
+        echo "header install path:    \`eval eval eval echo $includedir\`"
+        echo "library install path:   \`eval eval eval echo $libdir\`"
+      else
+        echo "header install path:    [[disabled]]"
+        echo "library install path:   [[disabled]]"
+      fi
       if test -n "$drivedbdir"; then
         if test "$drivedbinstdir" != "$drivedbdir"; then
           echo "installed drivedb file: \`eval eval eval echo $drivedbinstdir\`/drivedb.h"
@@ -1026,7 +1049,19 @@ Please send info about compiler and platform to
 $PACKAGE_BUGREPORT - Thanks!
 ])
 
-test "$src_dist_tar" != "false" || AC_MSG_WARN([
+case $objcopy_deterministic in
+  :*) AC_MSG_WARN([
+The installed static library will not be reproducible because 'objcopy -D'
+is not available.
+]) ;;
+esac
+
+case "$dist_tar:$SOURCE_DATE_EPOCH" in
+  false:?*) AC_MSG_WARN([
 Reproducible tarballs require GNU tar which is not available.
 'make dist' and 'make bin-dist' will fail.
-])
+]) ;;
+  false:) AC_MSG_WARN([
+No compatible tar found.  'make bin-dist' will fail.
+]) ;;
+esac

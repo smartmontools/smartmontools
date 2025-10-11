@@ -15,7 +15,8 @@ AM_CPPFLAGS = \
         $(def_source_date_epoch) \
         -DBUILD_INFO='$(BUILD_INFO)' \
         -DSMARTMONTOOLS_SYSCONFDIR='"$(sysconfdir)"' \
-        -DSMARTMONTOOLS_SMARTDSCRIPTDIR='"$(smartdscriptdir)"'
+        -DSMARTMONTOOLS_SMARTDSCRIPTDIR='"$(smartdscriptdir)"' \
+         -I ../include/smartmon -I$(top_srcdir)/include/smartmon
 
 if ENABLE_DRIVEDB
 AM_CPPFLAGS += -DSMARTMONTOOLS_DRIVEDBDIR='"$(drivedbdir)"'
@@ -34,7 +35,7 @@ if NEED_GETOPT_LONG
 AM_CPPFLAGS += -I$(srcdir)/getopt -D_GETOPT_STANDALONE
 endif
 if NEED_REGEX
-AM_CPPFLAGS += -I$(srcdir)/regex -D_REGEX_STANDALONE
+AM_CPPFLAGS += -I$(top_srcdir)/include/smartmon/regex -D_REGEX_STANDALONE
 endif
 
 # Suppress 'echo' if './configure --enable-silent-rules' or 'make V=0' is used.
@@ -53,90 +54,26 @@ sbin_SCRIPTS = update-smart-drivedb
 endif
 endif
 
-
 smartctl_SOURCES = \
         smartctl.cpp \
         smartctl.h \
-        atacmdnames.cpp \
-        atacmdnames.h \
-        atacmds.cpp \
-        atacmds.h \
         ataidentify.cpp \
         ataidentify.h \
         ataprint.cpp \
         ataprint.h \
-        dev_ata_cmd_set.cpp \
-        dev_ata_cmd_set.h \
-        dev_intelliprop.cpp \
-        dev_interface.cpp \
-        dev_interface.h \
-        dev_jmb39x_raid.cpp \
-        dev_tunnelled.h \
-        drivedb.h \
-        farmcmds.cpp \
-        farmcmds.h \
         farmprint.cpp \
         farmprint.h \
-        json.cpp \
-        json.h \
-        knowndrives.cpp \
-        knowndrives.h \
-        nvmecmds.cpp \
-        nvmecmds.h \
         nvmeprint.cpp \
         nvmeprint.h \
-        scsicmds.cpp \
-        scsicmds.h \
-        scsiata.cpp \
-        scsinvme.cpp \
         scsiprint.cpp \
-        scsiprint.h \
-        static_assert.h \
-        utility.cpp \
-        utility.h \
-        sg_unaligned.h
+        scsiprint.h
 
-smartctl_LDADD = $(os_deps) $(os_libs)
-smartctl_DEPENDENCIES = $(os_deps)
+smartctl_LDADD = ../lib/libsmartmon.la $(os_libs)
+smartctl_DEPENDENCIES = ../lib/libsmartmon.la
 
-EXTRA_smartctl_SOURCES = \
-        os_darwin.cpp \
-        os_darwin.h \
-        os_linux.cpp \
-        os_linux.h \
-        os_freebsd.cpp \
-        os_freebsd.h \
-        os_netbsd.cpp \
-        os_netbsd.h \
-        os_openbsd.cpp \
-        os_openbsd.h \
-        os_os2.cpp \
-        os_os2.h \
-        os_qnxnto.cpp \
-        os_qnxnto.h \
-        os_solaris.cpp \
-        os_win32.cpp \
-        os_generic.cpp \
-        os_generic.h \
-        aacraid.h \
-        cciss.cpp \
-        cciss.h \
-        cissio_freebsd.h \
-        dev_areca.cpp \
-        dev_areca.h \
-        dev_legacy.cpp \
-        linux_nvme_ioctl.h \
-        openbsd_nvme_ioctl.h \
-        megaraid.h \
-        sssraid.h \
-        dev_ps3stor.cpp \
-        dev_ps3stor.h 
+EXTRA_smartctl_SOURCES =
 
 if OS_WIN32_MINGW
-
-smartctl_SOURCES += \
-        os_win32/popen_win32.cpp \
-        os_win32/popen.h
 
 smartctl_LDADD        += os_win32/smartctl_res.o
 smartctl_DEPENDENCIES += os_win32/smartctl_res.o
@@ -145,69 +82,12 @@ endif
 
 
 smartd_SOURCES = \
-        smartd.cpp \
-        atacmdnames.cpp \
-        atacmdnames.h \
-        atacmds.cpp \
-        atacmds.h \
-        dev_ata_cmd_set.cpp \
-        dev_ata_cmd_set.h \
-        dev_intelliprop.cpp \
-        dev_interface.cpp \
-        dev_interface.h \
-        dev_jmb39x_raid.cpp \
-        dev_tunnelled.h \
-        drivedb.h \
-        knowndrives.cpp \
-        knowndrives.h \
-        nvmecmds.cpp \
-        nvmecmds.h \
-        scsicmds.cpp \
-        scsicmds.h \
-        scsiata.cpp \
-        scsinvme.cpp \
-        static_assert.h \
-        utility.cpp \
-        utility.h \
-        sg_unaligned.h
+        smartd.cpp
 
-smartd_LDADD = $(os_deps) $(os_libs) $(CAPNG_LDADD) $(SYSTEMD_LDADD)
-smartd_DEPENDENCIES = $(os_deps)
+smartd_LDADD = ../lib/libsmartmon.la $(os_libs) $(CAPNG_LDADD) $(SYSTEMD_LDADD)
+smartd_DEPENDENCIES = ../lib/libsmartmon.la
 
-EXTRA_smartd_SOURCES = \
-        os_darwin.cpp \
-        os_darwin.h \
-        os_linux.cpp \
-        os_linux.h \
-        os_freebsd.cpp \
-        os_freebsd.h \
-        os_netbsd.cpp \
-        os_netbsd.h \
-        os_openbsd.cpp \
-        os_openbsd.h \
-        os_os2.cpp \
-        os_os2.h \
-        os_qnxnto.cpp \
-        os_qnxnto.h \
-        os_solaris.cpp \
-        os_win32.cpp \
-        os_generic.cpp \
-        os_generic.h \
-        aacraid.h \
-        cciss.cpp \
-        cciss.h \
-        cissio_freebsd.h \
-        dev_areca.cpp \
-        dev_areca.h \
-        dev_legacy.cpp \
-        linux_nvme_ioctl.h \
-        freebsd_nvme_ioctl.h \
-        netbsd_nvme_ioctl.h \
-        openbsd_nvme_ioctl.h \
-        megaraid.h \
-        sssraid.h \
-        dev_ps3stor.cpp \
-        dev_ps3stor.h
+EXTRA_smartd_SOURCES =
 
 if OS_POSIX
 
@@ -222,8 +102,6 @@ if OS_WIN32_MINGW
 smartd_SOURCES += \
         os_win32/daemon_win32.cpp \
         os_win32/daemon_win32.h \
-        os_win32/popen_win32.cpp \
-        os_win32/popen.h \
         os_win32/syslog_win32.cpp \
         os_win32/syslog.h
 
@@ -252,42 +130,7 @@ smartd_SOURCES += \
 
 endif
 
-if NEED_REGEX
-
-smartctl_SOURCES += \
-        regex/regex.c \
-        regex/regex.h \
-        regex/regex_internal.h
-
-smartd_SOURCES += \
-        regex/regex.c \
-        regex/regex.h \
-        regex/regex_internal.h
-
-# Included by regex.c:
-EXTRA_smartctl_SOURCES += \
-        regex/regcomp.c \
-        regex/regexec.c \
-        regex/regex_internal.c
-
-EXTRA_smartd_SOURCES += \
-        regex/regcomp.c \
-        regex/regexec.c \
-        regex/regex_internal.c
-
-endif
-
 if OS_WIN32
-
-smartctl_SOURCES += \
-        csmisas.h \
-        os_win32/wmiquery.cpp \
-        os_win32/wmiquery.h
-
-smartd_SOURCES += \
-        csmisas.h \
-        os_win32/wmiquery.cpp \
-        os_win32/wmiquery.h
 
 smartctl_LDADD += -lole32 -loleaut32
 smartd_LDADD   += -lole32 -loleaut32
@@ -392,6 +235,7 @@ uninstall-sysconfDATA:
 smartdscript_SCRIPTS = smartd_warning.sh
 
 EXTRA_DIST = \
+        clang-scan-build.sh \
         cppcheck.sh \
         getversion.sh \
         smartd.initd.in \
@@ -450,10 +294,6 @@ CLEANFILES = \
         smartd.freebsd.initd \
         smartd.service \
         smartd_warning.sh \
-        version.h \
-        version.h.tmp \
-        version.sh \
-        version.sh.tmp \
         update-smart-drivedb \
         update-smart-drivedb.8 \
         update-smart-drivedb.1m \
@@ -464,25 +304,9 @@ CLEANFILES = \
 
 # 'make maintainer-clean' also removes files generated by './autogen.sh'
 MAINTAINERCLEANFILES = \
-        $(srcdir)/Makefile.in \
-        $(srcdir)/config.h.in \
-        $(srcdir)/config.h.in~
+        $(srcdir)/Makefile.in
 
-smartctl.o utility.o: version.h
-
-# Get version info
-version.h: version.sh getversion.sh
-	$(AM_V_GEN)$(srcdir)/getversion.sh -i < version.sh > $@.tmp
-	$(AM_V_at)mv -f $@.tmp $@
-
-version.sh: getversion.sh ../configure.ac ../Makefile Makefile config.h
-	$(AM_V_GEN)$(srcdir)/getversion.sh -s > $@.tmp
-	$(AM_V_at)mv -f $@.tmp $@
-	@! $(AM_V_P) || cat $@
-
-if ENABLE_DRIVEDB
-drivedbinst_DATA = drivedb.h
-endif
+smartctl.o: ../include/smartmon/version.h
 
 update-smart-drivedb: update-smart-drivedb.in ../config.status
 	$(AM_V_GEN)$(SHELL) ../config.status -q --file=$@:$(srcdir)/update-smart-drivedb.in
@@ -576,7 +400,7 @@ install-data-local: installdirs-local
 # Build man pages
 #
 MAN_FILTER = { \
-    . ./version.sh && \
+    . ../include/smartmon/version.sh && \
     sed -e "s|@SMARTMONTOOLS_GIT_VER_DESC@|$$SMARTMONTOOLS_GIT_VER_DESC|g" \
         -e "s|@SMARTMONTOOLS_GIT_REV_DATE@|$${SMARTMONTOOLS_GIT_REV_DATE:--}|g" \
         -e "s|@SMARTMONTOOLS_GIT_REV@|$${SMARTMONTOOLS_GIT_REV:--}|g" \
@@ -655,19 +479,19 @@ MAN_FILTER = { \
       cat; \
     fi; }
 
-smartctl.8: smartctl.8.in Makefile version.sh
+smartctl.8: smartctl.8.in Makefile ../include/smartmon/version.sh
 	$(ECHO_V_GEN) ' $$(MAN_FILTER) < $(srcdir)/smartctl.8.in > $@'
 	@$(MAN_FILTER) < $(srcdir)/smartctl.8.in > $@
 
-smartd.8: smartd.8.in Makefile version.sh
+smartd.8: smartd.8.in Makefile ../include/smartmon/version.sh
 	$(ECHO_V_GEN) ' $$(MAN_FILTER) < $(srcdir)/smartd.8.in > $@'
 	@$(MAN_FILTER) < $(srcdir)/smartd.8.in > $@
 
-smartd.conf.5: smartd.conf.5.in Makefile version.sh
+smartd.conf.5: smartd.conf.5.in Makefile ../include/smartmon/version.sh
 	$(ECHO_V_GEN) ' $$(MAN_FILTER) < $(srcdir)/smartd.conf.5.in > $@'
 	@$(MAN_FILTER) < $(srcdir)/smartd.conf.5.in > $@
 
-update-smart-drivedb.8: update-smart-drivedb.8.in Makefile version.sh
+update-smart-drivedb.8: update-smart-drivedb.8.in Makefile ../include/smartmon/version.sh
 	$(ECHO_V_GEN) ' $$(MAN_FILTER) < $(srcdir)/update-smart-drivedb.8.in > $@'
 	@$(MAN_FILTER) < $(srcdir)/update-smart-drivedb.8.in > $@
 
@@ -758,12 +582,12 @@ else
 # Show '-V' output and check drive database syntax
 check:
 	./smartctl -V
-	@echo "./smartctl -B $(srcdir)/drivedb.h -P showall >/dev/null"
+	@echo "./smartctl -B $(top_srcdir)/lib/drivedb.h -P showall >/dev/null"
 	@if ./smartctl -P showall >/dev/null && \
-	    ./smartctl -B $(srcdir)/drivedb.h -P showall >/dev/null; then \
-	  echo "$(srcdir)/drivedb.h: OK"; \
+	    ./smartctl -B $(top_srcdir)/lib/drivedb.h -P showall >/dev/null; then \
+	  echo "$(top_srcdir)/lib/drivedb.h: OK"; \
 	else \
-	  echo "$(srcdir)/drivedb.h: Syntax check failed"; exit 1; \
+	  echo "$(top_srcdir)/lib/drivedb.h: Syntax check failed"; exit 1; \
 	fi
 endif
 
@@ -786,6 +610,7 @@ SHELLCHECKFLAGS=-S warning -e SC3043
 
 SHELLSCRIPTS= \
     $(top_srcdir)/autogen.sh \
+    $(srcdir)/clang-scan-build.sh \
     $(srcdir)/cppcheck.sh \
     $(srcdir)/do_release \
     $(srcdir)/getversion.sh \
@@ -819,7 +644,7 @@ os_win32/wtssendmsg_res.o: os_win32/wtssendmsg_res.rc $(os_win32_manifest)
 
 # Set description, name, version and year
 WIN_RC_FILTER = { \
-    . ./version.sh && \
+    . ../include/smartmon/version.sh && \
     txtver=$$SMARTMONTOOLS_GIT_VER_WIN && binver=`echo "$$txtver" | sed 's|\.|,|g'` && \
     yy=`echo "$$SMARTMONTOOLS_GIT_REV_DATE" | sed -n 's,^20\([0-9][0-9]\).*$$,\1,p'` && yy="$${yy:-XX}" && \
     sed -e "s|@DESC@|$$d|" -e "s|@NAME@|$$n|" -e "s|@BINARY_VERSION@|$$binver|g" \
@@ -835,28 +660,28 @@ WIN_APP_MANIFEST = \
       echo '1 24 "$(srcdir)/$(os_win32_manifest)"' >> $@; \
     fi
 
-os_win32/smartctl_res.rc: os_win32/versioninfo.rc.in Makefile version.sh
+os_win32/smartctl_res.rc: os_win32/versioninfo.rc.in Makefile ../include/smartmon/version.sh
 	$(AM_V_GEN)
 	@n=smartctl d="Control and Monitor Utility for SMART Disks"; $(WIN_MAKE_RES)
 	@$(WIN_APP_MANIFEST)
 
-os_win32/smartd_res.rc: os_win32/versioninfo.rc.in Makefile version.sh
+os_win32/smartd_res.rc: os_win32/versioninfo.rc.in Makefile ../include/smartmon/version.sh
 	$(AM_V_GEN)
 	@n=smartd d="SMART Disk Monitoring Daemon"; $(WIN_MAKE_RES)
 	$(AM_V_at)echo '#include "./syslogevt.rc"' >> $@
 	@$(WIN_APP_MANIFEST)
 
-os_win32/runcmdu_res.rc: os_win32/versioninfo.rc.in Makefile version.sh
+os_win32/runcmdu_res.rc: os_win32/versioninfo.rc.in Makefile ../include/smartmon/version.sh
 	$(AM_V_GEN)
 	@n=runcmdu d="Run console command"; $(WIN_MAKE_RES)
 	@$(WIN_APP_MANIFEST)
 
-os_win32/runcmda_res.rc: os_win32/versioninfo.rc.in Makefile version.sh
+os_win32/runcmda_res.rc: os_win32/versioninfo.rc.in Makefile ../include/smartmon/version.sh
 	$(AM_V_GEN)
 	@n=runcmda d="Run console command as admin"; $(WIN_MAKE_RES)
 	$(AM_V_at)echo '1 24 "os_win32/defadmin.manifest"' >> $@
 
-os_win32/wtssendmsg_res.rc: os_win32/versioninfo.rc.in Makefile version.sh
+os_win32/wtssendmsg_res.rc: os_win32/versioninfo.rc.in Makefile ../include/smartmon/version.sh
 	$(AM_V_GEN)
 	@n=wtssendmsg d="Send console messages"; $(WIN_MAKE_RES)
 	@$(WIN_APP_MANIFEST)
@@ -896,7 +721,7 @@ BINFILES_WIN32 = \
 if ENABLE_DRIVEDB
 BINFILES_WIN32 += \
         os_win32/update-smart-drivedb.ps1 \
-        $(srcdir)/drivedb.h
+        $(top_srcdir)/lib/drivedb.h
 endif
 
 DOCFILES_WIN32 = \
@@ -951,7 +776,7 @@ $(distinst_win32): os_win32/installer.nsi Makefile os_win32/smartctl_res.rc $(di
 	$(AM_V_GEN)
 	@test -n '$(MAKENSIS)' || ! echo 'makensis: command not found (https://nsis.sourceforge.io)'
 	$(AM_V_at)test -z '$(builddir_win64)' || ( cd $(builddir_win64) && $(MAKE) distdir-win32 )
-	@. ./version.sh && \
+	@. ../include/smartmon/version.sh && \
 	version=$$SMARTMONTOOLS_GIT_VER_WIN && \
 	yy=`echo "$$SMARTMONTOOLS_GIT_REV_DATE" | sed -n 's,^20\([0-9][0-9]\).*$$,\1,p'` && yy="$${yy:-XX}" && \
 	verstr=$$SMARTMONTOOLS_GIT_VER_WIN && \
@@ -1062,15 +887,17 @@ CONFIG_VC_FILES = \
 
 config-vc: check-vc-version $(CONFIG_VC_FILES)
 
-$(srcdir)/os_win32/vc$(vcver)/config.h: config.h Makefile
-	@! test -f $(srcdir)/config.h || ! echo '$(MAKE) config-vc: does not work if run from configured source directory'
+$(srcdir)/os_win32/vc$(vcver)/config.h: ../include/smartmon/config.h Makefile
+	@! test -f $(top_srcdir)/include/smartmon/config.h || \
+	  ! echo '$(MAKE) config-vc: does not work if run from configured source directory'
 	$(AM_V_GEN)sed \
 	  -e '1i/* os_win32/vc$(vcver)/config.h.  Generated from config.h by Makefile.  */' \
 	  -e 's,^#define HAVE_\(ATTR_PACKED\|CLOCK_GETTIME\|GETTIMEOFDAY\|__INT128\|LONG_DOUBLE_WIDER\|STRINGS_H\|UNISTD_H\) 1.*$$,/* #undef HAVE_\1 */ /* VC$(vcver) */,' \
-	  -e 's,^\(#define SMARTMONTOOLS_BUILD_HOST "[^-]*\)[^"]*,\1-pc-w32vc$(vcver),' config.h > $@
+	  -e 's,^\(#define SMARTMONTOOLS_BUILD_HOST "[^-]*\)[^"]*,\1-pc-w32vc$(vcver),' \
+	  ../include/smartmon/config.h > $@
 
-$(srcdir)/os_win32/vc$(vcver)/version.h: version.h
-	$(AM_V_GEN)cp version.h $@
+$(srcdir)/os_win32/vc$(vcver)/version.h: ../include/smartmon/version.h
+	$(AM_V_GEN)cp ../include/smartmon/version.h $@
 
 $(srcdir)/os_win32/vc$(vcver)/smartctl_res.rc: os_win32/smartctl_res.rc
 	$(AM_V_GEN)sed '/^1 24 /d' os_win32/smartctl_res.rc > $@
@@ -1109,7 +936,7 @@ pkg_darwin = $(PACKAGE)-$(VERSION).pkg
 
 # build darwin installer 
 $(pkg_darwin):
-	${MAKE} install DESTDIR=$(distdir_darwin)/root
+	${MAKE} install DESTDIR="$$(pwd)/$(distdir_darwin)/root"
 	@cp $(srcdir)/os_darwin/pkg/root/usr/local/sbin/smart-pkg-uninstall $(distdir_darwin)/root$(sbindir)
 	@mkdir -p $(distdir_darwin)/pkg
 	@( cd $(distdir_darwin)/root && find .|xargs touch -d "@${SOURCE_DATE_EPOCH}" && find . | cpio --reproducible -o --format odc --owner 0:80 | gzip -n -c ) > $(distdir_darwin)/pkg/Payload

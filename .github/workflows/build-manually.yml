@@ -1,0 +1,269 @@
+name: Build smartmontools (manually)
+
+on:
+  workflow_dispatch:
+    inputs:
+      platforms:
+        description: 'List of build platforms (defaults to all)'
+        required: false
+        default: 'linux-x86_64 linux-arm64 darwin freebsd-14 windows-x86_64 cygwin'
+      cfg_options:
+        description: "'configure' options to select library"
+        required: false
+        default: '--enable-shared --disable-static'
+      make_options:
+        description: "'make' options"
+        required: false
+        default: '-j V=0'
+      suffix:
+        description: 'Suffix for binary files and build information'
+        required: false
+        default: 'shared'
+
+jobs:
+  build-source-tarball:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Show parameters
+        run: |
+          echo "::notice::" \
+               "platforms: '${{ github.event.inputs.platforms }}'," \
+               "cfg_options: '${{ github.event.inputs.cfg_options }}'," \
+               "make_options: '${{ github.event.inputs.make_options }}'," \
+               "suffix: '${{ github.event.inputs.suffix }}'"
+
+      - uses: actions/checkout@v4
+        with:
+          # Provide at least the commit log since last release for 'getversion.sh'.
+          # 'git clone --shallow-since=2025-04-29' would be sufficient but this is
+          # not supported by 'actions/checkout@v4'.
+          fetch-depth: 300
+          # Include (future) release tags for 'getversion.sh'
+          fetch-tags: true
+
+      - name: Build
+        run: |
+          version_sh=$(src/getversion.sh -s) && eval "${version_sh}" &&
+          ./autogen.sh && mkdir build && cd build &&
+          ../configure SOURCE_DATE_EPOCH=$((SMARTMONTOOLS_GIT_REV_EPOCH + 1)) &&
+          make dist && tar -tvf "smartmontools-${SMARTMONTOOLS_PKG_VER}.tar.gz"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: smartmontools-src
+          path: build/smartmontools-*.tar.gz
+          retention-days: 30
+
+  build-linux-x86_64:
+    if: ${{ contains(github.event.inputs.platforms, 'linux-x86_64') }}
+    needs: build-source-tarball
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: smartmontools-src
+
+      - name: Build
+        run: |
+          distfile=$(ls -d smartmontools-*.tar.gz) && test "$(echo "$distfile" | wc -l)" = 1 &&
+          tar -xf "$distfile" &&
+          version_sh=$("${distfile%.tar.gz}/src/getversion.sh" -s) && eval "${version_sh}" &&
+          cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
+          ../configure --with-build-info='(GHA/${{ github.event.inputs.suffix }})' \
+            ${{ github.event.inputs.cfg_options }} \
+            SOURCE_DATE_EPOCH=$((SMARTMONTOOLS_GIT_REV_EPOCH + 1)) &&
+          make ${{ github.event.inputs.make_options }} && make check &&
+          bin_distfile="../../smartmontools-linux-x86_64-${{ github.event.inputs.suffix }}-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" &&
+          make bin_distfile="$bin_distfile" bin-dist && tar -tvf "$bin_distfile"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: smartmontools-linux-x86_64-${{ github.event.inputs.suffix }}
+          path: smartmontools-linux-x86_64-${{ github.event.inputs.suffix }}-*.tar.gz
+          retention-days: 30
+
+  build-linux-arm64:
+    if: ${{ contains(github.event.inputs.platforms, 'linux-arm64') }}
+    needs: build-source-tarball
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: smartmontools-src
+
+      - name: Build
+        run: |
+          distfile=$(ls -d smartmontools-*.tar.gz) && test "$(echo "$distfile" | wc -l)" = 1 &&
+          tar -xf "$distfile" &&
+          version_sh=$("${distfile%.tar.gz}/src/getversion.sh" -s) && eval "${version_sh}" &&
+          cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
+          ../configure --with-build-info='(GHA/${{ github.event.inputs.suffix }})' \
+          ${{ github.event.inputs.cfg_options }} \
+            SOURCE_DATE_EPOCH=$((SMARTMONTOOLS_GIT_REV_EPOCH + 1)) &&
+          make ${{ github.event.inputs.make_options }} && make check &&
+          bin_distfile="../../smartmontools-linux-arm64-${{ github.event.inputs.suffix }}-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" &&
+          make bin_distfile="$bin_distfile" bin-dist && tar -tvf "$bin_distfile"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: smartmontools-linux-arm64-${{ github.event.inputs.suffix }}
+          path: smartmontools-linux-arm64-${{ github.event.inputs.suffix }}-*.tar.gz
+          retention-days: 30
+
+  build-darwin:
+    if: ${{ contains(github.event.inputs.platforms, 'darwin') }}
+    needs: build-source-tarball
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/smartmontools/docker-build:master
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: smartmontools-src
+
+      - name: Build
+        run: |
+          export PATH="/usr/osxcross/bin/:$PATH" &&
+          export LD_LIBRARY_PATH=/usr/osxcross/lib &&
+          distfile=$(ls -d smartmontools-*.tar.gz) && test "$(echo "$distfile" | wc -l)" = 1 &&
+          tar -xf "$distfile" &&
+          version_sh=$("${distfile%.tar.gz}/src/getversion.sh" -s) && eval "${version_sh}" &&
+          cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
+          ../configure --build=$(../config.guess) --host=x86_64-apple-darwin20.4 \
+            --with-build-info='(GHA/${{ github.event.inputs.suffix }})' \
+            ${{ github.event.inputs.cfg_options }} \
+            --sysconfdir=/private/etc CC=o64-clang CXX=o64-clang++ \
+            CFLAGS="-arch arm64 -arch x86_64" \
+            CXXFLAGS="-arch arm64 -arch x86_64 -stdlib=libc++" \
+            SOURCE_DATE_EPOCH=$((SMARTMONTOOLS_GIT_REV_EPOCH + 1)) &&
+          make ${{ github.event.inputs.make_options }} && make check &&
+          bin_distfile="../../smartmontools-darwin-${{ github.event.inputs.suffix }}-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" &&
+          make bin_distfile="$bin_distfile" bin-dist && tar -tvf "$bin_distfile" &&
+          make pkg_darwin="smartmontools-${SMARTMONTOOLS_GIT_VER_FNAME}.pkg" \
+            dmg_darwin="../../../smartmontools-${SMARTMONTOOLS_GIT_VER_FNAME}.dmg" install-darwin
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: smartmontools-darwin-${{ github.event.inputs.suffix }}-tar
+          path: smartmontools-darwin-${{ github.event.inputs.suffix }}-*.tar.gz
+          retention-days: 30
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: smartmontools-darwin-${{ github.event.inputs.suffix }}-dmg
+          path: smartmontools-*.dmg
+          retention-days: 30
+
+  build-freebsd-14:
+    if: ${{ contains(github.event.inputs.platforms, 'freebsd-14') }}
+    needs: build-source-tarball
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/smartmontools/docker-build:master
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: smartmontools-src
+
+      - name: Build
+        run: |
+          distfile=$(ls -d smartmontools-*.tar.gz) && test "$(echo "$distfile" | wc -l)" = 1 &&
+          tar -xf "$distfile" &&
+          version_sh=$("${distfile%.tar.gz}/src/getversion.sh" -s) && eval "${version_sh}" &&
+          cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
+          target="-target x86_64-unknown-freebsd14 --sysroot=/opt/cross-freebsd-14/" &&
+          ../configure --build=$(../config.guess) --host=x86_64-pc-freebsd14 \
+            --with-build-info='(GHA/${{ github.event.inputs.suffix }})' \
+            ${{ github.event.inputs.cfg_options }} \
+            CC="clang $target" CXX="clang++ $target" \
+            CPPFLAGS="-isystem /opt/cross-freebsd-14/usr/include/c++/v1" \
+            SOURCE_DATE_EPOCH=$((SMARTMONTOOLS_GIT_REV_EPOCH + 1)) &&
+          make ${{ github.event.inputs.make_options }} && make check &&
+          bin_distfile="../../smartmontools-freebsd-14-${{ github.event.inputs.suffix }}-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" &&
+          make bin_distfile="$bin_distfile" bin-dist && tar -tvf "$bin_distfile"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: smartmontools-freebsd-14-${{ github.event.inputs.suffix }}
+          path: smartmontools-freebsd-14-${{ github.event.inputs.suffix }}-*.tar.gz
+          retention-days: 30
+
+  build-windows-x86_64:
+    # TODO: '--enable-shared' fails due to missing stack check functions
+    if: ${{ contains(github.event.inputs.platforms, 'windows-x86_64') && !contains(github.event.inputs.cfg_options, '--enable-shared') }}
+    needs: build-source-tarball
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/smartmontools/docker-build:master
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: smartmontools-src
+
+      - name: Build
+        run: |
+          distfile=$(ls -d smartmontools-*.tar.gz) && test "$(echo "$distfile" | wc -l)" = 1 &&
+          tar -xf "$distfile" &&
+          version_sh=$("${distfile%.tar.gz}/src/getversion.sh" -s) && eval "${version_sh}" &&
+          cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
+          ../configure --build=$(../config.guess) --host=x86_64-w64-mingw32 \
+            --with-build-info='(GHA/${{ github.event.inputs.suffix }})' \
+            ${{ github.event.inputs.cfg_options }} \
+            SOURCE_DATE_EPOCH=$((SMARTMONTOOLS_GIT_REV_EPOCH + 1)) &&
+          make ${{ github.event.inputs.make_options }} && make check &&
+          bin_distfile="../../smartmontools-windows-x86_64-${{ github.event.inputs.suffix }}-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" &&
+          make bin_distfile="$bin_distfile" bin-dist && tar -tvf "$bin_distfile" &&
+          make distinst_win32="../../../smartmontools-windows-x86_64-setup-${{ github.event.inputs.suffix }}-${SMARTMONTOOLS_GIT_VER_FNAME}.exe" \
+            installer-win32
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: smartmontools-windows-x86_64-${{ github.event.inputs.suffix }}-tar
+          path: smartmontools-windows-x86_64-${{ github.event.inputs.suffix }}-*.tar.gz
+          retention-days: 30
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: smartmontools-windows-x86_64-${{ github.event.inputs.suffix }}-setup
+          path: smartmontools-windows-x86_64-setup-${{ github.event.inputs.suffix }}-*.exe
+          retention-days: 30
+
+  build-cygwin:
+    # TODO: '--enable-shared' is ignored due to missing import libraries
+    if: ${{ contains(github.event.inputs.platforms, 'cygwin') && !contains(github.event.inputs.cfg_options, '--enable-shared') }}
+    needs: build-source-tarball
+    runs-on: ubuntu-latest
+    # Cross build on Fedora is faster than the native build done by 'cygwin.yml'.
+    # The recipes below are partly borrowed from Cygwin's own CI build.
+    container: fedora:latest
+    steps:
+      - name: Install cross-cygwin toolchain
+        run: |
+          dnf install -y make
+          dnf install -y dnf-plugins-core
+          dnf copr enable -y yselkowitz/cygwin
+          dnf install -y cygwin64-gcc-c++
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: smartmontools-src
+
+      - name: Build
+        run: |
+          distfile=$(ls -d smartmontools-*.tar.gz) && test "$(echo "$distfile" | wc -l)" = 1 &&
+          tar -xf "$distfile" &&
+          version_sh=$("${distfile%.tar.gz}/src/getversion.sh" -s) && eval "${version_sh}" &&
+          cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
+          ../configure --build=$(../config.guess) --host=x86_64-pc-cygwin \
+            --with-build-info='(GHA/${{ github.event.inputs.suffix }})' \
+            ${{ github.event.inputs.cfg_options }} \
+            SOURCE_DATE_EPOCH=$((SMARTMONTOOLS_GIT_REV_EPOCH + 1)) &&
+          make ${{ github.event.inputs.make_options }} && make check &&
+          bin_distfile="../../smartmontools-cygwin-${{ github.event.inputs.suffix }}-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" &&
+          make bin_distfile="$bin_distfile" bin-dist && tar -tvf "$bin_distfile"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: smartmontools-cygwin-${{ github.event.inputs.suffix }}
+          path: smartmontools-cygwin-${{ github.event.inputs.suffix }}-*.tar.gz
+          retention-days: 30
