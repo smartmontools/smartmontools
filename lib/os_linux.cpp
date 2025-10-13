@@ -3624,13 +3624,12 @@ bool linux_smart_interface::get_dev_ps3stor(smart_device_list &devlist)
 {
   // init ps3stor and get controller list , return false on err or not found
   if (!ps3stor_init()) {
-       return false;
+    return false;
   }
   // try to add device for each controller
   std::vector<unsigned> hostlist;
   ps3chn()->get_host_list(hostlist);
-  for(uint16_t i = 0; i < hostlist.size(); i++)
-{
+  for (uint16_t i = 0; i < hostlist.size(); i++) {
     ps3stor_pd_add_list(hostlist.at(i), devlist);
   }
   return true;
@@ -4096,7 +4095,7 @@ ps3stor_errno linux_ps3stor_channel::firecmd(unsigned hostid, ps3stor_msg_info *
   const uint16_t inblk = (uint16_t)((insize + PS3STOR_SGL_SIZE -1) / PS3STOR_SGL_SIZE);
   const uint16_t outblk = (uint16_t)((acksize + PS3STOR_SGL_SIZE -1) / PS3STOR_SGL_SIZE);
 
-  ps3stor_ioctl_sync_cmd packet = {};
+  ps3stor_ioctl_sync_cmd packet{};
   packet.hostid = (uint16_t)hostid;
   packet.sge_count = inblk + outblk;
   packet.sgl_offset = offsetof(ps3stor_ioctl_sync_cmd, sgl) / sizeof(uint32_t); // 4 bytes
@@ -4160,7 +4159,7 @@ ps3stor_errno linux_ps3stor_channel::firecmd_scsi(unsigned hostid, ps3stor_msg_i
   const uint16_t outblk = (uint16_t)((acksize + PS3STOR_SGL_SIZE -1) / PS3STOR_SGL_SIZE);
   const uint16_t scsiblk = (uint16_t)scsicount;
 
-  ps3stor_ioctl_sync_cmd packet = {};
+  ps3stor_ioctl_sync_cmd packet{};
   packet.hostid = (uint16_t)hostid;
   packet.sge_count = inblk + outblk + scsiblk;
   packet.sgl_offset = offsetof(ps3stor_ioctl_sync_cmd, sgl) / sizeof(uint32_t); // 4 bytes
