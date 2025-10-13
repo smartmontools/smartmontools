@@ -58,6 +58,7 @@
 #include <sys/types.h>
 #include <dirent.h>
 #include <map>
+#include <memory>
 #ifdef HAVE_SYS_SYSMACROS_H
 // glibc 2.25: The inclusion of <sys/sysmacros.h> by <sys/types.h> is
 // deprecated.  A warning is printed if major(), minor() or makedev()
@@ -2297,7 +2298,7 @@ bool linux_ps3stor_device::open()
       if (!linux_smart_device::open())
         return false;
       /* Get device HBA */
-      struct sg_scsi_id sgid;
+      sg_scsi_id sgid;
       if (ioctl(get_fd(), SG_GET_SCSI_ID, &sgid) == 0) {
         m_host = sgid.host_no;
       }
@@ -2379,7 +2380,6 @@ bool linux_ps3stor_device::scsi_cmd(scsi_cmnd_io *iop)
     return set_err(ENOSYS, "ps3stor cannot support scsi cdb longer than %d", PS3STOR_SCSI_MAX_CDB_LENGTH);
   }
 
-  //get enclid slotid
   encl_id_t eid = 0;
   slot_id_t sid = 0;
   if (!get_pd_position(eid, sid)) {
@@ -2387,10 +2387,8 @@ bool linux_ps3stor_device::scsi_cmd(scsi_cmnd_io *iop)
     return set_err(EIO, "linux_ps3stor_device::scsi_cmd: get_pd_position of device %u failed.", m_did);
   }
 
-  // ps3stor_scsi_req
-
-  ps3stor_scsi_req_t  scsireq = {};
-  scsireq.reserved = 1;
+  ps3stor_scsi_req_t scsireq{};
+  scsireq.count = 1;
   switch (iop->dxfer_dir) {
   case DXFER_NONE:
     scsireq.cmddir = PS3STOR_SCSI_CMD_DIR_NONE;
@@ -2408,10 +2406,7 @@ bool linux_ps3stor_device::scsi_cmd(scsi_cmnd_io *iop)
   scsireq.checklen = 0;
   memcpy(scsireq.cdb, iop->cmnd, iop->cmnd_len);
 
-
-  // ps3stor_scsi_rsp
-  struct ps3stor_scsi_rsp scsirsp = {};
-
+  ps3stor_scsi_rsp scsirsp{};
   if (PS3STOR_ERRNO_SUCCESS != ps3chn()->pd_scsi_passthrough(m_host, eid, sid, scsireq, scsirsp, iop->dxferp, iop->dxfer_len)) {
     return -1;
   }
@@ -2425,8 +2420,7 @@ bool linux_ps3stor_device::scsi_cmd(scsi_cmnd_io *iop)
         if(scsi_status != PS3STOR_SCSI_STATUS_UNDERRUN) {
           //free(scsi_passthru);
           return set_err((errno ? errno : EIO), "linux_ps3stor_device::scsi_cmd result: %u.%u = %d/%hhu",
-                      m_host, m_did, errno, scsi_status
-                );
+                      m_host, m_did, errno, scsi_status);
         }
     }
   }
@@ -2437,7 +2431,7 @@ bool linux_ps3stor_device::scsi_cmd(scsi_cmnd_io *iop)
 
 bool linux_ps3stor_device::get_pd_position(encl_id_t &eid, slot_id_t &sid)
 {
-  ps3stor_pd_baseinfo_t baseinfo = {};
+  ps3stor_pd_baseinfo_t baseinfo{};
   //1.get enclId and slotId from ioc for the first time
   if (m_eid == PS3STOR_INVALID_ENCL_ID && m_sid == PS3STOR_INVALID_SLOT_ID) {
     if (PS3STOR_ERRNO_SUCCESS != ps3chn()->pd_get_baseinfo_by_devid(m_host, m_did, baseinfo)) {
@@ -3622,7 +3616,7 @@ linux_smart_interface::sssraid_pd_add_list(int bus_no, smart_device_list & devli
     smart_device * dev = new linux_sssraid_device(this, line, (unsigned int)pdlist[i].enc_id, (unsigned int)pdlist[i].slot_id);
     devlist.push_back(dev);
   }
-  return (0);
+  return (0); 
 }
 
 // getting devices from ps3 and ps3stor, if available
@@ -3630,13 +3624,13 @@ bool linux_smart_interface::get_dev_ps3stor(smart_device_list &devlist)
 {
   // init ps3stor and get controller list , return false on err or not found
   if (!ps3stor_init()) {
-    return false;
+       return false;
   }
   // try to add device for each controller
   std::vector<unsigned> hostlist;
   ps3chn()->get_host_list(hostlist);
   for(uint16_t i = 0; i < hostlist.size(); i++)
-  {
+{
     ps3stor_pd_add_list(hostlist.at(i), devlist);
   }
   return true;
@@ -3662,7 +3656,8 @@ int linux_smart_interface::ps3stor_pdlist_cmd(int bus_no, std::vector<uint16_t> 
 {
   // get enclist and get devlsit for each encl
   uint8_t enclcount = 0;
-  struct ps3stor_encl_list *encllist = NULL; 
+  ps3stor_encl_list *encllist = nullptr; 
+  std::unique_ptr<uint8_t[]> encllist_buf;
 
   //1.get encl count
   if (PS3STOR_ERRNO_SUCCESS != ps3chn()->get_enclcount(bus_no, enclcount)) {
@@ -3671,19 +3666,19 @@ int linux_smart_interface::ps3stor_pdlist_cmd(int bus_no, std::vector<uint16_t> 
 
   //2.get encl list
   if (enclcount > 0) {
-    size_t listsize = sizeof(struct ps3stor_encl_list) + enclcount * sizeof(uint8_t);
-    encllist = (struct ps3stor_encl_list*)malloc(listsize) ;
+    size_t listsize = sizeof(ps3stor_encl_list) + enclcount * sizeof(uint8_t);
+    encllist_buf = std::unique_ptr<uint8_t[]>(new uint8_t[listsize]{});
+    encllist = reinterpret_cast<ps3stor_encl_list*>(encllist_buf.get());
+    
     if (PS3STOR_ERRNO_SUCCESS != ps3chn()->get_encllist(bus_no, encllist, listsize)) {
-      free(encllist);
-      encllist = NULL;
       return -1;
     }
   }
 
   //3.get pd list for each encl
-  if (encllist != NULL && encllist->count > 0) {
+  if (encllist != nullptr && encllist->count > 0) {
     enclcount = PS3STOR_MIN(enclcount, encllist->count);
-    for(uint8_t i = 0; i < enclcount; i++){
+    for (uint8_t i = 0; i < enclcount; i++) {
       uint16_t devcount = 0;
       uint8_t eid = encllist->idlist[i];
       if (PS3STOR_ERRNO_SUCCESS != ps3chn()->pd_get_devcount_by_encl(bus_no, eid, devcount)) {
@@ -3691,27 +3686,17 @@ int linux_smart_interface::ps3stor_pdlist_cmd(int bus_no, std::vector<uint16_t> 
       }
       if (devcount > 0) {
         size_t listsize = sizeof(uint16_t) * devcount;
-        uint16_t *devlist = new uint16_t[devcount];
-        memset(devlist, 0, listsize);
-        if (PS3STOR_ERRNO_SUCCESS != ps3chn()->pd_get_devlist_by_encl(bus_no, eid, devlist, listsize)) {
-          // free(devlist);
-          delete [] devlist;
-          devlist = NULL;
-          return -1;
-        }
-        for (int j = 0; j < devcount; j++) {
-          devidlist.push_back(devlist[j]);
-        }         
-        delete [] devlist;
-        devlist = NULL;
-      }
+        std::unique_ptr<uint16_t[]> devlist(new uint16_t[devcount]{});
+        uint16_t * devlist_ptr = devlist.get();
 
+        if (PS3STOR_ERRNO_SUCCESS != ps3chn()->pd_get_devlist_by_encl(bus_no, eid, devlist_ptr, listsize))
+          return -1;
+
+        for (int j = 0; j < devcount; j++) {
+          devidlist.push_back(devlist_ptr[j]);
+        }
+      }
     }
-  }
-  
-  if (encllist != NULL) {
-    free(encllist);
-    encllist = NULL;
   }
 
   return 0;
@@ -4090,11 +4075,11 @@ ps3stor_errno linux_ps3stor_channel::get_host_list(std::vector<unsigned> &hostli
   return PS3STOR_ERRNO_SUCCESS;
 }
 
-ps3stor_errno linux_ps3stor_channel::firecmd(unsigned hostid, struct ps3stor_msg_info * reqinfo, struct ps3stor_msg_info * ackinfo, unsigned acksize)
+ps3stor_errno linux_ps3stor_channel::firecmd(unsigned hostid, ps3stor_msg_info * reqinfo, ps3stor_msg_info * ackinfo, unsigned acksize)
 {
   ps3stor_errno err = PS3STOR_ERRNO_SUCCESS;
   int   devfd = -1;
-  const size_t insize = (reqinfo == NULL ? 0 : reqinfo->length);
+  const size_t insize = (reqinfo == nullptr ? 0 : reqinfo->length);
   uint8_t funcid = 0;
 
   reqinfo->magic = PS3STOR_MSG_MAGIC_CODE;
@@ -4111,10 +4096,10 @@ ps3stor_errno linux_ps3stor_channel::firecmd(unsigned hostid, struct ps3stor_msg
   const uint16_t inblk = (uint16_t)((insize + PS3STOR_SGL_SIZE -1) / PS3STOR_SGL_SIZE);
   const uint16_t outblk = (uint16_t)((acksize + PS3STOR_SGL_SIZE -1) / PS3STOR_SGL_SIZE);
 
-  struct ps3stor_ioctl_sync_cmd packet = {};
+  ps3stor_ioctl_sync_cmd packet = {};
   packet.hostid = (uint16_t)hostid;
   packet.sge_count = inblk + outblk;
-  packet.sgl_offset = offsetof(struct ps3stor_ioctl_sync_cmd, sgl) / sizeof(uint32_t); // 4 bytes
+  packet.sgl_offset = offsetof(ps3stor_ioctl_sync_cmd, sgl) / sizeof(uint32_t); // 4 bytes
   packet.traceid = reqinfo->traceid;
 
   reqinfo->index.tlv = 0;
@@ -4122,12 +4107,12 @@ ps3stor_errno linux_ps3stor_channel::firecmd(unsigned hostid, struct ps3stor_msg
   reqinfo->ack_length = acksize;
   reqinfo->ack_offset = (uint32_t)insize;
 
-  for(uint16_t i = 0; i < inblk; i++) {
+  for (uint16_t i = 0; i < inblk; i++) {
     packet.sgl[i].addr = (uint64_t)(intptr_t) & ((uint8_t*)reqinfo)[PS3STOR_SGL_SIZE * i];
     packet.sgl[i].length = (uint32_t)((i == inblk - 1) ? (insize - (PS3STOR_SGL_SIZE * i)) : PS3STOR_SGL_SIZE);
   }
 
-  for(uint16_t i = 0; i < outblk; i++) {
+  for (uint16_t i = 0; i < outblk; i++) {
     packet.sgl[inblk + i].addr = (uint64_t)(intptr_t) & ((uint8_t*)ackinfo)[PS3STOR_SGL_SIZE * i];
     packet.sgl[inblk + i].length = (uint32_t)((i == outblk - 1) ? (acksize - (PS3STOR_SGL_SIZE * i)) : PS3STOR_SGL_SIZE);
   }
@@ -4152,12 +4137,12 @@ ps3stor_errno linux_ps3stor_channel::firecmd(unsigned hostid, struct ps3stor_msg
   return err;
 }
 
-ps3stor_errno linux_ps3stor_channel::firecmd_scsi(unsigned hostid, struct ps3stor_msg_info * reqinfo, struct ps3stor_msg_info * ackinfo,
-                                                          unsigned acksize, struct ps3stor_data * scsidata, unsigned scsicount)
+ps3stor_errno linux_ps3stor_channel::firecmd_scsi(unsigned hostid, ps3stor_msg_info * reqinfo, ps3stor_msg_info * ackinfo,
+                                                          unsigned acksize, ps3stor_data * scsidata, unsigned scsicount)
 {
   ps3stor_errno err = PS3STOR_ERRNO_SUCCESS;
   int   devfd = -1;
-  const size_t insize = (reqinfo == NULL ? 0 : reqinfo->length);
+  const size_t insize = (reqinfo == nullptr ? 0 : reqinfo->length);
   uint8_t funcid = 0;
 
   reqinfo->magic = PS3STOR_MSG_MAGIC_CODE;
@@ -4175,10 +4160,10 @@ ps3stor_errno linux_ps3stor_channel::firecmd_scsi(unsigned hostid, struct ps3sto
   const uint16_t outblk = (uint16_t)((acksize + PS3STOR_SGL_SIZE -1) / PS3STOR_SGL_SIZE);
   const uint16_t scsiblk = (uint16_t)scsicount;
 
-  struct ps3stor_ioctl_sync_cmd packet = {};
+  ps3stor_ioctl_sync_cmd packet = {};
   packet.hostid = (uint16_t)hostid;
   packet.sge_count = inblk + outblk + scsiblk;
-  packet.sgl_offset = offsetof(struct ps3stor_ioctl_sync_cmd, sgl) / sizeof(uint32_t); // 4 bytes
+  packet.sgl_offset = offsetof(ps3stor_ioctl_sync_cmd, sgl) / sizeof(uint32_t); // 4 bytes
   packet.traceid = reqinfo->traceid;
 
   //todo check for sge_count <= 16
@@ -4223,35 +4208,30 @@ ps3stor_errno linux_ps3stor_channel::firecmd_scsi(unsigned hostid, struct ps3sto
   return err;
 }
 
-struct ps3stor_tlv *linux_ps3stor_channel::add_tlv_data(struct ps3stor_tlv *tlv, unsigned type, const void *data, uint16_t size)
+ps3stor_tlv *linux_ps3stor_channel::add_tlv_data(ps3stor_tlv *tlv, unsigned type, const void *data, uint16_t size)
 {
   if(data == NULL || size == 0) {
     return tlv;
   }
-
   unsigned tlvcode = type;
-
   // calculate tlvsize
-  uint16_t tlvsize = (uint16_t)(sizeof(*tlv)                      ///< tlv 头
-                                + ((tlv == NULL) ? 0 : tlv->size) ///< 已存在tlv的长度
-                                + sizeof(tlvcode)                 ///< 新 tlv:type 长度
-                                + sizeof(size)                    ///< 新 tlv:length 长度
+  uint16_t tlvsize = (uint16_t)(sizeof(*tlv)                      ///< tlv header
+                                + ((tlv == NULL) ? 0 : tlv->size) ///< tlv size
+                                + sizeof(tlvcode)                 ///< new tlv:type v
+                                + sizeof(size)                    ///< new tlv:length 
                                 + size);
-
-  if (tlv == NULL) {
-    tlv = (struct ps3stor_tlv *)malloc(tlvsize);
+  if (tlv == nullptr) {
+    tlv = (ps3stor_tlv *)malloc(tlvsize);
     memset(tlv, 0, tlvsize);
   } else {
-    struct ps3stor_tlv * tmp = (struct ps3stor_tlv *)realloc(tlv, tlvsize);
-    if (tmp == NULL) {
+    ps3stor_tlv * tmp = (ps3stor_tlv *)realloc(tlv, tlvsize);
+    if (tmp == nullptr) {
       free(tlv);
     }
     tlv = tmp;
   }
-
   // add data
-  if (tlv != NULL)
-  {
+  if (tlv != nullptr) {
     memcpy(tlv->buff + tlv->size, &tlvcode, sizeof(tlvcode));
     tlv->size += sizeof(tlvcode);
     memcpy(tlv->buff + tlv->size, &size, sizeof(size));
@@ -4289,7 +4269,7 @@ int linux_ps3stor_channel::open_node(enum ps3stor_device_type dev_type)
   switch (dev_type)
   {
   case PS3STOR_DEVICE_TYPE_PS3:
-    while (fgets(line, sizeof(line), fp) != NULL) {
+    while (fgets(line, sizeof(line), fp) != nullptr) {
       n1=0;
       int tmp = sscanf(line, "%d ps3-ioctl%n", &mjr, &n1);
       //if (sscanf(line, "%d ps3-ioctl%n", &mjr, &n1) == 1 && n1 == 13) {
@@ -4307,7 +4287,7 @@ int linux_ps3stor_channel::open_node(enum ps3stor_device_type dev_type)
     }
     break;
   case PS3STOR_DEVICE_TYPE_PS3STOR:
-    while (fgets(line, sizeof(line), fp) != NULL) {
+    while (fgets(line, sizeof(line), fp) != nullptr) {
       n1=0;
       int tmp = sscanf(line, "%d ps3stor-ioctl%n", &mjr, &n1);
       //if (sscanf(line, "%d ps3stor-ioctl%n", &mjr, &n1) == 1 && n1 == 17) {
@@ -4408,10 +4388,10 @@ void linux_ps3stor_channel::find_device(enum ps3stor_device_type dev_type)
   DIR * dp = opendir(PS3STOR_SYS_CLASS_SCSI_HOST_PATH);
   if (dp != NULL)
   {
-    struct dirent *ep;
-    FILE*   fp = NULL;
+    dirent * ep;
+    FILE * fp = nullptr;
     char line[128] = {};
-    while ((ep = readdir (dp)) != NULL) {
+    while ((ep = readdir (dp)) != nullptr) {
       unsigned int host_no = 0;
       if (!sscanf(ep->d_name, "host%u", &host_no))
         continue;
@@ -4419,10 +4399,10 @@ void linux_ps3stor_channel::find_device(enum ps3stor_device_type dev_type)
       char sysfsdir[256] = {};
       snprintf(sysfsdir, sizeof(sysfsdir) - 1,
         "/sys/class/scsi_host/host%u/proc_name", host_no);
-      if ((fp = fopen(sysfsdir, "r")) == NULL)
+      if ((fp = fopen(sysfsdir, "r")) == nullptr)
         continue;
-      if (fgets(line, sizeof(line), fp) != NULL && !strncmp(line, procctx, proclen)) {
-        struct ps3stor_pci_info pci = {};
+      if (fgets(line, sizeof(line), fp) != nullptr && !strncmp(line, procctx, proclen)) {
+        ps3stor_pci_info pci{};
         if (get_pci_info(host_no, pci) == PS3STOR_ERRNO_SUCCESS) {
           pci.devtype = dev_type;
           m_host_map[host_no] = pci;
