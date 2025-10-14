@@ -4,8 +4,16 @@
 
 ### What's new
 
+- `libsmartmon`: Work on a smartmontools library has begun.
+Possibly reusable files have been moved from `src` to `lib` or `include/smartmon`.
+Symbols referenced from the library but located in `smartctl` and `smartd` have been
+replaced by library hooks.
+Work towards a more consistent and flexible API is in progress.
+
 - The new JSON values `host_reads: {...}` and `host_writes: {...}` have been added for ATA
 and NVMe.
+
+- The new JSON values `scsi_self_test_status: {...}` have been added for SCSI.
 
 - The NVMe/SAT autodetection enabled by the options `-d snt*/sat` now also checks for nonempty
 NVMe identify controller data before assuming that a NVMe device is connected.
@@ -43,6 +51,8 @@ or to `X.Y.0.1000` for releases.
 The source directory `smartmontools` has been renamed to `src`.
 
 ### Bug fixes
+
+- `smartctl -l farm`: fixed null pointer dereference on unknown form factor value.
 
 - `smartd`: fixed the syntax of NVMe self-test related log messages.
 
