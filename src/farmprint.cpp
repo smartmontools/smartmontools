@@ -55,7 +55,7 @@ static const char* farm_get_form_factor(const uint64_t formFactor) {
     case 0x5:
       return "< 1.8 inches";
     default :
-      return 0;
+      return "UNKNOWN";
   }
 }
 
