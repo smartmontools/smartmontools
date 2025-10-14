@@ -2357,7 +2357,7 @@ bool linux_ps3stor_device::scsi_pass_through(scsi_cmnd_io *iop)
 
 bool linux_ps3stor_device::scsi_cmd(scsi_cmnd_io *iop)
 {
- // Controller rejects Test Unit Ready
+  // Controller rejects Test Unit Ready
   if (iop->cmnd[0] == 0x00)
     return true;
 
@@ -4021,9 +4021,6 @@ private:
   ps3stor_errno get_pci_info(unsigned host, struct ps3stor_pci_info &pci_info);
   void find_device(enum ps3stor_device_type dev_type);
   ps3stor_errno get_devfd(unsigned host, int &devfd);
-
-  void print_packet(struct ps3stor_ioctl_sync_cmd &packet); // print packet msg for debug
-
 };
 
 linux_ps3stor_channel::linux_ps3stor_channel()
@@ -4209,35 +4206,32 @@ ps3stor_errno linux_ps3stor_channel::firecmd_scsi(unsigned hostid, ps3stor_msg_i
 
 ps3stor_tlv *linux_ps3stor_channel::add_tlv_data(ps3stor_tlv *tlv, unsigned type, const void *data, uint16_t size)
 {
-  if(data == NULL || size == 0) {
+  if (!data || size == 0)
     return tlv;
-  }
+  
   unsigned tlvcode = type;
   // calculate tlvsize
-  uint16_t tlvsize = (uint16_t)(sizeof(*tlv)                      ///< tlv header
-                                + ((tlv == NULL) ? 0 : tlv->size) ///< tlv size
-                                + sizeof(tlvcode)                 ///< new tlv:type v
-                                + sizeof(size)                    ///< new tlv:length 
+  uint16_t tlvsize = (uint16_t)(sizeof(*tlv)               ///< tlv header
+                                + ((!tlv) ? 0 : tlv->size) ///< tlv size
+                                + sizeof(tlvcode)          ///< new tlv:type v
+                                + sizeof(size)             ///< new tlv:length 
                                 + size);
-  if (tlv == nullptr) {
-    tlv = (ps3stor_tlv *)malloc(tlvsize);
-    memset(tlv, 0, tlvsize);
-  } else {
-    ps3stor_tlv * tmp = (ps3stor_tlv *)realloc(tlv, tlvsize);
-    if (tmp == nullptr) {
-      free(tlv);
-    }
-    tlv = tmp;
+  ps3stor_tlv * tmp = reinterpret_cast<ps3stor_tlv *>(realloc(tlv, tlvsize));
+  if (!tmp) {
+    free(tlv);
+    throw std::bad_alloc();
   }
+  if (!tlv) 
+    tmp->size = 0;
+
+  tlv = tmp;  
   // add data
-  if (tlv != nullptr) {
-    memcpy(tlv->buff + tlv->size, &tlvcode, sizeof(tlvcode));
-    tlv->size += sizeof(tlvcode);
-    memcpy(tlv->buff + tlv->size, &size, sizeof(size));
-    tlv->size += sizeof(size);
-    memcpy(tlv->buff + tlv->size, data, size);
-    tlv->size += size; 
-  }
+  memcpy(tlv->buff + tlv->size, &tlvcode, sizeof(tlvcode));
+  tlv->size += sizeof(tlvcode);
+  memcpy(tlv->buff + tlv->size, &size, sizeof(size));
+  tlv->size += sizeof(size);
+  memcpy(tlv->buff + tlv->size, data, size);
+  tlv->size += size; 
   
   return tlv;
 }
@@ -4312,8 +4306,7 @@ int linux_ps3stor_channel::open_node(enum ps3stor_device_type dev_type)
 
 ps3stor_errno linux_ps3stor_channel::get_func_by_host(unsigned hostid, uint8_t &funcid)
 {
-  for(auto it : m_host_map)
-  {
+  for (auto it : m_host_map) {
     if (it.first == hostid) {
       funcid = it.second.function;
       return PS3STOR_ERRNO_SUCCESS;
@@ -4330,16 +4323,15 @@ ps3stor_errno linux_ps3stor_channel::get_pci_info(unsigned host, ps3stor_pci_inf
 
   snprintf(path, sizeof(path) - 1, "/sys/class/scsi_host/host%u", host);
   err = readlink(path, filelink, sizeof(filelink));
-  if (err < 0) {
+  if (err < 0) 
     return errno;
-  }
+
   err = -1;
   const char templatestr[] = "0000:00:00.0"; // look up pci addr by file link
   unsigned templen = strlen(templatestr);
-  if (strlen(path) < templen) {
+  if (strlen(path) < templen)
     return -1;
-  }
-  
+
   for(unsigned i = 0; *(filelink + i + templen) != '\0'; i++){
     char *begin = filelink + i;
     bool match = true;
@@ -4385,8 +4377,7 @@ void linux_ps3stor_channel::find_device(enum ps3stor_device_type dev_type)
   }
 
   DIR * dp = opendir(PS3STOR_SYS_CLASS_SCSI_HOST_PATH);
-  if (dp != NULL)
-  {
+  if (dp != nullptr) {
     dirent * ep;
     FILE * fp = nullptr;
     char line[128] = {};
@@ -4417,8 +4408,7 @@ void linux_ps3stor_channel::find_device(enum ps3stor_device_type dev_type)
 ps3stor_errno linux_ps3stor_channel::get_devfd(unsigned host, int &devfd)
 {
   ps3stor_errno err = -1;
-  for(auto it : m_host_map)
-  {
+  for (auto it : m_host_map) {
     if (it.first == host) {
       switch (it.second.devtype)
       {
@@ -4437,31 +4427,6 @@ ps3stor_errno linux_ps3stor_channel::get_devfd(unsigned host, int &devfd)
     }
   }
   return err;
-}
-
-void linux_ps3stor_channel::print_packet(ps3stor_ioctl_sync_cmd &packet)
-{
-  for(uint16_t i = 0; i < packet.sge_count; i++) {
-    char tmp_buf[1024 * 4] = {};
-    uint32_t sz = 1024 * 4;
-    uint32_t len = 0;
-    len = snprintf(tmp_buf, sz, "=============sgl[%hu]:length = %u =============:\n", i, packet.sgl[i].length);
-    for (uint32_t j = 0; j < packet.sgl[i].length && len < sz ; j++) {
-      if (j % 32 == 0) {
-        len += snprintf(&tmp_buf[len], (sz > len ? (sz - len) : 0), "0x%04x: ", j);
-      } 
-      uint8_t* buff = (uint8_t*)(intptr_t)packet.sgl[i].addr;
-      len += snprintf(&tmp_buf[len], (sz > len ? (sz - len) : 0), "%02x ", buff[j]);
-      if ((j + 1) % 4 == 0) {
-        len += snprintf(&tmp_buf[len], (sz > len ? (sz - len) : 0), " ");
-      }
-      if ((j + 1) % 32 == 0) {
-        len += snprintf(&tmp_buf[len], (sz > len ? (sz - len) : 0), "\n");
-      }
-    }
-    lib_printf("%s\n=================================\n", tmp_buf);
-  }
-
 }
 
 } // namespace

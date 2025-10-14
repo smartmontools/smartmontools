@@ -134,7 +134,7 @@ ps3stor_errno ps3stor_channel::pd_get_baseinfo_by_devid(unsigned hostid, unsigne
 
   memcpy(batchrsp, rspinfo->body, rspsize);
   ps3stor_rsp_entry_t *entry = (ps3stor_rsp_entry_t *)batchrsp->rsp_entry;
-  if (entry == NULL || entry->result != PS3STOR_ERRNO_SUCCESS) {
+  if (entry == nullptr || entry->result != PS3STOR_ERRNO_SUCCESS) {
     free(req_tlv);
     return -1;
   }
@@ -193,7 +193,7 @@ ps3stor_errno ps3stor_channel::pd_scsi_passthrough(unsigned hostid, uint8_t eid,
                              &scsireq.cdb, (uint16_t)PS3STOR_SCSI_CDB_LEN);
   scsireq_tlv = add_tlv_data(scsireq_tlv, PS3STOR_MK_TLV_CODE(PS3STOR_SCSI_TLV_CODE_MASK, ps3stor_scsi_req_t, req),
                              &scsireq.req, (uint16_t)sizeof(scsireq.req));
-  if (scsireq_tlv == NULL)
+  if (scsireq_tlv == nullptr)
     return -1;
 
   // 3. call scsi passthrough
