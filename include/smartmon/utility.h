@@ -15,6 +15,8 @@
 
 #define UTILITY_H_CVSID // TODO: Remove when no longer used
 
+#include "smartmon_config.h"
+
 #include <float.h> // *DBL_MANT_DIG
 #include <time.h>
 #include <stdarg.h>
@@ -24,7 +26,7 @@
 #include <string>
 
 #include <sys/types.h> // for regex.h (according to POSIX)
-#ifdef WITH_CXX11_REGEX
+#ifdef SMARTMON_WITH_CXX11_REGEX
 #include <regex>
 #else
 #include <regex.h>
@@ -107,7 +109,7 @@ int split_selective_arg(char *s, uint64_t *start, uint64_t *stop, int *mode);
 // (inline const function allows compiler to remove dead code)
 inline bool isbigendian()
 {
-#ifdef WORDS_BIGENDIAN
+#ifdef SMARTMON_WORDS_BIGENDIAN
   return true;
 #else
   return false;
@@ -248,7 +250,7 @@ class regular_expression
 {
 public:
   // Construction & assignment
-#ifdef WITH_CXX11_REGEX
+#ifdef SMARTMON_WITH_CXX11_REGEX
   regular_expression() = default;
 
 #else
@@ -282,7 +284,7 @@ public:
   /// Return true if full string matches pattern
   bool full_match(const char * str) const;
 
-#ifdef WITH_CXX11_REGEX
+#ifdef SMARTMON_WITH_CXX11_REGEX
   struct match_range { int rm_so, rm_eo; };
 #else
   typedef regmatch_t match_range;
@@ -295,7 +297,7 @@ private:
   std::string m_pattern;
   std::string m_errmsg;
 
-#ifdef WITH_CXX11_REGEX
+#ifdef SMARTMON_WITH_CXX11_REGEX
   std::regex m_regex;
 #else
   regex_t m_regex_buf;
@@ -310,20 +312,20 @@ private:
 // Provides full integer precision if compiler supports '__int128'.
 // Otherwise precision depends on supported floating point data types.
 
-#if defined(HAVE_LONG_DOUBLE_WIDER) && \
+#if defined(SMARTMON_HAVE_LONG_DOUBLE_WIDER) && \
     (!defined(__MINGW32__) || __USE_MINGW_ANSI_STDIO)
     // MinGW 'long double' type does not work with MSVCRT/UCRT *printf()
-#define HAVE_LONG_DOUBLE_WIDER_PRINTF 1
+#define SMARTMON_HAVE_LONG_DOUBLE_WIDER_PRINTF 1
 #else
-#undef HAVE_LONG_DOUBLE_WIDER_PRINTF
+#undef SMARTMON_HAVE_LONG_DOUBLE_WIDER_PRINTF
 #endif
 
 // Return #bits precision provided by uint128_hilo_to_str().
 inline int uint128_to_str_precision_bits()
 {
-#if defined(HAVE___INT128)
+#if defined(SMARTMON_HAVE___INT128)
   return 128;
-#elif defined(HAVE_LONG_DOUBLE_WIDER_PRINTF)
+#elif defined(SMARTMON_HAVE_LONG_DOUBLE_WIDER_PRINTF)
   return LDBL_MANT_DIG;
 #else
   return DBL_MANT_DIG;
@@ -350,7 +352,7 @@ std::string get_exe_dir();
 #endif
 
 
-#ifdef OLD_INTERFACE
+#ifdef SMARTMON_OLD_INTERFACE
 // remaining controller types in old interface modules
 #define CONTROLLER_UNKNOWN              0x00
 #define CONTROLLER_ATA                  0x01

@@ -54,14 +54,18 @@ MAINTAINERCLEANFILES = \
         $(srcdir)/configure \
         $(srcdir)/configure~ \
         $(srcdir)/config.guess \
+        $(srcdir)/config.h.in \
+        $(srcdir)/config.h.in~ \
         $(srcdir)/config.sub \
         $(srcdir)/depcomp \
         $(srcdir)/install-sh \
         $(srcdir)/ltmain.sh \
-        $(srcdir)/missing \
         $(srcdir)/m4/libtool.m4 \
+        $(srcdir)/m4/libtool.m4~ \
         $(srcdir)/m4/lt*.m4 \
-        $(srcdir)/m4/pkg.m4
+        $(srcdir)/m4/lt*.m4~ \
+        $(srcdir)/m4/pkg.m4 \
+        $(srcdir)/missing
 
 SUBDIRS = include lib src
 

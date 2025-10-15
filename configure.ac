@@ -23,7 +23,7 @@ AC_DEFINE_UNQUOTED(SMARTMONTOOLS_CONFIGURE_ARGS, "$ac_configure_args",          
 AC_DEFINE_UNQUOTED(CONFIG_H_CVSID, "", [(TODO: remove this define)])
 
 AC_CONFIG_SRCDIR([src/smartctl.cpp])
-AC_CONFIG_HEADERS([include/smartmon/config.h])
+AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 
 AM_MAINTAINER_MODE

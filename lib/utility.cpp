@@ -893,7 +893,7 @@ const char * uint128_hilo_to_str(char * str, int strsize, uint64_t value_hi, uin
   return str;
 }
 
-#elif defined(HAVE_LONG_DOUBLE_WIDER_PRINTF)
+#elif defined(SMARTMON_HAVE_LONG_DOUBLE_WIDER_PRINTF) // defined in "smartmon/utility.h"
 // Compiler and *printf() support 'long double' which is wider than 'double'.
 
 const char * uint128_hilo_to_str(char * str, int strsize, uint64_t value_hi, uint64_t value_lo)
@@ -902,7 +902,7 @@ const char * uint128_hilo_to_str(char * str, int strsize, uint64_t value_hi, uin
   return str;
 }
 
-#else // !HAVE_LONG_DOUBLE_WIDER_PRINTF
+#else // !SMARTMON_HAVE_LONG_DOUBLE_WIDER_PRINTF
 // No '__int128' or 'long double' support, use 'double'.
 
 const char * uint128_hilo_to_str(char * str, int strsize, uint64_t value_hi, uint64_t value_lo)

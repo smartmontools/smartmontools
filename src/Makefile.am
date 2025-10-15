@@ -883,18 +883,29 @@ CONFIG_VC_FILES = \
         $(srcdir)/os_win32/vc$(vcver)/config.h \
         $(srcdir)/os_win32/vc$(vcver)/smartctl_res.rc \
         $(srcdir)/os_win32/vc$(vcver)/smartd_res.rc \
+        $(srcdir)/os_win32/vc$(vcver)/smartmon_config.h \
         $(srcdir)/os_win32/vc$(vcver)/version.h
 
 config-vc: check-vc-version $(CONFIG_VC_FILES)
 
-$(srcdir)/os_win32/vc$(vcver)/config.h: ../include/smartmon/config.h Makefile
-	@! test -f $(top_srcdir)/include/smartmon/config.h || \
-	  ! echo '$(MAKE) config-vc: does not work if run from configured source directory'
-	$(AM_V_GEN)sed \
-	  -e '1i/* os_win32/vc$(vcver)/config.h.  Generated from config.h by Makefile.  */' \
-	  -e 's,^#define HAVE_\(ATTR_PACKED\|CLOCK_GETTIME\|GETTIMEOFDAY\|__INT128\|LONG_DOUBLE_WIDER\|STRINGS_H\|UNISTD_H\) 1.*$$,/* #undef HAVE_\1 */ /* VC$(vcver) */,' \
-	  -e 's,^\(#define SMARTMONTOOLS_BUILD_HOST "[^-]*\)[^"]*,\1-pc-w32vc$(vcver),' \
-	  ../include/smartmon/config.h > $@
+# Adjust MinGW-w64 [smartmon_]config.h for MSVC
+CONFIG_VC_FILTER = { \
+    if test -f $(top_srcdir)/config.h; then \
+      echo '$(MAKE) config-vc: does not work if run from configured source directory' >&2; exit 1; \
+    fi && \
+    echo '/* os_win32/vc$(vcver)/[smartmon_]config.h.  Generated from [smartmon_]config.h by Makefile.  */' && \
+    sed -e 's/^\#define \([SMARTON_]*HAVE_\(ATTR_PACKED\|__INT128\|LONG_DOUBLE_WIDER\|STRINGS_H\|UNISTD_H\)\) 1.*$$/\/* \#undef \1 *\/ \/* VC$(vcver) *\//' \
+        -e 's/^\(\#define SMARTMONTOOLS_BUILD_HOST "[^-]*\)[^"].*$$/\1-pc-w32vc$(vcver)"/'; }
+
+$(srcdir)/os_win32/vc$(vcver)/config.h: ../config.h Makefile
+	$(ECHO_V_GEN) ' $$(CONFIG_VC_FILTER) < ../config.h > $@.tmp'
+	@$(CONFIG_VC_FILTER) < ../config.h > $@.tmp
+	$(AM_V_at)mv -f $@.tmp $@
+
+$(srcdir)/os_win32/vc$(vcver)/smartmon_config.h: ../include/smartmon/smartmon_config.h Makefile
+	$(ECHO_V_GEN) ' $$(CONFIG_VC_FILTER) < ../include/smartmon/smartmon_config.h > $@.tmp'
+	@$(CONFIG_VC_FILTER) < ../include/smartmon/smartmon_config.h > $@.tmp
+	$(AM_V_at)mv -f $@.tmp $@
 
 $(srcdir)/os_win32/vc$(vcver)/version.h: ../include/smartmon/version.h
 	$(AM_V_GEN)cp ../include/smartmon/version.h $@
@@ -911,6 +922,7 @@ clean-vc: check-vc-version
 	rm -f $(srcdir)/os_win32/vc$(vcver)/.vs/smartmontools/v$(vcver)/DocumentLayout*.json
 	rm -rf $(srcdir)/os_win32/vc$(vcver)/.vs/smartmontools/v$(vcver)/ipch
 	rm -rf $(srcdir)/os_win32/vc$(vcver)/.vs/smartmontools/FileContentIndex
+	rm -f $(srcdir)/os_win32/vc$(vcver)/*config.h.tmp
 	rm -f $(srcdir)/os_win32/vc$(vcver)/syslogevt.h
 	rm -rf $(srcdir)/os_win32/vc$(vcver)/Debug
 	rm -rf $(srcdir)/os_win32/vc$(vcver)/Debug-static
