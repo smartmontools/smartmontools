@@ -11,13 +11,7 @@
 #ifndef FARMCMDS_H
 #define FARMCMDS_H
 
-// Add __attribute__((packed)) if compiler supports it
-// because some gcc versions (at least ARM) lack support of #pragma pack()
-#ifdef HAVE_ATTR_PACKED_FARM
-#define ATTR_PACKED_FARM __attribute__((packed))
-#else
-#define ATTR_PACKED_FARM
-#endif
+#include "smartmon_defs.h"
 
 #include <stdint.h>
 
@@ -304,7 +298,7 @@ struct scsiFarmHeader {
   uint64_t headsSupported;                  // Maximum Drive Heads Supported
   uint64_t reserved0;                       // Reserved
   uint64_t frameCapture;                    // Reason for Frame Capture
-} ATTR_PACKED_FARM;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
 STATIC_ASSERT(sizeof(scsiFarmHeader)== 76);
 
@@ -344,7 +338,7 @@ struct scsiFarmDriveInformation {
   uint64_t reserved8;                       // Reserved
   uint64_t reserved9;                       // Reserved
   uint64_t dateOfAssembly;                  // Date of assembly in ASCII YYWW where YY is the year and WW is the calendar week (added 4.2)
-} ATTR_PACKED_FARM;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
 STATIC_ASSERT(sizeof(scsiFarmDriveInformation)== 252);
 
@@ -371,7 +365,7 @@ struct scsiFarmWorkloadStatistics {
   uint64_t writeCommandsByRadius2;          // Number of Write Commands from 3.125-25% of LBA space for last 3 SMART Summary Frames (added 4.4)
   uint64_t writeCommandsByRadius3;          // Number of Write Commands from 25-75% of LBA space for last 3 SMART Summary Frames (added 4.4)
   uint64_t writeCommandsByRadius4;          // Number of Write Commands from 75-100% of LBA space for last 3 SMART Summary Frames (added 4.4)
-} ATTR_PACKED_FARM;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
 STATIC_ASSERT(sizeof(scsiFarmWorkloadStatistics)== 148);
 
@@ -409,7 +403,7 @@ struct scsiFarmErrorStatistics {
   uint64_t lossOfDWordSyncB;                // Loss of DWord Sync (Port A)
   uint64_t phyResetProblemA;                // Phy Reset Problem (Port A)
   uint64_t phyResetProblemB;                // Phy Reset Problem (Port A)
-} ATTR_PACKED_FARM;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
 STATIC_ASSERT(sizeof(scsiFarmErrorStatistics)== 236);
 
@@ -444,7 +438,7 @@ struct scsiFarmEnvironmentStatistics {
   uint64_t powerAverage5v;                  // 5V Power Average (mW) - Average of last 3 SMART Summary Frames (added 4.3)
   uint64_t powerMin5v;                      // 5V Power Min (mW) - Lowest of last 3 SMART Summary Frames (added 4.3)
   uint64_t powerMax5v;                      // 5V Power Max (mW) - Highest of last 3 SMART Summary Frames (added 4.3)
-} ATTR_PACKED_FARM;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
 STATIC_ASSERT(sizeof(scsiFarmEnvironmentStatistics)== 212);
 
@@ -482,7 +476,7 @@ struct scsiFarmReliabilityStatistics {
   uint64_t reserved34;                      // Reserved
   uint64_t reserved35;                      // Reserved
   uint64_t reserved36;                      // Reserved
-} ATTR_PACKED_FARM;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
 STATIC_ASSERT(sizeof(scsiFarmReliabilityStatistics)== 236);
 
@@ -504,7 +498,7 @@ struct scsiFarmDriveInformation2 {
   uint64_t timeToReady;                     // Time to Ready of the last power cycle in milliseconds
   uint64_t timeHeld;                        // Time the drive is held in staggered spin in milliseconds
   uint64_t lastServoSpinUpTime;             // The last servo spin up time in milliseconds
-} ATTR_PACKED_FARM;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
 STATIC_ASSERT(sizeof(scsiFarmDriveInformation2)== 108);
 
@@ -521,7 +515,7 @@ struct scsiFarmEnvironmentStatistics2 {
   uint64_t current5v;                       // Current 5V input in mV
   uint64_t min5v;                           // Minimum 5V input from last 3 SMART Summary Frames in mV
   uint64_t max5v;                           // Maximum 5V input from last 3 SMART Summary Frames in mV
-} ATTR_PACKED_FARM;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
 STATIC_ASSERT(sizeof(scsiFarmEnvironmentStatistics2)== 68);
 
@@ -531,7 +525,7 @@ STATIC_ASSERT(sizeof(scsiFarmEnvironmentStatistics2)== 68);
 struct scsiFarmByHead {
   scsiFarmParameterHeader parameterHeader;  // Parameter Header
   uint64_t headValue[20];                   // [16] Head Information
-} ATTR_PACKED_FARM;
+}; // SMARTMON_ATTR_PACKED; // TODO: silence unaligned pointer warning
 #pragma pack()
 STATIC_ASSERT(sizeof(scsiFarmByHead)==(4 +(20 * 8)));
 
@@ -563,7 +557,7 @@ struct scsiFarmByActuator {
   uint64_t reserved2;                           // Reserved
   uint64_t reserved3;                           // Reserved
   uint64_t numberLBACorrectedParitySector;      // Number of LBAs Corrected by Parity Sector
-} ATTR_PACKED_FARM;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
 STATIC_ASSERT(sizeof(scsiFarmByActuator)== 188);
 
@@ -580,7 +574,7 @@ struct scsiFarmByActuatorFLED {
   uint64_t flashLEDArray[8];                // Info on the last 8 Flash LED (assert) events wrapping array
   uint64_t universalTimestampFlashLED[8];   // Universal Timestamp (us) of last 8 Flash LED (assert) Events, wrapping array
   uint64_t powerCycleFlashLED[8];           // Power Cycle of the last 8 Flash LED (assert) Events, wrapping array
-} ATTR_PACKED_FARM;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
 STATIC_ASSERT(sizeof(scsiFarmByActuatorFLED)== 236);
 
@@ -595,7 +589,7 @@ struct scsiFarmByActuatorReallocation {
   uint64_t totalReallocations;              // Number of Re-Allocated Sectors
   uint64_t totalReallocationCanidates;      // Number of Re-Allocated Candidate Sectors
   uint64_t reserved[15];                    // Reserved
-} ATTR_PACKED_FARM;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
 STATIC_ASSERT(sizeof(scsiFarmByActuatorReallocation)== 164);
 

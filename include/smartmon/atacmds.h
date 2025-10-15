@@ -18,14 +18,6 @@
 #include "dev_interface.h" // ata_device
 #include "static_assert.h"
 
-// Add __attribute__((packed)) if compiler supports it
-// because some gcc versions (at least ARM) lack support of #pragma pack()
-#ifdef HAVE_ATTR_PACKED
-#define ATTR_PACKED __attribute__((packed))
-#else
-#define ATTR_PACKED
-#endif
-
 typedef enum {
   // returns no data, just succeeds or fails
   ENABLE,
@@ -128,7 +120,7 @@ struct ata_identify_device {
   unsigned short word086;
   unsigned short csf_default;
   unsigned short words088_255[168];
-} ATTR_PACKED;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
 STATIC_ASSERT(sizeof(ata_identify_device) == 512);
 
@@ -143,7 +135,7 @@ struct ata_smart_attribute {
   unsigned char worst;
   unsigned char raw[6];
   unsigned char reserv;
-} ATTR_PACKED;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
 STATIC_ASSERT(sizeof(ata_smart_attribute) == 12);
 
@@ -213,7 +205,7 @@ struct ata_smart_values {
   unsigned char reserved_377_385[9];
   unsigned char vendor_specific_386_510[125]; // Maxtor bytes 508-509 Attribute/Threshold Revision #
   unsigned char chksum;
-} ATTR_PACKED;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
 STATIC_ASSERT(sizeof(ata_smart_values) == 512);
 
@@ -232,7 +224,7 @@ struct ata_smart_threshold_entry {
   unsigned char id;
   unsigned char threshold;
   unsigned char reserved[10];
-} ATTR_PACKED;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
 STATIC_ASSERT(sizeof(ata_smart_threshold_entry) == 12);
 
@@ -244,7 +236,7 @@ struct ata_smart_thresholds_pvt {
   struct ata_smart_threshold_entry thres_entries[NUMBER_ATA_SMART_ATTRIBUTES];
   unsigned char reserved[149];
   unsigned char chksum;
-} ATTR_PACKED;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
 STATIC_ASSERT(sizeof(ata_smart_thresholds_pvt) == 512);
 
@@ -263,7 +255,7 @@ struct ata_smart_errorlog_error_struct {
   unsigned char extended_error[19];
   unsigned char state;
   unsigned short timestamp;
-} ATTR_PACKED;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
 STATIC_ASSERT(sizeof(ata_smart_errorlog_error_struct) == 30);
 
@@ -280,7 +272,7 @@ struct ata_smart_errorlog_command_struct {
   unsigned char drive_head;
   unsigned char commandreg;
   unsigned int timestamp;
-} ATTR_PACKED;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
 STATIC_ASSERT(sizeof(ata_smart_errorlog_command_struct) == 12);
 
@@ -289,7 +281,7 @@ STATIC_ASSERT(sizeof(ata_smart_errorlog_command_struct) == 12);
 struct ata_smart_errorlog_struct {
   struct ata_smart_errorlog_command_struct commands[5];
   struct ata_smart_errorlog_error_struct error_struct;
-} ATTR_PACKED;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
 STATIC_ASSERT(sizeof(ata_smart_errorlog_struct) == 90);
 
@@ -302,7 +294,7 @@ struct ata_smart_errorlog {
   unsigned short int ata_error_count;
   unsigned char reserved[57];
   unsigned char checksum;
-} ATTR_PACKED;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
 STATIC_ASSERT(sizeof(ata_smart_errorlog) == 512);
 
@@ -333,7 +325,7 @@ struct ata_smart_exterrlog_command
 
   unsigned char reserved;
   unsigned int timestamp;
-} ATTR_PACKED;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
 STATIC_ASSERT(sizeof(ata_smart_exterrlog_command) == 18);
 
@@ -358,7 +350,7 @@ struct ata_smart_exterrlog_error
   unsigned char extended_error[19];
   unsigned char state;
   unsigned short timestamp;
-} ATTR_PACKED;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
 STATIC_ASSERT(sizeof(ata_smart_exterrlog_error) == 34);
 
@@ -369,7 +361,7 @@ struct ata_smart_exterrlog_error_log
 {
   ata_smart_exterrlog_command commands[5];
   ata_smart_exterrlog_error error;
-} ATTR_PACKED;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
 STATIC_ASSERT(sizeof(ata_smart_exterrlog_error_log) == 124);
 
@@ -385,7 +377,7 @@ struct ata_smart_exterrlog
   unsigned short device_error_count;
   unsigned char reserved2[9];
   unsigned char checksum;
-} ATTR_PACKED;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
 STATIC_ASSERT(sizeof(ata_smart_exterrlog) == 512);
 
@@ -399,7 +391,7 @@ struct ata_smart_selftestlog_struct {
   unsigned char selftestfailurecheckpoint;
   unsigned int lbafirstfailure;
   unsigned char vendorspecific[15];
-} ATTR_PACKED;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
 STATIC_ASSERT(sizeof(ata_smart_selftestlog_struct) == 24);
 
@@ -412,7 +404,7 @@ struct ata_smart_selftestlog {
   unsigned char mostrecenttest;
   unsigned char reserved[2];
   unsigned char chksum;
-} ATTR_PACKED;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
 STATIC_ASSERT(sizeof(ata_smart_selftestlog) == 512);
 
@@ -432,7 +424,7 @@ struct ata_smart_extselftestlog_desc
   unsigned char checkpoint;
   unsigned char failing_lba[6];
   unsigned char vendorspecific[15];
-} ATTR_PACKED;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
 STATIC_ASSERT(sizeof(ata_smart_extselftestlog_desc) == 26);
 
@@ -448,7 +440,7 @@ struct ata_smart_extselftestlog
   unsigned char vendor_specifc[2];
   unsigned char reserved2[11];
   unsigned char chksum;
-} ATTR_PACKED;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
 STATIC_ASSERT(sizeof(ata_smart_extselftestlog) == 512);
 
@@ -457,7 +449,7 @@ STATIC_ASSERT(sizeof(ata_smart_extselftestlog) == 512);
 struct ata_smart_log_entry {
   unsigned char numsectors;
   unsigned char reserved;
-} ATTR_PACKED;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
 STATIC_ASSERT(sizeof(ata_smart_log_entry) == 2);
 
@@ -465,7 +457,7 @@ STATIC_ASSERT(sizeof(ata_smart_log_entry) == 2);
 struct ata_smart_log_directory {
   unsigned short int logversion;
   struct ata_smart_log_entry entry[255];
-} ATTR_PACKED;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
 STATIC_ASSERT(sizeof(ata_smart_log_directory) == 512);
 
@@ -475,7 +467,7 @@ STATIC_ASSERT(sizeof(ata_smart_log_directory) == 512);
 struct test_span {
   uint64_t start;
   uint64_t end;
-} ATTR_PACKED;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
 STATIC_ASSERT(sizeof(test_span) == 16);
 
@@ -492,7 +484,7 @@ struct ata_selective_self_test_log {
   unsigned short     pendingtime;
   unsigned char      reserved2;
   unsigned char      checksum;
-} ATTR_PACKED;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
 STATIC_ASSERT(sizeof(ata_selective_self_test_log) == 512);
 
@@ -535,7 +527,7 @@ struct ata_sct_status_response
   unsigned short min_erc_time;      // 216-217: Minimum supported value for ERC (ACS-4)
   unsigned char bytes216_479[479-218+1]; // 218-479: reserved
   unsigned char vendor_specific[32];// 480-511: vendor specific
-} ATTR_PACKED;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
 STATIC_ASSERT(sizeof(ata_sct_status_response) == 512);
 
@@ -549,7 +541,7 @@ struct ata_sct_error_recovery_control_command
   unsigned short selection_code;    // 1 = Read Timer, 2 = Write Timer
   unsigned short time_limit;        // If set: Recovery time limit in 100ms units
   unsigned short words004_255[252]; // reserved
-} ATTR_PACKED;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
 STATIC_ASSERT(sizeof(ata_sct_error_recovery_control_command) == 512);
 
@@ -564,7 +556,7 @@ struct ata_sct_feature_control_command
   unsigned short state;             // Interval
   unsigned short option_flags;      // Bit 0: persistent, Bits 1-15: reserved
   unsigned short words005_255[251]; // reserved
-} ATTR_PACKED;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
 STATIC_ASSERT(sizeof(ata_sct_feature_control_command) == 512);
 
@@ -577,7 +569,7 @@ struct ata_sct_data_table_command
   unsigned short function_code;     // 1 = Read Table
   unsigned short table_id;          // 2 = Temperature History
   unsigned short words003_255[253]; // reserved
-} ATTR_PACKED;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
 STATIC_ASSERT(sizeof(ata_sct_data_table_command) == 512);
 
@@ -597,7 +589,7 @@ struct ata_sct_temperature_history_table
   unsigned short cb_size;           // 30-31: Number of history entries (range 128-478)
   unsigned short cb_index;          // 32-33: Index of last updated entry (zero-based)
   signed char cb[478];              // 34-(34+cb_size-1): Circular buffer of temperature values
-} ATTR_PACKED;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
 STATIC_ASSERT(sizeof(ata_sct_temperature_history_table) == 512);
 

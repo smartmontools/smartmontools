@@ -10,7 +10,7 @@
 
 #include "config.h"
 
-#include "atacmds.h" // ATTR_PACKED, STATIC_ASSERT, ata_debugmode
+#include "atacmds.h" // SMARTMON_ATTR_PACKED, STATIC_ASSERT, ata_debugmode
 #include "dev_interface.h"
 #include "dev_tunnelled.h"
 #include <errno.h>
@@ -65,7 +65,7 @@ struct iprop_internal_log
   uint16_t port_4_reserved;
   uint8_t  reserved2[214];     // Bytes - [509:296] of Log C0
   uint16_t crc;                // Bytes - [511:510] of Log C0
-} ATTR_PACKED;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
 STATIC_ASSERT(sizeof(iprop_internal_log) == 512);
 

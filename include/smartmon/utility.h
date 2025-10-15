@@ -15,7 +15,7 @@
 
 #define UTILITY_H_CVSID // TODO: Remove when no longer used
 
-#include "smartmon_config.h"
+#include "smartmon_defs.h"
 
 #include <float.h> // *DBL_MANT_DIG
 #include <time.h>
@@ -40,6 +40,7 @@
 #else
 #define __attribute_format_printf(x, y)  __attribute__((format (printf, x, y)))
 #endif
+
 
  /// Class to register an application specific lib_vprintf() function.
 class lib_global_hook
