@@ -32,17 +32,7 @@
 #include <regex.h>
 #endif
 
-#ifndef __GNUC__
-#define __attribute_format_printf(x, y)  /**/
-#elif defined(__MINGW32__) && __USE_MINGW_ANSI_STDIO
-// Check format of __mingw_*printf() instead of MSVCRT.DLL:*printf()
-#define __attribute_format_printf(x, y)  __attribute__((format (gnu_printf, x, y)))
-#else
-#define __attribute_format_printf(x, y)  __attribute__((format (printf, x, y)))
-#endif
-
-
- /// Class to register an application specific lib_vprintf() function.
+/// Class to register an application specific lib_vprintf() function.
 class lib_global_hook
 {
 public:
@@ -70,7 +60,7 @@ void lib_vprintf(const char * fmt, va_list ap);
 
 /// Like printf() but calls lib_vprintf().
 void lib_printf(const char * fmt, ...)
-  __attribute_format_printf(1, 2);
+  SMARTMON_FORMAT_PRINTF(1, 2);
 
 // Global to set failure tolerance
 extern unsigned char failuretest_permissive;
@@ -81,7 +71,7 @@ std::string format_version_info(const char * prog_name, int lines = 2);
 
 // return (v)sprintf() formatted std::string
 std::string strprintf(const char * fmt, ...)
-    __attribute_format_printf(1, 2);
+  SMARTMON_FORMAT_PRINTF(1, 2);
 std::string vstrprintf(const char * fmt, va_list ap);
 
 // Return true if STR starts with PREFIX

@@ -86,22 +86,21 @@ inline void print_off()
 #include "json.h"
 extern json jglb;
 
-#include "utility.h" // __attribute_format_printf()
-// TODO: move this to a new include file?
+#include "smartmon_defs.h" // SMARTMON_FORMAT_PRINTF()
 
 // Printing function for items not included in JSON output.
 void pout(const char *fmt, ...)
-  __attribute_format_printf(1, 2);
+  SMARTMON_FORMAT_PRINTF(1, 2);
 // Version of pout() for items already included in JSON output
 void jout(const char *fmt, ...)
-  __attribute_format_printf(1, 2);
+  SMARTMON_FORMAT_PRINTF(1, 2);
 // Version of pout() for info/warning/error messages
 void jinf(const char *fmt, ...)
-  __attribute_format_printf(1, 2);
+  SMARTMON_FORMAT_PRINTF(1, 2);
 void jwrn(const char *fmt, ...)
-__attribute_format_printf(1, 2);
+  SMARTMON_FORMAT_PRINTF(1, 2);
 void jerr(const char *fmt, ...)
-__attribute_format_printf(1, 2);
+  SMARTMON_FORMAT_PRINTF(1, 2);
 
 // Print smartctl start-up date and time and timezone
 void jout_startup_datetime(const char *prefix);

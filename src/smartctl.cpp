@@ -1328,7 +1328,7 @@ static int parse_options(int argc, char** argv, const char * & type,
 
 // Printing functions
 
-__attribute_format_printf(3, 0)
+SMARTMON_FORMAT_PRINTF(3, 0)
 static void vjpout(bool is_js_impl, const char * msg_severity,
                    const char *fmt, va_list ap)
 {

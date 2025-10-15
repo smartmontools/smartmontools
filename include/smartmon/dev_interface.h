@@ -11,7 +11,7 @@
 #ifndef DEV_INTERFACE_H
 #define DEV_INTERFACE_H
 
-#define DEV_INTERFACE_H_CVSID "$Id: dev_interface.h 5676 2025-03-20 15:57:20Z chrfranke $\n"
+#define DEV_INTERFACE_H_CVSID // TODO: Remove when no longer used
 
 #include "utility.h"
 
@@ -158,7 +158,7 @@ public:
   /// Printf()-like formatting is supported.
   /// Returns false always to allow use as a return expression.
   bool set_err(int no, const char * msg, ...)
-    __attribute_format_printf(3, 4);
+    SMARTMON_FORMAT_PRINTF(3, 4);
 
   /// Set last error info struct.
   bool set_err(const error_info & err)
@@ -960,7 +960,7 @@ public:
   /// Printf()-like formatting is supported.
   /// Returns false always to allow use as a return expression.
   bool set_err(int no, const char * msg, ...)
-    __attribute_format_printf(3, 4);
+    SMARTMON_FORMAT_PRINTF(3, 4);
 
   /// Set last error number and message.
   /// Printf()-like formatting is supported.
@@ -968,7 +968,7 @@ public:
   /// of any pointer type.
   // (Not using 'std::nullptr_t' because it requires <cstddef>)
   decltype(nullptr) set_err_np(int no, const char * msg, ...)
-    __attribute_format_printf(3, 4);
+    SMARTMON_FORMAT_PRINTF(3, 4);
 
   /// Set last error info struct.
   bool set_err(const smart_device::error_info & err)

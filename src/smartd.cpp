@@ -215,7 +215,7 @@ static volatile int caughtsigEXIT=0;
 
 // This function prints either to stdout or to the syslog as needed.
 static void PrintOut(int priority, const char *fmt, ...)
-                     __attribute_format_printf(2, 3);
+  SMARTMON_FORMAT_PRINTF(2, 3);
 
 #ifdef HAVE_LIBSYSTEMD
 // systemd notify support
@@ -1109,7 +1109,7 @@ void env_buffer::set(const char * name, const char * value)
 #define EBUFLEN 1024
 
 static void MailWarning(const dev_config & cfg, dev_state & state, int which, const char *fmt, ...)
-                        __attribute_format_printf(4, 5);
+  SMARTMON_FORMAT_PRINTF(4, 5);
 
 // If either address or executable path is non-null then send and log
 // a warning email, or execute executable
@@ -1354,7 +1354,7 @@ static void MailWarning(const dev_config & cfg, dev_state & state, int which, co
 }
 
 static void reset_warning_mail(const dev_config & cfg, dev_state & state, int which, const char *fmt, ...)
-                               __attribute_format_printf(4, 5);
+  SMARTMON_FORMAT_PRINTF(4, 5);
 
 static void reset_warning_mail(const dev_config & cfg, dev_state & state, int which, const char *fmt, ...)
 {
@@ -1384,7 +1384,7 @@ static void reset_warning_mail(const dev_config & cfg, dev_state & state, int wh
 #ifndef _WIN32
 
 // Output multiple lines via separate syslog(3) calls.
-__attribute_format_printf(2, 0)
+SMARTMON_FORMAT_PRINTF(2, 0)
 static void vsyslog_lines(int priority, const char * fmt, va_list ap)
 {
   char buf[512+EBUFLEN]; // enough space for exec cmd output in MailWarning()
