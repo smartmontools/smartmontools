@@ -15,6 +15,7 @@
 
 #include "utility.h"
 
+#include <memory>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -196,6 +197,10 @@ public:
   /// In this case, the original pointer is no longer valid.
   /// Default implementation calls 'open()' and returns 'this'.
   virtual smart_device * autodetect_open();
+
+  /// Open device with autodetection support for 'std::unique_ptr<smart_device>'.
+  /// Returns the result of 'is_open()' of the (possibly changed) device.
+  static bool autodetect_open(std::unique_ptr<smart_device> & dev);
 
   ///////////////////////////////////////////////
   // Support for checking power mode reported by operating system
