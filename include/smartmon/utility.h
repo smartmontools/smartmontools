@@ -136,10 +136,18 @@ void FixGlibcTimeZoneBug();
 // Replace non-ascii characters.  Remove leading and trailing blanks.
 const char * format_char_array(char * str, int strsize, const char * chr, int chrsize);
 
-// Version for fixed size buffers.
+// Variants for fixed size buffers.
 template<size_t STRSIZE, size_t CHRSIZE>
 inline const char * format_char_array(char (& str)[STRSIZE], const char (& chr)[CHRSIZE])
   { return format_char_array(str, (int)STRSIZE, chr, (int)CHRSIZE); }
+
+template<size_t STRSIZE>
+inline const char * format_char_array(char (& str)[STRSIZE], const char * chr, int chrsize)
+  { return format_char_array(str, (int)STRSIZE, chr, chrsize); }
+
+template<size_t CHRSIZE>
+inline const char * format_char_array(char * str, int strsize, const char (& chr)[CHRSIZE])
+  { return format_char_array(str, strsize, chr, (int)CHRSIZE); }
 
 // Format integer with thousands separator
 const char * format_with_thousands_sep(char * str, int strsize, uint64_t val,
