@@ -96,7 +96,9 @@ EXTRA_libsmartmon_la_SOURCES = \
         netbsd_nvme_ioctl.h \
         openbsd_nvme_ioctl.h \
         megaraid.h \
-        sssraid.h
+        sssraid.h \
+        dev_ps3stor.cpp \
+        dev_ps3stor.h
 
 if OS_WIN32
 libsmartmon_la_SOURCES += \
