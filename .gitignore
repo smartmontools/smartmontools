@@ -44,6 +44,7 @@
 /lib/**/*.o
 /lib/*/.dirstamp
 /lib/.libs/
+/lib/examples.stamp
 /lib/examples/*.exe
 /lib/examples/lsdisk
 /lib/libsmartmon.la

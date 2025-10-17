@@ -70,11 +70,13 @@ MAINTAINERCLEANFILES = \
 SUBDIRS = include lib src
 
 #
-# Additional targets in 'src/Makefile.am'
+# Additional targets in '*/Makefile.am'
 #
 SRC_TARGETS = cppcheck htmlman pdfman shellcheck
 INC_SRC_TARGETS =
 LIB_SRC_TARGETS =
+LIB_TARGETS = clean-examples
+INC_LIB_TARGETS = examples
 
 if OS_WIN32_MINGW
 SRC_TARGETS += cleandist-win32 clean-vc distclean-vc maintainer-clean-vc
@@ -98,6 +100,12 @@ $(SRC_TARGETS) $(INC_SRC_TARGETS) $(LIB_SRC_TARGETS):
 	  echo $(MAKE) -C lib; $(MAKE) -C lib ;; \
 	esac
 	$(MAKE) -C src $@
+
+$(LIB_TARGETS) $(INC_LIB_TARGETS):
+	@case ' $(INC_LIB_TARGETS) ' in *\ $@\ *) \
+	  echo $(MAKE) -C include; $(MAKE) -C include ;; \
+	esac
+	$(MAKE) -C lib $@
 
 # Add version information to distribution directory
 dist-hook:
