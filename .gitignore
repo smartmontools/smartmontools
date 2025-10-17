@@ -44,6 +44,8 @@
 /lib/**/*.o
 /lib/*/.dirstamp
 /lib/.libs/
+/lib/examples/*.exe
+/lib/examples/lsdisk
 /lib/libsmartmon.la
 /smartmontools-*.*.tar
 /smartmontools-*.*.tar.*
