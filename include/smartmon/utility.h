@@ -277,6 +277,11 @@ public:
   /// Return true if substring matches pattern, fill match_range array.
   bool execute(const char * str, unsigned nmatch, match_range * pmatch) const;
 
+  // Variant for fixed sized array.
+  template<size_t SIZE>
+  bool execute(const char * str, match_range (& match)[SIZE]) const
+    { return execute(str, (unsigned)SIZE, match); }
+
 private:
   std::string m_pattern;
   std::string m_errmsg;

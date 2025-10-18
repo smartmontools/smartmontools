@@ -2928,7 +2928,7 @@ void linux_smart_interface::get_dev_list(smart_device_list & devlist,
     );
     constexpr int nmatch = 1 + 6;
     regular_expression::match_range match[nmatch];
-    if (!regex.execute(chk_name, nmatch, match)) {
+    if (!regex.execute(chk_name, match)) {
       if (debug)
         lib_printf("%s, %s: device type ignored\n", name, chk_name);
       continue;

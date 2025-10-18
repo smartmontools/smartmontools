@@ -668,7 +668,7 @@ static bool parse_dev_state_line(const char * line, persistent_dev_state & state
 
   constexpr int nmatch = 1+28;
   regular_expression::match_range match[nmatch];
-  if (!regex.execute(line, nmatch, match))
+  if (!regex.execute(line, match))
     return false;
   if (match[nmatch-1].rm_so < 0)
     return false;

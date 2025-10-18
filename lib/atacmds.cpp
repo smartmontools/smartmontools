@@ -2698,7 +2698,7 @@ bool parsed_ata_device::open()
       continue;
     const int nmatch = 1+11;
     regular_expression::match_range match[nmatch];
-    if (!regex.execute(line, nmatch, match))
+    if (!regex.execute(line, match))
       continue;
 
     char cmdname[40];

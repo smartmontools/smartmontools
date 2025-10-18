@@ -1283,7 +1283,7 @@ static bool get_usb_id(int phydrive, int logdrive,
 
     // Extract DeviceID
     regular_expression::match_range match[2];
-    if (!(regex.execute(dep.c_str(), 2, match) && match[1].rm_so >= 0)) {
+    if (!(regex.execute(dep.c_str(), match) && match[1].rm_so >= 0)) {
       if (debug)
         lib_printf("  | (\"%s\")\n", dep.c_str());
       continue;
