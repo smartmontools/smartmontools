@@ -127,19 +127,6 @@ smartd_SOURCES += \
 
 endif
 
-if OS_WIN32
-
-smartctl_LDADD += -lole32 -loleaut32
-smartd_LDADD   += -lole32 -loleaut32
-
-# Some versions of the MinGW-w64 import lib for kernel32.dll include some symbols
-# duplicated from advapi32.dll.  Older versions of windows provide these symbols
-# only in advapi32.dll.  Ensure that the advapi32 lib is linked first.
-smartctl_LDADD += -ladvapi32
-smartd_LDADD   += -ladvapi32
-
-endif
-
 if OS_SOLARIS
 # This block is required because Solaris uses manual page section 1m
 # for administrative command (linux/freebsd use section 8) and Solaris

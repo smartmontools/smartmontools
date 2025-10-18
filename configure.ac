@@ -651,6 +651,7 @@ case "${host}" in
     ;;
   *-*-cygwin*)
     os_deps='os_win32.lo dev_areca.lo'
+    os_libs='-lole32 -loleaut32'
     os_mailer='email'
     os_hostname="'hostname' 'uname -n' 'echo "'"${HOSTNAME?unset}"'"'"
     os_dnsdomainname="'dnsdomainname' 'hostname -d' 'echo "'"${USERDNSDOMAIN?unset}"'"'"
@@ -661,6 +662,10 @@ case "${host}" in
     ;;
   x86_64-*-mingw*)
     os_deps='os_win32.lo dev_areca.lo'
+    # Some versions of the MinGW-w64 import lib for kernel32.dll include some symbols
+    # duplicated from advapi32.dll.  Older versions of windows provide these symbols
+    # only in advapi32.dll.  Ensure that the advapi32 lib is linked first.
+    os_libs='-lole32 -loleaut32 -ladvapi32'
     os_posix=no
     os_win32=yes
     os_win32_mingw=yes
@@ -670,6 +675,7 @@ case "${host}" in
     ;;
   *-*-mingw*)
     os_deps='os_win32.lo dev_areca.lo'
+    os_libs='-lole32 -loleaut32 -ladvapi32'
     os_posix=no
     os_win32=yes
     os_win32_mingw=yes

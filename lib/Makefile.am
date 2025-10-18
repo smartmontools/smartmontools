@@ -142,11 +142,6 @@ EXTRA_DIST = \
 
 examples: examples.stamp
 
-examples_libs = $(os_libs) $(LIBS)
-if OS_WIN32
-examples_libs += -lole32 -loleaut32
-endif
-
 examples.stamp: libsmartmon.la
 	rm -f $@
 	$(MKDIR_P) examples
@@ -156,7 +151,7 @@ examples.stamp: libsmartmon.la
 	  CPPFLAGS='-I../../include/smartmon -I$(abs_top_srcdir)/include' \
 	  CXXFLAGS='$(CXXFLAGS)' \
 	  LDFLAGS='-L../.libs' \
-	  LIBS='$(examples_libs)' \
+	  LIBS='$(os_libs) $(LIBS)' \
 	  clean all
 	touch $@
 
