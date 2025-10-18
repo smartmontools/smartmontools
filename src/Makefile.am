@@ -34,9 +34,6 @@ endif
 if NEED_GETOPT_LONG
 AM_CPPFLAGS += -I$(srcdir)/getopt -D_GETOPT_STANDALONE
 endif
-if NEED_REGEX
-AM_CPPFLAGS += -I$(top_srcdir)/include/smartmon/regex -D_REGEX_STANDALONE
-endif
 
 # Suppress 'echo' if './configure --enable-silent-rules' or 'make V=0' is used.
 # Variables AM_V_* are provided by automake >= 1.13.

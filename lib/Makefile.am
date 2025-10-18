@@ -142,13 +142,9 @@ EXTRA_DIST = \
 
 examples: examples.stamp
 
-examples_cppflags = -I../../include/smartmon -I$(abs_top_srcdir)/include
 examples_libs = $(os_libs) $(LIBS)
 if OS_WIN32
 examples_libs += -lole32 -loleaut32
-endif
-if NEED_REGEX
-examples_cppflags += -I$(abs_top_srcdir)/include/smartmon/regex -D_REGEX_STANDALONE
 endif
 
 examples.stamp: libsmartmon.la
@@ -157,7 +153,7 @@ examples.stamp: libsmartmon.la
 	$(MAKE) -C examples -f $(abs_top_srcdir)/lib/examples/Makefile \
 	  VPATH=$(abs_top_srcdir)/lib/examples \
 	  CXX='$(CXX)' \
-	  CPPFLAGS='$(examples_cppflags)' \
+	  CPPFLAGS='-I../../include/smartmon -I$(abs_top_srcdir)/include' \
 	  CXXFLAGS='$(CXXFLAGS)' \
 	  LDFLAGS='-L../.libs' \
 	  LIBS='$(examples_libs)' \

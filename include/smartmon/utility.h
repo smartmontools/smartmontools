@@ -25,13 +25,6 @@
 #include <string.h>
 #include <string>
 
-#include <sys/types.h> // for regex.h (according to POSIX)
-#ifdef SMARTMON_WITH_CXX11_REGEX
-#include <regex>
-#else
-#include <regex.h>
-#endif
-
 /// Class to register an application specific lib_vprintf() function.
 class lib_global_hook
 {
@@ -249,10 +242,6 @@ class regular_expression
 {
 public:
   // Construction & assignment
-#ifdef SMARTMON_WITH_CXX11_REGEX
-  regular_expression() = default;
-
-#else
   regular_expression();
 
   ~regular_expression();
@@ -260,7 +249,6 @@ public:
   regular_expression(const regular_expression & x);
 
   regular_expression & operator=(const regular_expression & x);
-#endif
 
   /// Construct with pattern, throw on error.
   explicit regular_expression(const char * pattern);
@@ -276,18 +264,15 @@ public:
   const char * get_errmsg() const
     { return m_errmsg.c_str(); }
 
-  // Return true if pattern is not set or bad.
+  /// Return true if pattern is not set or bad.
   bool empty() const
     { return (m_pattern.empty() || !m_errmsg.empty()); }
 
   /// Return true if full string matches pattern
   bool full_match(const char * str) const;
 
-#ifdef SMARTMON_WITH_CXX11_REGEX
+  /// regex(3)-like match result
   struct match_range { int rm_so, rm_eo; };
-#else
-  typedef regmatch_t match_range;
-#endif
 
   /// Return true if substring matches pattern, fill match_range array.
   bool execute(const char * str, unsigned nmatch, match_range * pmatch) const;
@@ -295,15 +280,10 @@ public:
 private:
   std::string m_pattern;
   std::string m_errmsg;
+  void * m_regex_p; // Points to hidden 'regex_t' or 'std::regex'
 
-#ifdef SMARTMON_WITH_CXX11_REGEX
-  std::regex m_regex;
-#else
-  regex_t m_regex_buf;
-  void free_buf();
-  void copy_buf(const regular_expression & x);
-#endif
-
+  void copy_regex(const regular_expression & x);
+  void free_regex();
   bool compile();
 };
 
