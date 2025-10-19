@@ -36,6 +36,9 @@
 #include "utility.h"
 #include "sg_unaligned.h"
 
+
+namespace smartmon {
+
 static const char * logSenStr = "Log Sense";
 
 // Print SCSI debug messages?
@@ -3292,3 +3295,5 @@ scsiGetIEString(uint8_t asc, uint8_t ascq, char * b, int blen)
     } else
         return nullptr;
 }
+
+} // namespace smartmon

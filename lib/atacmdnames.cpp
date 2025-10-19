@@ -12,6 +12,8 @@
 #include "atacmds.h"
 #include "static_assert.h"
 
+namespace smartmon {
+
 const char cmd_reserved[]        = "[RESERVED]";
 const char cmd_vendor_specific[] = "[VENDOR SPECIFIC]";
 const char cmd_reserved_sa[]     = "[RESERVED FOR SERIAL ATA]";
@@ -499,3 +501,5 @@ const char *look_up_ata_command(unsigned char c_code, unsigned char f_reg) {
     return command_table[c_code];
   }
 }
+
+} // namespace smartmon

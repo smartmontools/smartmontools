@@ -11,8 +11,6 @@
 #ifndef NVMEPRINT_H
 #define NVMEPRINT_H
 
-#define NVMEPRINT_H_CVSID "$Id: nvmeprint.h 5408 2022-09-18 14:50:33Z chrfranke $"
-
 #include "nvmecmds.h"
 
 // options for nvmePrintMain
@@ -29,6 +27,6 @@ struct nvme_print_options
   unsigned log_page_size = 0;
 };
 
-int nvmePrintMain(nvme_device * device, const nvme_print_options & options);
+int nvmePrintMain(smartmon::nvme_device * device, const nvme_print_options & options);
 
 #endif // NVMEPRINT_H

@@ -10,13 +10,13 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef ATACMDS_H_
-#define ATACMDS_H_
-
-#define ATACMDS_H_CVSID // TODO: Remove when no longer used
+#ifndef SMARTMON_ATACMDS_H
+#define SMARTMON_ATACMDS_H
 
 #include "dev_interface.h" // ata_device
 #include "static_assert.h"
+
+namespace smartmon {
 
 typedef enum {
   // returns no data, just succeeds or fails
@@ -1016,4 +1016,6 @@ const char * look_up_ata_command(unsigned char c_code, unsigned char f_reg);
 // and simulate an ATA device with same behaviour
 ata_device * get_parsed_ata_device(smart_interface * intf, const char * dev_name);
 
-#endif /* ATACMDS_H_ */
+} // namespace smartmon
+
+#endif // SMARTMON_ATACMDS_H

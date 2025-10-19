@@ -20,7 +20,6 @@ if test -n "$smartmontools_release_date"; then
 fi
 
 AC_DEFINE_UNQUOTED(SMARTMONTOOLS_CONFIGURE_ARGS, "$ac_configure_args",             [smartmontools Configure Arguments])
-AC_DEFINE_UNQUOTED(CONFIG_H_CVSID, "", [(TODO: remove this define)])
 
 AC_CONFIG_SRCDIR([src/smartctl.cpp])
 AC_CONFIG_HEADERS([config.h])

@@ -13,8 +13,6 @@
 #ifndef SMARTCTL_H_
 #define SMARTCTL_H_
 
-#define SMARTCTL_H_CVSID // TODO: Remove when no longer used
-
 // Return codes (bitmask)
 
 // command line did not parse, or internal error occurred in smartctl
@@ -60,7 +58,7 @@ enum failure_type {
 
 // Globals to set failuretest() policy
 extern bool failuretest_conservative;
-extern unsigned char failuretest_permissive;
+// extern unsigned char smartmon::failuretest_permissive; // "smartmon/utility.h"
 
 // Compares failure type to policy in effect, and either exits or
 // simply returns to the calling routine.
@@ -84,7 +82,7 @@ inline void print_off()
 
 // The singleton global JSON object
 #include "json.h"
-extern json jglb;
+extern smartmon::json jglb;
 
 #include "smartmon_defs.h" // SMARTMON_FORMAT_PRINTF()
 

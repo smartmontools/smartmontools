@@ -1,7 +1,7 @@
 /*
  * dev_ata_cmd_set.cpp
  *
- * Home page of code is: http://www.smartmontools.org
+ * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2008-18 Christian Franke
  *
@@ -15,9 +15,7 @@
 
 #include <errno.h>
 
-const char * dev_ata_cmd_set_cpp_cvsid = "$Id: dev_ata_cmd_set.cpp 4760 2018-08-19 18:45:53Z chrfranke $"
-  DEV_ATA_CMD_SET_H_CVSID;
-
+namespace smartmon {
 
 /////////////////////////////////////////////////////////////////////////////
 // ata_device_with_command_set
@@ -117,3 +115,4 @@ bool ata_device_with_command_set::ata_pass_through(const ata_cmd_in & in, ata_cm
   return true;
 }
 
+} // namespace smartmon

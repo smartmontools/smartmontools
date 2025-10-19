@@ -11,9 +11,9 @@
 #ifndef DEV_TUNNELLED_H
 #define DEV_TUNNELLED_H
 
-#define DEV_TUNNELLED_H_CVSID "$Id: dev_tunnelled.h 5198 2021-02-01 20:36:02Z chrfranke $"
-
 #include "dev_interface.h"
+
+namespace smartmon {
 
 /////////////////////////////////////////////////////////////////////////////
 // tunnelled_device_base
@@ -89,5 +89,7 @@ public:
 private:
   tunnel_device_type * m_tunnel_dev;
 };
+
+} // namespace smartmon
 
 #endif // DEV_TUNNELLED_H

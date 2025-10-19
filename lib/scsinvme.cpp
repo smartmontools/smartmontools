@@ -20,6 +20,8 @@
 
 #include <errno.h>
 
+namespace smartmon {
+
 // SNT (SCSI NVMe Translation) namespace and prefix
 namespace snt {
 
@@ -56,7 +58,7 @@ smart_device * nvme_or_sat_device::autodetect_open()
   // SAT not tried first because some USB bridges emulate ATA IDENTIFY via SAT
   // if a NVMe device is connected.
   // TODO: Preserve id_ctrl for next nvme_read_id_ctrl() call
-  smartmontools::nvme_id_ctrl id_ctrl{};
+  nvme_id_ctrl id_ctrl{};
   if (nvme_read_id_ctrl(this, id_ctrl)) {
     // Some devices return success but no data if a SATA device is connected
     if (nonempty(id_ctrl.mn, sizeof(id_ctrl.mn)))
@@ -105,7 +107,7 @@ bool sntasmedia_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out &
   unsigned size = in.size;
   unsigned cdw10_hi = in.cdw10 >> 16;
   switch (in.opcode) {
-    case smartmontools::nvme_admin_identify:
+    case nvme_admin_identify:
       if (in.cdw10 == 0x0000001) // Identify controller
         break;
       if (in.cdw10 == 0x0000000) { // Identify namespace
@@ -114,7 +116,7 @@ bool sntasmedia_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out &
         return set_err(ENOSYS, "NVMe Identify Namespace 0x%x not supported", in.nsid);
       }
       return set_err(ENOSYS, "NVMe Identify with CDW10=0x%08x not supported", in.cdw10);
-    case smartmontools::nvme_admin_get_log_page:
+    case nvme_admin_get_log_page:
       if (!(in.nsid == nvme_broadcast_nsid || !in.nsid))
         return set_err(ENOSYS, "NVMe Get Log Page with NSID=0x%x not supported", in.nsid);
       break;
@@ -217,7 +219,7 @@ bool sntjmicron_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out &
   // for whatever reason selftest log causing controller to hang if size is set > 0x230b
   // see GH issue #256 for the details. Patching it to include last 19 log records instead
     unsigned cdw10 = in.cdw10;
-    if (in.opcode == smartmontools::nvme_admin_get_log_page) {
+    if (in.opcode == nvme_admin_get_log_page) {
       unsigned int lid = in.cdw10 & 0xFF;
       if (lid == 0x6 && in.size > 0x218) {
         unsigned size = 0x218;
@@ -375,7 +377,7 @@ bool sntrealtek_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out &
 {
   unsigned size = in.size;
   switch (in.opcode) {
-    case smartmontools::nvme_admin_identify:
+    case nvme_admin_identify:
       if (in.cdw10 == 0x0000001) // Identify controller
         break;
       if (in.cdw10 == 0x0000000) { // Identify namespace
@@ -384,7 +386,7 @@ bool sntrealtek_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out &
         return set_err(ENOSYS, "NVMe Identify Namespace 0x%x not supported", in.nsid);
       }
       return set_err(ENOSYS, "NVMe Identify with CDW10=0x%08x not supported", in.cdw10);
-    case smartmontools::nvme_admin_get_log_page:
+    case nvme_admin_get_log_page:
       if (!(in.nsid == nvme_broadcast_nsid || !in.nsid))
         return set_err(ENOSYS, "NVMe Get Log Page with NSID=0x%x not supported", in.nsid);
       if (size > 0x200) { // Reading more apparently returns old data from previous command
@@ -473,3 +475,5 @@ nvme_device * smart_interface::get_snt_device(const char * type, scsi_device * s
   scsidev_holder.release();
   return sntdev;
 }
+
+} // namespace smartmon

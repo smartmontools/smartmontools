@@ -61,6 +61,8 @@
 #include <chrono>
 #endif
 
+namespace smartmon {
+
 // Default library hook
 
 static lib_global_hook the_lib_global_hook;
@@ -1004,3 +1006,5 @@ void check_config()
   check_endianness();
   check_snprintf();
 }
+
+} // namespace smartmon

@@ -115,7 +115,7 @@ static void set_signal_if_not_ignored(int sig, signal_handler_type handler)
 #endif
 }
 
-using namespace smartmontools;
+using namespace smartmon;
 
 static const int scsiLogRespLen = 252;
 

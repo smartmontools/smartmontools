@@ -365,6 +365,8 @@ STATIC_ASSERT(sizeof(SCSI_REQUEST_BLOCK) == SELECT_WIN_32_64(64, 88));
 
 /////////////////////////////////////////////////////////////////////////////
 
+namespace smartmon {
+
 namespace os_win32 { // no need to publish anything, name provided for Doxygen
 
 #ifdef _MSC_VER
@@ -3669,9 +3671,9 @@ bool win_nvme_device::open_scsi(int n)
 // "Protocol specific queries" sent.
 bool win_nvme_device::probe()
 {
-  smartmontools::nvme_id_ctrl id_ctrl;
+  nvme_id_ctrl id_ctrl;
   nvme_cmd_in in;
-  in.set_data_in(smartmontools::nvme_admin_identify, &id_ctrl, sizeof(id_ctrl));
+  in.set_data_in(nvme_admin_identify, &id_ctrl, sizeof(id_ctrl));
   // in.nsid = 0;
   in.cdw10 = 0x1;
   nvme_cmd_out out;
@@ -3916,7 +3918,7 @@ bool win10_nvme_device::nvme_storage_query_property(const nvme_cmd_in & in, nvme
   spsq->ProtocolSpecific.ProtocolType = win10::ProtocolTypeNvme;
 
   switch (in.opcode) {
-    case smartmontools::nvme_admin_identify:
+    case nvme_admin_identify:
       if (!in.nsid) // Identify controller
         spsq->PropertyQuery.PropertyId = win10::StorageAdapterProtocolSpecificProperty;
       else
@@ -3925,7 +3927,7 @@ bool win10_nvme_device::nvme_storage_query_property(const nvme_cmd_in & in, nvme
       spsq->ProtocolSpecific.ProtocolDataRequestValue = in.cdw10;
       spsq->ProtocolSpecific.ProtocolDataRequestSubValue = in.nsid;
       break;
-    case smartmontools::nvme_admin_get_log_page:
+    case nvme_admin_get_log_page:
       spsq->PropertyQuery.PropertyId = win10::StorageDeviceProtocolSpecificProperty;
       spsq->ProtocolSpecific.DataType = win10::NVMeDataTypeLogPage;
       spsq->ProtocolSpecific.ProtocolDataRequestValue = in.cdw10 & 0xff; // LID only ?
@@ -3933,7 +3935,7 @@ bool win10_nvme_device::nvme_storage_query_property(const nvme_cmd_in & in, nvme
       // Newer drivers (Win10 1809) pass SubValue to CDW12 (DW aligned)
       spsq->ProtocolSpecific.ProtocolDataRequestSubValue = 0; // in.cdw12 (LPOL, NVMe 1.2.1+) ?
       break;
-    // case smartmontools::nvme_admin_get_features: // TODO
+    // case nvme_admin_get_features: // TODO
     default:
       return set_err(ENOSYS, "NVMe admin command 0x%02x not supported", in.opcode);
   }
@@ -3982,7 +3984,7 @@ bool win10_nvme_device::nvme_storage_protocol_command(const nvme_cmd_in & in, nv
 {
   // Limit to self-test command for now
   switch (in.opcode) {
-    case smartmontools::nvme_admin_dev_self_test:
+    case nvme_admin_dev_self_test:
       break;
     default:
       return set_err(ENOSYS, "NVMe admin command 0x%02x not supported", in.opcode);
@@ -4037,9 +4039,9 @@ bool win10_nvme_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out &
     return set_err(ENOSYS, "Nonzero NVMe command dwords 11-15 not supported");
 
   switch (in.opcode) {
-    case smartmontools::nvme_admin_identify:
-    case smartmontools::nvme_admin_get_log_page:
-    // case smartmontools::nvme_admin_get_features: // TODO
+    case nvme_admin_identify:
+    case nvme_admin_get_log_page:
+    // case nvme_admin_get_features: // TODO
       return nvme_storage_query_property(in, out);
     default:
       return nvme_storage_protocol_command(in, out);
@@ -4812,7 +4814,7 @@ bool win_smart_interface::disable_system_auto_standby(bool disable)
 }
 
 
-} // namespace
+} // namespace os_win32
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -4857,3 +4859,5 @@ std::string get_exe_dir()
 }
 
 #endif
+
+} // namespace smartmon

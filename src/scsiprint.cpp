@@ -31,6 +31,8 @@
 #include "farmcmds.h"
 #include "farmprint.h"
 
+using namespace smartmon;
+
 #define GBUF_SIZE 65532
 
 #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))

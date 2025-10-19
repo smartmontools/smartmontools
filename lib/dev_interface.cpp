@@ -22,6 +22,8 @@
 #include <stdlib.h> // realpath()
 #include <stdexcept>
 
+namespace smartmon {
+
 /////////////////////////////////////////////////////////////////////////////
 // smart_device
 
@@ -567,3 +569,5 @@ smart_device * smart_interface::get_scsi_passthrough_device(const char * type, s
 
   return get_sat_device(type, scsidev);
 }
+
+} // namespace smartmon

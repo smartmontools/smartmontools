@@ -18,9 +18,6 @@
 
 #include <errno.h>
 
-const char * dev_legacy_cpp_cvsid = "$Id: dev_legacy.cpp 5198 2021-02-01 20:36:02Z chrfranke $"
-  DEV_INTERFACE_H_CVSID;
-
 /////////////////////////////////////////////////////////////////////////////
 
 // Legacy interface declarations (now commented out globally):
@@ -41,6 +38,8 @@ int do_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report);
 void print_smartctl_examples();
 
 /////////////////////////////////////////////////////////////////////////////
+
+namespace smartmon {
 
 namespace os { // No need to publish anything, name provided for Doxygen
 
@@ -325,7 +324,7 @@ bool legacy_smart_interface::scan_smart_devices(smart_device_list & devlist,
   return true;
 }
 
-} // namespace
+} // namespace os
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -336,3 +335,5 @@ void smart_interface::init()
   static os::legacy_smart_interface the_interface;
   smart_interface::set(&the_interface);
 }
+
+} // namespace smartmon

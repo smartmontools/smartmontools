@@ -36,10 +36,9 @@
 #include "os_darwin.h"
 #include "dev_interface.h"
 
+namespace smartmon {
+
 #define ARGUSED(x) ((void)(x))
-// Needed by '-V' option (CVS versioning) of smartd/smartctl
-const char *os_darwin_cpp_cvsid="$Id: os_darwin.cpp 5209 2021-02-14 18:02:51Z samm2 $" \
-ATACMDS_H_CVSID CONFIG_H_CVSID OS_DARWIN_H_CVSID SCSICMDS_H_CVSID UTILITY_H_CVSID;
 
 // examples for smartctl
 static const char  smartctl_examples[] =
@@ -65,12 +64,9 @@ static struct {
   IONVMeSMARTInterface **smartIfNVMe;
 } devices[20];
 
-const char * dev_darwin_cpp_cvsid = "$Id: os_darwin.cpp 5209 2021-02-14 18:02:51Z samm2 $"
-  DEV_INTERFACE_H_CVSID;
-
 /////////////////////////////////////////////////////////////////////////////
 
-namespace os { // No need to publish anything, name provided for Doxygen
+namespace os_darwin { // No need to publish anything, name provided for Doxygen
 
 /////////////////////////////////////////////////////////////////////////////
 /// Implement shared open/close routines with old functions.
@@ -589,13 +585,13 @@ bool darwin_nvme_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out 
   smartIfNVMe = *ifp;
   // currently only GetIdentifyData and GetLogPage are supported
   switch (in.opcode) {
-    case smartmontools::nvme_admin_identify:
+    case nvme_admin_identify:
       err = smartIfNVMe->GetIdentifyData(ifp, (struct nvme_id_ctrl *) in.buffer, in.nsid);
       if (err)
         return set_err(ENOSYS, "GetIdentifyData failed: system=0x%x, sub=0x%x, code=%d",
           err_get_system(err), err_get_sub(err), err_get_code(err));
       break;
-    case smartmontools::nvme_admin_get_log_page:
+    case nvme_admin_get_log_page:
       err = smartIfNVMe->GetLogPage(ifp, in.buffer, page, in.size / 4 - 1);
       if (err)
         return set_err(ENOSYS, "GetLogPage failed: system=0x%x, sub=0x%x, code=%d",
@@ -769,7 +765,7 @@ bool darwin_smart_interface::scan_smart_devices(smart_device_list & devlist,
   return true;
 }
 
-} // namespace
+} // namespace os_darwin
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -777,6 +773,8 @@ bool darwin_smart_interface::scan_smart_devices(smart_device_list & devlist,
 
 void smart_interface::init()
 {
-  static os::darwin_smart_interface the_interface;
+  static os_darwin::darwin_smart_interface the_interface;
   smart_interface::set(&the_interface);
 }
+
+} // namespace smartmon

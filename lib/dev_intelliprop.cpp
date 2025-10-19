@@ -15,6 +15,8 @@
 #include "dev_tunnelled.h"
 #include <errno.h>
 
+namespace smartmon {
+
 //Vendor Specific log addresses
 #define LOG_C0           0xc0
 
@@ -308,3 +310,5 @@ ata_device * smart_interface::get_intelliprop_device(const char * type, ata_devi
   atadev_holder.release();
   return itldev;
 }
+
+} // namespace smartmon

@@ -28,6 +28,8 @@
 // based on OpenBSD "/usr/include/dev/ic/nvmeio.h" && "/usr/include/dev/biovar.h"
 #include "openbsd_nvme_ioctl.h"       // NVME_PASSTHROUGH_CMD, nvme_completion_is_error
 
+namespace smartmon {
+
 /////////////////////////////////////////////////////////////////////////////
 
 namespace os_openbsd { // No need to publish anything, name provided for Doxygen
@@ -38,7 +40,7 @@ bool sd_is_nvme(const char *dev)
 {
       struct nvme_pt_cmd pt;
       memset(&pt, 0, sizeof(pt));
-      pt.pt_opcode = smartmontools::nvme_admin_identify;
+      pt.pt_opcode = nvme_admin_identify;
 
       int fd = ::open(dev, O_RDWR);
       if (fd == -1)
@@ -723,7 +725,7 @@ std::string openbsd_smart_interface::get_valid_custom_dev_types_str()
   return "";
 }
 
-} // namespace
+} // namespace os_openbsd
 
 /////////////////////////////////////////////////////////////////////////////
 /// Initialize platform interface and register with smi()
@@ -733,3 +735,5 @@ void smart_interface::init()
   static os_openbsd::openbsd_smart_interface the_interface;
   smart_interface::set(&the_interface);
 }
+
+} // namespace smartmon

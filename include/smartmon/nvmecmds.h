@@ -11,10 +11,8 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef NVMECMDS_H
-#define NVMECMDS_H
-
-#define NVMECMDS_H_CVSID "$Id: nvmecmds.h 5630 2024-10-23 17:15:56Z chrfranke $"
+#ifndef SMARTMON_NVMECMDS_H
+#define SMARTMON_NVMECMDS_H
 
 #include "static_assert.h"
 
@@ -22,11 +20,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-// The code below was originally imported from <linux/nvme.h> include file from
-// Linux kernel sources.  Types from <linux/types.h> were replaced.
-// Symbol names are unchanged but placed in a namespace to allow inclusion
-// of the original <linux/nvme.h>.
-namespace smartmontools {
+namespace smartmon {
 
 ////////////////////////////////////////////////////////////////////////////
 // BEGIN: From <linux/nvme.h>
@@ -249,8 +243,6 @@ struct nvme_self_test_log {
 };
 STATIC_ASSERT(sizeof(nvme_self_test_log) == 564);
 
-} // namespace smartmontools
-
 class nvme_device;
 
 // Broadcast namespace ID.
@@ -260,26 +252,26 @@ constexpr uint32_t nvme_broadcast_nsid = 0xffffffffU;
 extern unsigned char nvme_debugmode;
 
 // Read NVMe Identify Controller data structure.
-bool nvme_read_id_ctrl(nvme_device * device, smartmontools::nvme_id_ctrl & id_ctrl);
+bool nvme_read_id_ctrl(nvme_device * device, nvme_id_ctrl & id_ctrl);
 
 // Read NVMe Identify Namespace data structure for namespace NSID.
-bool nvme_read_id_ns(nvme_device * device, unsigned nsid, smartmontools::nvme_id_ns & id_ns);
+bool nvme_read_id_ns(nvme_device * device, unsigned nsid, nvme_id_ns & id_ns);
 
 // Read NVMe log page with identifier LID.
 unsigned nvme_read_log_page(nvme_device * device, unsigned nsid, unsigned char lid,
   void * data, unsigned size, bool lpo_sup, unsigned offset = 0);
 
 // Read NVMe Error Information Log.
-unsigned nvme_read_error_log(nvme_device * device, smartmontools::nvme_error_log_page * error_log,
+unsigned nvme_read_error_log(nvme_device * device, nvme_error_log_page * error_log,
   unsigned num_entries, bool lpo_sup);
 
 // Read NVMe SMART/Health Information log.
 bool nvme_read_smart_log(nvme_device * device, uint32_t nsid,
-  smartmontools::nvme_smart_log & smart_log);
+  nvme_smart_log & smart_log);
 
 // Read NVMe Self-test Log.
 bool nvme_read_self_test_log(nvme_device * device, uint32_t nsid,
-  smartmontools::nvme_self_test_log & self_test_log);
+  nvme_self_test_log & self_test_log);
 
 // Start Self-test
 bool nvme_self_test(nvme_device * device, uint8_t stc, uint32_t nsid);
@@ -302,4 +294,6 @@ template <size_t SIZE>
 inline const char * nvme_status_to_info_str(char (& buf)[SIZE], unsigned status)
   { return nvme_status_to_info_str(buf, SIZE, status); }
 
-#endif // NVMECMDS_H
+} // namespace smartmon
+
+#endif // SMARTMON_NVMECMDS_H

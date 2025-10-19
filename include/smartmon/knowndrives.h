@@ -9,10 +9,10 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef KNOWNDRIVES_H_
-#define KNOWNDRIVES_H_
+#ifndef SMARTMON_KNOWNDRIVES_H
+#define SMARTMON_KNOWNDRIVES_H
 
-#define KNOWNDRIVES_H_CVSID "$Id: knowndrives.h 5207 2021-02-09 20:25:13Z chrfranke $\n"
+namespace smartmon {
 
 // Structure to store drive database entries, see drivedb.h for a description.
 struct drive_settings {
@@ -71,4 +71,6 @@ bool init_drive_database(bool use_default_db);
 // Get vendor attribute options from default db entry.
 const ata_vendor_attr_defs & get_default_attr_defs();
 
-#endif
+} // namespace smartmon
+
+#endif // SMARTMON_KNOWNDRIVES_H

@@ -1,7 +1,7 @@
 /*
  * cciss.cpp
  *
- * Home page of code is: http://www.smartmontools.org
+ * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2007 Sergey Svishchev
  *
@@ -38,6 +38,8 @@
 #include "cciss.h"
 #include "scsicmds.h"
 #include "utility.h"
+
+namespace smartmon {
 
 typedef struct _ReportLUNdata_struct
 {
@@ -240,4 +242,7 @@ static int cciss_getlun(int device, int target, unsigned char *physlun, int repo
     free(luns);
     return 1;
 }
+
+} // namespace smartmon
+
 #endif 

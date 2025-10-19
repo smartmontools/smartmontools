@@ -11,10 +11,10 @@
 #ifndef DEV_ATA_CMD_SET_H
 #define DEV_ATA_CMD_SET_H
 
-#define DEV_ATA_CMD_SET_H_CVSID "$Id: dev_ata_cmd_set.h 5198 2021-02-01 20:36:02Z chrfranke $"
-
 #include "atacmds.h" // smart_command_set
 #include "dev_interface.h"
+
+namespace smartmon {
 
 /////////////////////////////////////////////////////////////////////////////
 // ata_device_with_command_set
@@ -35,5 +35,7 @@ protected:
   ata_device_with_command_set()
     : smart_device(never_called) { }
 };
+
+} // namespace smartmon
 
 #endif // DEV_ATA_CMD_SET_H

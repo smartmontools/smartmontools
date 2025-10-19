@@ -8,8 +8,8 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef FARMCMDS_H
-#define FARMCMDS_H
+#ifndef SMARTMON_FARMCMDS_H
+#define SMARTMON_FARMCMDS_H
 
 #include "smartmon_defs.h"
 
@@ -19,6 +19,8 @@
 #include "dev_interface.h"
 #include "knowndrives.h"
 #include "static_assert.h"
+
+namespace smartmon {
 
 ///////////////////////////////////////////////////////////////////////////////////
 // Seagate ATA Field Access Reliability Metrics log (FARM) structures (GP Log 0xA6)
@@ -706,4 +708,6 @@ bool scsiIsSeagate(char* scsi_vendor);
  */
 bool scsiReadFarmLog(scsi_device* device, scsiFarmLog& farmLog);
 
-#endif
+} // namespace smartmon
+
+#endif // SMARTMON_FARMCMDS_H

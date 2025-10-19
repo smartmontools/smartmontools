@@ -19,6 +19,8 @@
 #include "knowndrives.h"
 #include "scsicmds.h"
 
+namespace smartmon {
+
 /////////////////////////////////////////////////////////////////////////////////////////
 // Seagate ATA Field Access Reliability Metrics (FARM) log (Log 0xA6)
 
@@ -300,3 +302,5 @@ bool scsiReadFarmLog(scsi_device* device, scsiFarmLog& farmLog) {
   }
   return true;
 }
+
+} // namespace smartmon

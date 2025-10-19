@@ -92,6 +92,8 @@
 
 #define ARGUSED(x) ((void)(x))
 
+namespace smartmon {
+
 namespace os_linux { // No need to publish anything, name provided for Doxygen
 
 /////////////////////////////////////////////////////////////////////////////
@@ -3622,7 +3624,7 @@ std::string linux_smart_interface::get_valid_custom_dev_types_str()
     ;
 }
 
-} // namespace
+} // namespace os_linux
 
 /////////////////////////////////////////////////////////////////////////////
 /// Initialize platform interface and register with smi()
@@ -3632,3 +3634,5 @@ void smart_interface::init()
   static os_linux::linux_smart_interface the_interface;
   smart_interface::set(&the_interface);
 }
+
+} // namespace smartmon

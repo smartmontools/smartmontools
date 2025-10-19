@@ -32,6 +32,8 @@
 #include "farmcmds.h"
 #include "farmprint.h"
 
+using namespace smartmon;
+
 static const char * infofound(const char *output) {
   return (*output ? output : "[No Information Found]");
 }

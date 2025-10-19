@@ -8,10 +8,8 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef DEV_INTERFACE_H
-#define DEV_INTERFACE_H
-
-#define DEV_INTERFACE_H_CVSID // TODO: Remove when no longer used
+#ifndef SMARTMON_DEV_INTERFACE_H
+#define SMARTMON_DEV_INTERFACE_H
 
 #include "utility.h"
 
@@ -19,6 +17,8 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
+
+namespace smartmon {
 
 /////////////////////////////////////////////////////////////////////////////
 // Common functionality for all device types
@@ -1129,4 +1129,6 @@ inline smart_interface * smi()
 
 /////////////////////////////////////////////////////////////////////////////
 
-#endif // DEV_INTERFACE_H
+} // namespace smartmon
+
+#endif // SMARTMON_DEV_INTERFACE_H

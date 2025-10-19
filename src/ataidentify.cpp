@@ -18,6 +18,8 @@
 
 #include <inttypes.h>
 
+using namespace smartmon;
+
 // Table 12 of X3T10/0948D (ATA-2) Revision 4c, March 18, 1996
 // Table 9 of X3T13/2008D (ATA-3) Revision 7b, January 27, 1997
 // Tables 11 and 13 of T13/1153D (ATA/ATAPI-4) revision 18, August 19, 1998

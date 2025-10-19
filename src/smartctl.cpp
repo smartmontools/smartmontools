@@ -42,6 +42,8 @@
 #include "utility.h"
 #include "version.h"
 
+using namespace smartmon;
+
 // Globals to control printing
 bool printing_is_switchable = false;
 bool printing_is_off = false;

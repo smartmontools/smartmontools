@@ -23,7 +23,7 @@
 
 #include <inttypes.h>
 
-using namespace smartmontools;
+using namespace smartmon;
 
 // Return true if 128 bit LE integer is != 0.
 static bool le128_is_non_zero(const unsigned char (& val)[16])

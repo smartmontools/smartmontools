@@ -16,8 +16,6 @@
 #ifndef SCSI_PRINT_H_
 #define SCSI_PRINT_H_
 
-#define SCSIPRINT_H_CVSID "$Id: scsiprint.h 5462 2023-03-13 10:45:06Z chrfranke $\n"
-
 // Options for scsiPrintMain
 struct scsi_print_options
 {
@@ -65,6 +63,6 @@ struct scsi_print_options
   bool farm_log_suggest = false;  // If -x/-xall or -a/-all is run, suggests FARM log if supported
 };
 
-int scsiPrintMain(scsi_device * device, const scsi_print_options & options);
+int scsiPrintMain(smartmon::scsi_device * device, const scsi_print_options & options);
 
 #endif

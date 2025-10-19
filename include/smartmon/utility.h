@@ -10,10 +10,8 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef UTILITY_H_
-#define UTILITY_H_
-
-#define UTILITY_H_CVSID // TODO: Remove when no longer used
+#ifndef SMARTMON_UTILITY_H
+#define SMARTMON_UTILITY_H
 
 #include "smartmon_defs.h"
 
@@ -24,6 +22,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <string>
+
+namespace smartmon {
 
 /// Class to register an application specific lib_vprintf() function.
 class lib_global_hook
@@ -343,4 +343,6 @@ std::string get_exe_dir();
 #define CONTROLLER_SCSI                 0x02
 #endif
 
-#endif
+} // namespace smartmon
+
+#endif // SMARTMON_UTILITY_H

@@ -25,6 +25,8 @@
 
 #include <errno.h>
 
+namespace smartmon {
+
 static void jmbassert_failed(int line, const char * expr)
 {
   char msg[128];
@@ -741,3 +743,5 @@ ata_device * smart_interface::get_jmb39x_device(const char * type, smart_device 
   smartdev_holder.release();
   return jmbdev;
 }
+
+} // namespace smartmon

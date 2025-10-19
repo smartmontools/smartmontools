@@ -25,6 +25,8 @@
 
 #include <stdexcept>
 
+namespace smartmon {
+
 #define MODEL_STRING_LENGTH                         40
 #define FIRMWARE_STRING_LENGTH                       8
 #define TABLEPRINTWIDTH                             19
@@ -991,3 +993,5 @@ const ata_vendor_attr_defs & get_default_attr_defs()
 {
   return default_attr_defs;
 }
+
+} // namespace smartmon

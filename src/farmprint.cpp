@@ -16,6 +16,8 @@
 #include "farmprint.h"
 #include "smartctl.h"
 
+using namespace smartmon;
+
 /*
  *  Get the recording type descriptor from FARM.
  *  Stored as bitmask in log pag 1 byte offset 336-343. (Seagate FARM Spec Rev 4.23.1)
