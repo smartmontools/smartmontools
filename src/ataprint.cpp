@@ -20,7 +20,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "atacmdnames.h"
 #include "atacmds.h"
 #include "ataidentify.h"
 #include "dev_interface.h"

@@ -9,14 +9,8 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#include "atacmdnames.h"
+#include "atacmds.h"
 #include "static_assert.h"
-
-#include <stdlib.h>
-#include <stdio.h>
-
-const char * atacmdnames_cpp_cvsid = "$Id: atacmdnames.cpp 4934 2019-07-01 20:54:14Z chrfranke $"
-  ATACMDNAMES_H_CVSID;
 
 const char cmd_reserved[]        = "[RESERVED]";
 const char cmd_vendor_specific[] = "[VENDOR SPECIFIC]";

@@ -51,7 +51,6 @@ if INSTALL_DEVEL
 
 incsmartmondir = $(includedir)/smartmon
 incsmartmon_DATA = \
-        smartmon/atacmdnames.h \
         smartmon/atacmds.h \
         smartmon/dev_interface.h \
         smartmon/farmcmds.h \
@@ -86,7 +85,6 @@ endif
 endif
 
 EXTRA_DIST = \
-        smartmon/atacmdnames.h \
         smartmon/atacmds.h \
         smartmon/dev_interface.h \
         smartmon/farmcmds.h \

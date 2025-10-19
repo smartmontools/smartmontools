@@ -1008,6 +1008,10 @@ void ata_format_id_string(char * out, const unsigned char * in, int n);
 // Utility routines.
 unsigned char checksum(const void * data);
 
+// Returns the name of the command (and possibly sub-command) with the given
+// command code and feature register values.
+const char * look_up_ata_command(unsigned char c_code, unsigned char f_reg);
+
 // Return pseudo-device to parse "smartctl -r ataioctl,2 ..." output
 // and simulate an ATA device with same behaviour
 ata_device * get_parsed_ata_device(smart_interface * intf, const char * dev_name);

@@ -98,9 +98,6 @@
     <ClInclude Include="..\..\..\lib\netbsd_nvme_ioctl.h" />
     <ClInclude Include="..\..\..\lib\sssraid.h" />
     <ClInclude Include="..\..\..\lib\drivedb.h" />
-    <ClInclude Include="..\..\..\include\smartmon\atacmdnames.h">
-      <Filter>include_smartmon</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\include\smartmon\atacmds.h">
       <Filter>include_smartmon</Filter>
     </ClInclude>
