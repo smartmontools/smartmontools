@@ -14,7 +14,7 @@
 #ifndef SMARTMON_NVMECMDS_H
 #define SMARTMON_NVMECMDS_H
 
-#include "static_assert.h"
+#include "smartmon_defs.h"
 
 #include <errno.h>
 #include <stddef.h>
@@ -36,7 +36,7 @@ struct nvme_error_log_page {
   unsigned char   vs;
   unsigned char   resv[35];
 };
-STATIC_ASSERT(sizeof(nvme_error_log_page) == 64);
+SMARTMON_ASSERT_SIZEOF(nvme_error_log_page, 64);
 
 struct nvme_id_power_state {
   unsigned short  max_power; // centiwatts
@@ -55,7 +55,7 @@ struct nvme_id_power_state {
   unsigned char   active_work_scale;
   unsigned char   rsvd23[9];
 };
-STATIC_ASSERT(sizeof(nvme_id_power_state) == 32);
+SMARTMON_ASSERT_SIZEOF(nvme_id_power_state, 32);
 
 struct nvme_id_ctrl {
   unsigned short  vid;
@@ -127,14 +127,14 @@ struct nvme_id_ctrl {
   struct nvme_id_power_state  psd[32];
   unsigned char   vs[1024];
 };
-STATIC_ASSERT(sizeof(nvme_id_ctrl) == 4096);
+SMARTMON_ASSERT_SIZEOF(nvme_id_ctrl, 4096);
 
 struct nvme_lbaf {
   unsigned short  ms;
   unsigned char   ds;
   unsigned char   rp;
 };
-STATIC_ASSERT(sizeof(nvme_lbaf) == 4);
+SMARTMON_ASSERT_SIZEOF(nvme_lbaf, 4);
 
 struct nvme_id_ns {
   uint64_t        nsze;
@@ -165,7 +165,7 @@ struct nvme_id_ns {
   unsigned char   rsvd192[192];
   unsigned char   vs[3712];
 };
-STATIC_ASSERT(sizeof(nvme_id_ns) == 4096);
+SMARTMON_ASSERT_SIZEOF(nvme_id_ns, 4096);
 
 struct nvme_smart_log {
   unsigned char  critical_warning;
@@ -193,7 +193,7 @@ struct nvme_smart_log {
   unsigned int   thm_temp2_total_time;
   unsigned char  rsvd232[280];
 };
-STATIC_ASSERT(sizeof(nvme_smart_log) == 512);
+SMARTMON_ASSERT_SIZEOF(nvme_smart_log, 512);
 
 enum nvme_admin_opcode {
 //nvme_admin_delete_sq     = 0x00,
@@ -232,7 +232,7 @@ struct nvme_self_test_result {
   uint8_t   status_code;
   uint8_t   vendor_specific[2];
 };
-STATIC_ASSERT(sizeof(nvme_self_test_result) == 28);
+SMARTMON_ASSERT_SIZEOF(nvme_self_test_result, 28);
 
 // Figure 212 of NVM Express(TM) Base Specification, revision 2.0a, July 2021
 struct nvme_self_test_log {
@@ -241,7 +241,7 @@ struct nvme_self_test_log {
   uint8_t   rsvd2[2];
   nvme_self_test_result results[20]; // [0] = newest
 };
-STATIC_ASSERT(sizeof(nvme_self_test_log) == 564);
+SMARTMON_ASSERT_SIZEOF(nvme_self_test_log, 564);
 
 class nvme_device;
 

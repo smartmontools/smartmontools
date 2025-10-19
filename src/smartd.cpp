@@ -1135,7 +1135,7 @@ static void MailWarning(const dev_config & cfg, dev_state & state, int which, co
     "OfflineUncorrectableSector", // 11
     "Temperature"                 // 12
   };
-  STATIC_ASSERT(sizeof(whichfail) == SMARTD_NMAIL * sizeof(whichfail[0]));
+  SMARTMON_STATIC_ASSERT(sizeof(whichfail) == SMARTD_NMAIL * sizeof(whichfail[0]));
   
   if (!(0 <= which && which < SMARTD_NMAIL)) {
     PrintOut(LOG_CRIT, "Internal error in MailWarning(): which=%d\n", which);
@@ -1791,7 +1791,7 @@ static bool sanitize_dev_idinfo(std::string & s)
   bool changed = false;
   for (unsigned i = 0; i < s.size(); i++) {
     char c = s[i];
-    STATIC_ASSERT(' ' == 0x20 && '~' == 0x07e); // Assume ASCII
+    SMARTMON_STATIC_ASSERT(' ' == 0x20 && '~' == 0x07e); // Assume ASCII
     // Don't pass possible command escapes ('~! COMMAND') to the 'mail' command.
     if ((' ' <= c && c <= '~') && !(i == 0 && c == '~'))
       continue;

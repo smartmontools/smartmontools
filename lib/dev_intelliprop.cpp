@@ -10,7 +10,7 @@
 
 #include "config.h"
 
-#include "atacmds.h" // SMARTMON_ATTR_PACKED, STATIC_ASSERT, ata_debugmode
+#include "atacmds.h" // SMARTMON_ATTR_PACKED, SMARTMON_ASSERT_SIZEOF, ata_debugmode
 #include "dev_interface.h"
 #include "dev_tunnelled.h"
 #include <errno.h>
@@ -69,7 +69,7 @@ struct iprop_internal_log
   uint16_t crc;                // Bytes - [511:510] of Log C0
 } SMARTMON_ATTR_PACKED;
 #pragma pack()
-STATIC_ASSERT(sizeof(iprop_internal_log) == 512);
+SMARTMON_ASSERT_SIZEOF(iprop_internal_log, 512);
 
 /**
  * buffer is a pointer to a buffer of bytes, which should include data and

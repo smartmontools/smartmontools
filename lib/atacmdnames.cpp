@@ -10,7 +10,6 @@
  */
 
 #include "atacmds.h"
-#include "static_assert.h"
 
 namespace smartmon {
 
@@ -299,7 +298,7 @@ const char * const command_table[] = {
   cmd_vendor_specific
 };
 
-STATIC_ASSERT(sizeof(command_table) == 256 * sizeof(command_table[0]));
+SMARTMON_STATIC_ASSERT(sizeof(command_table) == 256 * sizeof(command_table[0]));
 
 /* Returns the name of the command (and possibly sub-command) with the given
    command code and feature register values.   For most command codes this

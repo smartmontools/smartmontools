@@ -417,7 +417,7 @@ void dateandtimezoneepoch(char (& buffer)[DATEANDEPOCHLEN], time_t tval)
   // Same as: strftime(datebuffer, sizeof(datebuffer), "%a %b %e %H:%M:%S %Y\n"),
   // but always in "C" locale.
   char datebuffer[32];
-  STATIC_ASSERT(sizeof(datebuffer) >= 26); // assumed by asctime_r()
+  SMARTMON_STATIC_ASSERT(sizeof(datebuffer) >= 26); // assumed by asctime_r()
 #ifndef _WIN32
   // POSIX (missing in MSVRCT, C and C++)
   if (!asctime_r(tmval, datebuffer))

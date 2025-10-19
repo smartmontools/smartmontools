@@ -61,7 +61,6 @@ incsmartmon_DATA = \
         smartmon/sg_unaligned.h \
         smartmon/smartmon_config.h \
         smartmon/smartmon_defs.h \
-        smartmon/static_assert.h \
         smartmon/utility.h \
         smartmon/version.h
 
@@ -94,7 +93,6 @@ EXTRA_DIST = \
         smartmon/scsicmds.h \
         smartmon/sg_unaligned.h \
         smartmon/smartmon_defs.h \
-        smartmon/static_assert.h \
         smartmon/utility.h \
         smartmon/os_win32/popen.h \
         smartmon/os_win32/wmiquery.h \

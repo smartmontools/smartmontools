@@ -31,4 +31,9 @@
 #define SMARTMON_ATTR_PACKED /**/
 #endif
 
+// Static assert macros
+// Don't use single argument 'static_assert(x)' because it requires C++17
+#define SMARTMON_STATIC_ASSERT(x) static_assert((x), #x)
+#define SMARTMON_ASSERT_SIZEOF(t, n) SMARTMON_STATIC_ASSERT(sizeof(t) == (n))
+
 #endif // _SMARTMON_DEFS_H
