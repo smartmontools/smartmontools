@@ -22,6 +22,8 @@
 #include <stdlib.h> // realpath()
 #include <stdexcept>
 
+namespace smartmon {
+
 /////////////////////////////////////////////////////////////////////////////
 // smart_device
 
@@ -77,6 +79,23 @@ smart_device * smart_device::autodetect_open()
 {
   open();
   return this;
+}
+
+bool smart_device::autodetect_open(std::unique_ptr<smart_device> & dev)
+{
+  if (!dev)
+    return false;
+  smart_device * olddev = dev.release();
+  smart_device * newdev;
+  try {
+    newdev = olddev->autodetect_open();
+  }
+  catch (...) {
+    dev.reset(olddev);
+    throw;
+  }
+  dev.reset(newdev);
+  return dev->is_open();
 }
 
 bool smart_device::is_powered_down()
@@ -550,3 +569,5 @@ smart_device * smart_interface::get_scsi_passthrough_device(const char * type, s
 
   return get_sat_device(type, scsidev);
 }
+
+} // namespace smartmon

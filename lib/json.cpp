@@ -13,14 +13,13 @@
 
 #include "json.h"
 
-const char * json_cvsid = "$Id: json.cpp 5469 2023-03-15 20:00:35Z dpgilbert $"
-  JSON_H_CVSID;
-
 #include "sg_unaligned.h"
 #include "utility.h" // regular_expression, uint128_*()
 
 #include <inttypes.h>
 #include <stdexcept>
+
+namespace smartmon {
 
 static void jassert_failed(int line, const char * expr)
 {
@@ -730,3 +729,5 @@ void json::print(FILE * f, const print_options & options) const
       break;
   }
 }
+
+} // namespace smartmon

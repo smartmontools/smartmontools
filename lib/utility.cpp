@@ -29,7 +29,15 @@
 #include <mbstring.h> // _mbsinc()
 #endif
 
+#include <memory>
 #include <stdexcept>
+
+#ifdef WITH_CXX11_REGEX
+#include <regex>
+#else
+#include <sys/types.h> // for regex.h (according to POSIX)
+#include <regex.h>
+#endif
 
 #include "utility.h"
 
@@ -52,6 +60,8 @@
 // Use std::chrono::high_resolution_clock.
 #include <chrono>
 #endif
+
+namespace smartmon {
 
 // Default library hook
 
@@ -407,7 +417,7 @@ void dateandtimezoneepoch(char (& buffer)[DATEANDEPOCHLEN], time_t tval)
   // Same as: strftime(datebuffer, sizeof(datebuffer), "%a %b %e %H:%M:%S %Y\n"),
   // but always in "C" locale.
   char datebuffer[32];
-  STATIC_ASSERT(sizeof(datebuffer) >= 26); // assumed by asctime_r()
+  SMARTMON_STATIC_ASSERT(sizeof(datebuffer) >= 26); // assumed by asctime_r()
 #ifndef _WIN32
   // POSIX (missing in MSVRCT, C and C++)
   if (!asctime_r(tmval, datebuffer))
@@ -537,58 +547,48 @@ static const char * check_regex(const char * pattern)
 
 // Wrapper class for POSIX regex(3) or std::regex
 
-#ifndef WITH_CXX11_REGEX
+#ifdef WITH_CXX11_REGEX
+using regex_type = std::regex;
+#else
+using regex_type = regex_t;
+#endif
+
+static inline regex_type & get_regex(void * m_regex_p)
+{
+  return *reinterpret_cast<regex_type *>(m_regex_p);
+}
 
 regular_expression::regular_expression()
+: m_regex_p(new regex_type{})
 {
-  memset(&m_regex_buf, 0, sizeof(m_regex_buf));
 }
 
 regular_expression::~regular_expression()
 {
-  free_buf();
+  free_regex();
+  delete &get_regex(m_regex_p);
 }
 
 regular_expression::regular_expression(const regular_expression & x)
 : m_pattern(x.m_pattern),
-  m_errmsg(x.m_errmsg)
+  m_errmsg(x.m_errmsg),
+  m_regex_p(new regex_type)
 {
-  memset(&m_regex_buf, 0, sizeof(m_regex_buf));
-  copy_buf(x);
+  copy_regex(x);
 }
 
 regular_expression & regular_expression::operator=(const regular_expression & x)
 {
   m_pattern = x.m_pattern;
   m_errmsg = x.m_errmsg;
-  free_buf();
-  copy_buf(x);
+  free_regex();
+  copy_regex(x);
   return *this;
 }
 
-void regular_expression::free_buf()
-{
-  if (nonempty(&m_regex_buf, sizeof(m_regex_buf))) {
-    regfree(&m_regex_buf);
-    memset(&m_regex_buf, 0, sizeof(m_regex_buf));
-  }
-}
-
-void regular_expression::copy_buf(const regular_expression & x)
-{
-  if (nonempty(&x.m_regex_buf, sizeof(x.m_regex_buf))) {
-    // There is no POSIX compiled-regex-copy command.
-    if (!compile())
-      throw std::runtime_error(strprintf(
-        "Unable to recompile regular expression \"%s\": %s",
-        m_pattern.c_str(), m_errmsg.c_str()));
-  }
-}
-
-#endif // !WITH_CXX11_REGEX
-
 regular_expression::regular_expression(const char * pattern)
-: m_pattern(pattern)
+: m_pattern(pattern),
+  m_regex_p(new regex_type)
 {
   if (!compile())
     throw std::runtime_error(strprintf(
@@ -598,18 +598,17 @@ regular_expression::regular_expression(const char * pattern)
 
 bool regular_expression::compile(const char * pattern)
 {
-#ifndef WITH_CXX11_REGEX
-  free_buf();
-#endif
   m_pattern = pattern;
+  free_regex();
   return compile();
 }
 
 bool regular_expression::compile()
 {
+  regex_type & rex = get_regex(m_regex_p);
 #ifdef WITH_CXX11_REGEX
   try {
-    m_regex.assign(m_pattern, std::regex_constants::extended);
+    rex.assign(m_pattern, std::regex_constants::extended);
   }
   catch (std::regex_error & ex) {
     m_errmsg = ex.what();
@@ -617,12 +616,13 @@ bool regular_expression::compile()
   }
 
 #else
-  int errcode = regcomp(&m_regex_buf, m_pattern.c_str(), REG_EXTENDED);
+  int errcode = regcomp(&rex, m_pattern.c_str(), REG_EXTENDED);
   if (errcode) {
     char errmsg[512];
-    regerror(errcode, &m_regex_buf, errmsg, sizeof(errmsg));
+    regerror(errcode, &rex, errmsg, sizeof(errmsg));
     m_errmsg = errmsg;
-    free_buf();
+    free_regex();
+    rex = {};
     return false;
   }
 #endif
@@ -630,11 +630,8 @@ bool regular_expression::compile()
   const char * errmsg = check_regex(m_pattern.c_str());
   if (errmsg) {
     m_errmsg = errmsg;
-#ifdef WITH_CXX11_REGEX
-    m_regex = std::regex();
-#else
-    free_buf();
-#endif
+    free_regex();
+    rex = {};
     return false;
   }
 
@@ -644,20 +641,22 @@ bool regular_expression::compile()
 
 bool regular_expression::full_match(const char * str) const
 {
+  regex_type & rex = get_regex(m_regex_p);
 #ifdef WITH_CXX11_REGEX
-  return std::regex_match(str, m_regex);
+  return std::regex_match(str, rex);
 #else
-  match_range range;
-  return (   !regexec(&m_regex_buf, str, 1, &range, 0)
+  regmatch_t range;
+  return (   !regexec(&rex, str, 1, &range, 0)
           && range.rm_so == 0 && range.rm_eo == (int)strlen(str));
 #endif
 }
 
 bool regular_expression::execute(const char * str, unsigned nmatch, match_range * pmatch) const
 {
+  regex_type & rex = get_regex(m_regex_p);
 #ifdef WITH_CXX11_REGEX
   std::cmatch m;
-  if (!std::regex_search(str, m, m_regex))
+  if (!std::regex_search(str, m, rex))
     return false;
   unsigned sz = m.size();
   for (unsigned i = 0; i < nmatch; i++) {
@@ -671,7 +670,41 @@ bool regular_expression::execute(const char * str, unsigned nmatch, match_range 
   return true;
 
 #else
-  return !regexec(&m_regex_buf, str, nmatch, pmatch, 0);
+  std::unique_ptr<regmatch_t[]> m(nmatch ? new regmatch_t[nmatch]{} : nullptr);
+  if (regexec(&rex, str, nmatch, m.get(), 0))
+    return false;
+  for (unsigned i = 0; i < nmatch; i++) {
+    pmatch[i].rm_so = m[i].rm_so;
+    pmatch[i].rm_eo = m[i].rm_eo;
+  }
+  return true;
+#endif
+}
+
+void regular_expression::copy_regex(const regular_expression & x)
+{
+  regex_type & rex = get_regex(m_regex_p);
+  const regex_type & x_rex = get_regex(x.m_regex_p);
+#ifdef WITH_CXX11_REGEX
+  rex = x_rex;
+#else
+  rex = {};
+  if (nonempty(&x_rex, sizeof(x_rex))) {
+    // There is no POSIX compiled-regex-copy command.
+    if (!compile())
+      throw std::runtime_error(strprintf(
+        "Unable to recompile regular expression \"%s\": %s",
+        m_pattern.c_str(), m_errmsg.c_str()));
+  }
+#endif
+}
+
+void regular_expression::free_regex()
+{
+#ifndef WITH_CXX11_REGEX
+  regex_type & rex = get_regex(m_regex_p);
+  if (nonempty(&rex, sizeof(rex)))
+    regfree(&rex);
 #endif
 }
 
@@ -839,7 +872,7 @@ const char * format_capacity(char * str, int strsize, uint64_t val,
 }
 
 // return (v)sprintf() formatted std::string
-__attribute_format_printf(1, 0)
+SMARTMON_FORMAT_PRINTF(1, 0)
 std::string vstrprintf(const char * fmt, va_list ap)
 {
   char buf[512];
@@ -893,7 +926,7 @@ const char * uint128_hilo_to_str(char * str, int strsize, uint64_t value_hi, uin
   return str;
 }
 
-#elif defined(HAVE_LONG_DOUBLE_WIDER_PRINTF)
+#elif defined(SMARTMON_HAVE_LONG_DOUBLE_WIDER_PRINTF) // defined in "smartmon/utility.h"
 // Compiler and *printf() support 'long double' which is wider than 'double'.
 
 const char * uint128_hilo_to_str(char * str, int strsize, uint64_t value_hi, uint64_t value_lo)
@@ -902,7 +935,7 @@ const char * uint128_hilo_to_str(char * str, int strsize, uint64_t value_hi, uin
   return str;
 }
 
-#else // !HAVE_LONG_DOUBLE_WIDER_PRINTF
+#else // !SMARTMON_HAVE_LONG_DOUBLE_WIDER_PRINTF
 // No '__int128' or 'long double' support, use 'double'.
 
 const char * uint128_hilo_to_str(char * str, int strsize, uint64_t value_hi, uint64_t value_lo)
@@ -973,3 +1006,5 @@ void check_config()
   check_endianness();
   check_snprintf();
 }
+
+} // namespace smartmon

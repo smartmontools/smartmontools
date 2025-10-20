@@ -10,10 +10,10 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef UTILITY_H_
-#define UTILITY_H_
+#ifndef SMARTMON_UTILITY_H
+#define SMARTMON_UTILITY_H
 
-#define UTILITY_H_CVSID // TODO: Remove when no longer used
+#include "smartmon_defs.h"
 
 #include <float.h> // *DBL_MANT_DIG
 #include <time.h>
@@ -23,23 +23,9 @@
 #include <string.h>
 #include <string>
 
-#include <sys/types.h> // for regex.h (according to POSIX)
-#ifdef WITH_CXX11_REGEX
-#include <regex>
-#else
-#include <regex.h>
-#endif
+namespace smartmon {
 
-#ifndef __GNUC__
-#define __attribute_format_printf(x, y)  /**/
-#elif defined(__MINGW32__) && __USE_MINGW_ANSI_STDIO
-// Check format of __mingw_*printf() instead of MSVCRT.DLL:*printf()
-#define __attribute_format_printf(x, y)  __attribute__((format (gnu_printf, x, y)))
-#else
-#define __attribute_format_printf(x, y)  __attribute__((format (printf, x, y)))
-#endif
-
- /// Class to register an application specific lib_vprintf() function.
+/// Class to register an application specific lib_vprintf() function.
 class lib_global_hook
 {
 public:
@@ -67,7 +53,7 @@ void lib_vprintf(const char * fmt, va_list ap);
 
 /// Like printf() but calls lib_vprintf().
 void lib_printf(const char * fmt, ...)
-  __attribute_format_printf(1, 2);
+  SMARTMON_FORMAT_PRINTF(1, 2);
 
 // Global to set failure tolerance
 extern unsigned char failuretest_permissive;
@@ -78,7 +64,7 @@ std::string format_version_info(const char * prog_name, int lines = 2);
 
 // return (v)sprintf() formatted std::string
 std::string strprintf(const char * fmt, ...)
-    __attribute_format_printf(1, 2);
+  SMARTMON_FORMAT_PRINTF(1, 2);
 std::string vstrprintf(const char * fmt, va_list ap);
 
 // Return true if STR starts with PREFIX
@@ -107,7 +93,7 @@ int split_selective_arg(char *s, uint64_t *start, uint64_t *stop, int *mode);
 // (inline const function allows compiler to remove dead code)
 inline bool isbigendian()
 {
-#ifdef WORDS_BIGENDIAN
+#ifdef SMARTMON_WORDS_BIGENDIAN
   return true;
 #else
   return false;
@@ -143,10 +129,18 @@ void FixGlibcTimeZoneBug();
 // Replace non-ascii characters.  Remove leading and trailing blanks.
 const char * format_char_array(char * str, int strsize, const char * chr, int chrsize);
 
-// Version for fixed size buffers.
+// Variants for fixed size buffers.
 template<size_t STRSIZE, size_t CHRSIZE>
 inline const char * format_char_array(char (& str)[STRSIZE], const char (& chr)[CHRSIZE])
   { return format_char_array(str, (int)STRSIZE, chr, (int)CHRSIZE); }
+
+template<size_t STRSIZE>
+inline const char * format_char_array(char (& str)[STRSIZE], const char * chr, int chrsize)
+  { return format_char_array(str, (int)STRSIZE, chr, chrsize); }
+
+template<size_t CHRSIZE>
+inline const char * format_char_array(char * str, int strsize, const char (& chr)[CHRSIZE])
+  { return format_char_array(str, strsize, chr, (int)CHRSIZE); }
 
 // Format integer with thousands separator
 const char * format_with_thousands_sep(char * str, int strsize, uint64_t val,
@@ -248,10 +242,6 @@ class regular_expression
 {
 public:
   // Construction & assignment
-#ifdef WITH_CXX11_REGEX
-  regular_expression() = default;
-
-#else
   regular_expression();
 
   ~regular_expression();
@@ -259,7 +249,6 @@ public:
   regular_expression(const regular_expression & x);
 
   regular_expression & operator=(const regular_expression & x);
-#endif
 
   /// Construct with pattern, throw on error.
   explicit regular_expression(const char * pattern);
@@ -275,34 +264,31 @@ public:
   const char * get_errmsg() const
     { return m_errmsg.c_str(); }
 
-  // Return true if pattern is not set or bad.
+  /// Return true if pattern is not set or bad.
   bool empty() const
     { return (m_pattern.empty() || !m_errmsg.empty()); }
 
   /// Return true if full string matches pattern
   bool full_match(const char * str) const;
 
-#ifdef WITH_CXX11_REGEX
+  /// regex(3)-like match result
   struct match_range { int rm_so, rm_eo; };
-#else
-  typedef regmatch_t match_range;
-#endif
 
   /// Return true if substring matches pattern, fill match_range array.
   bool execute(const char * str, unsigned nmatch, match_range * pmatch) const;
 
+  // Variant for fixed sized array.
+  template<size_t SIZE>
+  bool execute(const char * str, match_range (& match)[SIZE]) const
+    { return execute(str, (unsigned)SIZE, match); }
+
 private:
   std::string m_pattern;
   std::string m_errmsg;
+  void * m_regex_p; // Points to hidden 'regex_t' or 'std::regex'
 
-#ifdef WITH_CXX11_REGEX
-  std::regex m_regex;
-#else
-  regex_t m_regex_buf;
-  void free_buf();
-  void copy_buf(const regular_expression & x);
-#endif
-
+  void copy_regex(const regular_expression & x);
+  void free_regex();
   bool compile();
 };
 
@@ -310,20 +296,20 @@ private:
 // Provides full integer precision if compiler supports '__int128'.
 // Otherwise precision depends on supported floating point data types.
 
-#if defined(HAVE_LONG_DOUBLE_WIDER) && \
+#if defined(SMARTMON_HAVE_LONG_DOUBLE_WIDER) && \
     (!defined(__MINGW32__) || __USE_MINGW_ANSI_STDIO)
     // MinGW 'long double' type does not work with MSVCRT/UCRT *printf()
-#define HAVE_LONG_DOUBLE_WIDER_PRINTF 1
+#define SMARTMON_HAVE_LONG_DOUBLE_WIDER_PRINTF 1
 #else
-#undef HAVE_LONG_DOUBLE_WIDER_PRINTF
+#undef SMARTMON_HAVE_LONG_DOUBLE_WIDER_PRINTF
 #endif
 
 // Return #bits precision provided by uint128_hilo_to_str().
 inline int uint128_to_str_precision_bits()
 {
-#if defined(HAVE___INT128)
+#if defined(SMARTMON_HAVE___INT128)
   return 128;
-#elif defined(HAVE_LONG_DOUBLE_WIDER_PRINTF)
+#elif defined(SMARTMON_HAVE_LONG_DOUBLE_WIDER_PRINTF)
   return LDBL_MANT_DIG;
 #else
   return DBL_MANT_DIG;
@@ -350,11 +336,13 @@ std::string get_exe_dir();
 #endif
 
 
-#ifdef OLD_INTERFACE
+#ifdef SMARTMON_OLD_INTERFACE
 // remaining controller types in old interface modules
 #define CONTROLLER_UNKNOWN              0x00
 #define CONTROLLER_ATA                  0x01
 #define CONTROLLER_SCSI                 0x02
 #endif
 
-#endif
+} // namespace smartmon
+
+#endif // SMARTMON_UTILITY_H

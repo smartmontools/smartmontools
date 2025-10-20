@@ -13,8 +13,6 @@
 #ifndef ATAPRINT_H_
 #define ATAPRINT_H_
 
-#define ATAPRINT_H_CVSID "$Id: ataprint.h 5483 2023-06-25 17:09:03Z chrfranke $\n"
-
 #include <vector>
 
 // Request to dump a GP or SMART log
@@ -63,7 +61,7 @@ struct ata_print_options
 
   int smart_selftest_type = -1; // OFFLINE_FULL_SCAN, ..., see atacmds.h. -1 for no test
   bool smart_selftest_force = false; // Ignore already running test
-  ata_selective_selftest_args smart_selective_args; // Extra args for selective self-test
+  smartmon::ata_selective_selftest_args smart_selective_args; // Extra args for selective self-test
 
   unsigned sct_temp_int = 0;
   bool sct_temp_int_pers = false;
@@ -71,10 +69,10 @@ struct ata_print_options
   enum { FMT_BRIEF = 0x01, FMT_HEX_ID = 0x02, FMT_HEX_VAL = 0x04 };
   unsigned char output_format = 0; // FMT_* flags
 
-  firmwarebug_defs firmwarebugs; // -F options
+  smartmon::firmwarebug_defs firmwarebugs; // -F options
   bool fix_swapped_id = false; // Fix swapped ID strings returned by some buggy drivers
 
-  ata_vendor_attr_defs attribute_defs; // -v options
+  smartmon::ata_vendor_attr_defs attribute_defs; // -v options
 
   bool ignore_presets = false; // Ignore presets from drive database
   bool show_presets = false; // Show presets and exit
@@ -108,6 +106,6 @@ struct ata_print_options
   bool farm_log_suggest = false;  // If -x/-xall or -a/-all is run, suggests FARM log if supported
 };
 
-int ataPrintMain(ata_device * device, const ata_print_options & options);
+int ataPrintMain(smartmon::ata_device * device, const ata_print_options & options);
 
 #endif

@@ -18,6 +18,8 @@
 #include <vector>
 #include <stddef.h>
 
+namespace smartmon {
+
 typedef uint8_t                    encl_id_t;
 typedef uint16_t                   slot_id_t;
 typedef int32_t                    ps3stor_errno;
@@ -342,5 +344,7 @@ inline ps3stor_channel *ps3chn()
 {
   return ps3stor_channel::s_channel;
 }
+
+} // namespace smartmon
 
 #endif

@@ -25,6 +25,8 @@
 
 #include <stdexcept>
 
+namespace smartmon {
+
 #define MODEL_STRING_LENGTH                         40
 #define FIRMWARE_STRING_LENGTH                       8
 #define TABLEPRINTWIDTH                             19
@@ -165,7 +167,7 @@ static void parse_version(std::string & dbversion, const char * verstr)
   );
   const int nmatch = 1+4;
   regular_expression::match_range match[nmatch];
-  if (!regex.execute(verstr, nmatch, match))
+  if (!regex.execute(verstr, match))
     return;
   dbversion.assign(verstr + match[1].rm_so, match[1].rm_eo - match[1].rm_so);
   int i = (match[3].rm_so >= 0 ? 3 : 4); // "BRANCH/REV" or "BRANCH ... SVN-REV"
@@ -991,3 +993,5 @@ const ata_vendor_attr_defs & get_default_attr_defs()
 {
   return default_attr_defs;
 }
+
+} // namespace smartmon

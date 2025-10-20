@@ -11,6 +11,8 @@
 #include "dev_ps3stor.h"
 #include <memory>
 
+namespace smartmon {
+
 ps3stor_channel *ps3stor_channel::s_channel;
 
 ps3stor_errno ps3stor_channel::get_enclcount(unsigned hostid, uint8_t &enclcount)
@@ -227,3 +229,5 @@ ps3stor_errno ps3stor_channel::pd_scsi_passthrough(unsigned hostid, uint8_t eid,
   free(scsireq_tlv);
   return PS3STOR_ERRNO_SUCCESS;
 }
+
+} // namespace smartmon

@@ -18,7 +18,7 @@
 
 #include <errno.h>
 
-using namespace smartmontools;
+namespace smartmon {
 
 // Print NVMe debug messages?
 unsigned char nvme_debugmode = 0;
@@ -265,7 +265,7 @@ bool nvme_read_smart_log(nvme_device * device, uint32_t nsid, nvme_smart_log & s
 
 // Read NVMe Self-test Log.
 bool nvme_read_self_test_log(nvme_device * device, uint32_t nsid,
-  smartmontools::nvme_self_test_log & self_test_log)
+  nvme_self_test_log & self_test_log)
 {
   if (!nvme_read_log_page_1(device, nsid, 0x06, &self_test_log, sizeof(self_test_log)))
     return false;
@@ -505,3 +505,5 @@ const char * nvme_status_to_info_str(char * buf, size_t bufsize, uint16_t status
     snprintf(buf, bufsize, "Unknown Status 0x%x/0x%02x", sct, sc);
   return buf;
 }
+
+} // namespace smartmon

@@ -205,7 +205,6 @@
     <ClCompile Include="..\..\..\lib\utility.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\include\smartmon\atacmdnames.h" />
     <ClInclude Include="..\..\..\include\smartmon\atacmds.h" />
     <ClInclude Include="..\..\..\include\smartmon\dev_interface.h" />
     <ClInclude Include="..\..\..\include\smartmon\farmcmds.h" />

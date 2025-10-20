@@ -95,6 +95,8 @@
 
 #define ARGUSED(x) ((void)(x))
 
+namespace smartmon {
+
 namespace os_linux { // No need to publish anything, name provided for Doxygen
 
 /////////////////////////////////////////////////////////////////////////////
@@ -3191,7 +3193,7 @@ void linux_smart_interface::get_dev_list(smart_device_list & devlist,
     );
     constexpr int nmatch = 1 + 6;
     regular_expression::match_range match[nmatch];
-    if (!regex.execute(chk_name, nmatch, match)) {
+    if (!regex.execute(chk_name, match)) {
       if (debug)
         lib_printf("%s, %s: device type ignored\n", name, chk_name);
       continue;
@@ -4429,7 +4431,7 @@ ps3stor_errno linux_ps3stor_channel::get_devfd(unsigned host, int &devfd)
   return err;
 }
 
-} // namespace
+} // namespace os_linux
 
 /////////////////////////////////////////////////////////////////////////////
 /// Initialize platform interface and register with smi()
@@ -4458,3 +4460,5 @@ bool ps3stor_init()
   }  
   return true;
 }
+
+} // namespace smartmon

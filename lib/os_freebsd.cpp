@@ -82,6 +82,8 @@
 #define BAD_KERNEL 3
 #define MAX_MSG 3
 
+namespace smartmon {
+
 // Utility function for printing warnings
 void printwarning(int msgNo, const char* extra) {
 
@@ -2519,7 +2521,7 @@ std::string freebsd_smart_interface::get_valid_custom_dev_types_str()
   ;
 }
 
-} // namespace
+} // namespace os_freebsd
 
 /////////////////////////////////////////////////////////////////////////////
 /// Initialize platform interface and register with smi()
@@ -2529,3 +2531,5 @@ void smart_interface::init()
   static os_freebsd::freebsd_smart_interface the_interface;
   smart_interface::set(&the_interface);
 }
+
+} // namespace smartmon

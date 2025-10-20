@@ -8,16 +8,17 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef DEV_INTERFACE_H
-#define DEV_INTERFACE_H
-
-#define DEV_INTERFACE_H_CVSID "$Id: dev_interface.h 5676 2025-03-20 15:57:20Z chrfranke $\n"
+#ifndef SMARTMON_DEV_INTERFACE_H
+#define SMARTMON_DEV_INTERFACE_H
 
 #include "utility.h"
 
+#include <memory>
 #include <stdexcept>
 #include <string>
 #include <vector>
+
+namespace smartmon {
 
 /////////////////////////////////////////////////////////////////////////////
 // Common functionality for all device types
@@ -158,7 +159,7 @@ public:
   /// Printf()-like formatting is supported.
   /// Returns false always to allow use as a return expression.
   bool set_err(int no, const char * msg, ...)
-    __attribute_format_printf(3, 4);
+    SMARTMON_FORMAT_PRINTF(3, 4);
 
   /// Set last error info struct.
   bool set_err(const error_info & err)
@@ -196,6 +197,10 @@ public:
   /// In this case, the original pointer is no longer valid.
   /// Default implementation calls 'open()' and returns 'this'.
   virtual smart_device * autodetect_open();
+
+  /// Open device with autodetection support for 'std::unique_ptr<smart_device>'.
+  /// Returns the result of 'is_open()' of the (possibly changed) device.
+  static bool autodetect_open(std::unique_ptr<smart_device> & dev);
 
   ///////////////////////////////////////////////
   // Support for checking power mode reported by operating system
@@ -960,7 +965,7 @@ public:
   /// Printf()-like formatting is supported.
   /// Returns false always to allow use as a return expression.
   bool set_err(int no, const char * msg, ...)
-    __attribute_format_printf(3, 4);
+    SMARTMON_FORMAT_PRINTF(3, 4);
 
   /// Set last error number and message.
   /// Printf()-like formatting is supported.
@@ -968,7 +973,7 @@ public:
   /// of any pointer type.
   // (Not using 'std::nullptr_t' because it requires <cstddef>)
   decltype(nullptr) set_err_np(int no, const char * msg, ...)
-    __attribute_format_printf(3, 4);
+    SMARTMON_FORMAT_PRINTF(3, 4);
 
   /// Set last error info struct.
   bool set_err(const smart_device::error_info & err)
@@ -1124,4 +1129,6 @@ inline smart_interface * smi()
 
 /////////////////////////////////////////////////////////////////////////////
 
-#endif // DEV_INTERFACE_H
+} // namespace smartmon
+
+#endif // SMARTMON_DEV_INTERFACE_H

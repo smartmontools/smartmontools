@@ -25,6 +25,8 @@
 // based on "sys/dev/ic/nvmeio.h" from NetBSD kernel sources
 #include "netbsd_nvme_ioctl.h" // NVME_PASSTHROUGH_CMD, nvme_completion_is_error
 
+namespace smartmon {
+
 #define ARGUSED(x) ((void)(x))
 
 /////////////////////////////////////////////////////////////////////////////
@@ -810,7 +812,7 @@ std::string netbsd_smart_interface::get_valid_custom_dev_types_str()
   return "";
 }
 
-} // namespace
+} // namespace os_netbsd
 
 /////////////////////////////////////////////////////////////////////////////
 /// Initialize platform interface and register with smi()
@@ -820,5 +822,7 @@ void smart_interface::init()
   static os_netbsd::netbsd_smart_interface the_interface;
   smart_interface::set(&the_interface);
 }
+
+} // namespace smartmon
 
 /* vim: set ts=2 sw=2 et ff=unix : */

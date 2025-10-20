@@ -10,21 +10,12 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef ATACMDS_H_
-#define ATACMDS_H_
-
-#define ATACMDS_H_CVSID // TODO: Remove when no longer used
+#ifndef SMARTMON_ATACMDS_H
+#define SMARTMON_ATACMDS_H
 
 #include "dev_interface.h" // ata_device
-#include "static_assert.h"
 
-// Add __attribute__((packed)) if compiler supports it
-// because some gcc versions (at least ARM) lack support of #pragma pack()
-#ifdef HAVE_ATTR_PACKED
-#define ATTR_PACKED __attribute__((packed))
-#else
-#define ATTR_PACKED
-#endif
+namespace smartmon {
 
 typedef enum {
   // returns no data, just succeeds or fails
@@ -128,9 +119,9 @@ struct ata_identify_device {
   unsigned short word086;
   unsigned short csf_default;
   unsigned short words088_255[168];
-} ATTR_PACKED;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
-STATIC_ASSERT(sizeof(ata_identify_device) == 512);
+SMARTMON_ASSERT_SIZEOF(ata_identify_device, 512);
 
 /* ata_smart_attribute is the vendor specific in SFF-8035 spec */ 
 #pragma pack(1)
@@ -143,9 +134,9 @@ struct ata_smart_attribute {
   unsigned char worst;
   unsigned char raw[6];
   unsigned char reserv;
-} ATTR_PACKED;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
-STATIC_ASSERT(sizeof(ata_smart_attribute) == 12);
+SMARTMON_ASSERT_SIZEOF(ata_smart_attribute, 12);
 
 // MACROS to interpret the flags bits in the previous structure.
 // These have not been implemented using bitflags and a union, to make
@@ -213,9 +204,9 @@ struct ata_smart_values {
   unsigned char reserved_377_385[9];
   unsigned char vendor_specific_386_510[125]; // Maxtor bytes 508-509 Attribute/Threshold Revision #
   unsigned char chksum;
-} ATTR_PACKED;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
-STATIC_ASSERT(sizeof(ata_smart_values) == 512);
+SMARTMON_ASSERT_SIZEOF(ata_smart_values, 512);
 
 /* Maxtor, IBM: self-test failure checkpoint byte meaning:
  00 - write test
@@ -232,9 +223,9 @@ struct ata_smart_threshold_entry {
   unsigned char id;
   unsigned char threshold;
   unsigned char reserved[10];
-} ATTR_PACKED;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
-STATIC_ASSERT(sizeof(ata_smart_threshold_entry) == 12);
+SMARTMON_ASSERT_SIZEOF(ata_smart_threshold_entry, 12);
 
 /* Format of Read SMART THreshold Command */
 /* Compare to ata_smart_values above */
@@ -244,9 +235,9 @@ struct ata_smart_thresholds_pvt {
   struct ata_smart_threshold_entry thres_entries[NUMBER_ATA_SMART_ATTRIBUTES];
   unsigned char reserved[149];
   unsigned char chksum;
-} ATTR_PACKED;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
-STATIC_ASSERT(sizeof(ata_smart_thresholds_pvt) == 512);
+SMARTMON_ASSERT_SIZEOF(ata_smart_thresholds_pvt, 512);
 
 
 // Table 42 of T13/1321D Rev 1 spec (Error Data Structure)
@@ -263,9 +254,9 @@ struct ata_smart_errorlog_error_struct {
   unsigned char extended_error[19];
   unsigned char state;
   unsigned short timestamp;
-} ATTR_PACKED;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
-STATIC_ASSERT(sizeof(ata_smart_errorlog_error_struct) == 30);
+SMARTMON_ASSERT_SIZEOF(ata_smart_errorlog_error_struct, 30);
 
 
 // Table 41 of T13/1321D Rev 1 spec (Command Data Structure)
@@ -280,18 +271,18 @@ struct ata_smart_errorlog_command_struct {
   unsigned char drive_head;
   unsigned char commandreg;
   unsigned int timestamp;
-} ATTR_PACKED;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
-STATIC_ASSERT(sizeof(ata_smart_errorlog_command_struct) == 12);
+SMARTMON_ASSERT_SIZEOF(ata_smart_errorlog_command_struct, 12);
 
 // Table 40 of T13/1321D Rev 1 spec (Error log data structure)
 #pragma pack(1)
 struct ata_smart_errorlog_struct {
   struct ata_smart_errorlog_command_struct commands[5];
   struct ata_smart_errorlog_error_struct error_struct;
-} ATTR_PACKED;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
-STATIC_ASSERT(sizeof(ata_smart_errorlog_struct) == 90);
+SMARTMON_ASSERT_SIZEOF(ata_smart_errorlog_struct, 90);
 
 // Table 39 of T13/1321D Rev 1 spec (SMART error log sector)
 #pragma pack(1)
@@ -302,9 +293,9 @@ struct ata_smart_errorlog {
   unsigned short int ata_error_count;
   unsigned char reserved[57];
   unsigned char checksum;
-} ATTR_PACKED;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
-STATIC_ASSERT(sizeof(ata_smart_errorlog) == 512);
+SMARTMON_ASSERT_SIZEOF(ata_smart_errorlog, 512);
 
 
 // Extended Comprehensive SMART Error Log data structures
@@ -333,9 +324,9 @@ struct ata_smart_exterrlog_command
 
   unsigned char reserved;
   unsigned int timestamp;
-} ATTR_PACKED;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
-STATIC_ASSERT(sizeof(ata_smart_exterrlog_command) == 18);
+SMARTMON_ASSERT_SIZEOF(ata_smart_exterrlog_command, 18);
 
 // Error data structure
 // Table A.10 T13/1699-D Revision 6a
@@ -358,9 +349,9 @@ struct ata_smart_exterrlog_error
   unsigned char extended_error[19];
   unsigned char state;
   unsigned short timestamp;
-} ATTR_PACKED;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
-STATIC_ASSERT(sizeof(ata_smart_exterrlog_error) == 34);
+SMARTMON_ASSERT_SIZEOF(ata_smart_exterrlog_error, 34);
 
 // Error log data structure
 // Table A.8 of T13/1699-D Revision 6a
@@ -369,9 +360,9 @@ struct ata_smart_exterrlog_error_log
 {
   ata_smart_exterrlog_command commands[5];
   ata_smart_exterrlog_error error;
-} ATTR_PACKED;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
-STATIC_ASSERT(sizeof(ata_smart_exterrlog_error_log) == 124);
+SMARTMON_ASSERT_SIZEOF(ata_smart_exterrlog_error_log, 124);
 
 // Ext. Comprehensive SMART error log
 // Table A.7 of T13/1699-D Revision 6a
@@ -385,9 +376,9 @@ struct ata_smart_exterrlog
   unsigned short device_error_count;
   unsigned char reserved2[9];
   unsigned char checksum;
-} ATTR_PACKED;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
-STATIC_ASSERT(sizeof(ata_smart_exterrlog) == 512);
+SMARTMON_ASSERT_SIZEOF(ata_smart_exterrlog, 512);
 
 
 // Table 45 of T13/1321D Rev 1 spec (Self-test log descriptor entry)
@@ -399,9 +390,9 @@ struct ata_smart_selftestlog_struct {
   unsigned char selftestfailurecheckpoint;
   unsigned int lbafirstfailure;
   unsigned char vendorspecific[15];
-} ATTR_PACKED;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
-STATIC_ASSERT(sizeof(ata_smart_selftestlog_struct) == 24);
+SMARTMON_ASSERT_SIZEOF(ata_smart_selftestlog_struct, 24);
 
 // Table 44 of T13/1321D Rev 1 spec (Self-test log data structure)
 #pragma pack(1)
@@ -412,9 +403,9 @@ struct ata_smart_selftestlog {
   unsigned char mostrecenttest;
   unsigned char reserved[2];
   unsigned char chksum;
-} ATTR_PACKED;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
-STATIC_ASSERT(sizeof(ata_smart_selftestlog) == 512);
+SMARTMON_ASSERT_SIZEOF(ata_smart_selftestlog, 512);
 
 // Extended SMART Self-test log data structures
 // See Section A.8 of
@@ -432,9 +423,9 @@ struct ata_smart_extselftestlog_desc
   unsigned char checkpoint;
   unsigned char failing_lba[6];
   unsigned char vendorspecific[15];
-} ATTR_PACKED;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
-STATIC_ASSERT(sizeof(ata_smart_extselftestlog_desc) == 26);
+SMARTMON_ASSERT_SIZEOF(ata_smart_extselftestlog_desc, 26);
 
 // Extended Self-test log data structure
 // Table A.12 of T13/1699-D Revision 6a
@@ -448,26 +439,26 @@ struct ata_smart_extselftestlog
   unsigned char vendor_specifc[2];
   unsigned char reserved2[11];
   unsigned char chksum;
-} ATTR_PACKED;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
-STATIC_ASSERT(sizeof(ata_smart_extselftestlog) == 512);
+SMARTMON_ASSERT_SIZEOF(ata_smart_extselftestlog, 512);
 
 // SMART LOG DIRECTORY Table 52 of T13/1532D Vol 1 Rev 1a
 #pragma pack(1)
 struct ata_smart_log_entry {
   unsigned char numsectors;
   unsigned char reserved;
-} ATTR_PACKED;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
-STATIC_ASSERT(sizeof(ata_smart_log_entry) == 2);
+SMARTMON_ASSERT_SIZEOF(ata_smart_log_entry, 2);
 
 #pragma pack(1)
 struct ata_smart_log_directory {
   unsigned short int logversion;
   struct ata_smart_log_entry entry[255];
-} ATTR_PACKED;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
-STATIC_ASSERT(sizeof(ata_smart_log_directory) == 512);
+SMARTMON_ASSERT_SIZEOF(ata_smart_log_directory, 512);
 
 // SMART SELECTIVE SELF-TEST LOG Table 61 of T13/1532D Volume 1
 // Revision 3
@@ -475,9 +466,9 @@ STATIC_ASSERT(sizeof(ata_smart_log_directory) == 512);
 struct test_span {
   uint64_t start;
   uint64_t end;
-} ATTR_PACKED;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
-STATIC_ASSERT(sizeof(test_span) == 16);
+SMARTMON_ASSERT_SIZEOF(test_span, 16);
 
 #pragma pack(1)
 struct ata_selective_self_test_log {
@@ -492,9 +483,9 @@ struct ata_selective_self_test_log {
   unsigned short     pendingtime;
   unsigned char      reserved2;
   unsigned char      checksum;
-} ATTR_PACKED;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
-STATIC_ASSERT(sizeof(ata_selective_self_test_log) == 512);
+SMARTMON_ASSERT_SIZEOF(ata_selective_self_test_log, 512);
 
 #define SELECTIVE_FLAG_DOSCAN  (0x0002)
 #define SELECTIVE_FLAG_PENDING (0x0008)
@@ -535,9 +526,9 @@ struct ata_sct_status_response
   unsigned short min_erc_time;      // 216-217: Minimum supported value for ERC (ACS-4)
   unsigned char bytes216_479[479-218+1]; // 218-479: reserved
   unsigned char vendor_specific[32];// 480-511: vendor specific
-} ATTR_PACKED;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
-STATIC_ASSERT(sizeof(ata_sct_status_response) == 512);
+SMARTMON_ASSERT_SIZEOF(ata_sct_status_response, 512);
 
 // SCT Error Recovery Control command (send with SMART_WRITE_LOG page 0xe0)
 // Table 88 of T13/1699-D Revision 6a
@@ -549,9 +540,9 @@ struct ata_sct_error_recovery_control_command
   unsigned short selection_code;    // 1 = Read Timer, 2 = Write Timer
   unsigned short time_limit;        // If set: Recovery time limit in 100ms units
   unsigned short words004_255[252]; // reserved
-} ATTR_PACKED;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
-STATIC_ASSERT(sizeof(ata_sct_error_recovery_control_command) == 512);
+SMARTMON_ASSERT_SIZEOF(ata_sct_error_recovery_control_command, 512);
 
 // SCT Feature Control command (send with SMART_WRITE_LOG page 0xe0)
 // Table 72 of T13/1699-D Revision 3f
@@ -564,9 +555,9 @@ struct ata_sct_feature_control_command
   unsigned short state;             // Interval
   unsigned short option_flags;      // Bit 0: persistent, Bits 1-15: reserved
   unsigned short words005_255[251]; // reserved
-} ATTR_PACKED;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
-STATIC_ASSERT(sizeof(ata_sct_feature_control_command) == 512);
+SMARTMON_ASSERT_SIZEOF(ata_sct_feature_control_command, 512);
 
 // SCT Data Table command (send with SMART_WRITE_LOG page 0xe0)
 // Table 73 of T13/1699-D Revision 3f 
@@ -577,9 +568,9 @@ struct ata_sct_data_table_command
   unsigned short function_code;     // 1 = Read Table
   unsigned short table_id;          // 2 = Temperature History
   unsigned short words003_255[253]; // reserved
-} ATTR_PACKED;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
-STATIC_ASSERT(sizeof(ata_sct_data_table_command) == 512);
+SMARTMON_ASSERT_SIZEOF(ata_sct_data_table_command, 512);
 
 // SCT Temperature History Table (read with SMART_READ_LOG page 0xe1)
 // Table 75 of T13/1699-D Revision 3f 
@@ -597,9 +588,9 @@ struct ata_sct_temperature_history_table
   unsigned short cb_size;           // 30-31: Number of history entries (range 128-478)
   unsigned short cb_index;          // 32-33: Index of last updated entry (zero-based)
   signed char cb[478];              // 34-(34+cb_size-1): Circular buffer of temperature values
-} ATTR_PACKED;
+} SMARTMON_ATTR_PACKED;
 #pragma pack()
-STATIC_ASSERT(sizeof(ata_sct_temperature_history_table) == 512);
+SMARTMON_ASSERT_SIZEOF(ata_sct_temperature_history_table, 512);
 
 /// Class to register an application specific checksum error handler.
 class lib_ata_hook
@@ -1016,8 +1007,14 @@ void ata_format_id_string(char * out, const unsigned char * in, int n);
 // Utility routines.
 unsigned char checksum(const void * data);
 
+// Returns the name of the command (and possibly sub-command) with the given
+// command code and feature register values.
+const char * look_up_ata_command(unsigned char c_code, unsigned char f_reg);
+
 // Return pseudo-device to parse "smartctl -r ataioctl,2 ..." output
 // and simulate an ATA device with same behaviour
 ata_device * get_parsed_ata_device(smart_interface * intf, const char * dev_name);
 
-#endif /* ATACMDS_H_ */
+} // namespace smartmon
+
+#endif // SMARTMON_ATACMDS_H

@@ -9,14 +9,9 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#include "atacmdnames.h"
-#include "static_assert.h"
+#include "atacmds.h"
 
-#include <stdlib.h>
-#include <stdio.h>
-
-const char * atacmdnames_cpp_cvsid = "$Id: atacmdnames.cpp 4934 2019-07-01 20:54:14Z chrfranke $"
-  ATACMDNAMES_H_CVSID;
+namespace smartmon {
 
 const char cmd_reserved[]        = "[RESERVED]";
 const char cmd_vendor_specific[] = "[VENDOR SPECIFIC]";
@@ -303,7 +298,7 @@ const char * const command_table[] = {
   cmd_vendor_specific
 };
 
-STATIC_ASSERT(sizeof(command_table) == 256 * sizeof(command_table[0]));
+SMARTMON_STATIC_ASSERT(sizeof(command_table) == 256 * sizeof(command_table[0]));
 
 /* Returns the name of the command (and possibly sub-command) with the given
    command code and feature register values.   For most command codes this
@@ -505,3 +500,5 @@ const char *look_up_ata_command(unsigned char c_code, unsigned char f_reg) {
     return command_table[c_code];
   }
 }
+
+} // namespace smartmon

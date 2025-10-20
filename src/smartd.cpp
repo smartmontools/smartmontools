@@ -115,7 +115,7 @@ static void set_signal_if_not_ignored(int sig, signal_handler_type handler)
 #endif
 }
 
-using namespace smartmontools;
+using namespace smartmon;
 
 static const int scsiLogRespLen = 252;
 
@@ -215,7 +215,7 @@ static volatile int caughtsigEXIT=0;
 
 // This function prints either to stdout or to the syslog as needed.
 static void PrintOut(int priority, const char *fmt, ...)
-                     __attribute_format_printf(2, 3);
+  SMARTMON_FORMAT_PRINTF(2, 3);
 
 #ifdef HAVE_LIBSYSTEMD
 // systemd notify support
@@ -668,7 +668,7 @@ static bool parse_dev_state_line(const char * line, persistent_dev_state & state
 
   constexpr int nmatch = 1+28;
   regular_expression::match_range match[nmatch];
-  if (!regex.execute(line, nmatch, match))
+  if (!regex.execute(line, match))
     return false;
   if (match[nmatch-1].rm_so < 0)
     return false;
@@ -1109,7 +1109,7 @@ void env_buffer::set(const char * name, const char * value)
 #define EBUFLEN 1024
 
 static void MailWarning(const dev_config & cfg, dev_state & state, int which, const char *fmt, ...)
-                        __attribute_format_printf(4, 5);
+  SMARTMON_FORMAT_PRINTF(4, 5);
 
 // If either address or executable path is non-null then send and log
 // a warning email, or execute executable
@@ -1135,7 +1135,7 @@ static void MailWarning(const dev_config & cfg, dev_state & state, int which, co
     "OfflineUncorrectableSector", // 11
     "Temperature"                 // 12
   };
-  STATIC_ASSERT(sizeof(whichfail) == SMARTD_NMAIL * sizeof(whichfail[0]));
+  SMARTMON_STATIC_ASSERT(sizeof(whichfail) == SMARTD_NMAIL * sizeof(whichfail[0]));
   
   if (!(0 <= which && which < SMARTD_NMAIL)) {
     PrintOut(LOG_CRIT, "Internal error in MailWarning(): which=%d\n", which);
@@ -1354,7 +1354,7 @@ static void MailWarning(const dev_config & cfg, dev_state & state, int which, co
 }
 
 static void reset_warning_mail(const dev_config & cfg, dev_state & state, int which, const char *fmt, ...)
-                               __attribute_format_printf(4, 5);
+  SMARTMON_FORMAT_PRINTF(4, 5);
 
 static void reset_warning_mail(const dev_config & cfg, dev_state & state, int which, const char *fmt, ...)
 {
@@ -1384,7 +1384,7 @@ static void reset_warning_mail(const dev_config & cfg, dev_state & state, int wh
 #ifndef _WIN32
 
 // Output multiple lines via separate syslog(3) calls.
-__attribute_format_printf(2, 0)
+SMARTMON_FORMAT_PRINTF(2, 0)
 static void vsyslog_lines(int priority, const char * fmt, va_list ap)
 {
   char buf[512+EBUFLEN]; // enough space for exec cmd output in MailWarning()
@@ -1791,7 +1791,7 @@ static bool sanitize_dev_idinfo(std::string & s)
   bool changed = false;
   for (unsigned i = 0; i < s.size(); i++) {
     char c = s[i];
-    STATIC_ASSERT(' ' == 0x20 && '~' == 0x07e); // Assume ASCII
+    SMARTMON_STATIC_ASSERT(' ' == 0x20 && '~' == 0x07e); // Assume ASCII
     // Don't pass possible command escapes ('~! COMMAND') to the 'mail' command.
     if ((' ' <= c && c <= '~') && !(i == 0 && c == '~'))
       continue;

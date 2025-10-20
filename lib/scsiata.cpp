@@ -56,6 +56,8 @@
 #include "dev_tunnelled.h" // tunnelled_device<>
 #include "sg_unaligned.h"
 
+namespace smartmon {
+
 /* This is a slightly stretched SCSI sense "descriptor" format header.
    The addition is to allow the 0x70 and 0x71 response codes. The idea
    is to place the salient data of both "fixed" and "descriptor" sense
@@ -546,7 +548,7 @@ smart_device * sat_device::autodetect_open()
   return this;
 }
 
-} // namespace
+} // namespace sat
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -1391,7 +1393,7 @@ bool usbsunplus_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & ou
 }
 
 
-} // namespace
+} // namespace sat
 
 using namespace sat;
 
@@ -1544,3 +1546,5 @@ const char * smart_interface::get_usb_dev_type_by_id(int vendor_id, int product_
   type = info.usb_type;
   return type.c_str();
 }
+
+} // namespace smartmon

@@ -1,9 +1,9 @@
 /*
  * os_win32/wmiquery.h
  *
- * Home page of code is: http://www.smartmontools.org
+ * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2011-18 Christian Franke
+ * Copyright (C) 2011-25 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -11,20 +11,13 @@
 #ifndef WMIQUERY_H
 #define WMIQUERY_H
 
-#define WMIQUERY_H_CVSID "$Id: wmiquery.h 4760 2018-08-19 18:45:53Z chrfranke $"
+#define WMIQUERY_H_CVSID // TODO: Remove when no longer used
+
+#include "../smartmon_defs.h"
 
 #include <wbemcli.h>
 
 #include <string>
-
-#ifndef __GNUC__
-#define __attribute_format_printf(x, y)  /**/
-#elif defined(__MINGW32__) && __USE_MINGW_ANSI_STDIO
-// Check format of __mingw_*printf() instead of MSVCRT.DLL:*printf()
-#define __attribute_format_printf(x, y)  __attribute__((format (gnu_printf, x, y)))
-#else
-#define __attribute_format_printf(x, y)  __attribute__((format (printf, x, y)))
-#endif
 
 /////////////////////////////////////////////////////////////////////////////
 // com_bstr
@@ -158,20 +151,20 @@ public:
   /// Execute query, get result list.
   /// Return false on error.
   bool vquery(wbem_enumerator & result, const char * qstr, va_list args) /*const*/
-       __attribute_format_printf(3, 0);
+    SMARTMON_FORMAT_PRINTF(3, 0);
 
   /// Execute query, get single result object.
   /// Return false on error or result size != 1.
   bool vquery1(wbem_object & obj, const char * qstr, va_list args) /*const*/
-       __attribute_format_printf(3, 0);
+    SMARTMON_FORMAT_PRINTF(3, 0);
 
   /// Version of vquery() with printf() formatting.
   bool query(wbem_enumerator & result, const char * qstr, ...) /*const*/
-       __attribute_format_printf(3, 4);
+    SMARTMON_FORMAT_PRINTF(3, 4);
 
   /// Version of vquery1() with printf() formatting.
   bool query1(wbem_object & obj, const char * qstr, ...) /*const*/
-       __attribute_format_printf(3, 4);
+    SMARTMON_FORMAT_PRINTF(3, 4);
 
 private:
   com_intf_ptr<IWbemServices> m_intf;

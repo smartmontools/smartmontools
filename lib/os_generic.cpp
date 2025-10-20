@@ -1,7 +1,7 @@
 /*
  * os_generic.cpp
  *
- * Home page of code is: http://www.smartmontools.org
+ * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) YEAR YOUR_NAME
  * Copyright (C) 2003-8 Bruce Allen
@@ -70,12 +70,7 @@
 // os_generic.h
 #include "os_generic.h"
 
-// Needed by '-V' option (CVS versioning) of smartd/smartctl.  You
-// should have one *_H_CVSID macro appearing below for each file
-// appearing with #include "*.h" above.  Please list these (below) in
-// alphabetic/dictionary order.
-const char * os_XXXX_cpp_cvsid="$Id: os_generic.cpp 4842 2018-12-02 16:07:26Z chrfranke $"
-  ATACMDS_H_CVSID CONFIG_H_CVSID OS_GENERIC_H_CVSID UTILITY_H_CVSID;
+namespace smartmon {
 
 // This is here to prevent compiler warnings for unused arguments of
 // functions.
@@ -100,7 +95,7 @@ static void print_smartctl_examples(){
 
 /////////////////////////////////////////////////////////////////////////////
 
-namespace generic { // No need to publish anything, name provided for Doxygen
+namespace os_generic { // No need to publish anything, name provided for Doxygen
 
 class generic_smart_interface
 : public /*implements*/ smart_interface
@@ -197,7 +192,7 @@ std::string generic_smart_interface::get_valid_custom_dev_types_str()
   return "";
 }
 
-} // namespace
+} // namespace os_generic
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -205,6 +200,8 @@ std::string generic_smart_interface::get_valid_custom_dev_types_str()
 
 void smart_interface::init()
 {
-  static generic::generic_smart_interface the_interface;
+  static os_generic::generic_smart_interface the_interface;
   smart_interface::set(&the_interface);
 }
+
+} // namespace smartmon

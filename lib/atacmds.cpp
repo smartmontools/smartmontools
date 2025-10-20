@@ -26,6 +26,8 @@
 #include "utility.h"
 #include "dev_ata_cmd_set.h" // for parsed_ata_device
 
+namespace smartmon {
+
 // Print ATA debug messages?
 unsigned char ata_debugmode = 0;
 
@@ -2698,7 +2700,7 @@ bool parsed_ata_device::open()
       continue;
     const int nmatch = 1+11;
     regular_expression::match_range match[nmatch];
-    if (!regex.execute(line, nmatch, match))
+    if (!regex.execute(line, match))
       continue;
 
     char cmdname[40];
@@ -2864,3 +2866,5 @@ ata_device * get_parsed_ata_device(smart_interface * intf, const char * dev_name
 {
   return new parsed_ata_device(intf, dev_name);
 }
+
+} // namespace smartmon

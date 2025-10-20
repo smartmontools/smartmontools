@@ -16,15 +16,15 @@
  */
 
 
-#ifndef SCSICMDS_H_
-#define SCSICMDS_H_
-
-#define SCSICMDS_H_CVSID "$Id: scsicmds.h 5462 2023-03-13 10:45:06Z chrfranke $\n"
+#ifndef SMARTMON_SCSICMDS_H
+#define SMARTMON_SCSICMDS_H
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+
+namespace smartmon {
 
 /* #define SCSI_DEBUG 1 */ /* Comment out to disable command debugging */
 
@@ -578,6 +578,6 @@ const unsigned char * sg_scsi_sense_desc_find(const unsigned char * sensep,
 // Moved to C++ interface
 //int do_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report);
 
+} // namespace smartmon
 
-
-#endif
+#endif // SMARTMON_SCSICMDS_H

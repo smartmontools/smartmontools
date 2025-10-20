@@ -13,8 +13,6 @@
 #ifndef SMARTCTL_H_
 #define SMARTCTL_H_
 
-#define SMARTCTL_H_CVSID // TODO: Remove when no longer used
-
 // Return codes (bitmask)
 
 // command line did not parse, or internal error occurred in smartctl
@@ -60,7 +58,7 @@ enum failure_type {
 
 // Globals to set failuretest() policy
 extern bool failuretest_conservative;
-extern unsigned char failuretest_permissive;
+// extern unsigned char smartmon::failuretest_permissive; // "smartmon/utility.h"
 
 // Compares failure type to policy in effect, and either exits or
 // simply returns to the calling routine.
@@ -84,24 +82,23 @@ inline void print_off()
 
 // The singleton global JSON object
 #include "json.h"
-extern json jglb;
+extern smartmon::json jglb;
 
-#include "utility.h" // __attribute_format_printf()
-// TODO: move this to a new include file?
+#include "smartmon_defs.h" // SMARTMON_FORMAT_PRINTF()
 
 // Printing function for items not included in JSON output.
 void pout(const char *fmt, ...)
-  __attribute_format_printf(1, 2);
+  SMARTMON_FORMAT_PRINTF(1, 2);
 // Version of pout() for items already included in JSON output
 void jout(const char *fmt, ...)
-  __attribute_format_printf(1, 2);
+  SMARTMON_FORMAT_PRINTF(1, 2);
 // Version of pout() for info/warning/error messages
 void jinf(const char *fmt, ...)
-  __attribute_format_printf(1, 2);
+  SMARTMON_FORMAT_PRINTF(1, 2);
 void jwrn(const char *fmt, ...)
-__attribute_format_printf(1, 2);
+  SMARTMON_FORMAT_PRINTF(1, 2);
 void jerr(const char *fmt, ...)
-__attribute_format_printf(1, 2);
+  SMARTMON_FORMAT_PRINTF(1, 2);
 
 // Print smartctl start-up date and time and timezone
 void jout_startup_datetime(const char *prefix);

@@ -20,7 +20,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "atacmdnames.h"
 #include "atacmds.h"
 #include "ataidentify.h"
 #include "dev_interface.h"
@@ -32,6 +31,8 @@
 
 #include "farmcmds.h"
 #include "farmprint.h"
+
+using namespace smartmon;
 
 static const char * infofound(const char *output) {
   return (*output ? output : "[No Information Found]");

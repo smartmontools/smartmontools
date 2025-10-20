@@ -19,7 +19,7 @@
  *
  *  @param  farmLog:  Constant reference to parsed farm log (const ataFarmLog&)
  */
-void ataPrintFarmLog(const ataFarmLog& farmLog);
+void ataPrintFarmLog(const smartmon::ataFarmLog& farmLog);
 
 /*
  *  Prints parsed FARM log (SCSI log page 0x3D, sub-page 0x3) data from Seagate
@@ -27,6 +27,6 @@ void ataPrintFarmLog(const ataFarmLog& farmLog);
  *
  *  @param  farmLog:  Constant reference to parsed farm log (const scsiFarmLog&)
  */
-void scsiPrintFarmLog(const scsiFarmLog& farmLog);
+void scsiPrintFarmLog(const smartmon::scsiFarmLog& farmLog);
 
 #endif

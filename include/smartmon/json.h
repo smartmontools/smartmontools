@@ -8,8 +8,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef JSON_H_CVSID
-#define JSON_H_CVSID "$Id: json.h 5292 2022-01-06 17:13:25Z chrfranke $"
+#ifndef SMARTMON_JSON_H
 
 #include <stdint.h>
 #include <stdio.h>
@@ -18,6 +17,8 @@
 #include <memory>
 #include <string>
 #include <vector>
+
+namespace smartmon {
 
 /// Create and print JSON output.
 class json
@@ -264,4 +265,6 @@ private:
                          std::string & path);
 };
 
-#endif // JSON_H_CVSID
+} // namespace smartmon
+
+#endif // SMARTMON_JSON_H

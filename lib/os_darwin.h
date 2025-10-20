@@ -1,7 +1,7 @@
 /*
  * os_generic.h
  *
- * Home page of code is: http://www.smartmontools.org
+ * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2004-8 Geoff Keating <geoffk@geoffk.org>
  *
@@ -10,8 +10,6 @@
 
 #ifndef OS_DARWIN_H_
 #define OS_DARWIN_H_
-
-#define OS_DARWIN_H_CVSID "$Id: os_darwin.h 5073 2020-06-24 08:08:38Z samm2 $\n"
 
 #define kIOATABlockStorageDeviceClass   "IOATABlockStorageDevice"
 
@@ -43,11 +41,11 @@ typedef struct IONVMeSMARTInterface
 
 				// NVMe smart data, returns nvme_smart_log structure
         IOReturn ( *SMARTReadData )( void *  interface,
-                                     struct nvme_smart_log * NVMeSMARTData );
+                                     smartmon::nvme_smart_log * NVMeSMARTData );
 
 				// NVMe IdentifyData, returns nvme_id_ctrl per namespace
         IOReturn ( *GetIdentifyData )( void *  interface,
-                                      struct nvme_id_ctrl * NVMeIdentifyControllerStruct,
+                                      smartmon::nvme_id_ctrl * NVMeIdentifyControllerStruct,
                                       unsigned int ns );
 				UInt64  reserved0;
 				UInt64  reserved1;

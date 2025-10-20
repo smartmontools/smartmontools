@@ -11,7 +11,7 @@
 #ifndef DEV_ARECA_H
 #define DEV_ARECA_H
 
-#define DEV_ARECA_H_CVSID "$Id: dev_areca.h 5198 2021-02-01 20:36:02Z chrfranke $"
+namespace smartmon {
 
 /////////////////////////////////////////////////////////////////////////////
 /// Areca RAID support
@@ -174,5 +174,7 @@ protected:
   }
   virtual bool scsi_pass_through(scsi_cmnd_io * iop) override;
 };
+
+} // namespace smartmon
 
 #endif

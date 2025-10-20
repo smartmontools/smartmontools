@@ -79,12 +79,12 @@ extern "C" {
 
 // SMART_* IOCTLs, also known as DFP_* (Disk Fault Protection)
 
-STATIC_ASSERT(SMART_GET_VERSION == 0x074080);
-STATIC_ASSERT(SMART_SEND_DRIVE_COMMAND == 0x07c084);
-STATIC_ASSERT(SMART_RCV_DRIVE_DATA == 0x07c088);
-STATIC_ASSERT(sizeof(GETVERSIONINPARAMS) == 24);
-STATIC_ASSERT(sizeof(SENDCMDINPARAMS) == 32+1);
-STATIC_ASSERT(sizeof(SENDCMDOUTPARAMS) == 16+1);
+SMARTMON_STATIC_ASSERT(SMART_GET_VERSION == 0x074080);
+SMARTMON_STATIC_ASSERT(SMART_SEND_DRIVE_COMMAND == 0x07c084);
+SMARTMON_STATIC_ASSERT(SMART_RCV_DRIVE_DATA == 0x07c088);
+SMARTMON_ASSERT_SIZEOF(GETVERSIONINPARAMS, 24);
+SMARTMON_ASSERT_SIZEOF(SENDCMDINPARAMS, 32+1);
+SMARTMON_ASSERT_SIZEOF(SENDCMDOUTPARAMS, 16+1);
 
 
 // IDE PASS THROUGH (2000, XP, undocumented)
@@ -106,22 +106,22 @@ typedef struct {
 
 #pragma pack()
 
-STATIC_ASSERT(IOCTL_IDE_PASS_THROUGH == 0x04d028);
-STATIC_ASSERT(sizeof(ATA_PASS_THROUGH) == 12+1);
+SMARTMON_STATIC_ASSERT(IOCTL_IDE_PASS_THROUGH == 0x04d028);
+SMARTMON_ASSERT_SIZEOF(ATA_PASS_THROUGH, 12+1);
 
 
 // ATA PASS THROUGH (Win2003, XP SP2)
 
-STATIC_ASSERT(IOCTL_ATA_PASS_THROUGH == 0x04d02c);
-STATIC_ASSERT(sizeof(ATA_PASS_THROUGH_EX) == SELECT_WIN_32_64(40, 48));
+SMARTMON_STATIC_ASSERT(IOCTL_ATA_PASS_THROUGH == 0x04d02c);
+SMARTMON_ASSERT_SIZEOF(ATA_PASS_THROUGH_EX, SELECT_WIN_32_64(40, 48));
 
 
 // IOCTL_SCSI_PASS_THROUGH[_DIRECT]
 
-STATIC_ASSERT(IOCTL_SCSI_PASS_THROUGH == 0x04d004);
-STATIC_ASSERT(IOCTL_SCSI_PASS_THROUGH_DIRECT == 0x04d014);
-STATIC_ASSERT(sizeof(SCSI_PASS_THROUGH) == SELECT_WIN_32_64(44, 56));
-STATIC_ASSERT(sizeof(SCSI_PASS_THROUGH_DIRECT) == SELECT_WIN_32_64(44, 56));
+SMARTMON_STATIC_ASSERT(IOCTL_SCSI_PASS_THROUGH == 0x04d004);
+SMARTMON_STATIC_ASSERT(IOCTL_SCSI_PASS_THROUGH_DIRECT == 0x04d014);
+SMARTMON_ASSERT_SIZEOF(SCSI_PASS_THROUGH, SELECT_WIN_32_64(44, 56));
+SMARTMON_ASSERT_SIZEOF(SCSI_PASS_THROUGH_DIRECT, SELECT_WIN_32_64(44, 56));
 
 
 // SMART IOCTL via SCSI MINIPORT ioctl
@@ -148,16 +148,16 @@ STATIC_ASSERT(sizeof(SCSI_PASS_THROUGH_DIRECT) == SELECT_WIN_32_64(44, 56));
 
 #endif // IOCTL_SCSI_MINIPORT_SMART_VERSION
 
-STATIC_ASSERT(IOCTL_SCSI_MINIPORT == 0x04d008);
-STATIC_ASSERT(IOCTL_SCSI_MINIPORT_SMART_VERSION == 0x1b0500);
-STATIC_ASSERT(sizeof(SRB_IO_CONTROL) == 28);
+SMARTMON_STATIC_ASSERT(IOCTL_SCSI_MINIPORT == 0x04d008);
+SMARTMON_STATIC_ASSERT(IOCTL_SCSI_MINIPORT_SMART_VERSION == 0x1b0500);
+SMARTMON_ASSERT_SIZEOF(SRB_IO_CONTROL, 28);
 
 
 // IOCTL_STORAGE_QUERY_PROPERTY
 
-STATIC_ASSERT(IOCTL_STORAGE_QUERY_PROPERTY == 0x002d1400);
-STATIC_ASSERT(sizeof(STORAGE_DEVICE_DESCRIPTOR) == 36+1+3);
-STATIC_ASSERT(sizeof(STORAGE_PROPERTY_QUERY) == 8+1+3);
+SMARTMON_STATIC_ASSERT(IOCTL_STORAGE_QUERY_PROPERTY == 0x002d1400);
+SMARTMON_ASSERT_SIZEOF(STORAGE_DEVICE_DESCRIPTOR, 36+1+3);
+SMARTMON_ASSERT_SIZEOF(STORAGE_PROPERTY_QUERY, 8+1+3);
 
 
 // IOCTL_STORAGE_QUERY_PROPERTY: Windows 10 enhancements
@@ -194,15 +194,15 @@ namespace win10 {
     ULONG Reserved[3];
   } STORAGE_PROTOCOL_SPECIFIC_DATA;
 
-  STATIC_ASSERT(sizeof(STORAGE_PROTOCOL_SPECIFIC_DATA) == 40);
+  SMARTMON_ASSERT_SIZEOF(STORAGE_PROTOCOL_SPECIFIC_DATA, 40);
 
 } // namespace win10
 
 
 // IOCTL_STORAGE_PREDICT_FAILURE
 
-STATIC_ASSERT(IOCTL_STORAGE_PREDICT_FAILURE == 0x002d1100);
-STATIC_ASSERT(sizeof(STORAGE_PREDICT_FAILURE) == 4+512);
+SMARTMON_STATIC_ASSERT(IOCTL_STORAGE_PREDICT_FAILURE == 0x002d1100);
+SMARTMON_ASSERT_SIZEOF(STORAGE_PREDICT_FAILURE, 4+512);
 
 // IOCTL_STORAGE_PROTOCOL_COMMAND
 
@@ -245,9 +245,9 @@ typedef struct _STORAGE_PROTOCOL_COMMAND {
 
 #endif // STORAGE_PROTOCOL_STRUCTURE_VERSION
 
-STATIC_ASSERT(IOCTL_STORAGE_PROTOCOL_COMMAND == 0x002dd3c0);
-STATIC_ASSERT(offsetof(STORAGE_PROTOCOL_COMMAND, Command) == 80);
-STATIC_ASSERT(sizeof(STORAGE_PROTOCOL_COMMAND) == 84);
+SMARTMON_STATIC_ASSERT(IOCTL_STORAGE_PROTOCOL_COMMAND == 0x002dd3c0);
+SMARTMON_STATIC_ASSERT(offsetof(STORAGE_PROTOCOL_COMMAND, Command) == 80);
+SMARTMON_ASSERT_SIZEOF(STORAGE_PROTOCOL_COMMAND, 84);
 
 // NVME_COMMAND from <nvme.h>
 
@@ -280,8 +280,8 @@ typedef struct {
 
 #endif
 
-STATIC_ASSERT(sizeof(NVME_COMMAND) == STORAGE_PROTOCOL_COMMAND_LENGTH_NVME);
-STATIC_ASSERT(offsetof(NVME_COMMAND, u.GENERAL.CDW10) == 40);
+SMARTMON_ASSERT_SIZEOF(NVME_COMMAND, STORAGE_PROTOCOL_COMMAND_LENGTH_NVME);
+SMARTMON_STATIC_ASSERT(offsetof(NVME_COMMAND, u.GENERAL.CDW10) == 40);
 
 // 3ware specific versions of SMART ioctl structs
 
@@ -313,8 +313,8 @@ typedef struct _SENDCMDINPARAMS_EX {
 
 #pragma pack()
 
-STATIC_ASSERT(sizeof(GETVERSIONINPARAMS_EX) == sizeof(GETVERSIONINPARAMS));
-STATIC_ASSERT(sizeof(SENDCMDINPARAMS_EX) == sizeof(SENDCMDINPARAMS));
+SMARTMON_ASSERT_SIZEOF(GETVERSIONINPARAMS_EX, sizeof(GETVERSIONINPARAMS));
+SMARTMON_ASSERT_SIZEOF(SENDCMDINPARAMS_EX, sizeof(SENDCMDINPARAMS));
 
 
 // NVME_PASS_THROUGH
@@ -345,25 +345,27 @@ typedef struct _NVME_PASS_THROUGH_IOCTL
 
 #endif // NVME_PASS_THROUGH_SRB_IO_CODE
 
-STATIC_ASSERT(NVME_PASS_THROUGH_SRB_IO_CODE == (int)0xe0002000);
-STATIC_ASSERT(sizeof(NVME_PASS_THROUGH_IOCTL) == 152+1);
-STATIC_ASSERT(sizeof(NVME_PASS_THROUGH_IOCTL) == offsetof(NVME_PASS_THROUGH_IOCTL, DataBuffer)+1);
+SMARTMON_STATIC_ASSERT(NVME_PASS_THROUGH_SRB_IO_CODE == (int)0xe0002000);
+SMARTMON_ASSERT_SIZEOF(NVME_PASS_THROUGH_IOCTL, 152+1);
+SMARTMON_ASSERT_SIZEOF(NVME_PASS_THROUGH_IOCTL, offsetof(NVME_PASS_THROUGH_IOCTL, DataBuffer)+1);
 
 
 // CSMI structs
 
-STATIC_ASSERT(sizeof(IOCTL_HEADER) == sizeof(SRB_IO_CONTROL));
-STATIC_ASSERT(sizeof(CSMI_SAS_DRIVER_INFO_BUFFER) == 204);
-STATIC_ASSERT(sizeof(CSMI_SAS_PHY_INFO_BUFFER) == 2080);
-STATIC_ASSERT(sizeof(CSMI_SAS_STP_PASSTHRU_BUFFER) == 168);
+SMARTMON_ASSERT_SIZEOF(IOCTL_HEADER, sizeof(SRB_IO_CONTROL));
+SMARTMON_ASSERT_SIZEOF(CSMI_SAS_DRIVER_INFO_BUFFER, 204);
+SMARTMON_ASSERT_SIZEOF(CSMI_SAS_PHY_INFO_BUFFER, 2080);
+SMARTMON_ASSERT_SIZEOF(CSMI_SAS_STP_PASSTHRU_BUFFER, 168);
 
 // aacraid struct
 
-STATIC_ASSERT(sizeof(SCSI_REQUEST_BLOCK) == SELECT_WIN_32_64(64, 88));
+SMARTMON_ASSERT_SIZEOF(SCSI_REQUEST_BLOCK, SELECT_WIN_32_64(64, 88));
 
 } // extern "C"
 
 /////////////////////////////////////////////////////////////////////////////
+
+namespace smartmon {
 
 namespace os_win32 { // no need to publish anything, name provided for Doxygen
 
@@ -768,7 +770,7 @@ static int ata_pass_through_ioctl(HANDLE hdevice, IDEREGS * regs, IDEREGS * prev
     assert(ab.apt.DataTransferLength == 0);
   }
 
-  assert(sizeof(ab.apt.CurrentTaskFile) == sizeof(IDEREGS));
+  SMARTMON_STATIC_ASSERT(sizeof(ab.apt.CurrentTaskFile) == sizeof(IDEREGS));
   IDEREGS * ctfregs = (IDEREGS *)ab.apt.CurrentTaskFile;
   IDEREGS * ptfregs = (IDEREGS *)ab.apt.PreviousTaskFile;
   *ctfregs = *regs;
@@ -879,7 +881,7 @@ static int ata_via_scsi_miniport_smart_ioctl(HANDLE hdevice, IDEREGS * regs, cha
     } params;
     char space[512-1];
   } sb;
-  STATIC_ASSERT(sizeof(sb) == sizeof(SRB_IO_CONTROL)+sizeof(SENDCMDINPARAMS)-1+512);
+  SMARTMON_STATIC_ASSERT(sizeof(sb) == sizeof(SRB_IO_CONTROL)+sizeof(SENDCMDINPARAMS)-1+512);
   memset(&sb, 0, sizeof(sb));
 
   unsigned size;
@@ -971,7 +973,7 @@ static int ata_via_3ware_miniport_ioctl(HANDLE hdevice, IDEREGS * regs, char * d
     IDEREGS regs;
     UCHAR buffer[512];
   } sb;
-  STATIC_ASSERT(sizeof(sb) == sizeof(SRB_IO_CONTROL)+sizeof(IDEREGS)+512);
+  SMARTMON_STATIC_ASSERT(sizeof(sb) == sizeof(SRB_IO_CONTROL)+sizeof(IDEREGS)+512);
 
   if (!(0 <= datasize && datasize <= (int)sizeof(sb.buffer) && port >= 0)) {
     errno = EINVAL;
@@ -1283,7 +1285,7 @@ static bool get_usb_id(int phydrive, int logdrive,
 
     // Extract DeviceID
     regular_expression::match_range match[2];
-    if (!(regex.execute(dep.c_str(), 2, match) && match[1].rm_so >= 0)) {
+    if (!(regex.execute(dep.c_str(), match) && match[1].rm_so >= 0)) {
       if (debug)
         lib_printf("  | (\"%s\")\n", dep.c_str());
       continue;
@@ -2039,7 +2041,7 @@ bool csmi_device::guess_amd_drives(CSMI_SAS_PHY_INFO & phy_info, unsigned max_ph
 int csmi_device::get_phy_info(CSMI_SAS_PHY_INFO & phy_info, port_2_index_map & p2i)
 {
   // max_number_of_ports must match CSMI_SAS_PHY_INFO.Phy[] array size
-  STATIC_ASSERT(sizeof(phy_info.Phy) == max_number_of_ports * sizeof(phy_info.Phy[0]));
+  SMARTMON_STATIC_ASSERT(sizeof(phy_info.Phy) == max_number_of_ports * sizeof(phy_info.Phy[0]));
 
   // Get driver info to check CSMI support
   CSMI_SAS_DRIVER_INFO_BUFFER driver_info_buf;
@@ -2647,7 +2649,7 @@ bool win_tw_cli_device::open()
     lib_printf("[\n%.100s%s\n]\n", buffer, (size>100?"...":""));
 
   // Fake identify sector
-  STATIC_ASSERT(sizeof(ata_identify_device) == 512);
+  SMARTMON_ASSERT_SIZEOF(ata_identify_device, 512);
   ata_identify_device * id = &m_ident_buf;
   memset(id, 0, sizeof(*id));
   copy_swapped(id->model    , findstr(buffer, " Model = "   ), sizeof(id->model));
@@ -3669,9 +3671,9 @@ bool win_nvme_device::open_scsi(int n)
 // "Protocol specific queries" sent.
 bool win_nvme_device::probe()
 {
-  smartmontools::nvme_id_ctrl id_ctrl;
+  nvme_id_ctrl id_ctrl;
   nvme_cmd_in in;
-  in.set_data_in(smartmontools::nvme_admin_identify, &id_ctrl, sizeof(id_ctrl));
+  in.set_data_in(nvme_admin_identify, &id_ctrl, sizeof(id_ctrl));
   // in.nsid = 0;
   in.cdw10 = 0x1;
   nvme_cmd_out out;
@@ -3916,7 +3918,7 @@ bool win10_nvme_device::nvme_storage_query_property(const nvme_cmd_in & in, nvme
   spsq->ProtocolSpecific.ProtocolType = win10::ProtocolTypeNvme;
 
   switch (in.opcode) {
-    case smartmontools::nvme_admin_identify:
+    case nvme_admin_identify:
       if (!in.nsid) // Identify controller
         spsq->PropertyQuery.PropertyId = win10::StorageAdapterProtocolSpecificProperty;
       else
@@ -3925,7 +3927,7 @@ bool win10_nvme_device::nvme_storage_query_property(const nvme_cmd_in & in, nvme
       spsq->ProtocolSpecific.ProtocolDataRequestValue = in.cdw10;
       spsq->ProtocolSpecific.ProtocolDataRequestSubValue = in.nsid;
       break;
-    case smartmontools::nvme_admin_get_log_page:
+    case nvme_admin_get_log_page:
       spsq->PropertyQuery.PropertyId = win10::StorageDeviceProtocolSpecificProperty;
       spsq->ProtocolSpecific.DataType = win10::NVMeDataTypeLogPage;
       spsq->ProtocolSpecific.ProtocolDataRequestValue = in.cdw10 & 0xff; // LID only ?
@@ -3933,7 +3935,7 @@ bool win10_nvme_device::nvme_storage_query_property(const nvme_cmd_in & in, nvme
       // Newer drivers (Win10 1809) pass SubValue to CDW12 (DW aligned)
       spsq->ProtocolSpecific.ProtocolDataRequestSubValue = 0; // in.cdw12 (LPOL, NVMe 1.2.1+) ?
       break;
-    // case smartmontools::nvme_admin_get_features: // TODO
+    // case nvme_admin_get_features: // TODO
     default:
       return set_err(ENOSYS, "NVMe admin command 0x%02x not supported", in.opcode);
   }
@@ -3982,7 +3984,7 @@ bool win10_nvme_device::nvme_storage_protocol_command(const nvme_cmd_in & in, nv
 {
   // Limit to self-test command for now
   switch (in.opcode) {
-    case smartmontools::nvme_admin_dev_self_test:
+    case nvme_admin_dev_self_test:
       break;
     default:
       return set_err(ENOSYS, "NVMe admin command 0x%02x not supported", in.opcode);
@@ -4037,9 +4039,9 @@ bool win10_nvme_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out &
     return set_err(ENOSYS, "Nonzero NVMe command dwords 11-15 not supported");
 
   switch (in.opcode) {
-    case smartmontools::nvme_admin_identify:
-    case smartmontools::nvme_admin_get_log_page:
-    // case smartmontools::nvme_admin_get_features: // TODO
+    case nvme_admin_identify:
+    case nvme_admin_get_log_page:
+    // case nvme_admin_get_features: // TODO
       return nvme_storage_query_property(in, out);
     default:
       return nvme_storage_protocol_command(in, out);
@@ -4812,7 +4814,7 @@ bool win_smart_interface::disable_system_auto_standby(bool disable)
 }
 
 
-} // namespace
+} // namespace os_win32
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -4857,3 +4859,5 @@ std::string get_exe_dir()
 }
 
 #endif
+
+} // namespace smartmon

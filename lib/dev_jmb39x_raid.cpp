@@ -20,10 +20,11 @@
 #include "atacmds.h"
 #include "scsicmds.h"
 #include "sg_unaligned.h"
-#include "static_assert.h"
 #include "utility.h"
 
 #include <errno.h>
+
+namespace smartmon {
 
 static void jmbassert_failed(int line, const char * expr)
 {
@@ -71,7 +72,7 @@ static void jmb_xor(uint8_t (& data)[512])
     0xb8, 0xfe, 0x61, 0xc1, 0x08, 0xc2, 0xec, 0x25, 0x8e, 0xb9, 0x1c, 0x89, 0xdf, 0x6d, 0xd2, 0xa7,
     0x36, 0xa7, 0x10, 0x52, 0x2a, 0x21, 0x2d, 0xaa, 0x98, 0x31, 0xd1, 0x77, 0x35, 0xa8, 0x3b, 0x40,
   };
-  STATIC_ASSERT(sizeof(xor_table) == sizeof(data));
+  SMARTMON_STATIC_ASSERT(sizeof(xor_table) == sizeof(data));
 
   for (unsigned i = 0; i < sizeof(data); i++) {
     data[i] ^= xor_table[i];
@@ -114,7 +115,7 @@ static uint32_t jmb_crc(const uint8_t (& data)[512])
     0x89b8fd09, 0x8d79e0be, 0x803ac667, 0x84fbdbd0, 0x9abc8bd5, 0x9e7d9662, 0x933eb0bb, 0x97ffad0c,
     0xafb010b1, 0xab710d06, 0xa6322bdf, 0xa2f33668, 0xbcb4666d, 0xb8757bda, 0xb5365d03, 0xb1f740b4
   };
-  STATIC_ASSERT(sizeof(crc_table) == 256*sizeof(uint32_t));
+  SMARTMON_STATIC_ASSERT(sizeof(crc_table) == 256*sizeof(uint32_t));
 
   uint32_t crc = 0x52325032;
   for (unsigned i = 0; i < sizeof(data)/sizeof(uint32_t) - 1; i++) {
@@ -277,7 +278,7 @@ static bool scsi_read_lba8(scsi_device * scsidev, uint8_t lba8, uint8_t (& data)
   io_hdr.dxfer_len = 512;
   io_hdr.dxferp = data;
   uint8_t cdb[] = {0x28 /* READ(10) */, 0x00, 0x00, 0x00, 0x00, lba8, 0x00, 0x00, 0x01, 0x00};
-  STATIC_ASSERT(sizeof(cdb) == 10);
+  SMARTMON_ASSERT_SIZEOF(cdb, 10);
   io_hdr.cmnd = cdb;
   io_hdr.cmnd_len = sizeof(cdb);
   io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
@@ -295,7 +296,7 @@ static bool scsi_write_lba8(scsi_device * scsidev,  uint8_t lba8, const uint8_t 
   io_hdr.dxfer_len = 512;
   io_hdr.dxferp = const_cast<uint8_t *>(data);
   uint8_t cdb[] = {0x2a /* WRITE(10) */, 0x00, 0x00, 0x00, 0x00, lba8, 0x00, 0x00, 0x01, 0x00};
-  STATIC_ASSERT(sizeof(cdb) == 10);
+  SMARTMON_ASSERT_SIZEOF(cdb, 10);
   io_hdr.cmnd = cdb;
   io_hdr.cmnd_len = sizeof(cdb);
   io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
@@ -741,3 +742,5 @@ ata_device * smart_interface::get_jmb39x_device(const char * type, smart_device 
   smartdev_holder.release();
   return jmbdev;
 }
+
+} // namespace smartmon
