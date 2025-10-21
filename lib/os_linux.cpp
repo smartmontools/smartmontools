@@ -2296,7 +2296,7 @@ bool linux_ps3stor_device::open()
 {
   if (!m_open_flag) {
   
-    if (sscanf(get_dev_name(), "/dev/bus/%u", &m_host) == 0) {
+    if (sscanf(get_dev_name(), "/dev/bus/%u", &m_host) != 1) {
       if (!linux_smart_device::open())
         return false;
       /* Get device HBA */
@@ -2420,7 +2420,6 @@ bool linux_ps3stor_device::scsi_cmd(scsi_cmnd_io *iop)
         uint8_t scsi_status = scsirsp.entry.status;
         //ignore underrun
         if(scsi_status != PS3STOR_SCSI_STATUS_UNDERRUN) {
-          //free(scsi_passthru);
           return set_err((errno ? errno : EIO), "linux_ps3stor_device::scsi_cmd result: %u.%u = %d/%hhu",
                       m_host, m_did, errno, scsi_status);
         }
@@ -3631,7 +3630,7 @@ bool linux_smart_interface::get_dev_ps3stor(smart_device_list &devlist)
   // try to add device for each controller
   std::vector<unsigned> hostlist;
   ps3chn()->get_host_list(hostlist);
-  for (uint16_t i = 0; i < hostlist.size(); i++) {
+  for (size_t i = 0; i < hostlist.size(); i++) {
     ps3stor_pd_add_list(hostlist.at(i), devlist);
   }
   return true;
@@ -4267,9 +4266,8 @@ int linux_ps3stor_channel::open_node(enum ps3stor_device_type dev_type)
     while (fgets(line, sizeof(line), fp) != nullptr) {
       n1=0;
       int tmp = sscanf(line, "%d ps3-ioctl%n", &mjr, &n1);
-      //if (sscanf(line, "%d ps3-ioctl%n", &mjr, &n1) == 1 && n1 == 13) {
       if (tmp == 1 && n1 == 13) {
-        n1=mknod("/dev/ps3-ioctl", S_IFCHR|0600, makedev(mjr, 0));
+        n1 = mknod("/dev/ps3-ioctl", S_IFCHR|0600, makedev(mjr, 0));
         if (scsi_debugmode > 0)
           lib_printf("Creating /dev/ps3-ioctl = %d\n", n1 >= 0 ? 0 : errno);
         if (n1 >= 0 || errno == EEXIST) {
@@ -4285,9 +4283,8 @@ int linux_ps3stor_channel::open_node(enum ps3stor_device_type dev_type)
     while (fgets(line, sizeof(line), fp) != nullptr) {
       n1=0;
       int tmp = sscanf(line, "%d ps3stor-ioctl%n", &mjr, &n1);
-      //if (sscanf(line, "%d ps3stor-ioctl%n", &mjr, &n1) == 1 && n1 == 17) {
       if (tmp == 1 && n1 == 17) {
-        n1=mknod("/dev/ps3stor-ioctl", S_IFCHR|0600, makedev(mjr, 0));
+        n1 = mknod("/dev/ps3stor-ioctl", S_IFCHR|0600, makedev(mjr, 0));
         if (scsi_debugmode > 0)
           lib_printf("Creating /dev/ps3stor-ioctl = %d\n", n1 >= 0 ? 0 : errno);
         if (n1 >= 0 || errno == EEXIST) {
@@ -4385,7 +4382,7 @@ void linux_ps3stor_channel::find_device(enum ps3stor_device_type dev_type)
     char line[128] = {};
     while ((ep = readdir (dp)) != nullptr) {
       unsigned int host_no = 0;
-      if (!sscanf(ep->d_name, "host%u", &host_no))
+      if (sscanf(ep->d_name, "host%u", &host_no) != 1)
         continue;
       /* proc_name should be  procctx */
       char sysfsdir[256] = {};
