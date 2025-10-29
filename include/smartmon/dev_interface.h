@@ -1004,6 +1004,7 @@ public:
   /// Default implementation selects between ata, scsi and custom device.
   virtual smart_device * get_smart_device(const char * name, const char * type);
 
+protected:
   /// Fill 'devlist' with devices of some 'type' with device names
   /// specified by some optional 'pattern'.
   /// Use platform specific default if 'type' is empty or 0.
@@ -1012,12 +1013,13 @@ public:
   virtual bool scan_smart_devices(smart_device_list & devlist, const char * type,
     const char * pattern = 0);
 
+public:
   /// Fill 'devlist' with devices of all 'types' with device names
   /// specified by some optional 'pattern'.
   /// Use platform specific default if 'types' is empty.
   /// Return false on error.
-  /// Default implementation calls above function for all types
-  /// and concatenates the results.
+  /// Default implementation calls single type variant of this function
+  /// for all types and concatenates the results.
   virtual bool scan_smart_devices(smart_device_list & devlist,
     const smart_devtype_list & types, const char * pattern = 0);
 

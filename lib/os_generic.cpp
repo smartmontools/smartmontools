@@ -107,10 +107,10 @@ public:
 
   virtual std::string get_app_examples(const char * appname);
 
+protected:
   virtual bool scan_smart_devices(smart_device_list & devlist, const char * type,
     const char * pattern = 0);
 
-protected:
   virtual ata_device * get_ata_device(const char * name, const char * type);
 
   virtual scsi_device * get_scsi_device(const char * name, const char * type);

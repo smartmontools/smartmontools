@@ -1672,10 +1672,10 @@ public:
 
   virtual std::string get_app_examples(const char * appname) override;
 
+protected:
   virtual bool scan_smart_devices(smart_device_list & devlist, const char * type,
     const char * pattern = 0) override;
 
-protected:
   virtual ata_device * get_ata_device(const char * name, const char * type) override;
 
 #if FREEBSDVER > 800100
