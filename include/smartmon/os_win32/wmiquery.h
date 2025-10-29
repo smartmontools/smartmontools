@@ -11,9 +11,7 @@
 #ifndef WMIQUERY_H
 #define WMIQUERY_H
 
-#define WMIQUERY_H_CVSID // TODO: Remove when no longer used
-
-#include "../smartmon_defs.h"
+#include <smartmon/smartmon_defs.h>
 
 #include <wbemcli.h>
 

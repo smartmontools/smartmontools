@@ -8,10 +8,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#include "popen.h"
-
-const char * popen_win32_cpp_cvsid = "$Id: popen_win32.cpp 5272 2021-12-18 15:55:35Z chrfranke $"
-  POPEN_H_CVSID;
+#include <smartmon/os_win32/popen.h>
 
 #include <errno.h>
 #include <fcntl.h>

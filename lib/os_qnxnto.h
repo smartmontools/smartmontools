@@ -10,7 +10,6 @@
  */
 #ifndef OS_QNXNTO_H_
 #define OS_QNXNTO_H_
-#define OS_QNXNTO_H_CVSID "$Id: os_qnxnto.h 4761 2018-08-20 19:33:04Z chrfranke $\n"
 
 // Additional material should start here.  Note: to keep the '-V' CVS
 // reporting option working as intended, you should only #include
@@ -28,7 +27,7 @@
 #include <sys/cpt.h>
 #include <sys/dcmd_cam.h>
 #include <sys/cam_device.h>
-#include "atacmds.h"
+#include <smartmon/atacmds.h>
 
 //----------------------------------------------------------------------------------------------------------
 typedef struct _ata_pass_thru   ATA_PASS_THRU;

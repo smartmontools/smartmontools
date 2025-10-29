@@ -9,7 +9,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#include "atacmds.h"
+#include <smartmon/atacmds.h>
 
 namespace smartmon {
 

@@ -16,7 +16,7 @@ AM_CPPFLAGS = \
         $(def_source_date_epoch) \
         -DBUILD_INFO='$(BUILD_INFO)' \
         -DSMARTMONTOOLS_SYSCONFDIR='"$(sysconfdir)"' \
-         -I ../include/smartmon -I$(top_srcdir)/include/smartmon
+         -I ../include -I$(top_srcdir)/include
 
 if ENABLE_DRIVEDB
 AM_CPPFLAGS += -DSMARTMONTOOLS_DRIVEDBDIR='"$(drivedbdir)"'
@@ -130,8 +130,6 @@ if ENABLE_DRIVEDB
 drivedbinst_DATA = drivedb.h
 endif
 
-utility.lo: ../include/smartmon/version.h
-
 # Build examples and report failure via a GHA annotation instead of nonzero exit status
 check:
 	$(MAKE) examples || echo '::error:: Build of libsmartmon examples failed'
@@ -148,7 +146,7 @@ examples.stamp: libsmartmon.la
 	$(MAKE) -C examples -f $(abs_top_srcdir)/lib/examples/Makefile \
 	  VPATH=$(abs_top_srcdir)/lib/examples \
 	  CXX='$(CXX)' \
-	  CPPFLAGS='-I../../include/smartmon -I$(abs_top_srcdir)/include' \
+	  CPPFLAGS='-I../../include -I$(abs_top_srcdir)/include' \
 	  CXXFLAGS='$(CXXFLAGS)' \
 	  LDFLAGS='-L../.libs' \
 	  LIBS='$(os_libs) $(LIBS)' \

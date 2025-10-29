@@ -18,18 +18,18 @@
 #define WINVER 0x0502
 #define _WIN32_WINNT WINVER
 
-#include "atacmds.h"
-#include "scsicmds.h"
-#include "nvmecmds.h"
-#include "utility.h"
+#include <smartmon/atacmds.h>
+#include <smartmon/scsicmds.h>
+#include <smartmon/nvmecmds.h>
+#include <smartmon/utility.h>
 
-#include "dev_interface.h"
+#include <smartmon/dev_interface.h>
 #include "dev_ata_cmd_set.h"
 #include "dev_areca.h"
 
-#include "os_win32/wmiquery.h"
+#include <smartmon/os_win32/wmiquery.h>
 #ifndef __CYGWIN__
-#include "os_win32/popen.h"
+#include <smartmon/os_win32/popen.h>
 #endif
 
 #include <errno.h>

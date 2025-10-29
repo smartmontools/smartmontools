@@ -12,9 +12,9 @@
 #include "config.h"
 
 #include <stdio.h>
-#include "atacmds.h"
-#include "knowndrives.h"
-#include "utility.h"
+#include <smartmon/atacmds.h>
+#include <smartmon/knowndrives.h>
+#include <smartmon/utility.h>
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>

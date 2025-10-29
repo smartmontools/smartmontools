@@ -8,10 +8,10 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef _SMARTMON_DEFS_H
-#define _SMARTMON_DEFS_H
+#ifndef SMARTMON_DEFS_H
+#define SMARTMON_DEFS_H
 
-#include "smartmon_config.h"
+#include <smartmon/smartmon_config.h>
 
 // Enable format check of printf()-like functions
 #ifndef __GNUC__
@@ -36,4 +36,4 @@
 #define SMARTMON_STATIC_ASSERT(x) static_assert((x), #x)
 #define SMARTMON_ASSERT_SIZEOF(t, n) SMARTMON_STATIC_ASSERT(sizeof(t) == (n))
 
-#endif // _SMARTMON_DEFS_H
+#endif // SMARTMON_DEFS_H

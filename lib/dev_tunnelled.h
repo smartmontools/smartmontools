@@ -11,7 +11,7 @@
 #ifndef DEV_TUNNELLED_H
 #define DEV_TUNNELLED_H
 
-#include "dev_interface.h"
+#include <smartmon/dev_interface.h>
 
 namespace smartmon {
 

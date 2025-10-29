@@ -11,7 +11,7 @@
 #ifndef SMARTMON_DEV_INTERFACE_H
 #define SMARTMON_DEV_INTERFACE_H
 
-#include "utility.h"
+#include <smartmon/utility.h>
 
 #include <memory>
 #include <stdexcept>

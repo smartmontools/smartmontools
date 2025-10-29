@@ -19,9 +19,9 @@
 
 #include <ctype.h>
 #include <errno.h>
-#include "atacmds.h"
-#include "scsicmds.h"
-#include "utility.h"
+#include <smartmon/atacmds.h>
+#include <smartmon/scsicmds.h>
+#include <smartmon/utility.h>
 
 // This is to include whatever prototypes you define in os_generic.h
 #include "os_os2.h"

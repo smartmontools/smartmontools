@@ -20,15 +20,15 @@
 #include <fcntl.h>
 #include <errno.h>
 
-#include "scsicmds.h"
-#include "atacmds.h" // dont_print_serial_number
-#include "dev_interface.h"
+#include <smartmon/scsicmds.h>
+#include <smartmon/atacmds.h> // dont_print_serial_number
+#include <smartmon/dev_interface.h>
 #include "scsiprint.h"
 #include "smartctl.h"
-#include "utility.h"
-#include "sg_unaligned.h"
+#include <smartmon/utility.h>
+#include <smartmon/sg_unaligned.h>
 
-#include "farmcmds.h"
+#include <smartmon/farmcmds.h>
 #include "farmprint.h"
 
 using namespace smartmon;

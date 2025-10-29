@@ -13,13 +13,13 @@
 
 #include "nvmeprint.h"
 
-#include "utility.h"
-#include "dev_interface.h"
-#include "nvmecmds.h"
-#include "atacmds.h" // dont_print_serial_number
-#include "scsicmds.h" // dStrHex()
+#include <smartmon/utility.h>
+#include <smartmon/dev_interface.h>
+#include <smartmon/nvmecmds.h>
+#include <smartmon/atacmds.h> // dont_print_serial_number
+#include <smartmon/scsicmds.h> // dStrHex()
 #include "smartctl.h"
-#include "sg_unaligned.h"
+#include <smartmon/sg_unaligned.h>
 
 #include <inttypes.h>
 

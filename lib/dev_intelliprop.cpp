@@ -10,8 +10,8 @@
 
 #include "config.h"
 
-#include "atacmds.h" // SMARTMON_ATTR_PACKED, SMARTMON_ASSERT_SIZEOF, ata_debugmode
-#include "dev_interface.h"
+#include <smartmon/atacmds.h> // SMARTMON_ATTR_PACKED, SMARTMON_ASSERT_SIZEOF, ata_debugmode
+#include <smartmon/dev_interface.h>
 #include "dev_tunnelled.h"
 #include <errno.h>
 

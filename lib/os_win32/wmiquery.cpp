@@ -8,17 +8,13 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#include "config.h"
+#include <smartmon/smartmon_config.h>
 #define WINVER 0x0400
 #define _WIN32_WINNT WINVER
 
-#include "wmiquery.h"
+#include <smartmon/os_win32/wmiquery.h>
 
 #include <stdio.h>
-
-const char * wmiquery_cpp_cvsid = "$Id: wmiquery.cpp 5640 2024-11-20 17:00:51Z chrfranke $"
-  WMIQUERY_H_CVSID;
-
 
 /////////////////////////////////////////////////////////////////////////////
 // com_bstr

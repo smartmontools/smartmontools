@@ -29,12 +29,12 @@
 
 #include "config.h"
 
-#include "atacmds.h"
-#include "scsicmds.h"
-#include "nvmecmds.h"
-#include "utility.h"
+#include <smartmon/atacmds.h>
+#include <smartmon/scsicmds.h>
+#include <smartmon/nvmecmds.h>
+#include <smartmon/utility.h>
 #include "os_darwin.h"
-#include "dev_interface.h"
+#include <smartmon/dev_interface.h>
 
 namespace smartmon {
 

@@ -9,12 +9,12 @@
  */
 
 #include "config.h"
-#include "nvmecmds.h"
+#include <smartmon/nvmecmds.h>
 
-#include "dev_interface.h"
-#include "atacmds.h" // swapx(), dont_print_serial_number
-#include "scsicmds.h" // dStrHex()
-#include "utility.h"
+#include <smartmon/dev_interface.h>
+#include <smartmon/atacmds.h> // swapx(), dont_print_serial_number
+#include <smartmon/scsicmds.h> // dStrHex()
+#include <smartmon/utility.h>
 
 #include <errno.h>
 

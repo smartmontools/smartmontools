@@ -36,13 +36,13 @@
 
 // set by /usr/include/sys/ata.h, suppress warning
 #undef ATA_READ_LOG_EXT
-#include "atacmds.h"
-#include "scsicmds.h"
+#include <smartmon/atacmds.h>
+#include <smartmon/scsicmds.h>
 #include "cciss.h"
-#include "utility.h"
+#include <smartmon/utility.h>
 #include "os_freebsd.h"
 
-#include "dev_interface.h"
+#include <smartmon/dev_interface.h>
 #include "dev_ata_cmd_set.h"
 #include "dev_areca.h"
 

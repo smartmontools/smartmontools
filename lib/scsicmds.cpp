@@ -31,10 +31,10 @@
 
 #include "config.h"
 
-#include "scsicmds.h"
-#include "dev_interface.h"
-#include "utility.h"
-#include "sg_unaligned.h"
+#include <smartmon/scsicmds.h>
+#include <smartmon/dev_interface.h>
+#include <smartmon/utility.h>
+#include <smartmon/sg_unaligned.h>
 
 
 namespace smartmon {

@@ -11,9 +11,9 @@
 
 #include "config.h"
 
-#include "atacmds.h"
-#include "scsicmds.h"
-#include "utility.h"
+#include <smartmon/atacmds.h>
+#include <smartmon/scsicmds.h>
+#include <smartmon/utility.h>
 #include "os_netbsd.h"
 
 #include <sys/drvctlio.h>

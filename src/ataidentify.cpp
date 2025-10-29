@@ -14,7 +14,7 @@
 #include "ataidentify.h"
 
 #include "smartctl.h"
-#include "utility.h"
+#include <smartmon/utility.h>
 
 #include <inttypes.h>
 

@@ -11,10 +11,10 @@
 #include "config.h"
 #define __STDC_FORMAT_MACROS 1 // enable PRI* for C++
 
-#include "json.h"
+#include <smartmon/json.h>
 
-#include "sg_unaligned.h"
-#include "utility.h" // regular_expression, uint128_*()
+#include <smartmon/sg_unaligned.h>
+#include <smartmon/utility.h> // regular_expression, uint128_*()
 
 #include <inttypes.h>
 #include <stdexcept>

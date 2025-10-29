@@ -10,12 +10,12 @@
 
 #include "config.h"
 
-#include "dev_interface.h"
+#include <smartmon/dev_interface.h>
 #include "dev_tunnelled.h"
-#include "atacmds.h" // ATA_SMART_CMD/STATUS
-#include "scsicmds.h" // scsi_cmnd_io
-#include "nvmecmds.h" // nvme_status_*()
-#include "utility.h"
+#include <smartmon/atacmds.h> // ATA_SMART_CMD/STATUS
+#include <smartmon/scsicmds.h> // scsi_cmnd_io
+#include <smartmon/nvmecmds.h> // nvme_status_*()
+#include <smartmon/utility.h>
 
 #include <errno.h>
 #include <stdarg.h>

@@ -11,7 +11,7 @@
 #ifndef NVMEPRINT_H
 #define NVMEPRINT_H
 
-#include "nvmecmds.h"
+#include <smartmon/nvmecmds.h>
 
 // options for nvmePrintMain
 struct nvme_print_options
