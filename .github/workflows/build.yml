@@ -175,9 +175,9 @@ jobs:
           cd smartmontools-${SMARTMONTOOLS_PKG_VER} &&
           mkdir build && cd build &&
           export TARGET="-target x86_64-unknown-freebsd14 --sysroot=/opt/cross-freebsd-14/" &&
+          TARGET="$TARGET -isystem /opt/cross-freebsd-14/usr/include/c++/v1" &&
           ../configure --host=x86_64-pc-freebsd14 --with-build-info='(GHA Build)' \
             CC="clang $TARGET" CXX="clang++ $TARGET" \
-            CPPFLAGS="-isystem /opt/cross-freebsd-14/usr/include/c++/v1" \
             LDFLAGS="-static" SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
           make -j && make check &&
           mkdir -p ${GITHUB_WORKSPACE}/artifacts &&
@@ -196,9 +196,9 @@ jobs:
           cd smartmontools-${SMARTMONTOOLS_PKG_VER} &&
           mkdir build && cd build &&
           export TARGET="-target x86_64-unknown-freebsd13 --sysroot=/opt/cross-freebsd-13/" &&
+          TARGET="$TARGET -isystem /opt/cross-freebsd-14/usr/include/c++/v1" &&
           ../configure --host=x86_64-pc-freebsd13 --with-build-info='(GHA Build)' \
             CC="clang $TARGET" CXX="clang++ $TARGET" \
-            CPPFLAGS="-isystem /opt/cross-freebsd-13/usr/include/c++/v1" \
             LDFLAGS="-static" SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
           make -j && make check &&
           mkdir -p ${GITHUB_WORKSPACE}/artifacts &&
