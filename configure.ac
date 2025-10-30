@@ -884,7 +884,37 @@ AC_DEFINE_UNQUOTED(SMARTMONTOOLS_BUILD_HOST,     "${host}",                     
 
 AC_SUBST(CXXFLAGS)
 
-AC_CONFIG_FILES([Makefile include/Makefile lib/Makefile src/Makefile])
+# Pass some build flags also to examples/Makefile
+
+examples_cppflags=$(echo " $CPPFLAGS " | sed -n 's/^.* \(-D_FORTIFY_SOURCE=[[0-3]]\) .*$/\1/p')
+AC_SUBST([examples_cppflags])
+
+examples_cxxflags=
+if test "$GXX" = "yes"; then
+  examples_cxxflags="-O2 -Wall -W"
+fi
+case " $CXXFLAGS " in *\ -fstack-protector-strong\ *)
+  # This option may silently add '-lssp' which is then required to link the lib
+  examples_cxxflags="${examples_cxxflags}${examples_cxxflags:+ }-fstack-protector-strong" ;;
+esac
+AC_SUBST([examples_cxxflags])
+
+examples_ldflags=
+case " $CXXFLAGS $LDFLAGS " in *\ --static\ *)
+  examples_ldflags="-static" ;;
+esac
+AC_SUBST([examples_ldflags])
+
+examples_libs="${os_libs}${os_libs:+ }${LIBS}"
+AC_SUBST([examples_libs])
+
+AC_CONFIG_FILES([
+  Makefile
+  include/Makefile
+  lib/Makefile
+  lib/examples/Makefile
+  src/Makefile
+])
 AC_OUTPUT
 AC_PROG_MAKE_SET
 
@@ -899,7 +929,9 @@ info=`
   echo "C++ compiler flags:     $CXXFLAGS"
   echo "C compiler flags:       $CFLAGS"
   echo "linker flags:           $LDFLAGS"
-  echo "OS specific modules:    $os_deps $os_libs $LIBS"
+  echo "OS specific modules:    $os_deps"
+  echo "OS specific libraries:  $os_libs $LIBS"
+  echo "lib/examples flags:     $examples_cppflags $examples_cxxflags $examples_ldflags"
   echo "Build information:      $BUILD_INFO"
   if test -n "$SOURCE_DATE_EPOCH"; then
     # GNU date || BSD date

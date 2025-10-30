@@ -135,26 +135,28 @@ check:
 	$(MAKE) examples || echo '::error:: Build of libsmartmon examples failed'
 
 EXTRA_DIST = \
-        examples/Makefile \
+        examples/Makefile.in \
         examples/lsdisk.cpp
+
+.PHONY: examples clean-examples
 
 examples: examples.stamp
 
-examples.stamp: libsmartmon.la
-	rm -f $@
-	$(MKDIR_P) examples
-	$(MAKE) -C examples -f $(abs_top_srcdir)/lib/examples/Makefile \
+examples.stamp: libsmartmon.la examples/Makefile
+	$(AM_V_GEN)! test -f $@ || $(MAKE) -C examples clean
+	$(AM_V_at)$(MAKE) -C examples \
 	  VPATH=$(abs_top_srcdir)/lib/examples \
+	  V='$(V)' \
 	  CXX='$(CXX)' \
-	  CPPFLAGS='-I../../include -I$(abs_top_srcdir)/include' \
-	  CXXFLAGS='$(CXXFLAGS)' \
-	  LDFLAGS='-L../.libs' \
-	  LIBS='$(os_libs) $(LIBS)' \
-	  clean all
-	touch $@
+	  CPPFLAGS='-I../../include -I$(abs_top_srcdir)/include $(examples_cppflags)' \
+	  LDFLAGS='-L../.libs'
+	$(AM_V_at)touch $@
+
+examples/Makefile: examples/Makefile.in
+	$(MAKE) -C .. lib/examples/Makefile
 
 clean-examples:
-	$(MAKE) -C examples -f $(abs_top_srcdir)/lib/examples/Makefile clean
+	! test -f examples/Makefile || $(MAKE) -C examples clean
 	rm -f examples.stamp
 
 clean-local: clean-examples
