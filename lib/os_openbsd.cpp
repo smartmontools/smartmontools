@@ -12,10 +12,10 @@
 
 #include "config.h"
 
-#include "atacmds.h"
-#include "scsicmds.h"
-#include "nvmecmds.h"
-#include "utility.h"
+#include <smartmon/atacmds.h>
+#include <smartmon/scsicmds.h>
+#include <smartmon/nvmecmds.h>
+#include <smartmon/utility.h>
 #include "os_openbsd.h"
 
 #include <sys/utsname.h>
@@ -467,10 +467,10 @@ public:
 
   virtual std::string get_app_examples(const char * appname) override;
 
+protected:
   virtual bool scan_smart_devices(smart_device_list & devlist, const char * type,
     const char * pattern = 0) override;
 
-protected:
   virtual ata_device * get_ata_device(const char * name, const char * type) override;
 
   virtual scsi_device * get_scsi_device(const char * name, const char * type) override;

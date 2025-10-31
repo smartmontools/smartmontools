@@ -10,7 +10,7 @@
 
 #include "config.h"
 
-#include "atacmds.h"
+#include <smartmon/atacmds.h>
 #include "dev_ata_cmd_set.h"
 
 #include <errno.h>

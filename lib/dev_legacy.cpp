@@ -10,10 +10,10 @@
 
 #include "config.h"
 
-#include "utility.h"
-#include "atacmds.h"
-#include "scsicmds.h"
-#include "dev_interface.h"
+#include <smartmon/utility.h>
+#include <smartmon/atacmds.h>
+#include <smartmon/scsicmds.h>
+#include <smartmon/dev_interface.h>
 #include "dev_ata_cmd_set.h"
 
 #include <errno.h>

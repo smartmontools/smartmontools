@@ -13,11 +13,11 @@
 #define __STDC_FORMAT_MACROS 1
 #include <inttypes.h>
 
-#include "farmcmds.h"
+#include <smartmon/farmcmds.h>
 
-#include "atacmds.h"
-#include "knowndrives.h"
-#include "scsicmds.h"
+#include <smartmon/atacmds.h>
+#include <smartmon/knowndrives.h>
+#include <smartmon/scsicmds.h>
 
 namespace smartmon {
 

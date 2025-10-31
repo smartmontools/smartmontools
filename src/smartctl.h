@@ -81,10 +81,10 @@ inline void print_off()
 }
 
 // The singleton global JSON object
-#include "json.h"
+#include <smartmon/json.h>
 extern smartmon::json jglb;
 
-#include "smartmon_defs.h" // SMARTMON_FORMAT_PRINTF()
+#include <smartmon/smartmon_defs.h> // SMARTMON_FORMAT_PRINTF()
 
 // Printing function for items not included in JSON output.
 void pout(const char *fmt, ...)

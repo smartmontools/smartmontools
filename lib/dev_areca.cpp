@@ -10,11 +10,11 @@
 
 #include "config.h"
 
-#include "dev_interface.h"
+#include <smartmon/dev_interface.h>
 #include "dev_areca.h"
 
-#include "atacmds.h"
-#include "scsicmds.h"
+#include <smartmon/atacmds.h>
+#include <smartmon/scsicmds.h>
 
 #include <errno.h>
 

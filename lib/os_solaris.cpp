@@ -23,9 +23,9 @@
 // These are needed to define prototypes for the functions defined below
 #include "config.h"
 
-#include "atacmds.h"
-#include "scsicmds.h"
-#include "utility.h"
+#include <smartmon/atacmds.h>
+#include <smartmon/scsicmds.h>
+#include <smartmon/utility.h>
 
 // print examples for smartctl
 void print_smartctl_examples(){

@@ -760,23 +760,37 @@ if test "$GXX" = "yes"; then
     *\ -W\ *|*\ -Wextra\ *) ;;
     *) CXXFLAGS="$CXXFLAGS -W" ;;
   esac
-  # Add -Wformat=2, -Wsuggest-override,
-  # -Werror=return-type (G++ >= 8.0 assumes that control never reaches the end of a non-void function),
-  # -fstack-protector[-strong] (GCC 4.1[4.9])
-  # if supported and no -W or -f option was set in configure cmdline (TODO: -Wformat-signedness)
-  for option in "-Wformat=2" "-Wsuggest-override" "-Werror=return-type" \
-                "-fstack-protector-strong" "-fstack-protector"; do
-    case " $orig_CXXFLAGS:$option" in *\ -W*:-W*|*\ -f*:-f*) continue ;; esac
-    case " $CXXFLAGS:$option" in *\ -fstack-p*:-fstack-p*) continue ;; esac
-    AC_MSG_CHECKING([whether $CXX supports $option])
-    save_CXXFLAGS=$CXXFLAGS
-    CXXFLAGS="$CXXFLAGS $option"
-    # For -fstack-protector*, check that '__stack_chk_*()' functions are available.
-    AC_LINK_IFELSE([AC_LANG_PROGRAM([[int i;]],
-      [[volatile char buf[10]; buf[i] = 0;]])],
-      [res=yes], [res=no; CXXFLAGS=$save_CXXFLAGS])
-    AC_MSG_RESULT([$res])
-  done
+  # Add -Wformat=2, -Wsuggest-override, -Werror=return-type (G++ >= 8.0
+  # assumes that control never reaches the end of a non-void function),
+  # if supported and no -W option was set in configure cmdline
+  # (TODO: -Wformat-signedness).
+  case " $orig_CXXFLAGS" in
+    *\ -W[!l]*) ;;
+    *)
+      for option in "-Wformat=2" "-Wsuggest-override" "-Werror=return-type"; do
+        AC_MSG_CHECKING([whether $CXX supports $option])
+        save_CXXFLAGS=$CXXFLAGS
+        CXXFLAGS="$CXXFLAGS $option"
+        AC_COMPILE_IFELSE([AC_LANG_SOURCE()],
+          [res=yes], [res=no; CXXFLAGS=$save_CXXFLAGS])
+        AC_MSG_RESULT([$res])
+      done ;;
+  esac
+  # Add -fstack-protector-strong (GCC 4.9) if supported and no -f option was
+  # set in configure cmdline
+  case " $orig_CXXFLAGS" in
+    *\ -f*) ;;
+    *)
+      option="-fstack-protector-strong"
+      AC_MSG_CHECKING([whether $CXX supports $option])
+      save_CXXFLAGS=$CXXFLAGS
+      CXXFLAGS="$CXXFLAGS $option"
+      # Link to check that '__stack_chk_*()' functions are available.
+      AC_LINK_IFELSE([AC_LANG_PROGRAM([[int i;]],
+        [[volatile char buf[10]; buf[i] = 0;]])],
+        [res=yes], [res=no; CXXFLAGS=$save_CXXFLAGS])
+      AC_MSG_RESULT([$res]) ;;
+  esac
 else
   # We are NOT using gcc, so enable host-specific compiler flags
   case "${host}" in
@@ -870,7 +884,37 @@ AC_DEFINE_UNQUOTED(SMARTMONTOOLS_BUILD_HOST,     "${host}",                     
 
 AC_SUBST(CXXFLAGS)
 
-AC_CONFIG_FILES([Makefile include/Makefile lib/Makefile src/Makefile])
+# Pass some build flags also to examples/Makefile
+
+examples_cppflags=$(echo " $CPPFLAGS " | sed -n 's/^.* \(-D_FORTIFY_SOURCE=[[0-3]]\) .*$/\1/p')
+AC_SUBST([examples_cppflags])
+
+examples_cxxflags=
+if test "$GXX" = "yes"; then
+  examples_cxxflags="-O2 -Wall -W"
+fi
+case " $CXXFLAGS " in *\ -fstack-protector-strong\ *)
+  # This option may silently add '-lssp' which is then required to link the lib
+  examples_cxxflags="${examples_cxxflags}${examples_cxxflags:+ }-fstack-protector-strong" ;;
+esac
+AC_SUBST([examples_cxxflags])
+
+examples_ldflags=
+case " $CXXFLAGS $LDFLAGS " in *\ --static\ *)
+  examples_ldflags="-static" ;;
+esac
+AC_SUBST([examples_ldflags])
+
+examples_libs="${os_libs}${os_libs:+ }${LIBS}"
+AC_SUBST([examples_libs])
+
+AC_CONFIG_FILES([
+  Makefile
+  include/Makefile
+  lib/Makefile
+  lib/examples/Makefile
+  src/Makefile
+])
 AC_OUTPUT
 AC_PROG_MAKE_SET
 
@@ -885,7 +929,9 @@ info=`
   echo "C++ compiler flags:     $CXXFLAGS"
   echo "C compiler flags:       $CFLAGS"
   echo "linker flags:           $LDFLAGS"
-  echo "OS specific modules:    $os_deps $os_libs $LIBS"
+  echo "OS specific modules:    $os_deps"
+  echo "OS specific libraries:  $os_libs $LIBS"
+  echo "lib/examples flags:     $examples_cppflags $examples_cxxflags $examples_ldflags"
   echo "Build information:      $BUILD_INFO"
   if test -n "$SOURCE_DATE_EPOCH"; then
     # GNU date || BSD date

@@ -31,16 +31,16 @@
 #include <sys/param.h>
 #endif
 
-#include "atacmds.h"
-#include "dev_interface.h"
+#include <smartmon/atacmds.h>
+#include <smartmon/dev_interface.h>
 #include "ataprint.h"
-#include "knowndrives.h"
-#include "scsicmds.h"
+#include <smartmon/knowndrives.h>
+#include <smartmon/scsicmds.h>
 #include "scsiprint.h"
 #include "nvmeprint.h"
 #include "smartctl.h"
-#include "utility.h"
-#include "version.h"
+#include <smartmon/utility.h>
+#include <smartmon/version.h>
 
 using namespace smartmon;
 

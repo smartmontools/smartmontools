@@ -13,7 +13,7 @@
 #ifndef SMARTMON_ATACMDS_H
 #define SMARTMON_ATACMDS_H
 
-#include "dev_interface.h" // ata_device
+#include <smartmon/dev_interface.h> // ata_device
 
 namespace smartmon {
 

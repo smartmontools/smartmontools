@@ -16,6 +16,9 @@
     <Filter Include="os_win32\vc">
       <UniqueIdentifier>{f9b961b6-d12d-406e-ae60-d9184435b102}</UniqueIdentifier>
     </Filter>
+    <Filter Include="os_win32\vc\smartmon">
+      <UniqueIdentifier>{7c56e2c1-916c-4aae-99c3-4ac12c9b46e7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\daemon_win32.cpp">
@@ -56,8 +59,11 @@
     <ClInclude Include="config.h">
       <Filter>os_win32\vc</Filter>
     </ClInclude>
-    <ClInclude Include="version.h">
-      <Filter>os_win32\vc</Filter>
+    <ClInclude Include="smartmon\smartmon_config.h">
+      <Filter>os_win32\vc\smartmon</Filter>
+    </ClInclude>
+    <ClInclude Include="smartmon\version.h">
+      <Filter>os_win32\vc\smartmon</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

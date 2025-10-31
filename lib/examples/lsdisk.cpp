@@ -20,15 +20,18 @@
 #include <cstring>
 #include <memory>
 
-static void usage(const char * prog)
+static int usage(const char * prog, int status)
 {
   std::printf("%s\n"
-    "Usage: %s [-d TYPE] [-r LEVEL] [DEVICE...]\n\n"
+    "List disk identify information\n\n"
+    "Usage: %s [-d TYPE] [-r LEVEL] DEVICE...\n"
+    "       %s [-d TYPE...] [-r LEVEL]\n\n"
     "    -d TYPE    Specify device type ('-d help' for valid TYPEs)\n"
     "    -r LEVEL   Specify debug level\n"
     "    -h         Print this help\n"
     "    -V         Print version information\n",
-    smartmon::format_version_info("lsdisk").c_str(), prog);
+    smartmon::format_version_info("lsdisk").c_str(), prog, prog);
+    return status;
 }
 
 static int dev_error(const smartmon::smart_device * dev, const char * msg)
@@ -133,37 +136,39 @@ int main(int argc, char **argv)
   try {
     smartmon::smart_interface::init();
 
-    const char * type = nullptr;
+    smartmon::smart_devtype_list types{};
     int ai;
     for (ai = 1; ai < argc && argv[ai][0] == '-'; ai++) {
       if (!std::strcmp(argv[ai], "-d") && ai + 1 < argc) {
-        type = argv[++ai];
+        const char * type = argv[++ai];
         if (!std::strcmp(type, "help")) {
            std::printf("Valid arguments to '-d':\n"
              "%s\n", smartmon::smi()->get_valid_dev_types_str().c_str());
            return 0;
         }
+        types.push_back(type);
       }
       else if (!std::strcmp(argv[ai], "-r") && ai + 1 < argc) {
         smartmon::ata_debugmode = smartmon::scsi_debugmode = smartmon::nvme_debugmode
           = std::atoi(argv[++ai]);
       }
       else if (!std::strcmp(argv[ai], "-h")) {
-        usage(argv[0]);
-        return 0;
+        return usage(argv[0], 0);
       }
       else if (!std::strcmp(argv[ai], "-V")) {
         std::fputs(smartmon::format_version_info("lsdisk", 3).c_str(), stdout);
         return 0;
       }
       else {
-        usage(argv[0]);
-        return 1;
+        return usage(argv[0], 1);
       }
     }
 
     int status = 0;
     if (ai < argc) {
+      if (types.size() > 1)
+        return usage(argv[0], 1);
+      const char * type = (!types.empty() ? types.front().c_str() : nullptr);
       do {
         const char * name = argv[ai];
         std::unique_ptr<smartmon::smart_device> dev( smartmon::smi()->get_smart_device(name, type) );
@@ -178,8 +183,8 @@ int main(int argc, char **argv)
     }
     else {
       smartmon::smart_device_list devs{};
-      if (!smartmon::smi()->scan_smart_devices(devs, type)) {
-        std::fprintf(stderr, "scan_smart_devices() failed: %s", smartmon::smi()->get_errmsg());
+      if (!smartmon::smi()->scan_smart_devices(devs, types)) {
+        std::fprintf(stderr, "scan_smart_devices() failed: %s\n", smartmon::smi()->get_errmsg());
         return 1;
       }
 

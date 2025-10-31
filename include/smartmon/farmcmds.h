@@ -11,13 +11,13 @@
 #ifndef SMARTMON_FARMCMDS_H
 #define SMARTMON_FARMCMDS_H
 
-#include "smartmon_defs.h"
+#include <smartmon/smartmon_defs.h>
 
 #include <stdint.h>
 
-#include "atacmds.h"
-#include "dev_interface.h"
-#include "knowndrives.h"
+#include <smartmon/atacmds.h>
+#include <smartmon/dev_interface.h>
+#include <smartmon/knowndrives.h>
 
 namespace smartmon {
 

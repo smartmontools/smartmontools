@@ -11,7 +11,7 @@
 #ifndef FARMPRINT_H
 #define FARMPRINT_H
 
-#include "farmcmds.h"
+#include <smartmon/farmcmds.h>
 
 /*
  *  Prints parsed FARM log (GP Log 0xA6) data from Seagate

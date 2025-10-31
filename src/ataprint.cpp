@@ -20,16 +20,16 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "atacmds.h"
+#include <smartmon/atacmds.h>
 #include "ataidentify.h"
-#include "dev_interface.h"
+#include <smartmon/dev_interface.h>
 #include "ataprint.h"
 #include "smartctl.h"
-#include "sg_unaligned.h"
-#include "utility.h"
-#include "knowndrives.h"
+#include <smartmon/sg_unaligned.h>
+#include <smartmon/utility.h>
+#include <smartmon/knowndrives.h>
 
-#include "farmcmds.h"
+#include <smartmon/farmcmds.h>
 #include "farmprint.h"
 
 using namespace smartmon;

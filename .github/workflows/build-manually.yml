@@ -172,11 +172,11 @@ jobs:
           version_sh=$("${distfile%.tar.gz}/src/getversion.sh" -s) && eval "${version_sh}" &&
           cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
           target="-target x86_64-unknown-freebsd14 --sysroot=/opt/cross-freebsd-14/" &&
+          target="$target -isystem /opt/cross-freebsd-14/usr/include/c++/v1" &&
           ../configure --build=$(../config.guess) --host=x86_64-pc-freebsd14 \
             --with-build-info='(GHA/${{ github.event.inputs.suffix }})' \
             ${{ github.event.inputs.cfg_options }} \
             CC="clang $target" CXX="clang++ $target" \
-            CPPFLAGS="-isystem /opt/cross-freebsd-14/usr/include/c++/v1" \
             SOURCE_DATE_EPOCH=$((SMARTMONTOOLS_GIT_REV_EPOCH + 1)) &&
           make ${{ github.event.inputs.make_options }} && make check &&
           bin_distfile="../../smartmontools-freebsd-14-${{ github.event.inputs.suffix }}-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" &&

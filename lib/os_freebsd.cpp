@@ -36,13 +36,13 @@
 
 // set by /usr/include/sys/ata.h, suppress warning
 #undef ATA_READ_LOG_EXT
-#include "atacmds.h"
-#include "scsicmds.h"
+#include <smartmon/atacmds.h>
+#include <smartmon/scsicmds.h>
 #include "cciss.h"
-#include "utility.h"
+#include <smartmon/utility.h>
 #include "os_freebsd.h"
 
-#include "dev_interface.h"
+#include <smartmon/dev_interface.h>
 #include "dev_ata_cmd_set.h"
 #include "dev_areca.h"
 
@@ -1672,10 +1672,10 @@ public:
 
   virtual std::string get_app_examples(const char * appname) override;
 
+protected:
   virtual bool scan_smart_devices(smart_device_list & devlist, const char * type,
     const char * pattern = 0) override;
 
-protected:
   virtual ata_device * get_ata_device(const char * name, const char * type) override;
 
 #if FREEBSDVER > 800100

@@ -47,14 +47,14 @@
 
 #include "config.h"
 
-#include "scsicmds.h"
-#include "atacmds.h" // ataReadHDIdentity()
-#include "knowndrives.h" // lookup_usb_device()
-#include "utility.h"
-#include "dev_interface.h"
+#include <smartmon/scsicmds.h>
+#include <smartmon/atacmds.h> // ataReadHDIdentity()
+#include <smartmon/knowndrives.h> // lookup_usb_device()
+#include <smartmon/utility.h>
+#include <smartmon/dev_interface.h>
 #include "dev_ata_cmd_set.h" // ata_device_with_command_set
 #include "dev_tunnelled.h" // tunnelled_device<>
-#include "sg_unaligned.h"
+#include <smartmon/sg_unaligned.h>
 
 namespace smartmon {
 

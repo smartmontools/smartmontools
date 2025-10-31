@@ -18,18 +18,18 @@
 #define WINVER 0x0502
 #define _WIN32_WINNT WINVER
 
-#include "atacmds.h"
-#include "scsicmds.h"
-#include "nvmecmds.h"
-#include "utility.h"
+#include <smartmon/atacmds.h>
+#include <smartmon/scsicmds.h>
+#include <smartmon/nvmecmds.h>
+#include <smartmon/utility.h>
 
-#include "dev_interface.h"
+#include <smartmon/dev_interface.h>
 #include "dev_ata_cmd_set.h"
 #include "dev_areca.h"
 
-#include "os_win32/wmiquery.h"
+#include <smartmon/os_win32/wmiquery.h>
 #ifndef __CYGWIN__
-#include "os_win32/popen.h"
+#include <smartmon/os_win32/popen.h>
 #endif
 
 #include <errno.h>
@@ -4062,10 +4062,10 @@ public:
 
   virtual bool disable_system_auto_standby(bool disable) override;
 
+protected:
   virtual bool scan_smart_devices(smart_device_list & devlist, const char * type,
     const char * pattern = 0) override;
 
-protected:
   virtual ata_device * get_ata_device(const char * name, const char * type) override;
 
   virtual scsi_device * get_scsi_device(const char * name, const char * type) override;

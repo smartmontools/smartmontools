@@ -13,7 +13,7 @@
 #ifndef SMARTMON_UTILITY_H
 #define SMARTMON_UTILITY_H
 
-#include "smartmon_defs.h"
+#include <smartmon/smartmon_defs.h>
 
 #include <float.h> // *DBL_MANT_DIG
 #include <time.h>

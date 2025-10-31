@@ -11,7 +11,7 @@
 #ifndef __PS3STOR_H__
 #define __PS3STOR_H__
 
-#include "utility.h"
+#include <smartmon/utility.h>
 
 #include <stdint.h>
 #include <string>

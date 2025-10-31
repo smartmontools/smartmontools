@@ -43,7 +43,7 @@
 #endif
 
 #ifdef _WIN32
-#include "os_win32/popen.h" // popen_as_rstr_user(), pclose()
+#include <smartmon/os_win32/popen.h> // popen_as_restr_user(), pclose()
 #ifdef _MSC_VER
 #pragma warning(disable:4761) // "conversion supplied"
 typedef unsigned short mode_t;
@@ -66,13 +66,13 @@ typedef int pid_t;
 #endif // HAVE_LIBSYSTEMD
 
 // locally included files
-#include "atacmds.h"
-#include "dev_interface.h"
-#include "knowndrives.h"
-#include "scsicmds.h"
-#include "nvmecmds.h"
-#include "utility.h"
-#include "sg_unaligned.h"
+#include <smartmon/atacmds.h>
+#include <smartmon/dev_interface.h>
+#include <smartmon/knowndrives.h>
+#include <smartmon/scsicmds.h>
+#include <smartmon/nvmecmds.h>
+#include <smartmon/utility.h>
+#include <smartmon/sg_unaligned.h>
 
 #ifdef HAVE_POSIX_API
 #include "popen_as_ugid.h"

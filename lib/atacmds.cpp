@@ -21,9 +21,9 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-#include "atacmds.h"
-#include "knowndrives.h"  // get_default_attr_defs()
-#include "utility.h"
+#include <smartmon/atacmds.h>
+#include <smartmon/knowndrives.h>  // get_default_attr_defs()
+#include <smartmon/utility.h>
 #include "dev_ata_cmd_set.h" // for parsed_ata_device
 
 namespace smartmon {

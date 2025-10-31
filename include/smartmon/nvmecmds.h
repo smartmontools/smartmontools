@@ -14,7 +14,7 @@
 #ifndef SMARTMON_NVMECMDS_H
 #define SMARTMON_NVMECMDS_H
 
-#include "smartmon_defs.h"
+#include <smartmon/smartmon_defs.h>
 
 #include <errno.h>
 #include <stddef.h>

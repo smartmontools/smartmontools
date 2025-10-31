@@ -39,12 +39,12 @@
 #include <regex.h>
 #endif
 
-#include "utility.h"
+#include <smartmon/utility.h>
 
-#include "atacmds.h"
-#include "dev_interface.h"
-#include "sg_unaligned.h"
-#include "version.h"
+#include <smartmon/atacmds.h>
+#include <smartmon/dev_interface.h>
+#include <smartmon/sg_unaligned.h>
+#include <smartmon/version.h>
 
 #ifndef USE_CLOCK_MONOTONIC
 #ifdef __MINGW32__

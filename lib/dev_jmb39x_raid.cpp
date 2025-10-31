@@ -15,12 +15,12 @@
 
 #include "config.h"
 
-#include "dev_interface.h"
+#include <smartmon/dev_interface.h>
 #include "dev_tunnelled.h"
-#include "atacmds.h"
-#include "scsicmds.h"
-#include "sg_unaligned.h"
-#include "utility.h"
+#include <smartmon/atacmds.h>
+#include <smartmon/scsicmds.h>
+#include <smartmon/sg_unaligned.h>
+#include <smartmon/utility.h>
 
 #include <errno.h>
 

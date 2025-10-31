@@ -8,9 +8,15 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
 
-# Platform specific extra libraries
-## Linux
-#LIBS =
+V = 1
+CPPFLAGS = @examples_cppflags@
+CXXFLAGS = @examples_cxxflags@
+LDFLAGS = @examples_ldflags@
+
+# Platform specific defines
+LIBS = @examples_libs@
+EXEEXT = @EXEEXT@
+
 ## Darwin
 #LIBS = -framework CoreFoundation -framework IOKit
 ## FreeBSD
@@ -19,20 +25,27 @@
 #LIBS = -lutil
 ## Windows
 #LIBS = -lole32 -loleaut32 # -ladvapi -lwinpthread
+#EXEEXT = .exe
 ## Cygwin
 #LIBS = -lole32 -loleaut32
+#EXEEXT = .exe
 
-CPPFLAGS =
-CXXFLAGS = -O -Wall -W
-LDFLAGS = -static
 LDLIBS = -lsmartmon $(LIBS)
 
-PROGRAMS = lsdisk
+PROGRAMS = lsdisk$(EXEEXT)
 
 all: $(PROGRAMS)
 
-.cpp:
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(LDFLAGS) -o $@ $< $(LDLIBS)
+v_CXX = $(v_CXX_$(V))
+v_CXX_ = $(v_CXX_1)
+v_CXX_0 = @echo "  CXX     " $@;
+v_CXX_1 =
+
+.SUFFIXES:
+.SUFFIXES: .cpp $(EXEEXT)
+
+.cpp$(EXEEXT):
+	$(v_CXX)$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(LDFLAGS) -o $@ $< $(LDLIBS)
 
 clean:
 	rm -f $(PROGRAMS)

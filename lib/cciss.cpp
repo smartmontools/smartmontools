@@ -36,8 +36,8 @@
 
 #ifdef _HAVE_CCISS
 #include "cciss.h"
-#include "scsicmds.h"
-#include "utility.h"
+#include <smartmon/scsicmds.h>
+#include <smartmon/utility.h>
 
 namespace smartmon {
 

@@ -69,18 +69,18 @@
 #include <selinux/selinux.h>
 #endif
 
-#include "atacmds.h"
+#include <smartmon/atacmds.h>
 #include "os_linux.h"
-#include "scsicmds.h"
-#include "utility.h"
+#include <smartmon/scsicmds.h>
+#include <smartmon/utility.h>
 #include "cciss.h"
 #include "megaraid.h"
 #include "sssraid.h"
 #include "aacraid.h"
 #include "dev_ps3stor.h"
-#include "nvmecmds.h"
+#include <smartmon/nvmecmds.h>
 
-#include "dev_interface.h"
+#include <smartmon/dev_interface.h>
 #include "dev_ata_cmd_set.h"
 #include "dev_areca.h"
 

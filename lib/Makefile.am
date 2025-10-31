@@ -16,7 +16,7 @@ AM_CPPFLAGS = \
         $(def_source_date_epoch) \
         -DBUILD_INFO='$(BUILD_INFO)' \
         -DSMARTMONTOOLS_SYSCONFDIR='"$(sysconfdir)"' \
-         -I ../include/smartmon -I$(top_srcdir)/include/smartmon
+         -I ../include -I$(top_srcdir)/include
 
 if ENABLE_DRIVEDB
 AM_CPPFLAGS += -DSMARTMONTOOLS_DRIVEDBDIR='"$(drivedbdir)"'
@@ -132,33 +132,33 @@ if ENABLE_DRIVEDB
 drivedbinst_DATA = drivedb.h
 endif
 
-utility.lo: ../include/smartmon/version.h
-
 # Build examples and report failure via a GHA annotation instead of nonzero exit status
 check:
 	$(MAKE) examples || echo '::error:: Build of libsmartmon examples failed'
 
 EXTRA_DIST = \
-        examples/Makefile \
+        examples/Makefile.in \
         examples/lsdisk.cpp
+
+.PHONY: examples clean-examples
 
 examples: examples.stamp
 
-examples.stamp: libsmartmon.la
-	rm -f $@
-	$(MKDIR_P) examples
-	$(MAKE) -C examples -f $(abs_top_srcdir)/lib/examples/Makefile \
+examples.stamp: libsmartmon.la examples/Makefile
+	$(AM_V_GEN)! test -f $@ || $(MAKE) -C examples clean
+	$(AM_V_at)$(MAKE) -C examples \
 	  VPATH=$(abs_top_srcdir)/lib/examples \
+	  V='$(V)' \
 	  CXX='$(CXX)' \
-	  CPPFLAGS='-I../../include/smartmon -I$(abs_top_srcdir)/include' \
-	  CXXFLAGS='$(CXXFLAGS)' \
-	  LDFLAGS='-L../.libs' \
-	  LIBS='$(os_libs) $(LIBS)' \
-	  clean all
-	touch $@
+	  CPPFLAGS='-I../../include -I$(abs_top_srcdir)/include $(examples_cppflags)' \
+	  LDFLAGS='-L../.libs'
+	$(AM_V_at)touch $@
+
+examples/Makefile: examples/Makefile.in
+	$(MAKE) -C .. lib/examples/Makefile
 
 clean-examples:
-	$(MAKE) -C examples -f $(abs_top_srcdir)/lib/examples/Makefile clean
+	! test -f examples/Makefile || $(MAKE) -C examples clean
 	rm -f examples.stamp
 
 clean-local: clean-examples

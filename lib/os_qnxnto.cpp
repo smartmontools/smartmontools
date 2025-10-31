@@ -13,9 +13,9 @@
 
 // These are needed to define prototypes and structures for the
 // functions defined below
-#include "atacmds.h"
-#include "scsicmds.h"
-#include "utility.h"
+#include <smartmon/atacmds.h>
+#include <smartmon/scsicmds.h>
+#include <smartmon/utility.h>
 
 // This is to include whatever structures and prototypes you define in
 // os_generic.h

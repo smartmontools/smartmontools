@@ -11,8 +11,8 @@
 #ifndef DEV_ATA_CMD_SET_H
 #define DEV_ATA_CMD_SET_H
 
-#include "atacmds.h" // smart_command_set
-#include "dev_interface.h"
+#include <smartmon/atacmds.h> // smart_command_set
+#include <smartmon/dev_interface.h>
 
 namespace smartmon {
 
