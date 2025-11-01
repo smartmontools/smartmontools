@@ -57,6 +57,8 @@
 #include <sys/uio.h>
 #include <sys/types.h>
 #include <dirent.h>
+#include <map>
+#include <memory>
 #ifdef HAVE_SYS_SYSMACROS_H
 // glibc 2.25: The inclusion of <sys/sysmacros.h> by <sys/types.h> is
 // deprecated.  A warning is printed if major(), minor() or makedev()
@@ -75,6 +77,7 @@
 #include "megaraid.h"
 #include "sssraid.h"
 #include "aacraid.h"
+#include "dev_ps3stor.h"
 #include <smartmon/nvmecmds.h>
 
 #include <smartmon/dev_interface.h>
@@ -2190,6 +2193,262 @@ bool linux_areca_scsi_device::arcmsr_unlock()
 }
 
 /////////////////////////////////////////////////////////////////////////////
+/// PS3 STOR support
+class linux_smart_interface;
+class linux_ps3stor_channel;
+class linux_ps3stor_device
+: public /* implements */ scsi_device,
+  public /* extends */ linux_smart_device
+{
+public:
+
+  linux_ps3stor_device(smart_interface *intf, const char *name,
+    unsigned int tgt);
+
+  virtual ~linux_ps3stor_device();
+
+  virtual smart_device * autodetect_open() override;
+
+  virtual bool is_open() const override;
+  virtual bool open() override;
+  virtual bool close() override;
+
+  virtual bool scsi_pass_through(scsi_cmnd_io *iop) override;
+
+private:
+  unsigned int  m_did;
+  bool          m_open_flag;
+  encl_id_t     m_eid;
+  slot_id_t     m_sid;
+  unsigned int  m_host;
+  bool scsi_cmd(scsi_cmnd_io *iop);
+  bool get_pd_position(encl_id_t &eid, slot_id_t &sid);
+};
+
+linux_ps3stor_device::linux_ps3stor_device(smart_interface *intf,
+  const char *dev_name, unsigned int tgt)
+ : smart_device(intf, dev_name, "ps3stor", "ps3stor"),
+   linux_smart_device(O_RDWR | O_NONBLOCK),
+   m_did(tgt),
+   m_open_flag(false),
+   m_eid(PS3STOR_INVALID_ENCL_ID),
+   m_sid(PS3STOR_INVALID_SLOT_ID),
+   m_host(0)
+{
+  set_info().info_name = strprintf("%s [ps3stor_disk_%02d]", dev_name, m_did);
+  set_info().dev_type = strprintf("ps3stor,%d", tgt);
+}
+
+linux_ps3stor_device::~linux_ps3stor_device()
+{
+  if (m_open_flag) {
+    m_open_flag = false;
+  }
+  set_fd(-1); // for ~linux_smart_device
+}
+
+smart_device * linux_ps3stor_device::autodetect_open()
+{
+  int report = scsi_debugmode;
+
+  // Open device
+  if (!open())
+    return this;
+
+  // The code below is based on smartd.cpp:SCSIFilterKnown()
+  if (strcmp(get_req_type(), "ps3stor"))
+    return this;
+
+  // Get INQUIRY
+  unsigned char req_buff[64] = {0, };
+  int req_len = 36;
+  if (scsiStdInquiry(this, req_buff, req_len)) {
+      close();
+      set_err(EIO, "INQUIRY failed");
+      return this;
+  }
+
+  int avail_len = req_buff[4] + 5;
+  int len = (avail_len < req_len ? avail_len : req_len);
+  if (len < 36)
+      return this;
+
+  if (report)
+    lib_printf("Got ps3stor inquiry.. %s\n", req_buff+8);
+
+  // Use INQUIRY to detect type
+  {
+    // SAT?
+    ata_device * newdev = smi()->autodetect_sat_device(this, req_buff, len);
+    if (newdev) // NOTE: 'this' is now owned by '*newdev'
+      return newdev;
+  }
+
+  return this;
+}
+
+bool linux_ps3stor_device::is_open() const
+{
+    return m_open_flag;
+}
+
+bool linux_ps3stor_device::open()
+{
+  if (!m_open_flag) {
+  
+    if (sscanf(get_dev_name(), "/dev/bus/%u", &m_host) != 1) {
+      if (!linux_smart_device::open())
+        return false;
+      /* Get device HBA */
+      sg_scsi_id sgid;
+      if (ioctl(get_fd(), SG_GET_SCSI_ID, &sgid) == 0) {
+        m_host = sgid.host_no;
+      }
+      else if (ioctl(get_fd(), SCSI_IOCTL_GET_BUS_NUMBER, &m_host) != 0) {
+        int err = errno;
+        linux_smart_device::close();
+        return set_err(err, "can't get bus number");
+      } // we don't need this device anymore
+      linux_smart_device::close();
+    }
+    m_open_flag = true;
+  }
+  return true;
+}
+
+bool linux_ps3stor_device::close()
+{
+  m_open_flag = false;
+  return true;
+}
+
+bool linux_ps3stor_device::scsi_pass_through(scsi_cmnd_io *iop)
+{
+  int report = scsi_debugmode;
+
+  if (report > 0) {
+        int k, j;
+        const unsigned char * ucp = iop->cmnd;
+        const char * np;
+        char buff[256];
+        const int sz = (int)sizeof(buff);
+
+        np = scsi_get_opcode_name(ucp);
+        j = snprintf(buff, sz, " [%s: ", np ? np : "<unknown opcode>");
+        for (k = 0; k < (int)iop->cmnd_len; ++k)
+            j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "%02x ", ucp[k]);
+        if ((report > 1) &&
+            (DXFER_TO_DEVICE == iop->dxfer_dir) && (iop->dxferp)) {
+            int trunc = (iop->dxfer_len > 256) ? 1 : 0;
+
+            snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n  Outgoing "
+                     "data, len=%d%s:\n", (int)iop->dxfer_len,
+                     (trunc ? " [only first 256 bytes shown]" : ""));
+            dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
+        }
+        else
+            snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n");
+        lib_printf("%s", buff);
+  }
+
+  if (iop->cmnd[0] == 0x00)
+    return true;
+
+  return scsi_cmd(iop);
+}
+
+bool linux_ps3stor_device::scsi_cmd(scsi_cmnd_io *iop)
+{
+  // Controller rejects Test Unit Ready
+  if (iop->cmnd[0] == 0x00)
+    return true;
+
+  if (iop->cmnd[0] == SAT_ATA_PASSTHROUGH_12 || iop->cmnd[0] == SAT_ATA_PASSTHROUGH_16) {
+    // Controller does not return ATA output registers in SAT sense data
+    if (iop->cmnd[2] & (1 << 5)) // chk_cond
+      return set_err(ENOSYS, "ATA return descriptor not supported by controller firmware");
+  }
+  // SMART WRITE LOG SECTOR causing media errors
+  if ((iop->cmnd[0] == SAT_ATA_PASSTHROUGH_16 // SAT16 WRITE LOG
+      && iop->cmnd[14] == ATA_SMART_CMD && iop->cmnd[3]==0 && iop->cmnd[4] == ATA_SMART_WRITE_LOG_SECTOR) ||
+      (iop->cmnd[0] == SAT_ATA_PASSTHROUGH_12 // SAT12 WRITE LOG
+       && iop->cmnd[9] == ATA_SMART_CMD && iop->cmnd[3] == ATA_SMART_WRITE_LOG_SECTOR))
+  {
+    if (!failuretest_permissive)
+       return set_err(ENOSYS, "SMART WRITE LOG SECTOR may cause problems, try with -T permissive to force");
+  }
+
+  if (iop->cmnd_len > PS3STOR_SCSI_MAX_CDB_LENGTH) {
+    return set_err(ENOSYS, "ps3stor cannot support scsi cdb longer than %d", PS3STOR_SCSI_MAX_CDB_LENGTH);
+  }
+
+  encl_id_t eid = 0;
+  slot_id_t sid = 0;
+  if (!get_pd_position(eid, sid)) {
+    lib_printf("linux_ps3stor_device::scsi_cmd: get_pd_position of device %u failed.\n", m_did);
+    return set_err(EIO, "linux_ps3stor_device::scsi_cmd: get_pd_position of device %u failed.", m_did);
+  }
+
+  ps3stor_scsi_req_t scsireq{};
+  scsireq.count = 1;
+  switch (iop->dxfer_dir) {
+  case DXFER_NONE:
+    scsireq.cmddir = PS3STOR_SCSI_CMD_DIR_NONE;
+    break;
+  case DXFER_FROM_DEVICE:
+    scsireq.cmddir = PS3STOR_SCSI_CMD_DIR_TO_HOST;
+    break;
+  case DXFER_TO_DEVICE:
+    scsireq.cmddir = PS3STOR_SCSI_CMD_DIR_FROM_HOST;
+    break;
+  default:
+    lib_printf("scsi_cmd: bad dxfer_dir\n");
+    return set_err(EINVAL, "scsi_cmd: bad dxfer_dir\n");
+  } 
+  scsireq.checklen = 0;
+  memcpy(scsireq.cdb, iop->cmnd, iop->cmnd_len);
+
+  ps3stor_scsi_rsp scsirsp{};
+  if (PS3STOR_ERRNO_SUCCESS != ps3chn()->pd_scsi_passthrough(m_host, eid, sid, scsireq, scsirsp, iop->dxferp, iop->dxfer_len)) {
+    return -1;
+  }
+
+  if (scsirsp.entry.status != 0) {
+    if (scsirsp.entry.status == 12) {
+      return set_err(EIO, "linux_ps3stor_device::scsi_cmd: Device %u does not exist\n", m_did);
+    } else {
+        uint8_t scsi_status = scsirsp.entry.status;
+        //ignore underrun
+        if(scsi_status != PS3STOR_SCSI_STATUS_UNDERRUN) {
+          return set_err((errno ? errno : EIO), "linux_ps3stor_device::scsi_cmd result: %u.%u = %d/%hhu",
+                      m_host, m_did, errno, scsi_status);
+        }
+    }
+  }
+  iop->scsi_status = scsirsp.entry.status;
+  memcpy(iop->sensep, scsirsp.entry.sensebuf, PS3STOR_MIN(iop->max_sense_len, sizeof(scsirsp.entry.sensebuf)));
+  return true;
+}
+
+bool linux_ps3stor_device::get_pd_position(encl_id_t &eid, slot_id_t &sid)
+{
+  ps3stor_pd_baseinfo_t baseinfo{};
+  //1.get enclId and slotId from ioc for the first time
+  if (m_eid == PS3STOR_INVALID_ENCL_ID && m_sid == PS3STOR_INVALID_SLOT_ID) {
+    if (PS3STOR_ERRNO_SUCCESS != ps3chn()->pd_get_baseinfo_by_devid(m_host, m_did, baseinfo)) {
+      return false;
+    }    
+    m_eid = baseinfo.enclid;
+    m_sid = baseinfo.slotid;
+  }
+  //2.copy value from member
+  eid = m_eid;
+  sid = m_sid;
+
+  return true;
+}
+
+/////////////////////////////////////////////////////////////////////////////
 /// Marvell support
 
 class linux_marvell_device
@@ -2852,6 +3111,9 @@ private:
   bool get_dev_sssraid(smart_device_list & devlist);
   int sssraid_pd_add_list(int bus_no, smart_device_list & devlist);
   int sssraid_pdlist_cmd(int bus_no, uint16_t start_idx, void *buf, size_t bufsize, uint8_t *statusp);
+  bool get_dev_ps3stor(smart_device_list & devlist);
+  int ps3stor_pd_add_list(int bus_no, smart_device_list & devlist);
+  int ps3stor_pdlist_cmd(int bus_no, std::vector<uint16_t> &devidlist);
 };
 
 std::string linux_smart_interface::get_os_version_str()
@@ -3084,7 +3346,7 @@ bool linux_smart_interface::scan_smart_devices(smart_device_list & devlist,
     return set_err(EINVAL, "DEVICESCAN with pattern not implemented yet");
 
   // Scan type list
-  bool by_id = false, scan_megaraid = false, scan_sssraid = false;
+  bool by_id = false, scan_megaraid = false, scan_sssraid = false, scan_ps3stor = false;
   const char * type_ata = nullptr, * type_scsi = nullptr, * type_sat = nullptr;
   const char * type_nvme = nullptr;
   for (unsigned i = 0; i < types.size(); i++) {
@@ -3103,6 +3365,8 @@ bool linux_smart_interface::scan_smart_devices(smart_device_list & devlist,
       scan_megaraid = true;
     else if (!strcmp(type, "sssraid"))
       scan_sssraid = true;
+    else if (!strcmp(type, "ps3stor"))
+      scan_ps3stor = true;
     else
       return set_err(EINVAL,
                      "Invalid type '%s', valid arguments are:"
@@ -3115,7 +3379,7 @@ bool linux_smart_interface::scan_smart_devices(smart_device_list & devlist,
 #ifdef WITH_NVME_DEVICESCAN // TODO: Remove when NVMe support is no longer EXPERIMENTAL
      type_nvme = "";
 #endif
-     scan_megaraid = scan_sssraid = true;
+     scan_megaraid = scan_sssraid = scan_ps3stor = true;
   }
 
   const char * type_scsi_sat = ((type_scsi && type_sat) ? "" // detect both
@@ -3143,6 +3407,8 @@ bool linux_smart_interface::scan_smart_devices(smart_device_list & devlist,
     get_dev_megasas(devlist);
   if (scan_sssraid)
     get_dev_sssraid(devlist);
+  if (scan_ps3stor) 
+    get_dev_ps3stor(devlist);
   return true;
 }
 
@@ -3351,7 +3617,89 @@ linux_smart_interface::sssraid_pd_add_list(int bus_no, smart_device_list & devli
     smart_device * dev = new linux_sssraid_device(this, line, (unsigned int)pdlist[i].enc_id, (unsigned int)pdlist[i].slot_id);
     devlist.push_back(dev);
   }
-  return (0);
+  return (0); 
+}
+
+// getting devices from ps3 and ps3stor, if available
+bool linux_smart_interface::get_dev_ps3stor(smart_device_list &devlist)
+{
+  // init ps3stor and get controller list , return false on err or not found
+  if (!ps3stor_init()) {
+    return false;
+  }
+  // try to add device for each controller
+  std::vector<unsigned> hostlist;
+  ps3chn()->get_host_list(hostlist);
+  for (size_t i = 0; i < hostlist.size(); i++) {
+    ps3stor_pd_add_list(hostlist.at(i), devlist);
+  }
+  return true;
+}
+
+int linux_smart_interface::ps3stor_pd_add_list(int bus_no, smart_device_list &devlist)
+{
+  // get pd device id list
+  std::vector<uint16_t> devid_list;
+  ps3stor_pdlist_cmd(bus_no, devid_list);
+
+  // add all SCSI devices
+  for (unsigned i = 0; i < devid_list.size(); i++) {
+    char line[128];
+    snprintf(line, sizeof(line) - 1, "/dev/bus/%d", bus_no);
+    smart_device * dev = new linux_ps3stor_device(this, line, devid_list.at(i));
+    devlist.push_back(dev);
+  }
+  return (0);  
+}
+
+int linux_smart_interface::ps3stor_pdlist_cmd(int bus_no, std::vector<uint16_t> &devidlist)
+{
+  // get enclist and get devlsit for each encl
+  uint8_t enclcount = 0;
+  ps3stor_encl_list *encllist = nullptr; 
+  std::unique_ptr<uint8_t[]> encllist_buf;
+
+  //1.get encl count
+  if (PS3STOR_ERRNO_SUCCESS != ps3chn()->get_enclcount(bus_no, enclcount)) {
+    return -1;
+  } 
+
+  //2.get encl list
+  if (enclcount > 0) {
+    size_t listsize = sizeof(ps3stor_encl_list) + enclcount * sizeof(uint8_t);
+    encllist_buf = std::unique_ptr<uint8_t[]>(new uint8_t[listsize]{});
+    encllist = reinterpret_cast<ps3stor_encl_list*>(encllist_buf.get());
+    
+    if (PS3STOR_ERRNO_SUCCESS != ps3chn()->get_encllist(bus_no, encllist, listsize)) {
+      return -1;
+    }
+  }
+
+  //3.get pd list for each encl
+  if (encllist != nullptr && encllist->count > 0) {
+    enclcount = PS3STOR_MIN(enclcount, encllist->count);
+    for (uint8_t i = 0; i < enclcount; i++) {
+      uint16_t devcount = 0;
+      uint8_t eid = encllist->idlist[i];
+      if (PS3STOR_ERRNO_SUCCESS != ps3chn()->pd_get_devcount_by_encl(bus_no, eid, devcount)) {
+        return -1;
+      }
+      if (devcount > 0) {
+        size_t listsize = sizeof(uint16_t) * devcount;
+        std::unique_ptr<uint16_t[]> devlist(new uint16_t[devcount]{});
+        uint16_t * devlist_ptr = devlist.get();
+
+        if (PS3STOR_ERRNO_SUCCESS != ps3chn()->pd_get_devlist_by_encl(bus_no, eid, devlist_ptr, listsize))
+          return -1;
+
+        for (int j = 0; j < devcount; j++) {
+          devidlist.push_back(devlist_ptr[j]);
+        }
+      }
+    }
+  }
+
+  return 0;
 }
 
 // Return kernel release as integer ("2.6.31" -> 206031)
@@ -3612,16 +3960,472 @@ smart_device * linux_smart_interface::get_custom_smart_device(const char * name,
 
   }
 
+  // ps3stor ?
+  if (sscanf(type, "ps3stor,%d", &disknum) == 1) {
+    if (ps3stor_init()) {
+      return new linux_ps3stor_device(this, name, disknum);
+    } else {
+      lib_printf("get_custom_smart_device: ps3stor_init failed.\n");
+      set_err_np(EINVAL, "get_custom_smart_device: ps3stor_init failed.\n");
+    }
+    
+  }
+
   return nullptr;
 }
 
 std::string linux_smart_interface::get_valid_custom_dev_types_str()
 {
-  return "areca,N/E, 3ware,N, hpt,L/M/N, megaraid,N, aacraid,H,L,ID, sssraid,E,S"
+  return "areca,N/E, 3ware,N, hpt,L/M/N, megaraid,N, aacraid,H,L,ID, sssraid,E,S, ps3stor,N"
 #ifdef HAVE_LINUX_CCISS_IOCTL_H
                                                                                 ", cciss,N"
 #endif
     ;
+}
+
+/// Linux ps3stor channel
+class linux_ps3stor_channel
+: public /*implements*/ ps3stor_channel
+{
+public:
+  linux_ps3stor_channel();
+  virtual ~linux_ps3stor_channel();
+  enum ps3stor_device_type {
+    PS3STOR_DEVICE_TYPE_PS3 = 0,
+    PS3STOR_DEVICE_TYPE_PS3STOR,
+    PS3STOR_DEVICE_TYPE_NR
+  };
+
+public:
+  virtual ps3stor_errno channel_init() override;
+
+  virtual ps3stor_errno get_host_list(std::vector<unsigned> &hostlist) override;
+
+protected:
+  virtual ps3stor_errno firecmd(unsigned hostid, struct ps3stor_msg_info * info, struct ps3stor_msg_info * ackinfo, unsigned acksize) override;
+
+  virtual ps3stor_errno firecmd_scsi(unsigned hostid, struct ps3stor_msg_info * reqinfo, struct ps3stor_msg_info * ackinfo,
+                                             unsigned acksize, struct ps3stor_data * scsidata, unsigned scsicount) override;
+
+
+  virtual struct ps3stor_tlv *add_tlv_data(struct ps3stor_tlv *tlv, unsigned type, const void *data, uint16_t size) override;
+  virtual bool set_err(int no, const char * msg) override;
+  virtual bool set_err(int no) override;
+
+private:
+  int   m_devfd_ps3;
+  int   m_devfd_ps3stor;
+  std::map<unsigned, struct ps3stor_pci_info> m_host_map;
+
+  int open_node(enum ps3stor_device_type dev_type);
+  ps3stor_errno get_func_by_host(unsigned hostid, uint8_t &funcid);
+  ps3stor_errno get_pci_info(unsigned host, struct ps3stor_pci_info &pci_info);
+  void find_device(enum ps3stor_device_type dev_type);
+  ps3stor_errno get_devfd(unsigned host, int &devfd);
+};
+
+linux_ps3stor_channel::linux_ps3stor_channel()
+{
+  m_devfd_ps3 = -1;
+  m_devfd_ps3stor = -1;
+}
+
+linux_ps3stor_channel::~linux_ps3stor_channel()
+{
+  if (m_devfd_ps3 >= 0)
+    ::close(m_devfd_ps3);
+  
+  if (m_devfd_ps3stor >= 0)
+    ::close(m_devfd_ps3stor); 
+}
+
+ps3stor_errno linux_ps3stor_channel::channel_init()
+{
+  ps3stor_errno err = PS3STOR_ERRNO_SUCCESS;
+  if (m_init) {
+    return err;
+  }
+
+  m_devfd_ps3 = open_node(PS3STOR_DEVICE_TYPE_PS3);
+  if (m_devfd_ps3 > 0) {
+    find_device(PS3STOR_DEVICE_TYPE_PS3);
+  }
+  
+  m_devfd_ps3stor = open_node(PS3STOR_DEVICE_TYPE_PS3STOR);
+  if (m_devfd_ps3stor > 0) {
+    find_device(PS3STOR_DEVICE_TYPE_PS3STOR);
+  }
+
+  if (m_host_map.size() > 0) {
+    m_init = true;
+  }
+
+  return err;
+}
+
+ps3stor_errno linux_ps3stor_channel::get_host_list(std::vector<unsigned> &hostlist)
+{
+  for(auto it : m_host_map)
+  {
+    hostlist.push_back(it.first);
+  }
+  return PS3STOR_ERRNO_SUCCESS;
+}
+
+ps3stor_errno linux_ps3stor_channel::firecmd(unsigned hostid, ps3stor_msg_info * reqinfo, ps3stor_msg_info * ackinfo, unsigned acksize)
+{
+  ps3stor_errno err = PS3STOR_ERRNO_SUCCESS;
+  int   devfd = -1;
+  const size_t insize = (reqinfo == nullptr ? 0 : reqinfo->length);
+  uint8_t funcid = 0;
+
+  reqinfo->magic = PS3STOR_MSG_MAGIC_CODE;
+  reqinfo->error = PS3STOR_ERRNO_SUCCESS;
+  reqinfo->timeout = 0;
+  reqinfo->start_time = 0;
+  reqinfo->runver = PS3STOR_ITR_VER;
+  reqinfo->uuid = 0;
+  reqinfo->service = PS3STOR_SMARTCTL_SERVICE;
+  reqinfo->traceid = 0xffc73a859920e01;
+  get_func_by_host(hostid, funcid);
+  reqinfo->funcid = funcid;
+
+  const uint16_t inblk = (uint16_t)((insize + PS3STOR_SGL_SIZE -1) / PS3STOR_SGL_SIZE);
+  const uint16_t outblk = (uint16_t)((acksize + PS3STOR_SGL_SIZE -1) / PS3STOR_SGL_SIZE);
+
+  ps3stor_ioctl_sync_cmd packet{};
+  packet.hostid = (uint16_t)hostid;
+  packet.sge_count = inblk + outblk;
+  packet.sgl_offset = offsetof(ps3stor_ioctl_sync_cmd, sgl) / sizeof(uint32_t); // 4 bytes
+  packet.traceid = reqinfo->traceid;
+
+  reqinfo->index.tlv = 0;
+  reqinfo->index.ack = (uint8_t)(inblk);
+  reqinfo->ack_length = acksize;
+  reqinfo->ack_offset = (uint32_t)insize;
+
+  for (uint16_t i = 0; i < inblk; i++) {
+    packet.sgl[i].addr = (uint64_t)(intptr_t) & ((uint8_t*)reqinfo)[PS3STOR_SGL_SIZE * i];
+    packet.sgl[i].length = (uint32_t)((i == inblk - 1) ? (insize - (PS3STOR_SGL_SIZE * i)) : PS3STOR_SGL_SIZE);
+  }
+
+  for (uint16_t i = 0; i < outblk; i++) {
+    packet.sgl[inblk + i].addr = (uint64_t)(intptr_t) & ((uint8_t*)ackinfo)[PS3STOR_SGL_SIZE * i];
+    packet.sgl[inblk + i].length = (uint32_t)((i == outblk - 1) ? (acksize - (PS3STOR_SGL_SIZE * i)) : PS3STOR_SGL_SIZE);
+  }
+
+  err = get_devfd(hostid, devfd);
+  if (err != PS3STOR_ERRNO_SUCCESS) {
+    return err;
+  }
+  int res = ioctl(devfd, PS3STOR_CMD_IOCTL_SYNC_CMD, &packet);
+  if (res < 0) {
+    set_err(errno, "ioctl failed.\n");
+    return -1;
+  }
+  if (ackinfo->magic != PS3STOR_MSG_MAGIC_CODE) {
+    set_err(EIO, "check magic code failed.\n");
+    return -1;
+  }
+  if (ackinfo->error != PS3STOR_ERRNO_SUCCESS) {
+    set_err(EIO, "err form ioc.\n");
+    return -1;
+  }
+  return err;
+}
+
+ps3stor_errno linux_ps3stor_channel::firecmd_scsi(unsigned hostid, ps3stor_msg_info * reqinfo, ps3stor_msg_info * ackinfo,
+                                                          unsigned acksize, ps3stor_data * scsidata, unsigned scsicount)
+{
+  ps3stor_errno err = PS3STOR_ERRNO_SUCCESS;
+  int   devfd = -1;
+  const size_t insize = (reqinfo == nullptr ? 0 : reqinfo->length);
+  uint8_t funcid = 0;
+
+  reqinfo->magic = PS3STOR_MSG_MAGIC_CODE;
+  reqinfo->error = PS3STOR_ERRNO_SUCCESS;
+  reqinfo->timeout = 0;
+  reqinfo->start_time = 0;
+  reqinfo->runver = PS3STOR_ITR_VER;
+  reqinfo->uuid = 0;
+  reqinfo->service = PS3STOR_SMARTCTL_SERVICE;
+  reqinfo->traceid = 0xffc73a859920e01;
+  get_func_by_host(hostid, funcid);
+  reqinfo->funcid = funcid;
+
+  const uint16_t inblk = (uint16_t)((insize + PS3STOR_SGL_SIZE -1) / PS3STOR_SGL_SIZE);
+  const uint16_t outblk = (uint16_t)((acksize + PS3STOR_SGL_SIZE -1) / PS3STOR_SGL_SIZE);
+  const uint16_t scsiblk = (uint16_t)scsicount;
+
+  ps3stor_ioctl_sync_cmd packet{};
+  packet.hostid = (uint16_t)hostid;
+  packet.sge_count = inblk + outblk + scsiblk;
+  packet.sgl_offset = offsetof(ps3stor_ioctl_sync_cmd, sgl) / sizeof(uint32_t); // 4 bytes
+  packet.traceid = reqinfo->traceid;
+
+  //todo check for sge_count <= 16
+
+  reqinfo->index.tlv = 0;
+  reqinfo->index.ack = (uint8_t)(inblk);
+  reqinfo->ack_length = acksize;
+  reqinfo->ack_offset = (uint32_t)insize;
+
+  for(uint16_t i = 0; i < inblk; i++) {
+    packet.sgl[i].addr = (uint64_t)(intptr_t) & ((uint8_t*)reqinfo)[PS3STOR_SGL_SIZE * i];
+    packet.sgl[i].length = (uint32_t)((i == inblk - 1) ? (insize - (PS3STOR_SGL_SIZE * i)) : PS3STOR_SGL_SIZE);
+  }
+
+  for(uint16_t i = 0; i < outblk; i++) {
+    packet.sgl[inblk + i].addr = (uint64_t)(intptr_t) & ((uint8_t*)ackinfo)[PS3STOR_SGL_SIZE * i];
+    packet.sgl[inblk + i].length = (uint32_t)((i == outblk - 1) ? (acksize - (PS3STOR_SGL_SIZE * i)) : PS3STOR_SGL_SIZE);
+  }
+
+  for(uint16_t i = 0; i < scsiblk; i++) {
+    packet.sgl[inblk + outblk + i].addr = (uint64_t)(intptr_t)scsidata[i].pdata;
+    packet.sgl[inblk + outblk + i].length = scsidata[i].size;
+  }
+  err = get_devfd(hostid, devfd);
+  if (err != PS3STOR_ERRNO_SUCCESS) {
+    return err;
+  }
+
+  int res = ioctl(devfd, PS3STOR_CMD_IOCTL_SYNC_CMD, &packet);
+  if (res < 0) {
+    set_err(errno, "ioctl failed.\n");
+    return -1;
+  }
+  if (ackinfo->magic != PS3STOR_MSG_MAGIC_CODE) {
+    set_err(EIO, "check magic code failed.\n");
+    return -1;
+  }
+  if (ackinfo->error != PS3STOR_ERRNO_SUCCESS) {
+    set_err(EIO, "err form ioc.\n");
+    return -1;
+  }
+  return err;
+}
+
+ps3stor_tlv *linux_ps3stor_channel::add_tlv_data(ps3stor_tlv *tlv, unsigned type, const void *data, uint16_t size)
+{
+  if (!data || size == 0)
+    return tlv;
+  
+  unsigned tlvcode = type;
+  // calculate tlvsize
+  uint16_t tlvsize = (uint16_t)(sizeof(*tlv)               ///< tlv header
+                                + ((!tlv) ? 0 : tlv->size) ///< tlv size
+                                + sizeof(tlvcode)          ///< new tlv:type v
+                                + sizeof(size)             ///< new tlv:length 
+                                + size);
+  ps3stor_tlv * tmp = reinterpret_cast<ps3stor_tlv *>(realloc(tlv, tlvsize));
+  if (!tmp) {
+    free(tlv);
+    throw std::bad_alloc();
+  }
+  if (!tlv) 
+    tmp->size = 0;
+
+  tlv = tmp;  
+  // add data
+  memcpy(tlv->buff + tlv->size, &tlvcode, sizeof(tlvcode));
+  tlv->size += sizeof(tlvcode);
+  memcpy(tlv->buff + tlv->size, &size, sizeof(size));
+  tlv->size += sizeof(size);
+  memcpy(tlv->buff + tlv->size, data, size);
+  tlv->size += size; 
+  
+  return tlv;
+}
+
+bool linux_ps3stor_channel::set_err(int no, const char * msg)
+{
+  return smi()->set_err(no, "%s", msg);
+}
+
+bool linux_ps3stor_channel::set_err(int no)
+{
+  return smi()->set_err(no);
+}
+
+int linux_ps3stor_channel::open_node(enum ps3stor_device_type dev_type)
+{
+  /* Scanning of disks on ps3stor device */
+  /* Perform mknod of device ioctl node */
+  char line[128];
+  int  mjr = -1; //major device number
+  int  n1 = -1;
+  int  devnode_fd = -1;
+  // scan ps3stor
+  FILE * fp = fopen(PS3STOR_DRIVE_DEVICE_ID, "r");
+  if (!fp)
+    return devnode_fd;
+
+  switch (dev_type)
+  {
+  case PS3STOR_DEVICE_TYPE_PS3:
+    while (fgets(line, sizeof(line), fp) != nullptr) {
+      n1=0;
+      int tmp = sscanf(line, "%d ps3-ioctl%n", &mjr, &n1);
+      if (tmp == 1 && n1 == 13) {
+        n1 = mknod("/dev/ps3-ioctl", S_IFCHR|0600, makedev(mjr, 0));
+        if (scsi_debugmode > 0)
+          lib_printf("Creating /dev/ps3-ioctl = %d\n", n1 >= 0 ? 0 : errno);
+        if (n1 >= 0 || errno == EEXIST) {
+          devnode_fd = ::open("/dev/ps3-ioctl", O_RDWR);
+          break;
+        } else {
+          break;
+        }        
+      }
+    }
+    break;
+  case PS3STOR_DEVICE_TYPE_PS3STOR:
+    while (fgets(line, sizeof(line), fp) != nullptr) {
+      n1=0;
+      int tmp = sscanf(line, "%d ps3stor-ioctl%n", &mjr, &n1);
+      if (tmp == 1 && n1 == 17) {
+        n1 = mknod("/dev/ps3stor-ioctl", S_IFCHR|0600, makedev(mjr, 0));
+        if (scsi_debugmode > 0)
+          lib_printf("Creating /dev/ps3stor-ioctl = %d\n", n1 >= 0 ? 0 : errno);
+        if (n1 >= 0 || errno == EEXIST) {
+          devnode_fd = ::open("/dev/ps3stor-ioctl", O_RDWR);
+          break;
+        } else {
+          break;
+        }        
+      }
+    }
+    break; 
+  default:
+    break;
+  }
+  fclose(fp);
+  return devnode_fd;
+}
+
+ps3stor_errno linux_ps3stor_channel::get_func_by_host(unsigned hostid, uint8_t &funcid)
+{
+  for (auto it : m_host_map) {
+    if (it.first == hostid) {
+      funcid = it.second.function;
+      return PS3STOR_ERRNO_SUCCESS;
+    }
+  }
+  return -1;
+}
+
+ps3stor_errno linux_ps3stor_channel::get_pci_info(unsigned host, ps3stor_pci_info &pci_info)
+{
+  ps3stor_errno err = PS3STOR_ERRNO_SUCCESS;
+  char path[128] = {};
+  char filelink[128] = {};
+
+  snprintf(path, sizeof(path) - 1, "/sys/class/scsi_host/host%u", host);
+  err = readlink(path, filelink, sizeof(filelink));
+  if (err < 0) 
+    return errno;
+
+  err = -1;
+  const char templatestr[] = "0000:00:00.0"; // look up pci addr by file link
+  unsigned templen = strlen(templatestr);
+  if (strlen(path) < templen)
+    return -1;
+
+  for(unsigned i = 0; *(filelink + i + templen) != '\0'; i++){
+    char *begin = filelink + i;
+    bool match = true;
+    for(unsigned j = 0; j < templen; j++) {
+      if (begin[j] == templatestr[j]) {
+        continue;
+      } else if (isxdigit(begin[j]) && templatestr[j] == '0'){
+        continue;
+      } else {
+        match = false;
+        break;
+      }
+    }
+    if (match) {
+      err = PS3STOR_ERRNO_SUCCESS;
+      memcpy(pci_info.pci_addr, begin, templen + 1);
+      sscanf(pci_info.pci_addr, "%x:%hhx:%hhx.%hhx",
+             &pci_info.domainid, &pci_info.busid, &pci_info.deviceid, &pci_info.function);
+    }
+  }
+  return err;
+}
+
+void linux_ps3stor_channel::find_device(enum ps3stor_device_type dev_type)
+{
+  // getting bus numbers with ps3stor controllers
+  // we are using sysfs to get list of all scsi hosts
+  char procctx[16] = {};
+  size_t  proclen = 0;
+  switch (dev_type)
+  {
+  case PS3STOR_DEVICE_TYPE_PS3:
+    snprintf(procctx, sizeof(procctx) - 1, "%s", "ps3\n");
+    proclen = 4;
+    break;
+  case PS3STOR_DEVICE_TYPE_PS3STOR:
+    snprintf(procctx, sizeof(procctx) - 1, "%s", "ps3stor\n");
+    proclen = 7;
+    break;
+  default:
+    return;
+    break;
+  }
+
+  DIR * dp = opendir(PS3STOR_SYS_CLASS_SCSI_HOST_PATH);
+  if (dp != nullptr) {
+    dirent * ep;
+    FILE * fp = nullptr;
+    char line[128] = {};
+    while ((ep = readdir (dp)) != nullptr) {
+      unsigned int host_no = 0;
+      if (sscanf(ep->d_name, "host%u", &host_no) != 1)
+        continue;
+      /* proc_name should be  procctx */
+      char sysfsdir[256] = {};
+      snprintf(sysfsdir, sizeof(sysfsdir) - 1,
+        "/sys/class/scsi_host/host%u/proc_name", host_no);
+      if ((fp = fopen(sysfsdir, "r")) == nullptr)
+        continue;
+      if (fgets(line, sizeof(line), fp) != nullptr && !strncmp(line, procctx, proclen)) {
+        ps3stor_pci_info pci{};
+        if (get_pci_info(host_no, pci) == PS3STOR_ERRNO_SUCCESS) {
+          pci.devtype = dev_type;
+          m_host_map[host_no] = pci;
+        }
+      }
+      fclose(fp);
+    }
+    (void) closedir(dp);
+  }
+  return;
+}
+
+ps3stor_errno linux_ps3stor_channel::get_devfd(unsigned host, int &devfd)
+{
+  ps3stor_errno err = -1;
+  for (auto it : m_host_map) {
+    if (it.first == host) {
+      switch (it.second.devtype)
+      {
+      case PS3STOR_DEVICE_TYPE_PS3:
+        devfd = m_devfd_ps3;
+        err = PS3STOR_ERRNO_SUCCESS;
+        return err;
+      case PS3STOR_DEVICE_TYPE_PS3STOR:
+        devfd = m_devfd_ps3stor;
+        err = PS3STOR_ERRNO_SUCCESS;
+        return err;      
+      default:
+        break;
+      };
+      break;
+    }
+  }
+  return err;
 }
 
 } // namespace os_linux
@@ -3633,6 +4437,25 @@ void smart_interface::init()
 {
   static os_linux::linux_smart_interface the_interface;
   smart_interface::set(&the_interface);
+}
+
+void ps3stor_channel::init()
+{
+  static os_linux::linux_ps3stor_channel the_ps3stor_instance;
+  ps3stor_channel::set(&the_ps3stor_instance);
+}
+
+bool ps3stor_init() 
+{
+  if (!ps3chn()) {
+    ps3stor_channel::init();
+    if (!ps3chn())
+      return false;    
+  }
+  if (PS3STOR_ERRNO_SUCCESS != ps3chn()->channel_init()) {
+    return false;
+  }  
+  return true;
 }
 
 } // namespace smartmon
