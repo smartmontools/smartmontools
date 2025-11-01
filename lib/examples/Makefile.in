@@ -47,5 +47,15 @@ v_CXX_1 =
 .cpp$(EXEEXT):
 	$(v_CXX)$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(LDFLAGS) -o $@ $< $(LDLIBS)
 
+SBINDIR = /usr/local/sbin
+INSTALL = cp
+
+install: all
+	mkdir -p $(DESTDIR)$(SBINDIR)
+	@for f in $(PROGRAMS); do \
+	  echo "$(INSTALL) $$f $(DESTDIR)$(SBINDIR)"; \
+	  $(INSTALL) $$f $(DESTDIR)$(SBINDIR); \
+	done
+
 clean:
 	rm -f $(PROGRAMS)

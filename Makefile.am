@@ -17,10 +17,9 @@ docolddir = $(docdir)/old
 docold_DATA = \
         doc/old/NEWS-5.0-7.5.txt
 
-examplesdir=$(exampledir)
-examples_DATA = \
+examplescripts_DATA = \
         doc/examplescripts/README
-examples_SCRIPTS = \
+examplescripts_SCRIPTS = \
         doc/examplescripts/Example1 \
         doc/examplescripts/Example2 \
         doc/examplescripts/Example3 \
@@ -39,8 +38,8 @@ EXTRA_DIST = \
         m4/pkg.m4 \
         $(docs_DATA) \
         $(docold_DATA) \
-        $(examples_DATA) \
-        $(examples_SCRIPTS)
+        $(examplescripts_DATA) \
+        $(examplescripts_SCRIPTS)
 
 CLEANFILES = \
         smartmontools-$(PACKAGE_VERSION).tar \
@@ -76,7 +75,7 @@ SRC_TARGETS = cppcheck htmlman pdfman shellcheck
 INC_SRC_TARGETS =
 LIB_SRC_TARGETS =
 LIB_TARGETS = clean-examples
-INC_LIB_TARGETS = examples
+INC_LIB_TARGETS = examples install-examples
 
 if OS_WIN32_MINGW
 SRC_TARGETS += cleandist-win32 clean-vc distclean-vc maintainer-clean-vc

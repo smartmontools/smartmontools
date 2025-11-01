@@ -130,15 +130,33 @@ if ENABLE_DRIVEDB
 drivedbinst_DATA = drivedb.h
 endif
 
+examples_cpp = \
+        examples/lsdisk.cpp
+
+if INSTALL_DEVEL_SRC
+develsrc_DATA = \
+        examples/Makefile \
+        $(examples_cpp)
+endif
+
+if INSTALL_DEVEL_BIN
+
+all: examples
+install-exec-local: install-examples
+
+else
+
 # Build examples and report failure via a GHA annotation instead of nonzero exit status
 check:
 	$(MAKE) examples || echo '::error:: Build of libsmartmon examples failed'
 
+endif
+
 EXTRA_DIST = \
         examples/Makefile.in \
-        examples/lsdisk.cpp
+        $(examples_cpp)
 
-.PHONY: examples clean-examples
+.PHONY: examples install-examples clean-examples
 
 examples: examples.stamp
 
@@ -149,11 +167,14 @@ examples.stamp: libsmartmon.la examples/Makefile
 	  V='$(V)' \
 	  CXX='$(CXX)' \
 	  CPPFLAGS='-I../../include -I$(abs_top_srcdir)/include $(examples_cppflags)' \
-	  LDFLAGS='-L../.libs'
+	  LDFLAGS='-L../.libs $(examples_ldflags)'
 	$(AM_V_at)touch $@
 
 examples/Makefile: examples/Makefile.in
 	$(MAKE) -C .. lib/examples/Makefile
+
+install-examples: examples
+	$(MAKE) -C examples DESTDIR=$(DESTDIR) SBINDIR=$(develbindir) install
 
 clean-examples:
 	! test -f examples/Makefile || $(MAKE) -C examples clean

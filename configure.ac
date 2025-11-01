@@ -168,6 +168,28 @@ AC_ARG_WITH(devel,
   [], [with_devel=yes])
 AM_CONDITIONAL(INSTALL_DEVEL, [test "$with_devel" = "yes"])
 
+develsrcdir='${docdir}/examplesrc'
+AC_ARG_WITH(devel-src,
+  [AS_HELP_STRING([--with-devel-src@<:@=DIR|yes|no@:>@],
+    [Location of library example source codes [DOCDIR/examplesrc]])],
+  [ case $withval in
+      yes) ;; no) develsrcdir= ;; *) develsrcdir=$withval ;;
+    esac
+  ], [test "$with_devel" = "yes" || develsrcdir=])
+AC_SUBST([develsrcdir])
+AM_CONDITIONAL(INSTALL_DEVEL_SRC, [test -n "$develsrcdir"])
+
+develbindir='${libexecdir}/${PACKAGE}/examples'
+AC_ARG_WITH(devel-bin,
+  [AS_HELP_STRING([--with-devel-bin@<:@=DIR|yes|no@:>@],
+    [Location of library example binaries [LIBEXECDIR/smartmontools/examples]])],
+  [ case $withval in
+      yes) ;; no) develbindir= ;; *) develbindir=$withval ;;
+    esac
+  ], [test "$with_devel" = "yes" || develbindir=])
+AC_SUBST([develbindir])
+AM_CONDITIONAL(INSTALL_DEVEL_BIN, [test -n "$develbindir"])
+
 objcopy_deterministic=false
 case "$with_devel:$enable_static:$SOURCE_DATE_EPOCH" in
   yes:yes:?*)
@@ -219,10 +241,16 @@ case "${host}" in
 esac
 AC_SUBST(initdfile)
 
-AC_ARG_WITH(exampledir,
-  [AS_HELP_STRING([--with-exampledir=DIR], [Location of example scripts [DOCDIR/examplescripts]])],
-  [exampledir="$withval"], [exampledir='${docdir}/examplescripts'])
-AC_SUBST(exampledir)
+examplescriptsdir='${docdir}/examplescripts'
+# TODO: Remove after smartmontools 8.1
+AC_ARG_WITH(exampledir, [AS_HELP_STRING([--with-exampledir=DIR], [(deprecated)])],
+  [examplescriptsdir=$withval])
+
+AC_ARG_WITH(smartd-scripts,
+  [AS_HELP_STRING([--with-smartd-scripts=DIR],
+    [Location of smartd example scripts [DOCDIR/examplescripts]])],
+  [examplescriptsdir=$withval])
+AC_SUBST([examplescriptsdir])
 
 drivedbdir='${datadir}/${PACKAGE}'
 drivedbinstdir=
@@ -931,7 +959,7 @@ info=`
   echo "linker flags:           $LDFLAGS"
   echo "OS specific modules:    $os_deps"
   echo "OS specific libraries:  $os_libs $LIBS"
-  echo "lib/examples flags:     $examples_cppflags $examples_cxxflags $examples_ldflags"
+  echo "lib examples flags:     $examples_cppflags $examples_cxxflags $examples_ldflags"
   echo "Build information:      $BUILD_INFO"
   if test -n "$SOURCE_DATE_EPOCH"; then
     # GNU date || BSD date
@@ -967,17 +995,19 @@ info=`
       ;;
 
     *)
-      echo "binary install path:    \`eval eval eval echo $sbindir\`"
-      echo "man page install path:  \`eval eval eval echo $mandir\`"
-      echo "doc file install path:  \`eval eval eval echo $docdir\`"
-      echo "examples install path:  \`eval eval eval echo $exampledir\`"
+      echo "binary dir:             \`eval eval eval echo $sbindir\`"
+      echo "man page dir:           \`eval eval eval echo $mandir\`"
+      echo "doc file dir:           \`eval eval eval echo $docdir\`"
       if  test "$with_devel" = "yes"; then
-        echo "header install path:    \`eval eval eval echo $includedir\`"
-        echo "library install path:   \`eval eval eval echo $libdir\`"
+        echo "header dir:             \`eval eval eval echo $includedir/smartmon\`"
+        echo "library dir:            \`eval eval eval echo $libdir\`"
       else
-        echo "header install path:    [[disabled]]"
-        echo "library install path:   [[disabled]]"
+        echo "header dir:             [[disabled]]"
+        echo "library dir:            [[disabled]]"
       fi
+      echo "lib examples src dir:   \`eval eval eval echo ${develsrcdir:-[[disabled]]}\`"
+      echo "lib examples bin dir:   \`eval eval eval echo ${develbindir:-[[disabled]]}\`"
+      echo "smartd examples dir:    \`eval eval eval echo $examplescriptsdir\`"
       if test -n "$drivedbdir"; then
         if test "$drivedbinstdir" != "$drivedbdir"; then
           echo "installed drivedb file: \`eval eval eval echo $drivedbinstdir\`/drivedb.h"
@@ -1001,11 +1031,7 @@ info=`
       echo "local drive database:   \`eval eval eval echo $sysconfdir\`/smart_drivedb.h"
       echo "smartd config file:     \`eval eval eval echo $sysconfdir\`/smartd.conf${smartd_suffix}"
       echo "smartd warning script:  \`eval eval eval echo $smartdscriptdir\`/smartd_warning.sh"
-      if test -n "$smartdplugindir"; then
-        echo "smartd plugin path:     \`eval eval eval echo $smartdplugindir\`"
-      else
-        echo "smartd plugin path:     [[disabled]]"
-      fi
+      echo "smartd plugin dir:      \`eval eval eval echo ${smartdplugindir:-[[disabled]]}\`"
       if test -n "$scriptpath"; then
         echo "PATH within scripts:    \`eval eval eval echo $scriptpath\`"
       else
@@ -1116,3 +1142,8 @@ Reproducible tarballs require GNU tar which is not available.
 No compatible tar found.  'make bin-dist' will fail.
 ]) ;;
 esac
+
+# TODO: Remove after smartmontools 8.1
+test -z "$with_exampledir" || AC_MSG_WARN([
+Option '--with-exampledir' is deprecated, use '--with-smartd-scripts' instead.
+])
