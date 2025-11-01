@@ -131,6 +131,7 @@ drivedbinst_DATA = drivedb.h
 endif
 
 examples_cpp = \
+        examples/ata-standby.cpp \
         examples/lsdisk.cpp
 
 if INSTALL_DEVEL_SRC
