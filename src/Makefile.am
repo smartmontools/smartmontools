@@ -180,8 +180,7 @@ endif
 
 endif
 
-docsdir=$(docdir)
-docs_DATA = \
+doc_DATA = \
         smartd.conf
 
 sysconf_DATA = smartd.conf
@@ -249,7 +248,7 @@ EXTRA_DIST = \
         os_win32/update-smart-drivedb.ps1.in \
         os_win32/versioninfo.rc.in \
         os_win32/wtssendmsg.c \
-        $(docs_DATA)
+        $(doc_DATA)
 
 CLEANFILES = \
         cppcheck.txt \
@@ -389,7 +388,7 @@ MAN_FILTER = { \
         -e 's|/usr/local/share/man/|$(mandir)/|g' \
         -e 's|/usr/local/sbin/|$(sbindir)/|g' \
         -e 's|/usr/local/share/doc/smartmontools/examplescripts/|!exampledir!|g' \
-        -e 's|/usr/local/share/doc/smartmontools/|$(docsdir)/|g' \
+        -e 's|/usr/local/share/doc/smartmontools/|$(docdir)/|g' \
         -e 's|!exampledir!|$(exampledir)/|g' \
         -e 's|/usr/local/etc/smartd\.conf|$(sysconfdir)/smartd.conf|g' \
         -e 's|/usr/local/etc/smart_drivedb\.h|$(sysconfdir)/smart_drivedb.h|g' \

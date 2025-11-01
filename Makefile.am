@@ -5,8 +5,7 @@
 
 ACLOCAL_AMFLAGS = -I m4
 
-docsdir=$(docdir)
-docs_DATA = \
+doc_DATA = \
         doc/AUTHORS \
         doc/CHANGELOG.md \
         COPYING \
@@ -36,7 +35,7 @@ EXTRA_DIST = \
         doc/old/ChangeLog-5.0-6.0.txt \
         doc/old/ChangeLog-7.0-7.5.txt \
         m4/pkg.m4 \
-        $(docs_DATA) \
+        $(doc_DATA) \
         $(docold_DATA) \
         $(examplescripts_DATA) \
         $(examplescripts_SCRIPTS)
