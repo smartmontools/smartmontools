@@ -117,19 +117,25 @@ phony += dist-fail
 
 dist-gzip: distdir
 	$(dist_tar) $(distdir) > $(distdir).tar
-	-touch -d @$(SOURCE_DATE_EPOCH) $(distdir).tar
+	@if test -n '$(source_date_iso)'; then \
+	  echo "touch -d '$(source_date_iso)' $(distdir).tar"; \
+	  touch -d '$(source_date_iso)' $(distdir).tar; fi
 	unset GZIP; gzip $(GZIP_ENV) -f -n $(distdir).tar
 	$(am__post_remove_distdir)
 
 dist-xz: distdir
 	$(dist_tar) $(distdir) > $(distdir).tar
-	-touch -d @$(SOURCE_DATE_EPOCH) $(distdir).tar
+	@if test -n '$(source_date_iso)'; then \
+	  echo "touch -d '$(source_date_iso)' $(distdir).tar"; \
+	  touch -d '$(source_date_iso)' $(distdir).tar; fi
 	unset XZ_OPT; xz -e -f $(distdir).tar
 	$(am__post_remove_distdir)
 
 dist-zstd: distdir
 	$(dist_tar) $(distdir) > $(distdir).tar
-	-touch -d @$(SOURCE_DATE_EPOCH) $(distdir).tar
+	@if test -n '$(source_date_iso)'; then \
+	  echo "touch -d '$(source_date_iso)' $(distdir).tar"; \
+	  touch -d '$(source_date_iso)' $(distdir).tar; fi
 	unset ZSTD_CLEVEL; zstd -19 -f -q --rm $(distdir).tar
 	$(am__post_remove_distdir)
 
@@ -153,5 +159,7 @@ bin-dist:
 	$(MAKE) DESTDIR="$$(pwd)/$(bin_distdir)" install
 	( cd $(bin_distdir) && $(dist_tar) * ) > $(bin_distdir).tar
 	unset GZIP; gzip $(GZIP_ENV) -n < $(bin_distdir).tar > $(bin_distfile)
-	-test -z '$(SOURCE_DATE_EPOCH)' || touch -d @$(SOURCE_DATE_EPOCH) $(bin_distfile)
+	@if test -n '$(source_date_iso)'; then \
+	  echo "touch -d '$(source_date_iso)' $(bin_distfile)"; \
+	  touch -d '$(source_date_iso)' $(bin_distfile); fi
 	rm -rf $(bin_distdir) $(bin_distdir).tar

@@ -79,11 +79,24 @@ case "$host_os" in
     ;;
 esac
 
-# SOURCE_DATE_EPOCH must be either unset or numeric.
-test -z "${SOURCE_DATE_EPOCH+set}" \
-|| test -z "`echo "$SOURCE_DATE_EPOCH" | sed -e 's,^$,X,' -e 's,[[0-9]],,g'`" \
-|| AC_MSG_ERROR([Malformed SOURCE_DATE_EPOCH: '$SOURCE_DATE_EPOCH'])
+source_date_iso=
+if test -n "$SOURCE_DATE_EPOCH"; then
+  # SOURCE_DATE_EPOCH must be either unset or numeric.
+  test -z "`echo "$SOURCE_DATE_EPOCH" | sed -e 's,^$,X,' -e 's,[[0-9]],,g'`" \
+  || AC_MSG_ERROR([Malformed SOURCE_DATE_EPOCH: '$SOURCE_DATE_EPOCH'])
+  # There are no portable 'date' or 'touch' options accepting SOURCE_DATE_EPOCH
+  # (GNU: '-d @$SOURCE_DATE_EPOCH', BSD: '-r $SOURCE_DATE_EPOCH', POSIX: unsupported).
+  # Try conversion to ISO format with GNU or BSD 'date'.  Use portable
+  # 'touch -d $source_date_iso' in Makefile if successful.
+  AC_MSG_CHECKING([how to convert SOURCE_DATE_EPOCH to ISO format])
+  for cmd in 'date -d @' 'date -r ' 'gdate -d @' ; do
+    source_date_iso=`${cmd}${SOURCE_DATE_EPOCH} -u +'%Y-%m-%dT%H:%M:%SZ' 2>/dev/null` && break
+    cmd="unknown"
+  done
+  AC_MSG_RESULT([$cmd])
+fi
 AC_SUBST([SOURCE_DATE_EPOCH])
+AC_SUBST([source_date_iso])
 AM_CONDITIONAL(REPRODUCIBLE_BUILD, [test -n "$SOURCE_DATE_EPOCH"])
 
 # Checks for header files.
@@ -965,10 +978,7 @@ info=`
   echo "lib examples flags:     $examples_cppflags $examples_cxxflags $examples_ldflags"
   echo "Build information:      $BUILD_INFO"
   if test -n "$SOURCE_DATE_EPOCH"; then
-    # GNU date || BSD date
-    d=\`date -Iseconds -d "@$SOURCE_DATE_EPOCH" 2>/dev/null ||
-        date -Iseconds -r "$SOURCE_DATE_EPOCH" 2>/dev/null\`
-    echo "Reproducible build:     SOURCE_DATE_EPOCH=$SOURCE_DATE_EPOCH [[$d]]"
+    echo "Reproducible build:     SOURCE_DATE_EPOCH=$SOURCE_DATE_EPOCH [[$source_date_iso]]"
   else
     echo "Reproducible build:     [[disabled]]"
   fi
