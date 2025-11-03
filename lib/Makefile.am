@@ -29,7 +29,7 @@ if NEED_REGEX
 AM_CPPFLAGS += -I$(top_srcdir)/include/smartmon/regex -D_REGEX_STANDALONE
 endif
 
-if INSTALL_DEVEL
+if INSTALL_DEVEL_LIB
 
 lib_LTLIBRARIES = libsmartmon.la
 

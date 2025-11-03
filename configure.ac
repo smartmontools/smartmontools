@@ -166,7 +166,8 @@ AC_SUBST(BUILD_INFO)
 AC_ARG_WITH(devel,
   [AS_HELP_STRING([--with-devel@<:@=yes|no@:>@], [Install development headers and library [yes]])],
   [], [with_devel=yes])
-AM_CONDITIONAL(INSTALL_DEVEL, [test "$with_devel" = "yes"])
+AM_CONDITIONAL(INSTALL_DEVEL_INC, [test "$with_devel" = "yes"])
+AM_CONDITIONAL(INSTALL_DEVEL_LIB, [test "$with_devel" = "yes" || test "$enable_shared" = "yes"])
 
 develsrcdir='${docdir}/examplesrc'
 AC_ARG_WITH(devel-src,
@@ -957,6 +958,8 @@ info=`
   echo "C++ compiler flags:     $CXXFLAGS"
   echo "C compiler flags:       $CFLAGS"
   echo "linker flags:           $LDFLAGS"
+  echo "build shared library:   $enable_shared"
+  echo "build static library:   $enable_static"
   echo "OS specific modules:    $os_deps"
   echo "OS specific libraries:  $os_libs $LIBS"
   echo "lib examples flags:     $examples_cppflags $examples_cxxflags $examples_ldflags"
@@ -998,11 +1001,14 @@ info=`
       echo "binary dir:             \`eval eval eval echo $sbindir\`"
       echo "man page dir:           \`eval eval eval echo $mandir\`"
       echo "doc file dir:           \`eval eval eval echo $docdir\`"
-      if  test "$with_devel" = "yes"; then
+      if test "$with_devel" = "yes"; then
         echo "header dir:             \`eval eval eval echo $includedir/smartmon\`"
-        echo "library dir:            \`eval eval eval echo $libdir\`"
       else
         echo "header dir:             [[disabled]]"
+      fi
+      if test "$with_devel" = "yes" || test "$enable_shared" = "yes"; then
+        echo "library dir:            \`eval eval eval echo $libdir\`"
+      else
         echo "library dir:            [[disabled]]"
       fi
       echo "lib examples src dir:   \`eval eval eval echo ${develsrcdir:-[[disabled]]}\`"

@@ -47,7 +47,7 @@ smartmon/version.sh: ../src/getversion.sh ../config.h ../Makefile \
 	$(AM_V_at)mv -f $@.tmp $@
 	@! $(AM_V_P) || cat $@
 
-if INSTALL_DEVEL
+if INSTALL_DEVEL_INC
 
 incsmartmondir = $(includedir)/smartmon
 incsmartmon_DATA = \
