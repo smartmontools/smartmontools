@@ -54,6 +54,7 @@ smartmon_headers = \
         smartmon/farmcmds.h \
         smartmon/json.h \
         smartmon/knowndrives.h \
+        smartmon/nvme.h \
         smartmon/nvmecmds.h \
         smartmon/scsicmds.h \
         smartmon/sg_unaligned.h \
