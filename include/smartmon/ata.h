@@ -82,7 +82,6 @@ namespace smartmon {
 
 // Needed parts of the ATA DRIVE IDENTIFY Structure. Those labeled
 // word* are NOT used.
-#pragma pack(1)
 struct ata_identify_device {
   uint16_t  words000_009[10];
   uint8_t   serial_no[20];
@@ -99,8 +98,7 @@ struct ata_identify_device {
   uint16_t  word086;
   uint16_t  csf_default;
   uint16_t  words088_255[168];
-} SMARTMON_ATTR_PACKED;
-#pragma pack()
+};
 SMARTMON_ASSERT_SIZEOF(ata_identify_device, 512);
 
 /* ata_smart_attribute is the vendor specific in SFF-8035 spec */
@@ -196,25 +194,21 @@ SMARTMON_ASSERT_SIZEOF(ata_smart_values, 512);
 */
 
 /* Vendor attribute of SMART Threshold (compare to ata_smart_attribute above) */
-#pragma pack(1)
 struct ata_smart_threshold_entry {
   uint8_t   id;
   uint8_t   threshold;
   uint8_t   reserved[10];
-} SMARTMON_ATTR_PACKED;
-#pragma pack()
+};
 SMARTMON_ASSERT_SIZEOF(ata_smart_threshold_entry, 12);
 
 /* Format of Read SMART THreshold Command */
 /* Compare to ata_smart_values above */
-#pragma pack(1)
 struct ata_smart_thresholds_pvt {
   uint16_t  revnumber;
   ata_smart_threshold_entry thres_entries[NUMBER_ATA_SMART_ATTRIBUTES];
   uint8_t   reserved[149];
   uint8_t   chksum;
-} SMARTMON_ATTR_PACKED;
-#pragma pack()
+};
 SMARTMON_ASSERT_SIZEOF(ata_smart_thresholds_pvt, 512);
 
 // Table 42 of T13/1321D Rev 1 spec (Error Data Structure)
@@ -236,7 +230,6 @@ struct ata_smart_errorlog_error_struct {
 SMARTMON_ASSERT_SIZEOF(ata_smart_errorlog_error_struct, 30);
 
 // Table 41 of T13/1321D Rev 1 spec (Command Data Structure)
-#pragma pack(1)
 struct ata_smart_errorlog_command_struct {
   uint8_t   devicecontrolreg;
   uint8_t   featuresreg;
@@ -247,8 +240,7 @@ struct ata_smart_errorlog_command_struct {
   uint8_t   drive_head;
   uint8_t   commandreg;
   uint32_t  timestamp;
-} SMARTMON_ATTR_PACKED;
-#pragma pack()
+};
 SMARTMON_ASSERT_SIZEOF(ata_smart_errorlog_command_struct, 12);
 
 // Table 40 of T13/1321D Rev 1 spec (Error log data structure)
@@ -261,7 +253,6 @@ struct ata_smart_errorlog_struct {
 SMARTMON_ASSERT_SIZEOF(ata_smart_errorlog_struct, 90);
 
 // Table 39 of T13/1321D Rev 1 spec (SMART error log sector)
-#pragma pack(1)
 struct ata_smart_errorlog {
   uint8_t   revnumber;
   uint8_t   error_log_pointer;
@@ -269,8 +260,7 @@ struct ata_smart_errorlog {
   uint16_t  ata_error_count;
   uint8_t   reserved[57];
   uint8_t   checksum;
-} SMARTMON_ATTR_PACKED;
-#pragma pack()
+};
 SMARTMON_ASSERT_SIZEOF(ata_smart_errorlog, 512);
 
 // Extended Comprehensive SMART Error Log data structures
@@ -305,7 +295,6 @@ SMARTMON_ASSERT_SIZEOF(ata_smart_exterrlog_command, 18);
 
 // Error data structure
 // Table A.10 T13/1699-D Revision 6a
-#pragma pack(1)
 struct ata_smart_exterrlog_error
 {
   uint8_t   device_control_register;
@@ -323,24 +312,20 @@ struct ata_smart_exterrlog_error
   uint8_t   extended_error[19];
   uint8_t   state;
   uint16_t  timestamp;
-} SMARTMON_ATTR_PACKED;
-#pragma pack()
+};
 SMARTMON_ASSERT_SIZEOF(ata_smart_exterrlog_error, 34);
 
 // Error log data structure
 // Table A.8 of T13/1699-D Revision 6a
-#pragma pack(1)
 struct ata_smart_exterrlog_error_log
 {
   ata_smart_exterrlog_command commands[5];
   ata_smart_exterrlog_error error;
-} SMARTMON_ATTR_PACKED;
-#pragma pack()
+};
 SMARTMON_ASSERT_SIZEOF(ata_smart_exterrlog_error_log, 124);
 
 // Ext. Comprehensive SMART error log
 // Table A.7 of T13/1699-D Revision 6a
-#pragma pack(1)
 struct ata_smart_exterrlog
 {
   uint8_t   version;
@@ -350,8 +335,7 @@ struct ata_smart_exterrlog
   uint16_t  device_error_count;
   uint8_t   reserved2[9];
   uint8_t   checksum;
-} SMARTMON_ATTR_PACKED;
-#pragma pack()
+};
 SMARTMON_ASSERT_SIZEOF(ata_smart_exterrlog, 512);
 
 // Table 45 of T13/1321D Rev 1 spec (Self-test log descriptor entry)
@@ -387,7 +371,6 @@ SMARTMON_ASSERT_SIZEOF(ata_smart_selftestlog, 512);
 
 // Extended Self-test log descriptor entry
 // Table A.13 of T13/1699-D Revision 6a
-#pragma pack(1)
 struct ata_smart_extselftestlog_desc
 {
   uint8_t   self_test_type;
@@ -396,13 +379,11 @@ struct ata_smart_extselftestlog_desc
   uint8_t   checkpoint;
   uint8_t   failing_lba[6];
   uint8_t   vendorspecific[15];
-} SMARTMON_ATTR_PACKED;
-#pragma pack()
+};
 SMARTMON_ASSERT_SIZEOF(ata_smart_extselftestlog_desc, 26);
 
 // Extended Self-test log data structure
 // Table A.12 of T13/1699-D Revision 6a
-#pragma pack(1)
 struct ata_smart_extselftestlog
 {
   uint8_t   version;
@@ -412,25 +393,20 @@ struct ata_smart_extselftestlog
   uint8_t   vendor_specifc[2];
   uint8_t   reserved2[11];
   uint8_t   chksum;
-} SMARTMON_ATTR_PACKED;
-#pragma pack()
+};
 SMARTMON_ASSERT_SIZEOF(ata_smart_extselftestlog, 512);
 
 // SMART LOG DIRECTORY Table 52 of T13/1532D Vol 1 Rev 1a
-#pragma pack(1)
 struct ata_smart_log_entry {
   uint8_t   numsectors;
   uint8_t   reserved;
-} SMARTMON_ATTR_PACKED;
-#pragma pack()
+};
 SMARTMON_ASSERT_SIZEOF(ata_smart_log_entry, 2);
 
-#pragma pack(1)
 struct ata_smart_log_directory {
   uint16_t  logversion;
   ata_smart_log_entry entry[255];
-} SMARTMON_ATTR_PACKED;
-#pragma pack()
+};
 SMARTMON_ASSERT_SIZEOF(ata_smart_log_directory, 512);
 
 // SMART SELECTIVE SELF-TEST LOG Table 61 of T13/1532D Volume 1
@@ -504,7 +480,6 @@ SMARTMON_ASSERT_SIZEOF(ata_sct_status_response, 512);
 
 // SCT Error Recovery Control command (send with SMART_WRITE_LOG page 0xe0)
 // Table 88 of T13/1699-D Revision 6a
-#pragma pack(1)
 struct ata_sct_error_recovery_control_command
 {
   uint16_t  action_code;        // 3 = Error Recovery Control
@@ -512,13 +487,11 @@ struct ata_sct_error_recovery_control_command
   uint16_t  selection_code;     // 1 = Read Timer, 2 = Write Timer
   uint16_t  time_limit;         // If set: Recovery time limit in 100ms units
   uint16_t  words004_255[252];  // reserved
-} SMARTMON_ATTR_PACKED;
-#pragma pack()
+};
 SMARTMON_ASSERT_SIZEOF(ata_sct_error_recovery_control_command, 512);
 
 // SCT Feature Control command (send with SMART_WRITE_LOG page 0xe0)
 // Table 72 of T13/1699-D Revision 3f
-#pragma pack(1)
 struct ata_sct_feature_control_command
 {
   uint16_t  action_code;        // 4 = Feature Control
@@ -527,26 +500,22 @@ struct ata_sct_feature_control_command
   uint16_t  state;              // Interval
   uint16_t  option_flags;       // Bit 0: persistent, Bits 1-15: reserved
   uint16_t  words005_255[251];  // reserved
-} SMARTMON_ATTR_PACKED;
-#pragma pack()
+};
 SMARTMON_ASSERT_SIZEOF(ata_sct_feature_control_command, 512);
 
 // SCT Data Table command (send with SMART_WRITE_LOG page 0xe0)
 // Table 73 of T13/1699-D Revision 3f
-#pragma pack(1)
 struct ata_sct_data_table_command
 {
   uint16_t  action_code;        // 5 = Data Table
   uint16_t  function_code;      // 1 = Read Table
   uint16_t  table_id;           // 2 = Temperature History
   uint16_t  words003_255[253];  // reserved
-} SMARTMON_ATTR_PACKED;
-#pragma pack()
+};
 SMARTMON_ASSERT_SIZEOF(ata_sct_data_table_command, 512);
 
 // SCT Temperature History Table (read with SMART_READ_LOG page 0xe1)
 // Table 75 of T13/1699-D Revision 3f
-#pragma pack(1)
 struct ata_sct_temperature_history_table
 {
   uint16_t  format_version;     // 0-1: Data table format version number (2)
@@ -560,8 +529,7 @@ struct ata_sct_temperature_history_table
   uint16_t  cb_size;            // 30-31: Number of history entries (range 128-478)
   uint16_t  cb_index;           // 32-33: Index of last updated entry (zero-based)
   int8_t    cb[478];            // 34-(34+cb_size-1): Circular buffer of temperature values
-} SMARTMON_ATTR_PACKED;
-#pragma pack()
+};
 SMARTMON_ASSERT_SIZEOF(ata_sct_temperature_history_table, 512);
 
 } // namespace smartmon
