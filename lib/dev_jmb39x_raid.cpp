@@ -278,7 +278,7 @@ static bool scsi_read_lba8(scsi_device * scsidev, uint8_t lba8, uint8_t (& data)
   io_hdr.dxfer_len = 512;
   io_hdr.dxferp = data;
   uint8_t cdb[] = {0x28 /* READ(10) */, 0x00, 0x00, 0x00, 0x00, lba8, 0x00, 0x00, 0x01, 0x00};
-  SMARTMON_ASSERT_SIZEOF(cdb, 10);
+  SMARTMON_ASSERT_SIZEOF(decltype(cdb), 10);
   io_hdr.cmnd = cdb;
   io_hdr.cmnd_len = sizeof(cdb);
   io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;
@@ -296,7 +296,7 @@ static bool scsi_write_lba8(scsi_device * scsidev,  uint8_t lba8, const uint8_t 
   io_hdr.dxfer_len = 512;
   io_hdr.dxferp = const_cast<uint8_t *>(data);
   uint8_t cdb[] = {0x2a /* WRITE(10) */, 0x00, 0x00, 0x00, 0x00, lba8, 0x00, 0x00, 0x01, 0x00};
-  SMARTMON_ASSERT_SIZEOF(cdb, 10);
+  SMARTMON_ASSERT_SIZEOF(decltype(cdb), 10);
   io_hdr.cmnd = cdb;
   io_hdr.cmnd_len = sizeof(cdb);
   io_hdr.timeout = SCSI_TIMEOUT_DEFAULT;

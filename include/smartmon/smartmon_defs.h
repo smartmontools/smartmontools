@@ -13,6 +13,8 @@
 
 #include <smartmon/smartmon_config.h>
 
+#include <type_traits>
+
 // Enable format check of printf()-like functions
 #ifndef __GNUC__
 #define SMARTMON_FORMAT_PRINTF(x, y)  /**/
@@ -34,6 +36,8 @@
 // Static assert macros
 // Don't use single argument 'static_assert(x)' because it requires C++17
 #define SMARTMON_STATIC_ASSERT(x) static_assert((x), #x)
-#define SMARTMON_ASSERT_SIZEOF(t, n) SMARTMON_STATIC_ASSERT(sizeof(t) == (n))
+// Ensure portable data structure size
+#define SMARTMON_ASSERT_SIZEOF(t, n) \
+  SMARTMON_STATIC_ASSERT(std::is_standard_layout<t>::value && sizeof(t) == (n))
 
 #endif // SMARTMON_DEFS_H
