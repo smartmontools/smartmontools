@@ -50,6 +50,7 @@ smartmon/version.sh: ../src/getversion.sh ../config.h ../Makefile \
 smartmon_headers = \
         smartmon/ata.h \
         smartmon/atacmds.h \
+        smartmon/byteorder.h \
         smartmon/dev_interface.h \
         smartmon/farmcmds.h \
         smartmon/json.h \

@@ -14,9 +14,7 @@
 #ifndef SMARTMON_NVME_H
 #define SMARTMON_NVME_H
 
-#include <smartmon/smartmon_defs.h>
-
-#include <stdint.h>
+#include <smartmon/byteorder.h>
 
 namespace smartmon {
 
@@ -164,7 +162,7 @@ SMARTMON_ASSERT_SIZEOF(nvme_id_ns, 4096);
 
 struct nvme_smart_log {
   uint8_t   critical_warning;
-  uint8_t   temperature[2]; // unaligned LE 16
+  uile16_t  temperature;
   uint8_t   avail_spare;
   uint8_t   spare_thresh;
   uint8_t   percent_used;
@@ -217,9 +215,9 @@ struct nvme_self_test_result {
   uint8_t   segment;
   uint8_t   valid;
   uint8_t   rsvd3;
-  uint8_t   power_on_hours[8]; // unaligned LE 64
+  uile64_t  power_on_hours;
   uint32_t  nsid;
-  uint8_t   lba[8]; // unaligned LE 64
+  uile64_t  lba;
   uint8_t   status_code_type;
   uint8_t   status_code;
   uint8_t   vendor_specific[2];

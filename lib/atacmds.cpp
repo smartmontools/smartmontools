@@ -1003,15 +1003,9 @@ int ataReadSmartValues(ata_device * device, struct ata_smart_values *data){
   
   // swap endian order if needed
   if (isbigendian()){
-    int i;
     swap2((char *)&(data->revnumber));
     swap2((char *)&(data->total_time_to_complete_off_line));
     swap2((char *)&(data->smart_capability));
-    SWAPV(data->extend_test_completion_time_w);
-    for (i=0; i<NUMBER_ATA_SMART_ATTRIBUTES; i++){
-      struct ata_smart_attribute *x=data->vendor_attributes+i;
-      swap2((char *)&(x->flags));
-    }
   }
 
   return 0;
@@ -1061,7 +1055,6 @@ int ataReadSelfTestLog (ata_device * device, ata_smart_selftestlog * data,
     for (i=0; i<21; i++){
       struct ata_smart_selftestlog_struct *x=data->selftest_struct+i;
       swap2((char *)&(x->timestamp));
-      swap4((char *)&(x->lbafirstfailure));
     }
   }
 
@@ -1221,13 +1214,7 @@ int ataReadSelectiveSelfTestLog(ata_device * device, struct ata_selective_self_t
   
   // swap endian order if needed
   if (isbigendian()){
-    int i;
     swap2((char *)&(data->logversion));
-    for (i=0;i<5;i++){
-      swap8((char *)&(data->span[i].start));
-      swap8((char *)&(data->span[i].end));
-    }
-    swap8((char *)&(data->currentlba));
     swap2((char *)&(data->currentspan));
     swap2((char *)&(data->flags));
     swap2((char *)&(data->pendingtime));
@@ -1287,37 +1274,39 @@ int ataWriteSelectiveSelfTestLog(ata_device * device, ata_selective_selftest_arg
 
     if (   (mode == SEL_REDO || mode == SEL_NEXT)
         && prev_args && i < prev_args->num_spans
-        && !data->span[i].start && !data->span[i].end) {
+        && !uile64_to_uint(data->span[i].start)
+        && !uile64_to_uint(data->span[i].end)   ) {
       // Some drives do not preserve the selective self-test log across
       // power-cyles.  If old span on drive is cleared use span provided
       // by caller.  This is used by smartd (first span only).
-      data->span[i].start = prev_args->span[i].start;
-      data->span[i].end   = prev_args->span[i].end;
+      data->span[i].start = uint_to_uile64(prev_args->span[i].start);
+      data->span[i].end   = uint_to_uile64(prev_args->span[i].end);
     }
 
     switch (mode) {
       case SEL_RANGE: // -t select,START-END
         break;
       case SEL_REDO: // -t select,redo... => Redo current
-        start = data->span[i].start;
+        start = uile64_to_uint(data->span[i].start);
         if (end > 0) { // -t select,redo+SIZE
           end--; end += start; // [oldstart, oldstart+SIZE)
         }
         else // -t select,redo
-          end = data->span[i].end; // [oldstart, oldend]
+          end = uile64_to_uint(data->span[i].end); // [oldstart, oldend]
         break;
       case SEL_NEXT: // -t select,next... => Do next
-        if (data->span[i].end == 0) {
+        if (uile64_to_uint(data->span[i].end) == 0) {
           start = end = 0; break; // skip empty spans
         }
-        start = data->span[i].end + 1;
+        start = uile64_to_uint(data->span[i].end) + 1;
         if (start >= num_sectors)
           start = 0; // wrap around
         if (end > 0) { // -t select,next+SIZE
           end--; end += start; // (oldend, oldend+SIZE]
         }
         else { // -t select,next
-          uint64_t oldsize = data->span[i].end - data->span[i].start + 1;
+          uint64_t oldsize =   uile64_to_uint(data->span[i].end)
+                             - uile64_to_uint(data->span[i].start) + 1;
           end = start + oldsize - 1; // (oldend, oldend+oldsize]
           if (end >= num_sectors) {
             // Adjust size to allow round-robin testing without future size decrease
@@ -1359,13 +1348,13 @@ int ataWriteSelectiveSelfTestLog(ata_device * device, ata_selective_selftest_arg
   
   // Set spans for testing 
   for (i = 0; i < args.num_spans; i++){
-    data->span[i].start = args.span[i].start;
-    data->span[i].end   = args.span[i].end;
+    data->span[i].start = uint_to_uile64(args.span[i].start);
+    data->span[i].end   = uint_to_uile64(args.span[i].end);
   }
 
   // host must initialize to zero before initiating selective self-test
-  data->currentlba=0;
-  data->currentspan=0;
+  data->currentlba = {};
+  data->currentspan = 0;
   
   // Perform off-line scan after selective test?
   if (args.scan_after_select == 1)
@@ -1395,11 +1384,6 @@ int ataWriteSelectiveSelfTestLog(ata_device * device, ata_selective_selftest_arg
   // swap endian order if needed
   if (isbigendian()){
     swap2((char *)&(data->logversion));
-    for (int b = 0; b < 5; b++) {
-      swap8((char *)&(data->span[b].start));
-      swap8((char *)&(data->span[b].end));
-    }
-    swap8((char *)&(data->currentlba));
     swap2((char *)&(data->currentspan));
     swap2((char *)&(data->flags));
     swap2((char *)&(data->pendingtime));
@@ -1425,11 +1409,6 @@ static void fixsamsungerrorlog(ata_smart_errorlog * data)
   // FIXED IN SAMSUNG -22a FIRMWARE
   // step through 5 error log data structures
   for (int i = 0; i < 5; i++){
-    // step through 5 command data structures
-    for (int j = 0; j < 5; j++)
-      // Command data structure 4-byte millisec timestamp.  These are
-      // bytes (N+8, N+9, N+10, N+11).
-      swap4((char *)&(data->errorlog_struct[i].commands[j].timestamp));
     // Error data structure two-byte hour life timestamp.  These are
     // bytes (N+28, N+29).
     swap2((char *)&(data->errorlog_struct[i].error_struct.timestamp));
@@ -1470,17 +1449,11 @@ int ataReadErrorLog (ata_device * device, ata_smart_errorlog *data,
 
   // swap endian order if needed
   if (isbigendian()){
-    int i,j;
-    
     // Device error count in bytes 452-3
     swap2((char *)&(data->ata_error_count));
     
     // step through 5 error log data structures
-    for (i=0; i<5; i++){
-      // step through 5 command data structures
-      for (j=0; j<5; j++)
-        // Command data structure 4-byte millisec timestamp
-        swap4((char *)&(data->errorlog_struct[i].commands[j].timestamp));
+    for (int i=0; i<5; i++) {
       // Error data structure life timestamp
       swap2((char *)&(data->errorlog_struct[i].error_struct.timestamp));
     }
@@ -1528,8 +1501,6 @@ bool ataReadExtErrorLog(ata_device * device, ata_smart_exterrlog * log,
     SWAPV(log->error_log_index);
     for (unsigned i = 0; i < nsectors; i++) {
       for (unsigned j = 0; j < 4; j++) {
-        for (unsigned k = 0; k < 5; k++)
-           SWAPV(log[i].error_logs[j].commands[k].timestamp);
         SWAPV(log[i].error_logs[j].error.timestamp);
       }
     }
@@ -1734,12 +1705,15 @@ int TestTime(const ata_smart_values *data, int testtype)
     return (int) data->short_test_completion_time;
   case EXTEND_SELF_TEST:
   case EXTEND_CAPTIVE_SELF_TEST:
-    if (data->extend_test_completion_time_b == 0xff
-        && data->extend_test_completion_time_w != 0x0000
-        && data->extend_test_completion_time_w != 0xffff)
-      return data->extend_test_completion_time_w; // ATA-8
-    else
-      return data->extend_test_completion_time_b;
+    {
+      uint16_t extend_test_completion_time_w = uile16_to_uint(data->extend_test_completion_time_w);
+      if (data->extend_test_completion_time_b == 0xff
+          && extend_test_completion_time_w != 0x0000
+          && extend_test_completion_time_w != 0xffff)
+        return extend_test_completion_time_w; // ATA-8
+      else
+        return data->extend_test_completion_time_b;
+    }
   case CONVEYANCE_SELF_TEST:
   case CONVEYANCE_CAPTIVE_SELF_TEST:
     return (int) data->conveyance_test_completion_time;
@@ -2229,8 +2203,6 @@ int ataReadSCTStatus(ata_device * device, ata_sct_status_response * sts)
     SWAPV(sts->ext_status_code);
     SWAPV(sts->action_code);
     SWAPV(sts->function_code);
-    SWAPV(sts->over_limit_count);
-    SWAPV(sts->under_limit_count);
     SWAPV(sts->smart_status);
     SWAPV(sts->min_erc_time);
   }

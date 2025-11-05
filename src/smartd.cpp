@@ -905,7 +905,7 @@ static void write_nvme_attrlog(FILE * f, const dev_state & state)
     "\tmedia-errors;%" PRIu64 ";"
     "\tnum-err-log-entries;%" PRIu64 ";",
     s.critical_warning,
-    (int)sg_get_unaligned_le16(s.temperature) - 273,
+    (int)uile16_to_uint(s.temperature) - 273,
     s.avail_spare,
     s.spare_thresh,
     s.percent_used,
@@ -2245,7 +2245,7 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
         if (idx < 0)
           PrintOut(LOG_INFO,"Device: %s, no Attribute %d, ignoring -%c %d%s\n", name, id, opt, id, excl);
         else {
-          bool prefail = !!ATTRIBUTE_FLAGS_PREFAILURE(state.smartval.vendor_attributes[idx].flags);
+          bool prefail = !!ATTRIBUTE_FLAGS_PREFAILURE(uile16_to_uint(state.smartval.vendor_attributes[idx].flags));
           if (!((prefail && cfg.prefail) || (!prefail && cfg.usage)))
             PrintOut(LOG_INFO,"Device: %s, not monitoring %s Attributes, ignoring -%c %d%s\n", name,
                      (prefail ? "Prefailure" : "Usage"), opt, id, excl);
@@ -2869,7 +2869,7 @@ static int NVMeDeviceScan(dev_config & cfg, dev_state & state, nvme_device * nvm
 
   // Check temperature sensor support
   if (cfg.tempdiff || cfg.tempinfo || cfg.tempcrit) {
-    if (!sg_get_unaligned_le16(smart_log.temperature)) {
+    if (!uile16_to_uint(smart_log.temperature)) {
       PrintOut(LOG_INFO, "Device: %s, no Temperature sensors, ignoring -W %d,%d,%d\n",
                name, cfg.tempdiff, cfg.tempinfo, cfg.tempcrit);
       cfg.tempdiff = cfg.tempinfo = cfg.tempcrit = 0;
@@ -3563,7 +3563,7 @@ static void check_attribute(const dev_config & cfg, dev_state & state,
   }
 
   // Return if we're not tracking this type of attribute
-  bool prefail = !!ATTRIBUTE_FLAGS_PREFAILURE(attr.flags);
+  bool prefail = !!ATTRIBUTE_FLAGS_PREFAILURE(uile16_to_uint(attr.flags));
   if (!(   ( prefail && cfg.prefail)
         || (!prefail && cfg.usage  )))
     return;
@@ -4097,7 +4097,7 @@ static int check_nvme_self_test_log(uint32_t nsid, const nvme_self_test_log & se
       continue; // Not most recent error
 
     // Keep track of time of most recent error
-    hour = sg_get_unaligned_le64(r.power_on_hours);
+    hour = uile64_to_uint(r.power_on_hours);;
   }
 
   return errcnt;
@@ -4211,7 +4211,7 @@ static int NVMeCheckDevice(const dev_config & cfg, dev_state & state, nvme_devic
 
   // Check temperature limits
   if (cfg.tempdiff || cfg.tempinfo || cfg.tempcrit) {
-    uint16_t k = sg_get_unaligned_le16(smart_log.temperature);
+    uint16_t k = uile16_to_uint(smart_log.temperature);
     // Convert Kelvin to positive Celsius (TODO: Allow negative temperatures)
     int c = (int)k - 273;
     if (c < 1)

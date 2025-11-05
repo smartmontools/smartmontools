@@ -1135,7 +1135,8 @@ static int find_failed_attr(const ata_smart_values * data,
         return attr.id;
     }
     else {
-      if (state == ATTRSTATE_FAILED_NOW && ATTRIBUTE_FLAGS_PREFAILURE(attr.flags))
+      if (   state == ATTRSTATE_FAILED_NOW
+          && ATTRIBUTE_FLAGS_PREFAILURE(uile16_to_uint(attr.flags)))
         return attr.id;
     }
   }
@@ -1232,6 +1233,7 @@ static void PrintSmartAttribWithThres(const ata_smart_values * data,
   // step through all vendor attributes
   for (int i = 0, ji = 0; i < NUMBER_ATA_SMART_ATTRIBUTES; i++) {
     const ata_smart_attribute & attr = data->vendor_attributes[i];
+    uint16_t flags = uile16_to_uint(attr.flags);
 
     // Check attribute and threshold
     unsigned char threshold = 0;
@@ -1240,7 +1242,8 @@ static void PrintSmartAttribWithThres(const ata_smart_values * data,
       continue;
 
     // These break out of the loop if we are only printing certain entries...
-    if (onlyfailed == 1 && !(ATTRIBUTE_FLAGS_PREFAILURE(attr.flags) && state == ATTRSTATE_FAILED_NOW))
+    if (   onlyfailed == 1 && !(ATTRIBUTE_FLAGS_PREFAILURE(uile16_to_uint(attr.flags))
+        && state == ATTRSTATE_FAILED_NOW))
       continue;
 
     if (onlyfailed == 2 && state < ATTRSTATE_FAILED_PAST)
@@ -1287,22 +1290,22 @@ static void PrintSmartAttribWithThres(const ata_smart_values * data,
     std::string rawstr = ata_format_attr_raw_value(attr, defs);
 
     char flagstr[] = {
-      (ATTRIBUTE_FLAGS_PREFAILURE(attr.flags)     ? 'P' : '-'),
-      (ATTRIBUTE_FLAGS_ONLINE(attr.flags)         ? 'O' : '-'),
-      (ATTRIBUTE_FLAGS_PERFORMANCE(attr.flags)    ? 'S' : '-'),
-      (ATTRIBUTE_FLAGS_ERRORRATE(attr.flags)      ? 'R' : '-'),
-      (ATTRIBUTE_FLAGS_EVENTCOUNT(attr.flags)     ? 'C' : '-'),
-      (ATTRIBUTE_FLAGS_SELFPRESERVING(attr.flags) ? 'K' : '-'),
-      (ATTRIBUTE_FLAGS_OTHER(attr.flags)          ? '+' : ' '),
+      (ATTRIBUTE_FLAGS_PREFAILURE(flags)     ? 'P' : '-'),
+      (ATTRIBUTE_FLAGS_ONLINE(flags)         ? 'O' : '-'),
+      (ATTRIBUTE_FLAGS_PERFORMANCE(flags)    ? 'S' : '-'),
+      (ATTRIBUTE_FLAGS_ERRORRATE(flags)      ? 'R' : '-'),
+      (ATTRIBUTE_FLAGS_EVENTCOUNT(flags)     ? 'C' : '-'),
+      (ATTRIBUTE_FLAGS_SELFPRESERVING(flags) ? 'K' : '-'),
+      (ATTRIBUTE_FLAGS_OTHER(flags)          ? '+' : ' '),
       0
     };
 
     if (!brief)
       jout("%s %-24s0x%04x   %-4s  %-4s  %-4s   %-10s%-9s%-12s%s\n",
-           idstr.c_str(), attrname.c_str(), attr.flags,
+           idstr.c_str(), attrname.c_str(), flags,
            valstr.c_str(), worstr.c_str(), threstr.c_str(),
-           (ATTRIBUTE_FLAGS_PREFAILURE(attr.flags) ? "Pre-fail" : "Old_age"),
-           (ATTRIBUTE_FLAGS_ONLINE(attr.flags)     ? "Always"   : "Offline"),
+           (ATTRIBUTE_FLAGS_PREFAILURE(flags) ? "Pre-fail" : "Old_age"),
+           (ATTRIBUTE_FLAGS_ONLINE(flags)     ? "Always"   : "Offline"),
            (state == ATTRSTATE_FAILED_NOW  ? "FAILING_NOW" :
             state == ATTRSTATE_FAILED_PAST ? "In_the_past"
                                            : "    -"        ) ,
@@ -1334,16 +1337,16 @@ static void PrintSmartAttribWithThres(const ata_smart_values * data,
     }
 
     json::ref jreff = jref["flags"];
-    jreff["value"] = attr.flags;
+    jreff["value"] = flags;
     jreff["string"] = flagstr;
-    jreff["prefailure"]     = !!ATTRIBUTE_FLAGS_PREFAILURE(attr.flags);
-    jreff["updated_online"] = !!ATTRIBUTE_FLAGS_ONLINE(attr.flags);
-    jreff["performance"]    = !!ATTRIBUTE_FLAGS_PERFORMANCE(attr.flags);
-    jreff["error_rate"]     = !!ATTRIBUTE_FLAGS_ERRORRATE(attr.flags);
-    jreff["event_count"]    = !!ATTRIBUTE_FLAGS_EVENTCOUNT(attr.flags);
-    jreff["auto_keep"]      = !!ATTRIBUTE_FLAGS_SELFPRESERVING(attr.flags);
-    if (ATTRIBUTE_FLAGS_OTHER(attr.flags))
-      jreff["other"] = ATTRIBUTE_FLAGS_OTHER(attr.flags);
+    jreff["prefailure"]     = !!ATTRIBUTE_FLAGS_PREFAILURE(flags);
+    jreff["updated_online"] = !!ATTRIBUTE_FLAGS_ONLINE(flags);
+    jreff["performance"]    = !!ATTRIBUTE_FLAGS_PERFORMANCE(flags);
+    jreff["error_rate"]     = !!ATTRIBUTE_FLAGS_ERRORRATE(flags);
+    jreff["event_count"]    = !!ATTRIBUTE_FLAGS_EVENTCOUNT(flags);
+    jreff["auto_keep"]      = !!ATTRIBUTE_FLAGS_SELFPRESERVING(flags);
+    if (ATTRIBUTE_FLAGS_OTHER(flags))
+      jreff["other"] = ATTRIBUTE_FLAGS_OTHER(flags);
 
     uint64_t rawval = ata_get_attr_raw_value(attr, defs);
     jref["raw"]["value"] = rawval;
@@ -2361,6 +2364,7 @@ static int PrintSmartErrorlog(const ata_smart_errorlog *data,
         // Spec says: unused data command structures shall be zero filled
         if (nonempty(thiscommand, sizeof(*thiscommand))) {
           const char * atacmd = look_up_ata_command(thiscommand->commandreg, thiscommand->featuresreg);
+          uint32_t timestamp = uile32_to_uint(thiscommand->timestamp);
           jout("  %02x %02x %02x %02x %02x %02x %02x %02x  %16s  %s\n",
                (int)thiscommand->commandreg,
                (int)thiscommand->featuresreg,
@@ -2370,7 +2374,7 @@ static int PrintSmartErrorlog(const ata_smart_errorlog *data,
                (int)thiscommand->cylinder_high,
                (int)thiscommand->drive_head,
                (int)thiscommand->devicecontrolreg,
-               format_milliseconds(thiscommand->timestamp).c_str(),
+               format_milliseconds(timestamp).c_str(),
                atacmd);
 
           json::ref jrefic = jrefi["previous_commands"][jj++];
@@ -2383,7 +2387,7 @@ static int PrintSmartErrorlog(const ata_smart_errorlog *data,
                          | (thiscommand->cylinder_high << 16);
           jreficr["device"] = thiscommand->drive_head;
           jreficr["device_control"] = thiscommand->devicecontrolreg;
-          jrefic["powerup_milliseconds"] = thiscommand->timestamp;
+          jrefic["powerup_milliseconds"] = timestamp;
           jrefic["command_name"] = atacmd;
         }
       }
@@ -2571,6 +2575,7 @@ static int PrintSmartExtErrorLog(ata_device * device,
 
       // Print registers, timestamp and ATA command name
       const char * atacmd = look_up_ata_command(cmd.command_register, cmd.features_register);
+      uint32_t timestamp = uile32_to_uint(cmd.timestamp);
       jout("  %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %16s  %s\n",
            cmd.command_register,
            cmd.features_register_hi,
@@ -2585,7 +2590,7 @@ static int PrintSmartExtErrorLog(ata_device * device,
            cmd.lba_low_register,
            cmd.device_register,
            cmd.device_control_register,
-           format_milliseconds(cmd.timestamp).c_str(),
+           format_milliseconds(timestamp).c_str(),
            atacmd);
 
       json::ref jrefic = jrefi["previous_commands"][cji++];
@@ -2601,7 +2606,7 @@ static int PrintSmartExtErrorLog(ata_device * device,
                      | ((unsigned)cmd.lba_low_register          );
       jreficr["device"] = cmd.device_register;
       jreficr["device_control"] = cmd.device_control_register;
-      jrefic["powerup_milliseconds"] = cmd.timestamp;
+      jrefic["powerup_milliseconds"] = timestamp;
       jrefic["command_name"] = atacmd;
     }
     jout("\n");
@@ -2745,8 +2750,9 @@ static int ataPrintSmartSelfTestlog(const ata_smart_selftestlog * log, bool alle
       continue;
 
     // Get LBA if valid
-    uint64_t lba48 = (entry.lbafirstfailure < 0xffffffff ?
-                      entry.lbafirstfailure : 0xffffffffffffULL);
+    uint64_t lba48 = uile32_to_uint(entry.lbafirstfailure);
+    if (lba48 >= 0xffffffff)
+      lba48 = 0xffffffffffffULL;
 
     // Print entry
     int state = ataPrintSmartSelfTestEntry(jref["table"][ji++],
@@ -2905,15 +2911,15 @@ static void ataPrintSelectiveSelfTestLog(const ata_selective_self_test_log * log
   // find the number of columns needed for printing. If in use, the
   // start/end of span being read-scanned...
   uint64_t maxl = 0, maxr = 0;
-  uint64_t current = log->currentlba;
+  uint64_t current = uile64_to_uint(log->currentlba);
   uint64_t currentend = current + 0xffff;
   if (log->currentspan>5) {
     maxl=current;
     maxr=currentend;
   }
   for (int i = 0; i < 5; i++) {
-    uint64_t start=log->span[i].start;
-    uint64_t end  =log->span[i].end; 
+    uint64_t start = uile64_to_uint(log->span[i].start);
+    uint64_t end   = uile64_to_uint(log->span[i].end);
     // ... plus max start/end of each of the five test spans.
     if (start>maxl)
       maxl=start;
@@ -2934,8 +2940,8 @@ static void ataPrintSelectiveSelfTestLog(const ata_selective_self_test_log * log
   jout(" SPAN  %*s  %*s  CURRENT_TEST_STATUS\n", field1, "MIN_LBA", field2, "MAX_LBA");
 
   for (int i = 0; i < 5; i++) {
-    uint64_t start=log->span[i].start;
-    uint64_t end=log->span[i].end;
+    uint64_t start = uile64_to_uint(log->span[i].start);
+    uint64_t end   = uile64_to_uint(log->span[i].end);
     bool active = (i + 1 == log->currentspan);
 
     if (active)
@@ -3087,8 +3093,10 @@ static int ataPrintSCTStatus(const ata_sct_status_response * sts)
   // Table 80 of T13/1699-D (ATA8-ACS) Revision 6a, September 2008 (format version 3)
   // Table 194 of T13/BSR INCITS 529 (ACS-4) Revision 20, October 26, 2017
   // (max_op_limit, smart_status, min_erc_time)
+  uint32_t under_limit_count = uile32_to_uint(sts->under_limit_count);
+  uint32_t over_limit_count  = uile32_to_uint(sts->over_limit_count);
   bool old_format_2 = (   !sts->min_temp && !sts->life_min_temp
-                       && !sts->under_limit_count && !sts->over_limit_count);
+                       && !under_limit_count && !over_limit_count);
 
   char buf1[20], buf2[20];
   jout("Current Temperature:                    %s Celsius\n",
@@ -3114,9 +3122,9 @@ static int ataPrintSCTStatus(const ata_sct_status_response * sts)
     sct_jtemp2(jref, "op_limit_max", sts->max_op_limit);
   }
   jout("Under/Over Temperature Limit Count:  %2u/%u\n",
-    sts->under_limit_count, sts->over_limit_count);
-  jref["temperature"]["under_limit_count"] = sts->under_limit_count;
-  jref["temperature"]["over_limit_count"] = sts->over_limit_count;
+    under_limit_count, over_limit_count);
+  jref["temperature"]["under_limit_count"] = under_limit_count;
+  jref["temperature"]["over_limit_count"]  = over_limit_count;
 
   if (sts->smart_status) { // ACS-4
     int passed = (sts->smart_status == 0x2cf4 ? 0 :

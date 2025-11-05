@@ -496,7 +496,7 @@ static void print_smart_log(const nvme_smart_log & smart_log,
   jout("Critical Warning:                   0x%02x\n", smart_log.critical_warning);
   jref["critical_warning"] = smart_log.critical_warning;
 
-  int k = sg_get_unaligned_le16(smart_log.temperature);
+  int k = uile16_to_uint(smart_log.temperature);
   jout("Temperature:                        %s\n", kelvin_to_str(buf, k));
   if (k) {
     jref["temperature"] = k - 273;
@@ -737,7 +737,7 @@ static void print_self_test_log(const nvme_self_test_log & self_test_log, unsign
                 s = buf; break;
     }
 
-    uint64_t poh = sg_get_unaligned_le64(r.power_on_hours);
+    uint64_t poh = uile64_to_uint(r.power_on_hours);
 
     jrefi += {
       { "self_test_code", { { "value", op }, { "string", t } } },
@@ -759,7 +759,7 @@ static void print_self_test_log(const nvme_self_test_log & self_test_log, unsign
       jrefi["nsid"] = (r.nsid != nvme_broadcast_nsid ? (int64_t)r.nsid : -1);
     }
     if (r.valid & 0x02) {
-      uint64_t lba = sg_get_unaligned_le64(r.lba);
+      uint64_t lba = uile64_to_uint(r.lba);
       snprintf(lb, sizeof(lb), "%" PRIu64, lba);
       jrefi["lba"] = lba;
     }

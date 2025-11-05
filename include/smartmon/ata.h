@@ -13,9 +13,7 @@
 #ifndef SMARTMON_ATA_H
 #define SMARTMON_ATA_H
 
-#include <smartmon/smartmon_defs.h>
-
-#include <stdint.h>
+#include <smartmon/byteorder.h>
 
 namespace smartmon {
 
@@ -102,18 +100,15 @@ struct ata_identify_device {
 SMARTMON_ASSERT_SIZEOF(ata_identify_device, 512);
 
 /* ata_smart_attribute is the vendor specific in SFF-8035 spec */
-#pragma pack(1)
 struct ata_smart_attribute {
   uint8_t   id;
   // meaning of flag bits: see MACROS just below
-  // WARNING: MISALIGNED!
-  uint16_t  flags;
+  uile16_t  flags;
   uint8_t   current;
   uint8_t   worst;
   uint8_t   raw[6];
   uint8_t   reserv;
-} SMARTMON_ATTR_PACKED;
-#pragma pack()
+};
 SMARTMON_ASSERT_SIZEOF(ata_smart_attribute, 12);
 
 // MACROS to interpret the flags bits in the previous structure.
@@ -161,7 +156,6 @@ SMARTMON_ASSERT_SIZEOF(ata_smart_attribute, 12);
 
 // Format of data returned by SMART READ DATA
 // Table 62 of T13/1699-D (ATA8-ACS) Revision 6a, September 2008
-#pragma pack(1)
 struct ata_smart_values {
   uint16_t  revnumber;
   ata_smart_attribute vendor_attributes[NUMBER_ATA_SMART_ATTRIBUTES];
@@ -176,12 +170,11 @@ struct ata_smart_values {
   uint8_t   short_test_completion_time;
   uint8_t   extend_test_completion_time_b; // If 0xff, use 16-bit value below
   uint8_t   conveyance_test_completion_time;
-  uint16_t  extend_test_completion_time_w; // e04130r2, added to T13/1699-D Revision 1c, April 2005
+  uile16_t  extend_test_completion_time_w; // e04130r2, added to T13/1699-D Revision 1c, April 2005
   uint8_t   reserved_377_385[9];
   uint8_t   vendor_specific_386_510[125]; // Maxtor bytes 508-509 Attribute/Threshold Revision #
   uint8_t   chksum;
-} SMARTMON_ATTR_PACKED;
-#pragma pack()
+};
 SMARTMON_ASSERT_SIZEOF(ata_smart_values, 512);
 
 /* Maxtor, IBM: self-test failure checkpoint byte meaning:
@@ -212,7 +205,6 @@ struct ata_smart_thresholds_pvt {
 SMARTMON_ASSERT_SIZEOF(ata_smart_thresholds_pvt, 512);
 
 // Table 42 of T13/1321D Rev 1 spec (Error Data Structure)
-#pragma pack(1)
 struct ata_smart_errorlog_error_struct {
   uint8_t   reserved;
   uint8_t   error_register;
@@ -225,8 +217,7 @@ struct ata_smart_errorlog_error_struct {
   uint8_t   extended_error[19];
   uint8_t   state;
   uint16_t  timestamp;
-} SMARTMON_ATTR_PACKED;
-#pragma pack()
+};
 SMARTMON_ASSERT_SIZEOF(ata_smart_errorlog_error_struct, 30);
 
 // Table 41 of T13/1321D Rev 1 spec (Command Data Structure)
@@ -239,17 +230,15 @@ struct ata_smart_errorlog_command_struct {
   uint8_t   cylinder_high;
   uint8_t   drive_head;
   uint8_t   commandreg;
-  uint32_t  timestamp;
+  uile32_t  timestamp;
 };
 SMARTMON_ASSERT_SIZEOF(ata_smart_errorlog_command_struct, 12);
 
 // Table 40 of T13/1321D Rev 1 spec (Error log data structure)
-#pragma pack(1)
 struct ata_smart_errorlog_struct {
   ata_smart_errorlog_command_struct commands[5];
   ata_smart_errorlog_error_struct error_struct;
-} SMARTMON_ATTR_PACKED;
-#pragma pack()
+};
 SMARTMON_ASSERT_SIZEOF(ata_smart_errorlog_struct, 90);
 
 // Table 39 of T13/1321D Rev 1 spec (SMART error log sector)
@@ -270,7 +259,6 @@ SMARTMON_ASSERT_SIZEOF(ata_smart_errorlog, 512);
 
 // Command data structure
 // Table A.9 of T13/1699-D Revision 6a
-#pragma pack(1)
 struct ata_smart_exterrlog_command
 {
   uint8_t   device_control_register;
@@ -288,9 +276,8 @@ struct ata_smart_exterrlog_command
   uint8_t   command_register;
 
   uint8_t   reserved;
-  uint32_t  timestamp;
-} SMARTMON_ATTR_PACKED;
-#pragma pack()
+  uile32_t  timestamp;
+};
 SMARTMON_ASSERT_SIZEOF(ata_smart_exterrlog_command, 18);
 
 // Error data structure
@@ -339,20 +326,17 @@ struct ata_smart_exterrlog
 SMARTMON_ASSERT_SIZEOF(ata_smart_exterrlog, 512);
 
 // Table 45 of T13/1321D Rev 1 spec (Self-test log descriptor entry)
-#pragma pack(1)
 struct ata_smart_selftestlog_struct {
   uint8_t   selftestnumber;
   uint8_t   selfteststatus;
   uint16_t  timestamp;
   uint8_t   selftestfailurecheckpoint;
-  uint32_t  lbafirstfailure;
+  uile32_t  lbafirstfailure;
   uint8_t   vendorspecific[15];
-} SMARTMON_ATTR_PACKED;
-#pragma pack()
+};
 SMARTMON_ASSERT_SIZEOF(ata_smart_selftestlog_struct, 24);
 
 // Table 44 of T13/1321D Rev 1 spec (Self-test log data structure)
-#pragma pack(1)
 struct ata_smart_selftestlog {
   uint16_t  revnumber;
   ata_smart_selftestlog_struct selftest_struct[21];
@@ -360,8 +344,7 @@ struct ata_smart_selftestlog {
   uint8_t   mostrecenttest;
   uint8_t   reserved[2];
   uint8_t   chksum;
-} SMARTMON_ATTR_PACKED;
-#pragma pack()
+};
 SMARTMON_ASSERT_SIZEOF(ata_smart_selftestlog, 512);
 
 // Extended SMART Self-test log data structures
@@ -411,29 +394,25 @@ SMARTMON_ASSERT_SIZEOF(ata_smart_log_directory, 512);
 
 // SMART SELECTIVE SELF-TEST LOG Table 61 of T13/1532D Volume 1
 // Revision 3
-#pragma pack(1)
 struct test_span {
-  uint64_t  start;
-  uint64_t  end;
-} SMARTMON_ATTR_PACKED;
-#pragma pack()
+  uile64_t  start;
+  uile64_t  end;
+};
 SMARTMON_ASSERT_SIZEOF(test_span, 16);
 
-#pragma pack(1)
 struct ata_selective_self_test_log {
   uint16_t  logversion;
   test_span span[5];
   uint8_t   reserved1[337-82+1];
   uint8_t   vendor_specific1[491-338+1];
-  uint64_t  currentlba;
+  uile64_t  currentlba;
   uint16_t  currentspan;
   uint16_t  flags;
   uint8_t   vendor_specific2[507-504+1];
   uint16_t  pendingtime;
   uint8_t   reserved2;
   uint8_t   checksum;
-} SMARTMON_ATTR_PACKED;
-#pragma pack()
+};
 SMARTMON_ASSERT_SIZEOF(ata_selective_self_test_log, 512);
 
 #define SELECTIVE_FLAG_DOSCAN  (0x0002)
@@ -447,13 +426,12 @@ SMARTMON_ASSERT_SIZEOF(ata_selective_self_test_log, 512);
 
 // SCT Status response (read with SMART_READ_LOG page 0xe0)
 // Table 194 of T13/BSR INCITS 529 (ACS-4) Revision 20, October 26, 2017
-#pragma pack(1)
 struct ata_sct_status_response
 {
   uint16_t  format_version;     // 0-1: Status response format version number (2, 3)
   uint16_t  sct_version;        // 2-3: Vendor specific version number
   uint16_t  sct_spec;           // 4-5: SCT level supported (1)
-  uint32_t  status_flags;       // 6-9: Status flags (Bit 0: Segment initialized, Bits 1-31: reserved)
+  uile32_t  status_flags;       // 6-9: Status flags (Bit 0: Segment initialized, Bits 1-31: reserved)
   uint8_t   device_state;       // 10: Device State (0-5)
   uint8_t   bytes011_013[3];    // 11-13: reserved
   uint16_t  ext_status_code;    // 14-15: Status of last SCT command (0xffff if executing)
@@ -468,14 +446,13 @@ struct ata_sct_status_response
   int8_t    life_min_temp;      // 203: Minimum lifetime temperature
   int8_t    life_max_temp;      // 204: Maximum lifetime temperature
   int8_t    max_op_limit;       // 205: Specified maximum operating temperature (ACS-4)
-  uint32_t  over_limit_count;   // 206-209: # intervals since last reset with temperature > Max Op Limit
-  uint32_t  under_limit_count;  // 210-213: # intervals since last reset with temperature < Min Op Limit
+  uile32_t  over_limit_count;   // 206-209: # intervals since last reset with temperature > Max Op Limit
+  uile32_t  under_limit_count;  // 210-213: # intervals since last reset with temperature < Min Op Limit
   uint16_t  smart_status;       // 214-215: LBA(32:8) of SMART RETURN STATUS (0, 0x2cf4, 0xc24f) (ACS-4)
   uint16_t  min_erc_time;       // 216-217: Minimum supported value for ERC (ACS-4)
   uint8_t   bytes216_479[479-218+1]; // 218-479: reserved
   uint8_t   vendor_specific[32]; // 480-511: vendor specific
-} SMARTMON_ATTR_PACKED;
-#pragma pack()
+};
 SMARTMON_ASSERT_SIZEOF(ata_sct_status_response, 512);
 
 // SCT Error Recovery Control command (send with SMART_WRITE_LOG page 0xe0)
