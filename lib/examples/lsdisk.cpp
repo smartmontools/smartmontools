@@ -13,7 +13,6 @@
 #include <smartmon/nvmecmds.h>
 #include <smartmon/scsicmds.h>
 #include <smartmon/utility.h>
-#include <smartmon/sg_unaligned.h>
 
 #include <cstdio>
 #include <cstdlib>
@@ -96,7 +95,7 @@ static int identify(smartmon::nvme_device * dev)
     std::snprintf(ns, sizeof(ns), ", NS:%u", (unsigned)nsid);
 
   char cap[32]{};
-  uint64_t tnvmcap = sg_get_unaligned_le64(id_ctrl.tnvmcap);
+  uint64_t tnvmcap = smartmon::uile128_clamp_to_uint64(id_ctrl.tnvmcap);
   if (tnvmcap)
     smartmon::format_capacity(cap, sizeof(cap), tnvmcap);
 

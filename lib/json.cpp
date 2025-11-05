@@ -3,7 +3,7 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2017-22 Christian Franke
+ * Copyright (C) 2017-25 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -183,6 +183,11 @@ bool json::ref::set_if_safe_uint128(uint64_t value_hi, uint64_t value_lo)
   return set_if_safe_uint64(value_lo);
 }
 
+bool json::ref::set_if_safe_uile128(const uile128_t & value)
+{
+  return set_if_safe_uint128(uile64_to_uint(value.hi), uile64_to_uint(value.lo));
+}
+
 bool json::ref::set_if_safe_le128(const void * pvalue)
 {
   return set_if_safe_uint128(sg_get_unaligned_le64((const uint8_t *)pvalue + 8),
@@ -225,6 +230,11 @@ void json::ref::set_unsafe_uint128(uint64_t value_hi, uint64_t value_lo)
       le[8 + i] = v & 0xff;
     }
   }
+}
+
+void json::ref::set_unsafe_uile128(const uile128_t & value)
+{
+  set_unsafe_uint128(uile64_to_uint(value.hi), uile64_to_uint(value.lo));
 }
 
 void json::ref::set_unsafe_le128(const void * pvalue)

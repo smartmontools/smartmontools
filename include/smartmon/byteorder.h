@@ -21,6 +21,7 @@ namespace smartmon {
 struct uile16_t { uint8_t b[2]; };
 struct uile32_t { uint8_t b[4]; };
 struct uile64_t { uint8_t b[8]; };
+struct uile128_t { uile64_t lo; uile64_t hi; };
 
 // Unaligned Big Endian unsigned integers
 struct uibe16_t { uint8_t b[2]; };
@@ -48,6 +49,11 @@ constexpr uint64_t uile64_to_uint(uile64_t x)
          | ((uint32_t)x.b[1] <<  8) |  (uint32_t)x.b[0]       ;
 }
 
+constexpr uint64_t uile128_clamp_to_uint64(uile128_t x)
+{
+  return (!uile64_to_uint(x.hi) ? uile64_to_uint(x.lo) : ~(uint64_t)0);
+}
+
 // uint*_t -> uile*_t
 
 constexpr uile16_t uint_to_uile16(uint16_t x)
@@ -67,6 +73,16 @@ constexpr uile64_t uint_to_uile64(uint64_t x)
                   (uint8_t)(x >> 16), (uint8_t)(x >> 24),
                   (uint8_t)(x >> 32), (uint8_t)(x >> 40),
                   (uint8_t)(x >> 48), (uint8_t)(x >> 56) };
+}
+
+constexpr uile128_t uint64_to_uile128(uint64_t x)
+{
+  return uile128_t{uint_to_uile64(x), {}};
+}
+
+constexpr uile128_t uint64_hilo_to_uile128(uint64_t hi, uint64_t lo)
+{
+  return uile128_t{uint_to_uile64(lo), uint_to_uile64(hi)};
 }
 
 // uibe*_t -> uint*_t
@@ -124,6 +140,8 @@ SMARTMON_STATIC_ASSERT(uibe32_to_uint(uibe32_t{{0x12,0x34,0x56,0x78}}) == 0x1234
 SMARTMON_STATIC_ASSERT(uibe32_to_uint(uint_to_uibe32(0x12345678)) == 0x12345678);
 SMARTMON_STATIC_ASSERT(uibe64_to_uint(uibe64_t{{0x12,0x34,0x56,0x78,0x9a,0xbc,0xde,0xf1}}) == 0x123456789abcdef1);
 SMARTMON_STATIC_ASSERT(uibe64_to_uint(uint_to_uibe64(0x123456789abcdef1)) == 0x123456789abcdef1);
+SMARTMON_STATIC_ASSERT(uile128_clamp_to_uint64(uint64_to_uile128(0x123456789abcdef1)) == 0x123456789abcdef1);
+SMARTMON_STATIC_ASSERT(uile128_clamp_to_uint64(uile128_t{{},{1}}) == 0xffffffffffffffff);
 
 } // namespace smartmon
 

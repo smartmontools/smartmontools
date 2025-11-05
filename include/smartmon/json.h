@@ -3,14 +3,15 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2017-22 Christian Franke
+ * Copyright (C) 2017-25 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
 #ifndef SMARTMON_JSON_H
 
-#include <stdint.h>
+#include <smartmon/byteorder.h>
+
 #include <stdio.h>
 #include <initializer_list>
 #include <map>
@@ -141,11 +142,13 @@ public:
     // Output only if safe integer.
     bool set_if_safe_uint64(uint64_t value);
     bool set_if_safe_uint128(uint64_t value_hi, uint64_t value_lo);
+    bool set_if_safe_uile128(const uile128_t & value);
     bool set_if_safe_le128(const void * pvalue);
 
     // If unsafe integer, output also as string with key "NUMBER_s".
     void set_unsafe_uint64(uint64_t value);
     void set_unsafe_uint128(uint64_t value_hi, uint64_t value_lo);
+    void set_unsafe_uile128(const uile128_t & value);
     void set_unsafe_le128(const void * pvalue);
 
     /// Braced-init-list support for nested objects.

@@ -616,21 +616,6 @@ void dev_state::update_temp_state()
   }
 }
 
-// Convert 128 bit LE integer to uint64_t or its max value on overflow.
-static uint64_t le128_to_uint64(const unsigned char (& val)[16])
-{
-  if (sg_get_unaligned_le64(val + 8))
-    return ~(uint64_t)0;
-  return sg_get_unaligned_le64(val);
-}
-
-// Convert uint64_t to 128 bit LE integer
-static void uint64_to_le128(unsigned char (& destval)[16], uint64_t srcval)
-{
-  sg_put_unaligned_le64(0, destval + 8);
-  sg_put_unaligned_le64(srcval, destval);
-}
-
 // Parse a line from a state file.
 static bool parse_dev_state_line(const char * line, persistent_dev_state & state)
 {
@@ -731,7 +716,7 @@ static bool parse_dev_state_line(const char * line, persistent_dev_state & state
   else if (match[++m].rm_so >= 0)
     state.nvme_smartval.percent_used = val;
   else if (match[++m].rm_so >= 0)
-    uint64_to_le128(state.nvme_smartval.media_errors, val);
+    state.nvme_smartval.media_errors = uint64_to_uile128(val);
   else
     return false;
   return true;
@@ -840,7 +825,8 @@ static bool write_dev_state(const char * path, const persistent_dev_state & stat
   write_dev_state_line(f, "nvme-err-log-entries", state.nvme_err_log_entries);
   write_dev_state_line(f, "nvme-available-spare", state.nvme_smartval.avail_spare);
   write_dev_state_line(f, "nvme-percentage-used", state.nvme_smartval.percent_used);
-  write_dev_state_line(f, "nvme-media-errors", le128_to_uint64(state.nvme_smartval.media_errors));
+  write_dev_state_line(f, "nvme-media-errors",
+    uile128_clamp_to_uint64(state.nvme_smartval.media_errors));
 
   return true;
 }
@@ -909,16 +895,16 @@ static void write_nvme_attrlog(FILE * f, const dev_state & state)
     s.avail_spare,
     s.spare_thresh,
     s.percent_used,
-    le128_to_uint64(s.data_units_read),
-    le128_to_uint64(s.data_units_written),
-    le128_to_uint64(s.host_reads),
-    le128_to_uint64(s.host_writes),
-    le128_to_uint64(s.ctrl_busy_time),
-    le128_to_uint64(s.power_cycles),
-    le128_to_uint64(s.power_on_hours),
-    le128_to_uint64(s.unsafe_shutdowns),
-    le128_to_uint64(s.media_errors),
-    le128_to_uint64(s.num_err_log_entries)
+    uile128_clamp_to_uint64(s.data_units_read),
+    uile128_clamp_to_uint64(s.data_units_written),
+    uile128_clamp_to_uint64(s.host_reads),
+    uile128_clamp_to_uint64(s.host_writes),
+    uile128_clamp_to_uint64(s.ctrl_busy_time),
+    uile128_clamp_to_uint64(s.power_cycles),
+    uile128_clamp_to_uint64(s.power_on_hours),
+    uile128_clamp_to_uint64(s.unsafe_shutdowns),
+    uile128_clamp_to_uint64(s.media_errors),
+    uile128_clamp_to_uint64(s.num_err_log_entries)
   );
 }
 
@@ -2831,7 +2817,7 @@ static int NVMeDeviceScan(dev_config & cfg, dev_state & state, nvme_device * nvm
   unsigned nsid = nvmedev->get_nsid();
   if (nsid != nvme_broadcast_nsid)
     snprintf(nsstr, sizeof(nsstr), ", NSID:%u", nsid);
-  uint64_t capacity = le128_to_uint64(id_ctrl.tnvmcap);
+  uint64_t capacity = uile128_clamp_to_uint64(id_ctrl.tnvmcap);
   if (capacity)
     format_capacity(capstr, sizeof(capstr), capacity, ".");
 
@@ -2884,7 +2870,7 @@ static int NVMeDeviceScan(dev_config & cfg, dev_state & state, nvme_device * nvm
       cfg.errorlog = cfg.xerrorlog = false;
     }
     else
-      state.nvme_err_log_entries = le128_to_uint64(smart_log.num_err_log_entries);
+      state.nvme_err_log_entries = uile128_clamp_to_uint64(smart_log.num_err_log_entries);
   }
 
   // Check for self-test support
@@ -4203,8 +4189,8 @@ static int NVMeCheckDevice(const dev_config & cfg, dev_state & state, nvme_devic
       state.nvme_smartval.percent_used, smart_log.percent_used,
       (cfg.usagefailed && smart_log.percent_used > 95), cfg.usage);
 
-    uint64_t old_me = le128_to_uint64(state.nvme_smartval.media_errors);
-    uint64_t new_me = le128_to_uint64(smart_log.media_errors);
+    uint64_t old_me = uile128_clamp_to_uint64(state.nvme_smartval.media_errors);
+    uint64_t new_me = uile128_clamp_to_uint64(smart_log.media_errors);
     log_nvme_smart_change(cfg, state, "Media and Data Integrity Errors",
       old_me, new_me, (cfg.usagefailed && new_me > old_me), cfg.usage);
   }
@@ -4254,7 +4240,7 @@ static int NVMeCheckDevice(const dev_config & cfg, dev_state & state, nvme_devic
 
   // Check if number of errors has increased
   if (cfg.errorlog || cfg.xerrorlog) {
-    uint64_t newcnt = le128_to_uint64(smart_log.num_err_log_entries);
+    uint64_t newcnt = uile128_clamp_to_uint64(smart_log.num_err_log_entries);
     if (newcnt > state.nvme_err_log_entries) {
       // Warn only if device related errors are found
       check_nvme_error_log(cfg, state, nvmedev, newcnt);
