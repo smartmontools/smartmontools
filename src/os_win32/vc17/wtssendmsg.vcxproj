@@ -41,6 +41,7 @@
     <ProjectGuid>{0B6B7D19-07AE-41DD-B70E-2F74362A4EC0}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>wtssendmsg</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -125,11 +126,13 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IntDir>$(Configuration)\$(ProjectName).tmp\</IntDir>
+    <IntDir>$(Platform)\$(Configuration)\$(ProjectName).tmp\</IntDir>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-static|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IntDir>$(Configuration)\$(ProjectName).tmp\</IntDir>
+    <IntDir>$(Platform)\$(Configuration)\$(ProjectName).tmp\</IntDir>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -141,11 +144,13 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IntDir>$(Configuration)\$(ProjectName).tmp\</IntDir>
+    <IntDir>$(Platform)\$(Configuration)\$(ProjectName).tmp\</IntDir>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-static|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IntDir>$(Configuration)\$(ProjectName).tmp\</IntDir>
+    <IntDir>$(Platform)\$(Configuration)\$(ProjectName).tmp\</IntDir>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>

@@ -908,10 +908,7 @@ clean-vc: check-vc-version
 	rm -f $(srcdir)/os_win32/vc$(vcver)/config.h.tmp
 	rm -f $(srcdir)/os_win32/vc$(vcver)/smartmon/smartmon_config.h.tmp
 	rm -f $(srcdir)/os_win32/vc$(vcver)/syslogevt.h
-	rm -rf $(srcdir)/os_win32/vc$(vcver)/Debug
-	rm -rf $(srcdir)/os_win32/vc$(vcver)/Debug-static
-	rm -rf $(srcdir)/os_win32/vc$(vcver)/Release
-	rm -rf $(srcdir)/os_win32/vc$(vcver)/Release-static
+	rm -rf $(srcdir)/os_win32/vc$(vcver)/Win32
 	rm -rf $(srcdir)/os_win32/vc$(vcver)/x64
 
 distclean-vc: clean-vc

@@ -476,16 +476,20 @@
     <IntDir>$(Platform)\$(Configuration)\$(ProjectName).tmp\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IntDir>$(Configuration)\$(ProjectName).tmp\</IntDir>
+    <IntDir>$(Platform)\$(Configuration)\$(ProjectName).tmp\</IntDir>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-static|Win32'">
-    <IntDir>$(Configuration)\$(ProjectName).tmp\</IntDir>
+    <IntDir>$(Platform)\$(Configuration)\$(ProjectName).tmp\</IntDir>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IntDir>$(Configuration)\$(ProjectName).tmp\</IntDir>
+    <IntDir>$(Platform)\$(Configuration)\$(ProjectName).tmp\</IntDir>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-static|Win32'">
-    <IntDir>$(Configuration)\$(ProjectName).tmp\</IntDir>
+    <IntDir>$(Platform)\$(Configuration)\$(ProjectName).tmp\</IntDir>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
