@@ -205,17 +205,21 @@
     <ClCompile Include="..\..\..\lib\utility.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\include\smartmon\ata.h" />
     <ClInclude Include="..\..\..\include\smartmon\atacmds.h" />
+    <ClInclude Include="..\..\..\include\smartmon\byteorder.h" />
     <ClInclude Include="..\..\..\include\smartmon\dev_interface.h" />
     <ClInclude Include="..\..\..\include\smartmon\farmcmds.h" />
     <ClInclude Include="..\..\..\include\smartmon\json.h" />
     <ClInclude Include="..\..\..\include\smartmon\knowndrives.h" />
+    <ClInclude Include="..\..\..\include\smartmon\nvme.h" />
     <ClInclude Include="..\..\..\include\smartmon\nvmecmds.h" />
     <ClInclude Include="..\..\..\include\smartmon\os_win32\popen.h" />
     <ClInclude Include="..\..\..\include\smartmon\os_win32\wmiquery.h" />
     <ClInclude Include="..\..\..\include\smartmon\regex\regex.h" />
     <ClInclude Include="..\..\..\include\smartmon\scsicmds.h" />
     <ClInclude Include="..\..\..\include\smartmon\sg_unaligned.h" />
+    <ClInclude Include="..\..\..\include\smartmon\smartmon_defs.h" />
     <ClInclude Include="..\..\..\include\smartmon\utility.h" />
     <ClInclude Include="..\..\..\lib\aacraid.h" />
     <ClCompile Include="..\..\..\lib\cciss.h">
@@ -371,6 +375,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\include\smartmon\config.h.in" />
+    <None Include="..\..\..\lib\Makefile.am" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

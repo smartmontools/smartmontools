@@ -93,7 +93,6 @@
     <ClInclude Include="..\..\..\lib\dev_ata_cmd_set.h" />
     <ClInclude Include="..\..\..\lib\dev_tunnelled.h" />
     <ClInclude Include="..\..\..\lib\freebsd_nvme_ioctl.h" />
-    <ClInclude Include="..\..\..\include\smartmon\knowndrives.h" />
     <ClInclude Include="..\..\..\lib\linux_nvme_ioctl.h" />
     <ClInclude Include="..\..\..\lib\netbsd_nvme_ioctl.h" />
     <ClInclude Include="..\..\..\lib\sssraid.h" />
@@ -138,8 +137,24 @@
     <ClInclude Include="smartmon\version.h">
       <Filter>os_win32\vc\smartmon</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\include\smartmon\knowndrives.h">
+      <Filter>include_smartmon</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\smartmon\byteorder.h">
+      <Filter>include_smartmon</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\smartmon\smartmon_defs.h">
+      <Filter>include_smartmon</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\smartmon\ata.h">
+      <Filter>include_smartmon</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\smartmon\nvme.h">
+      <Filter>include_smartmon</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\include\smartmon\config.h.in" />
+    <None Include="..\..\..\lib\Makefile.am" />
   </ItemGroup>
 </Project>
