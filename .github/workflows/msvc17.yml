@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       platforms:
-        description: "Platforms: x64 Win32"
+        description: "Platforms: x64 Win32 ARM64"
         required: false
         default: 'x64'
       configs:
@@ -31,7 +31,7 @@ jobs:
             printf '{"platform":['
             d=
             for x in ${{ github.event.inputs.platforms }}; do
-              case $x in x64|Win32)
+              case $x in x64|Win32|ARM64)
                 printf '%s"%s"' "$d" "$x"; d=',' ;;
               esac
             done
@@ -73,9 +73,10 @@ jobs:
 
   build:
     needs: configure-src
-    runs-on: windows-latest
     strategy:
       matrix: ${{ fromJSON(needs.configure-src.outputs.matrix) }}
+
+    runs-on: ${{ fromJSON('["windows-latest", "windows-11-arm"]')[matrix.platform == 'ARM64'] }}
 
     steps:
       - uses: microsoft/setup-msbuild@v2
