@@ -2324,7 +2324,7 @@ const drive_settings builtin_knowndrives[] = {
       // MKNSSDRE250GB-LT/O1026A
     "MKNSSD(S2|TR)(12[08]|2[45]0|480|500)GB(-(3DL|LT))?|" // Mushkin, tested with MKNSSDS2500GB/T0818A0,
       // MKNSSDTR500GB/O1126A, MKNSSDTR128GB-3DL/Q0616B0
-    "N900-512|" // tested with Wicgtyp N900-512
+    "N900-(256|512)|" // tested with Wicgtyp N900-512
     "NFN025SA31T-.*|" // Neo Forza (?), from HP Laptop, tested with NFN025SA31T-6000000/S0628A0
     "NFORCE (256|512)25 - SSZS13|" // Nextron NForce, tested with NFORCE 25625 - SSZS13/V0915A0
     "ONDA S-12 64GB|" // tested with ONDA S-12 64GB/U0401A0
