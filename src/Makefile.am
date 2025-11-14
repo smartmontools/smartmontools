@@ -127,6 +127,8 @@ smartd_SOURCES += \
 
 endif
 
+all_local =
+
 if OS_SOLARIS
 # This block is required because Solaris uses manual page section 1m
 # for administrative command (linux/freebsd use section 8) and Solaris
@@ -140,7 +142,8 @@ if ENABLE_UPDATE_SMART_DRIVEDB
 extra_MANS += update-smart-drivedb.1m
 endif
 
-all-local: $(extra_MANS)
+all_local += $(extra_MANS)
+
 install-man: $(extra_MANS)
 	@$(NORMAL_INSTALL)
 	$(MKDIR_P) '$(DESTDIR)$(mandir)/man4'
@@ -183,10 +186,15 @@ endif
 doc_DATA = \
         smartd.conf
 
-sysconf_DATA = smartd.conf
+# Avoid automake warning: '.PHONY was already defined in condition ...'
+phony = install-smartd_conf uninstall-smartd_conf
+.PHONY: $(phony)
+
+install_data_local = install-smartd_conf
+uninstall_local = uninstall-smartd_conf
 
 # If modified smartd.conf exists install smartd.conf.sample instead
-install-sysconfDATA: $(sysconf_DATA)
+install-smartd_conf:
 	$(MKDIR_P) '$(DESTDIR)$(sysconfdir)'
 	@s="$(srcdir)/smartd.conf"; \
 	f="$(DESTDIR)$(sysconfdir)/smartd.conf$(smartd_suffix)"; \
@@ -203,7 +211,7 @@ install-sysconfDATA: $(sysconf_DATA)
 	$(INSTALL_DATA) "$$s" "$$f"
 
 # If smartd.conf.sample exists preserve smartd.conf
-uninstall-sysconfDATA:
+uninstall-smartd_conf:
 	@f="$(DESTDIR)$(sysconfdir)/smartd.conf$(smartd_suffix)"; \
 	if test -z "$(smartd_suffix)" && test -f "$$f".sample; then \
 	  echo "************************************************************"; \
@@ -227,7 +235,6 @@ EXTRA_DIST = \
         smartd.8.in \
         smartctl.8.in \
         smartd.conf.5.in \
-        smartd.conf \
         smartd.service.in \
         smartd_warning.sh.in \
         update-smart-drivedb.in \
@@ -252,6 +259,7 @@ EXTRA_DIST = \
 
 CLEANFILES = \
         cppcheck.txt \
+        com.smartmontools.smartd.plist \
         config.log \
         shellcheck.txt \
         smartd.8 \
@@ -297,54 +305,33 @@ smartd_warning.sh: smartd_warning.sh.in ../config.status
 	$(AM_V_GEN)$(SHELL) ../config.status -q --file=$@:$(srcdir)/smartd_warning.sh.in
 	$(AM_V_at)chmod +x $@
 
-if INSTALL_INITSCRIPT
-if OS_DARWIN
-initd_DATA = com.smartmontools.smartd.plist
+com.smartmontools.smartd.plist: os_darwin/com.smartmontools.smartd.plist.in Makefile
+	$(AM_V_GEN)sed 's|/usr/sbin/|$(sbindir)/|' $(srcdir)/os_darwin/com.smartmontools.smartd.plist.in > $@
 
-initd_DATA_install = install-initdDATA-darwin
-initd_DATA_uninstall = uninstall-initdDATA-darwin
-
-com.smartmontools.smartd.plist : os_darwin/com.smartmontools.smartd.plist.in
-	$(AM_V_GEN)sed "s|/usr/sbin/|$(sbindir)/|" $(srcdir)/os_darwin/com.smartmontools.smartd.plist.in > $@
-
-install-initdDATA-darwin: $(initd_DATA)
-	$(MKDIR_P) '$(DESTDIR)$(initddir)'
-	$(INSTALL_DATA) $(top_builddir)/$(initd_DATA) $(DESTDIR)$(initddir)/$(initd_DATA)
-
-uninstall-initdDATA-darwin:
-	rm -f $(DESTDIR)$(initddir)/$(initd_DATA)
-
-else
-
-initd_DATA = $(initdfile)
-
-$(initdfile): $(srcdir)/$(initdfile).in Makefile
+$(initdfile): $(initdfile).in Makefile
 	$(AM_V_GEN)sed 's|/usr/local/sbin/|$(sbindir)/|g' $(srcdir)/$(initdfile).in > $@
 
-initd_install_name = smartd$(smartd_suffix)
+if INSTALL_INITSCRIPT
+if OS_DARWIN
 
-initd_DATA_install = install-initdDATA-generic
-initd_DATA_uninstall = uninstall-initdDATA-generic
+initd_DATA = com.smartmontools.smartd.plist
 
-install-initdDATA-generic: $(initd_DATA)
-	$(MKDIR_P) '$(DESTDIR)$(initddir)'
-	$(INSTALL_SCRIPT) '$(top_builddir)/$(initdfile)' '$(DESTDIR)$(initddir)/smartd$(smartd_suffix)'
-
-uninstall-initdDATA-generic:
-	rm -f '$(DESTDIR)$(initddir)/$(initd_install_name)'
-endif
 else
 
-initd_DATA_install = install-initdDATA-null
-initd_DATA_uninstall = uninstall-initdDATA-null
+phony += install-initd uninstall-initd
+all_local += $(initdfile)
+install_data_local += install-initd
+uninstall_local += uninstall-initd
 
-install-initdDATA-null:
-uninstall-initdDATA-null:
+install-initd: $(initdfile)
+	$(MKDIR_P) $(DESTDIR)$(initddir)
+	$(INSTALL_SCRIPT) $(initdfile) $(DESTDIR)$(initddir)/smartd$(smartd_suffix)
+
+uninstall-initd:
+	rm -f $(DESTDIR)$(initddir)/smartd$(smartd_suffix)
+
 endif
-
-install-initdDATA : $(initd_DATA_install)
-
-uninstall-initdDATA: $(initd_DATA_uninstall)
+endif
 
 if INSTALL_SYSTEMDUNIT
 systemdsystemunit_DATA = smartd.service
@@ -375,7 +362,9 @@ installdirs-local:
 	  $(MKDIR_P) "$(DESTDIR)$$d" || exit 1; \
 	done
 
-install-data-local: installdirs-local
+all-local: $(all_local)
+install-data-local: $(install_data_local) installdirs-local
+uninstall-local: $(uninstall_local)
 
 #
 # Build man pages
@@ -515,9 +504,7 @@ FIXHTML = sed -e '1s,^Content-type.*,,' \
               -e 's,<A HREF="mailto:[^s][^m][^a][^"]*">\([^<]*\)</A>,\1,g' \
               -e '/^Time: [012][0-9]:[0-5][0-9]:[0-5][0-9] [^<]*$$/d'
 
-# Avoid automake warning: '.PHONY was already defined in condition ...'
-phony = cppcheck htmlman pdfman shellcheck
-.PHONY: $(phony)
+phony += cppcheck htmlman pdfman shellcheck
 
 htmlman: smartctl.8.html smartd.8.html smartd.conf.5.html update-smart-drivedb.8.html
 
