@@ -18,7 +18,7 @@
 // Enable format check of printf()-like functions
 #ifndef __GNUC__
 #define SMARTMON_FORMAT_PRINTF(x, y)  /**/
-#elif defined(__MINGW32__) && __USE_MINGW_ANSI_STDIO
+#elif defined(__MINGW32__) && !defined(__clang__) && __USE_MINGW_ANSI_STDIO
 // Check format of __mingw_*printf() instead of MSVCRT.DLL:*printf()
 #define SMARTMON_FORMAT_PRINTF(x, y)  __attribute__((format (gnu_printf, x, y)))
 #else
