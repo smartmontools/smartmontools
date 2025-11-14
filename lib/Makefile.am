@@ -144,6 +144,7 @@ if INSTALL_DEVEL_BIN
 
 all-local: examples
 install-exec-local: install-examples
+uninstall-local: uninstall-examples
 
 else
 
@@ -182,6 +183,9 @@ examples/make.sh: Makefile
 
 install-examples: examples
 	cd examples && ./make.sh DESTDIR=$(DESTDIR) install
+
+uninstall-examples: examples
+	! test -f examples/make.sh || (cd examples && ./make.sh DESTDIR=$(DESTDIR) uninstall)
 
 clean-examples:
 	! test -f examples/make.sh || (cd examples && ./make.sh clean)

@@ -57,5 +57,12 @@ install: all
 	  $(INSTALL) $$f $(DESTDIR)$(SBINDIR); \
 	done
 
+uninstall:
+	@for f in $(PROGRAMS); do \
+	  test -f $(DESTDIR)$(SBINDIR)/$$f || continue; \
+	  echo "rm -f $(DESTDIR)$(SBINDIR)/$$f"; \
+	  rm -f $(DESTDIR)$(SBINDIR)/$$f; \
+	done
+
 clean:
 	rm -f $(PROGRAMS)

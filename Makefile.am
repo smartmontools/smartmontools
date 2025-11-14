@@ -73,7 +73,7 @@ SUBDIRS = include lib src
 SRC_TARGETS = cppcheck htmlman pdfman shellcheck
 INC_SRC_TARGETS =
 LIB_SRC_TARGETS =
-LIB_TARGETS = clean-examples
+LIB_TARGETS = uninstall-examples clean-examples
 INC_LIB_TARGETS = examples install-examples
 
 if OS_WIN32_MINGW
