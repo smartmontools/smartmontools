@@ -3810,6 +3810,7 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
             farm_supported = false;
         }
         jglb["seagate_farm_log"]["supported"] = farm_supported;
+        any_output = true;
     }
     if (options.smart_error_log || options.scsi_pending_defects) {
         if (options.smart_error_log) {
