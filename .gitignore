@@ -49,6 +49,8 @@
 /lib/examples/*.exe
 /lib/examples/ata-standby
 /lib/examples/lsdisk
+/lib/examples/make.sh
+/lib/examples/make.sh.tmp
 /lib/libsmartmon.la
 /smartmontools-*.*.tar
 /smartmontools-*.*.tar.*

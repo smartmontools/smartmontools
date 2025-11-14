@@ -142,7 +142,7 @@ endif
 
 if INSTALL_DEVEL_BIN
 
-all: examples
+all-local: examples
 install-exec-local: install-examples
 
 else
@@ -161,25 +161,31 @@ EXTRA_DIST = \
 
 examples: examples.stamp
 
-examples.stamp: libsmartmon.la examples/Makefile
-	$(AM_V_GEN)! test -f $@ || $(MAKE) -C examples clean
-	$(AM_V_at)$(MAKE) -C examples \
-	  VPATH=$(abs_top_srcdir)/lib/examples \
-	  V='$(V)' \
-	  CXX='$(CXX)' \
-	  CPPFLAGS='-I../../include -I$(abs_top_srcdir)/include $(examples_cppflags)' \
-	  LDFLAGS='-L../.libs $(examples_ldflags)'
+examples.stamp: libsmartmon.la examples/Makefile examples/make.sh
+	$(AM_V_at)cd examples && ./make.sh clean && ./make.sh
 	$(AM_V_at)touch $@
 
-examples/Makefile: examples/Makefile.in
+examples/Makefile: examples/Makefile.in ../Makefile
 	$(MAKE) -C .. lib/examples/Makefile
 
+examples/make.sh: Makefile
+	$(AM_V_GEN)(echo "#!$(SHELL)$$(test '$(V)' = 0 || echo ' -x')"; \
+	  echo "exec $(MAKE)$$(test '$(V)' = 0 && echo ' V=0') \\"; \
+	  echo "  VPATH='$(abs_top_srcdir)/lib/examples' \\"; \
+	  echo "  CXX='$(CXX)' \\"; \
+	  echo "  CPPFLAGS='-I../../include -I$(abs_top_srcdir)/include $(examples_cppflags)' \\"; \
+	  echo "  LDFLAGS='-L../.libs $(examples_ldflags)' \\"; \
+	  echo "  SBINDIR='$(develbindir)' \\"; \
+	  echo '  "$$@"') > $@.tmp
+	$(AM_V_at)chmod +x $@.tmp
+	$(AM_V_at)mv -f $@.tmp $@
+
 install-examples: examples
-	$(MAKE) -C examples DESTDIR=$(DESTDIR) SBINDIR=$(develbindir) install
+	cd examples && ./make.sh DESTDIR=$(DESTDIR) install
 
 clean-examples:
-	! test -f examples/Makefile || $(MAKE) -C examples clean
-	rm -f examples.stamp
+	! test -f examples/make.sh || (cd examples && ./make.sh clean)
+	rm -f examples/make.sh examples/make.sh.tmp examples.stamp
 
 clean-local: clean-examples
 
