@@ -158,7 +158,7 @@ EXTRA_DIST = \
         examples/Makefile.in \
         $(examples_cpp)
 
-.PHONY: examples install-examples clean-examples
+.PHONY: examples install-examples uninstall-examples clean-examples
 
 examples: examples.stamp
 
@@ -184,7 +184,7 @@ examples/make.sh: Makefile
 install-examples: examples
 	cd examples && ./make.sh DESTDIR=$(DESTDIR) install
 
-uninstall-examples: examples
+uninstall-examples:
 	! test -f examples/make.sh || (cd examples && ./make.sh DESTDIR=$(DESTDIR) uninstall)
 
 clean-examples:
