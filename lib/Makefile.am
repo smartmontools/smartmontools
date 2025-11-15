@@ -145,6 +145,7 @@ if INSTALL_DEVEL_BIN
 all-local: examples
 install-exec-local: install-examples
 uninstall-local: uninstall-examples
+installdirs-local: installdir-examples
 
 else
 
@@ -158,7 +159,7 @@ EXTRA_DIST = \
         examples/Makefile.in \
         $(examples_cpp)
 
-.PHONY: examples install-examples uninstall-examples clean-examples
+.PHONY: examples install-examples uninstall-examples installdir-examples clean-examples
 
 examples: examples.stamp
 
@@ -186,6 +187,9 @@ install-examples: examples
 
 uninstall-examples:
 	! test -f examples/make.sh || (cd examples && ./make.sh DESTDIR=$(DESTDIR) uninstall)
+
+installdir-examples:
+	$(MKDIR_P) $(DESTDIR)$(develbindir)
 
 clean-examples:
 	! test -f examples/make.sh || (cd examples && ./make.sh clean)
