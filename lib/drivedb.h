@@ -2065,7 +2065,7 @@ const drive_settings builtin_knowndrives[] = {
     "Samsung SSD 845DC EVO .*|" // Samsung SSD 845DC EVO 960GB/EXT03X3Q
     "SAMSUNG MZ7PA256HMDR-.*|" // PM810 (470 Series), tested with SAMSUNG MZ7PA256HMDR-010H1/AXM07H1Q
     "SAMSUNG MZ[7M]PC(032|064|128|256|512)HBCD-.*|" // PM830, tested with SAMSUNG MZMPC032HBCD-000L1/CXM12L1Q
-    "SAMSUNG MZ7[TP]D(128|256|512)H(AFV|CGM)-.*|" // 840 / 840 Pro (T/P), tested with.
+    "SAMSUNG MZ7[TP]D(128|256|512)H(AFV|CGM)-.*|" // 840 / 840 Pro (T/P), tested with
       // SAMSUNG MZ7TD256HAFV-000L7/DXT06L6Q, SAMSUNG MZ7PD256HCGM-000H7/DXM06H6Q
     "SAMSUNG MZ[7M]TD(128|256|512)HA[GF][LMV]-.*|" // PM841, tested with SAMSUNG MZMTD512HAGL-00000/DXT4200Q,
       // SAMSUNG MZ7TD512HAGM-000L1/DXT06L0Q, SAMSUNG MZMTD128HAFV-000L1/DXT43L0Q
@@ -4861,7 +4861,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 200,raw48,Pressure_Limit "
     "-v 240,msec24hour32"
   },
-  { "Seagate IronWolf Pro", // tested with ST4000NE0025-2EW107/EN02,
+  { "Seagate IronWolf Pro", // tested with ST4000NE0025-2EW107/EN02, ST6000NE0023-2EX110/EN02,
       // ST6000NE000-2KR101/EN01, ST8000NE001-2M7101/EN01, ST8000NE0004-1ZF11G/EN01,
       // ST8000NE0021-2EN112/EN02, ST12000NT001-3LX101/EN01, ST16000NE000-2RW103/EN02,
       // ST16000NT001-3LV101/EN01, ST18000NE000-3G6101/EN01, ST18000NT001-3LU101/EN01,
@@ -5345,7 +5345,8 @@ const drive_settings builtin_knowndrives[] = {
     "WDC WD1500AHFD-.*",
     "", "", ""
   },
-  { "Western Digital VelociRaptor", // tested with WDC WD1500HLHX-01JJPV0/04.05G04
+  { "Western Digital VelociRaptor", // tested with WDC WD1500HLHX-01JJPV0/04.05G04,
+      // WDC WD6000HLHX-01JJPV0/04.05G04
     "WDC WD(((800H|(1500|3000)[BH]|1600H|3000G)LFS)|((1500|3000|4500|6000)[BH]LHX))-.*",
     "", "", ""
   },
@@ -5396,15 +5397,16 @@ const drive_settings builtin_knowndrives[] = {
     "older WD SMR HDDs: https://www.heise.de/-10800960.html",
     ""
   },
-  { "Western Digital Red Plus", // tested with WDC WD80EFAX-68LHPN0/83.H0A83.
+  { "Western Digital Red Plus", // tested with WDC WD10EFRX-68JCSN0/01.01A01,
       // WDC WD10JFCX-68N6GN0/01.01A01, WDC WD20EFZX-68AWUN0/81.00B81,
       // WDC WD30EFRX-68EUZN0/82.00A82, WDC WD30EFZX-68AWUN0/81.00B81,
       // WDC WD40EFPX-68C6CN0/81.00A81, WDC WD40EFRX-68WT0N0/80.00A80,
       // WDC WD40EFZX-68AWUN0/81.00B81,
       // WDC WD60EFRX-68MYMN1/82.00A82, WDC WD60EFPX-68C5ZN0/81.00A81,
-      // WDC WD80EFZX-68UW8N0/83.H0A83, WDC WD10EFRX-68JCSN0/01.01A01
-      // WDC WD80EFBX-68AZZN0/85.00A85, WDC WD101EFAX-68LDBN0/81.00A81,
-      // WDC WD101EFBX-68B0AN0/85.00A85, WDC WD100EFAX-68LHPN0/83.H0A83,
+      // WDC WD80EFZZ-68BTXN0/81.00A81, WDC WD80EFAX-68LHPN0/83.H0A83,
+      // WDC WD80EFZX-68UW8N0/83.H0A83, WDC WD80EFBX-68AZZN0/85.00A85,
+      // WDC WD100EFAX-68LHPN0/83.H0A83, WDC WD101EFAX-68LDBN0/81.00A81,
+      // WDC WD101EFBX-68B0AN0/85.00A85,
       // WDC WD120EFAX-68UNTN0/81.00A81, WDC WD120EFBX-68B0EN0/85.00A85,
       // WDC WD140EFFX-68VBXN0/81.00A81
     "WDC WD(10JFCX|[1-6]0EFRX|[2-8]0EFPX|[23468]0E[FZ](ZX|ZZ)|(80|10[01]|1[24]0|1[68]1)(JFC|EF[ABFRG])X)-.*",
@@ -5423,9 +5425,8 @@ const drive_settings builtin_knowndrives[] = {
     "-v 90,hex48,NAND_Master" // WD201KFGX
   },
   { "Western Digital Purple (Pro)", // tested with WDC WD40PURX-64GVNY0/80.00A80,
-      // WDC WD40PURZ-85TTDY0/80.00A80
-      // WDC WD80PUZX-64NEAY0/80.H0A80
-      // WDC WD121PURP-85B5SY0/82.00A82
+      // WDC WD10PURZ-85U8XY0/01.01A01, WDC WD40PURZ-85TTDY0/80.00A80,
+      // WDC WD80PUZX-64NEAY0/80.H0A80, WDC WD121PURP-85B5SY0/82.00A82
     "WDC WD[1234568](0|[0248]1)PU[RZ][PXZ]-.*",
     "", "", ""
   //"-v 22,raw48,Helium_Level" // WD121PURP-85B5SY0, WD80PUZX-64NEAY0
@@ -6582,9 +6583,8 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   { "USB: ; JMicron JMS576", // USB3.1->SATA
-    "0x152d:0x[01a]576",
-    "", // 0x0204, ICY BOX IB-223U3a-B
-    // 0x0223 JMicron USA Technology Corp. SY-ENC50104 USB Device
+    "0x152d:0x[01a]576", // 0x1576 (0x0204): ICY BOX IB-223U3a-B
+    "", // 0xa576 (0x5102): JMicron SY-ENC50104 USB Device
     "",
     "-d sat"
   },
@@ -6957,7 +6957,7 @@ const drive_settings builtin_knowndrives[] = {
   // Framework Computer Inc
   { "USB: Framework 250/1000 GB Expansion Card; Phison PS2251",
     "0x32ac:0x0005",
-    "",
+    "", // 0x0110
     "",
     "-d sntasmedia"
   },
