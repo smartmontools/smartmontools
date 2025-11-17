@@ -6411,6 +6411,14 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  // Pandora International
+  { "USB: ; ",
+    "0x1111:0x2222", // MAIWO SAS docking station / KALEA-INFORMATIQUE SAS docking station
+    "", // 0x0157
+    "", // '-d sat' works with SATA disks and also provides some info from SAS disks.
+    "-d sat" // 'smartctl -d scsi -i ...' with a SAS disk times out, disconnects the device
+             // and then requires a power cycle.
+  },
   // Atech Flash Technology
   { "USB: ; Atech", // Kingston
     "0x11b0:0x6(298|388)",
