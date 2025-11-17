@@ -4692,6 +4692,22 @@ const drive_settings builtin_knowndrives[] = {
     "-v 200,raw48,Pressure_Limit "
     "-v 240,msec24hour32"
   },
+  { "Seagate BarraCuda 3.5 (CMR+HAMR)", // tested with ST26000DM000-3Y8103/EN03
+      // HAMR based BarraCuda, similar to Exos M series
+      // ST16000DM001-3Y4103/DN01
+      // ST20000DM001-3Y3103/DN01 /EN03
+      // ST22000DM000-3Y6103/EN03
+      // ST24000DM001-3Y7103/DN01 /EN03
+      // ST26000DM000-3Y8103/EN03
+      // ST28000DM000-3Y9103/EN03
+    "ST(16|20|22|24|26|28)000DM00[01]-3Y.103",
+    "", "",
+    "-v 1,raw24/raw32 -v 7,raw24/raw32 "
+    "-v 18,raw48,Head_Health "
+    "-v 188,raw16 "
+    "-v 200,raw48,Pressure_Limit "
+    "-v 240,msec24hour32"
+  },
   { "Seagate Constellation (SATA)", // tested with ST9500530NS/SN03
     "ST9(160511|500530)NS",
     "", "", ""
