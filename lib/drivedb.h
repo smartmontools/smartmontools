@@ -5222,7 +5222,10 @@ const drive_settings builtin_knowndrives[] = {
   { "Western Digital Blue (SMR)", // tested with WDC WD40EZAZ-00SF3B0/80.00A80 (TRIM: zeroed),
       // WDC WD40EDAZ-11SLVB0/80.00A80
     "WDC WD[2346]0E(DAZ|ZAZ|ZBX)-.*", // *EDAZ: White label, MyBook
-    "", "", ""
+    "",
+    "Data recovery specialists reported serious problems with\n"
+    "older WD SMR HDDs: https://www.heise.de/-10800960.html",
+    ""
   },
   { "Western Digital RE Serial ATA",
     "WDC WD(12|16|25|32)00(SD|YD|YS)-.*",
@@ -5387,7 +5390,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Western Digital Red (SMR)", // ticket #1313, tested with WDC WD60EFAX-68SHWN0/82.00A82
     "WDC WD[2346]0EFAX-.*",
-    "", "", ""
+    "",
+    "Data recovery specialists reported serious problems with\n"
+    "older WD SMR HDDs: https://www.heise.de/-10800960.html",
+    ""
   },
   { "Western Digital Red Plus", // tested with WDC WD80EFAX-68LHPN0/83.H0A83.
       // WDC WD10JFCX-68N6GN0/01.01A01, WDC WD20EFZX-68AWUN0/81.00B81,
