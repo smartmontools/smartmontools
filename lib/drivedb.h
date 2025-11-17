@@ -2177,6 +2177,7 @@ const drive_settings builtin_knowndrives[] = {
     "SanDisk SSD PLUS (120|240|480|[12]000) ?GB|" // Plus (88SS1074), tested with SanDisk SSD PLUS 120 GB/UE3000RL,
       // SanDisk SSD PLUS 120 GB/UE4500RL, SanDisk SSD PLUS 1000GB/UH4400RL
       // SanDisk SSD PLUS 2000GB/UP4504RL
+    "SD Ultra 3D [124]TB|" // tested with SD Ultra 3D 4TB/530500WD
     "SSD SATAIII 16GB", // SSD SATAIII 16GB/i221100 (see #923)
     "", "",
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
