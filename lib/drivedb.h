@@ -6946,6 +6946,13 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  // Framework Computer Inc
+  { "USB: Framework 250/1000 GB Expansion Card; Phison PS2251",
+    "0x32ac:0x0005",
+    "",
+    "",
+    "-d sntasmedia"
+  },
   // Power Quotient International
   { "USB: PQI bridge; ",
     "0x3538:0x0064",
