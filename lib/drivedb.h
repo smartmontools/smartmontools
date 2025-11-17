@@ -6575,8 +6575,9 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   { "USB: ; JMicron JMS576", // USB3.1->SATA
-    "0x152d:0x[01]576",
+    "0x152d:0x[01a]576",
     "", // 0x0204, ICY BOX IB-223U3a-B
+    // 0x0223 JMicron USA Technology Corp. SY-ENC50104 USB Device
     "",
     "-d sat"
   },
