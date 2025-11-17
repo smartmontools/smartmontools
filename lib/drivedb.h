@@ -6562,6 +6562,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "" // unsupported
   },
+  { "USB: ; JMicron JMS578", // USB->SATA
+    "0x152d:0x0901",
+    "", // 0x0215: TOPMORE
+    "",
+    "-d sat"
+  },
   { "USB: ; JMicron",
     "0x152d:0x1337",
     "", // 0x0508, Digitus DA-71106
