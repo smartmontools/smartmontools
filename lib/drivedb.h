@@ -6542,15 +6542,9 @@ const drive_settings builtin_knowndrives[] = {
     "", // 0x0205, 2.05, Mediasonic ProBox HF2-SU3S2 Rev 3 (port multiplier, ticket #504)
     "-d sat"
   },
-  { "USB: ; JMicron JMS578", // USB->SATA
-    "0x152d:0x0578",
-    "", // 0x0100, 0x0204
-    "",
-    "-d sat"
-  },
   { "USB: ; JMicron",
-    "0x152d:0x05(79|80)", // 0x0579(0x0100): Intenso External
-    "", // 0x0100, 0x0201
+    "0x152d:0x05(7[789]|80)", // 0x0579 (0x0100): Intenso External
+    "", // (0x0100), (0x0201), 0x0577 (0x0210), 0x0578 (0x0204)
     "",
     "-d sat"
   },
