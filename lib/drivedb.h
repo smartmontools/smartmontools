@@ -5160,11 +5160,11 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Seagate IronWolf Pro (HAMR)", // untested
       // HAMR based IronWolf Pro, Mozaic 3+ platform, similar to Exos M series
-      // ST24000NT031
-      // ST28000NT000
+      // ST24000NT031-3UH103/EN02
+      // ST28000NT000-4AB103/EN02
       // ST30000NT011-3V2103/EN02
-      // ST32000NT000
-    "ST(32000NT000|30000NT011|28000NT000|24000NT031)-3V.103",
+      // ST32000NT000-3TP103/EN02
+    "ST(24000NT031|28000NT000|30000NT011|32000NT000)-...103",
     "", "",
     "-v 1,raw24/raw32 -v 7,raw24/raw32 "
     "-v 18,raw48,Head_Health "
