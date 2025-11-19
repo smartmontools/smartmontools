@@ -901,11 +901,11 @@ clean-vc: check-vc-version
 
 distclean-vc: clean-vc
 	rm -f $(CONFIG_VC_FILES)
-	rmdir $(srcdir)/os_win32/vc$(vcver)/smartmon
-
+	rm -rf $(srcdir)/os_win32/vc$(vcver)/smartmon
 
 maintainer-clean-vc: distclean-vc
 	rm -f $(srcdir)/os_win32/vc$(vcver)/*.vcxproj.user
+	rm -f $(srcdir)/os_win32/vc$(vcver)/examples/*.vcxproj.user
 	rm -rf $(srcdir)/os_win32/vc$(vcver)/.vs
 
 endif
