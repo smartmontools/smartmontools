@@ -21,6 +21,10 @@ on:
         description: 'Suffix for binary files and build information'
         required: false
         default: 'shared'
+      check-options:
+        description: "'smartctl' options for a quick check"
+        required: false
+        default: '--scan'
 
 jobs:
   build-source-tarball:
@@ -86,6 +90,11 @@ jobs:
           path: smartmontools-ubuntu-x86_64-gcc-${{ github.event.inputs.suffix }}-*.tar.gz
           retention-days: 30
 
+      - name: Run smartctl ${{ github.event.inputs.check-options }}
+        run: |
+          cd smartmontools-[89].[0-9]/build/src && ./smartctl ${{ github.event.inputs.check-options }}
+
+
   build-ubuntu-arm64-gcc:
     if: ${{ contains(github.event.inputs.platforms, 'ubuntu-arm64-gcc') }}
     needs: build-source-tarball
@@ -114,6 +123,10 @@ jobs:
           name: smartmontools-ubuntu-arm64-gcc-${{ github.event.inputs.suffix }}
           path: smartmontools-ubuntu-arm64-gcc-${{ github.event.inputs.suffix }}-*.tar.gz
           retention-days: 30
+
+      - name: Run smartctl ${{ github.event.inputs.check-options }}
+        run: |
+          cd smartmontools-[89].[0-9]/build/src && ./smartctl ${{ github.event.inputs.check-options }}
 
   build-ubuntu-x86_64-clang:
     if: ${{ contains(github.event.inputs.platforms, 'ubuntu-x86_64-clang') }}
@@ -156,6 +169,10 @@ jobs:
           path: smartmontools-ubuntu-x86_64-clang-report-*.tar.gz
           retention-days: 30
 
+      - name: Run smartctl ${{ github.event.inputs.check-options }}
+        run: |
+          cd smartmontools-[89].[0-9]/build/src && ./smartctl ${{ github.event.inputs.check-options }}
+
   build-ubuntu-arm64-clang:
     if: ${{ contains(github.event.inputs.platforms, 'ubuntu-arm64-clang') }}
     needs: build-source-tarball
@@ -196,6 +213,10 @@ jobs:
           name: smartmontools-ubuntu-arm64-clang-report
           path: smartmontools-ubuntu-arm64-clang-report-*.tar.gz
           retention-days: 30
+
+      - name: Run smartctl ${{ github.event.inputs.check-options }}
+        run: |
+          cd smartmontools-[89].[0-9]/build/src && ./smartctl ${{ github.event.inputs.check-options }}
 
   build-darwin:
     if: ${{ contains(github.event.inputs.platforms, 'darwin') }}
