@@ -1397,6 +1397,8 @@ public:
 
 static smartd_hook the_smartd_hook;
 
+SMARTMON_DIAGNOSTIC_FORMAT_NONLITERAL_IGNORE
+
 // Printing function for watching ataprint commands, or losing them
 void smartd_hook::lib_vprintf(const char * fmt, va_list ap)
 {
@@ -1417,6 +1419,8 @@ void smartd_hook::lib_vprintf(const char * fmt, va_list ap)
     closelog();
   }
 }
+
+SMARTMON_DIAGNOSTIC_FORMAT_NONLITERAL_RESTORE
 
 // This function prints either to stdout or to the syslog as needed.
 static void PrintOut(int priority, const char *fmt, ...){

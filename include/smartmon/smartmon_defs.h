@@ -25,6 +25,18 @@
 #define SMARTMON_FORMAT_PRINTF(x, y)  __attribute__((format (printf, x, y)))
 #endif
 
+// Temporarily disable warnings
+#ifndef __GNUC__
+#define SMARTMON_DIAGNOSTIC_FORMAT_NONLITERAL_IGNORE  /**/
+#define SMARTMON_DIAGNOSTIC_FORMAT_NONLITERAL_RESTORE /**/
+#else // This also works for CLang
+#define SMARTMON_DIAGNOSTIC_FORMAT_NONLITERAL_IGNORE \
+  _Pragma("GCC diagnostic push") \
+  _Pragma("GCC diagnostic ignored \"-Wformat-nonliteral\"")
+#define SMARTMON_DIAGNOSTIC_FORMAT_NONLITERAL_RESTORE \
+  _Pragma("GCC diagnostic pop")
+#endif
+
 // Add __attribute__((packed)) if compiler supports it
 // because some older gcc versions ignore #pragma pack()
 #ifdef SMARTMON_HAVE_ATTR_PACKED

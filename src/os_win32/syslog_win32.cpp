@@ -3,7 +3,7 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2004-23 Christian Franke
+ * Copyright (C) 2004-25 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -15,6 +15,8 @@
 
 #include "syslog.h"
 
+#include <smartmon/smartmon_defs.h>
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
@@ -23,9 +25,6 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h> // RegisterEventSourceA(), ReportEventA(), ...
-
-const char *syslog_win32_cpp_cvsid = "$Id: syslog_win32.cpp 5499 2023-07-10 16:32:10Z chrfranke $"
-  SYSLOG_H_CVSID;
 
 #ifdef TESTEVT
 // Redirect event log to stdout for testing
@@ -314,6 +313,8 @@ void closelog()
 {
 }
 
+SMARTMON_DIAGNOSTIC_FORMAT_NONLITERAL_IGNORE
+
 void vsyslog(int priority, const char * message, va_list args)
 {
   // Translation of %m to error text not supported yet
@@ -343,6 +344,8 @@ void vsyslog(int priority, const char * message, va_list args)
     fclose(f);
   }
 }
+
+SMARTMON_DIAGNOSTIC_FORMAT_NONLITERAL_RESTORE
 
 #ifdef TEST
 // Test program

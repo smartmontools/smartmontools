@@ -1330,6 +1330,8 @@ static int parse_options(int argc, char** argv, const char * & type,
 
 // Printing functions
 
+SMARTMON_DIAGNOSTIC_FORMAT_NONLITERAL_IGNORE
+
 SMARTMON_FORMAT_PRINTF(3, 0)
 static void vjpout(bool is_js_impl, const char * msg_severity,
                    const char *fmt, va_list ap)
@@ -1380,6 +1382,8 @@ static void vjpout(bool is_js_impl, const char * msg_severity,
     }
   }
 }
+
+SMARTMON_DIAGNOSTIC_FORMAT_NONLITERAL_RESTORE
 
 static bool pout_enabled()
 {
@@ -1470,6 +1474,8 @@ public:
 
 static smartctl_hook the_smartctl_hook;
 
+SMARTMON_DIAGNOSTIC_FORMAT_NONLITERAL_IGNORE
+
 void smartctl_hook::lib_vprintf(const char * fmt, va_list ap)
 {
   // Same as pout()
@@ -1477,6 +1483,8 @@ void smartctl_hook::lib_vprintf(const char * fmt, va_list ap)
     return;
   vjpout(false, 0, fmt, ap);
 }
+
+SMARTMON_DIAGNOSTIC_FORMAT_NONLITERAL_RESTORE
 
 void smartctl_hook::on_checksum_error(const char * datatype)
 {

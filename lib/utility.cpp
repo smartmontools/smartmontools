@@ -83,15 +83,20 @@ void lib_global_hook::reset()
   current_global_hook = &the_lib_global_hook;
 }
 
+SMARTMON_DIAGNOSTIC_FORMAT_NONLITERAL_IGNORE
+
 void lib_global_hook::lib_vprintf(const char * fmt, va_list ap)
 {
   vprintf(fmt, ap);
 }
 
+SMARTMON_DIAGNOSTIC_FORMAT_NONLITERAL_RESTORE
+
 void lib_vprintf(const char * fmt, va_list ap)
 {
   lib_global_hook::get().lib_vprintf(fmt, ap);
 }
+
 
 void lib_printf(const char * fmt, ...)
 {
