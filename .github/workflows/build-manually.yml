@@ -9,11 +9,11 @@ on:
         default: >-
           ubuntu-x86_64-gcc ubuntu-arm64-gcc ubuntu-x86_64-clang ubuntu-arm64-clang
           darwin freebsd-14 windows-x86_64 cygwin
-      cfg_options:
+      cfg-options:
         description: "'configure' options to select library"
         required: false
         default: '--enable-shared --disable-static'
-      make_options:
+      make-options:
         description: "'make' options"
         required: false
         default: '-j V=0'
@@ -25,13 +25,14 @@ on:
 jobs:
   build-source-tarball:
     runs-on: ubuntu-latest
+
     steps:
       - name: Show parameters
         run: |
           echo "::notice::" \
                "platforms: '${{ github.event.inputs.platforms }}'," \
-               "cfg_options: '${{ github.event.inputs.cfg_options }}'," \
-               "make_options: '${{ github.event.inputs.make_options }}'," \
+               "cfg-options: '${{ github.event.inputs.cfg-options }}'," \
+               "make-options: '${{ github.event.inputs.make-options }}'," \
                "suffix: '${{ github.event.inputs.suffix }}'"
 
       - uses: actions/checkout@v4
@@ -60,6 +61,7 @@ jobs:
     if: ${{ contains(github.event.inputs.platforms, 'ubuntu-x86_64-gcc') }}
     needs: build-source-tarball
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/download-artifact@v4
         with:
@@ -72,9 +74,9 @@ jobs:
           version_sh=$("${distfile%.tar.gz}/src/getversion.sh" -s) && eval "${version_sh}" &&
           cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
           ../configure --with-build-info='(GHA/${{ github.event.inputs.suffix }})' \
-            ${{ github.event.inputs.cfg_options }} \
+            ${{ github.event.inputs.cfg-options }} \
             SOURCE_DATE_EPOCH=$((SMARTMONTOOLS_GIT_REV_EPOCH + 1)) &&
-          make ${{ github.event.inputs.make_options }} && make check &&
+          make ${{ github.event.inputs.make-options }} && make check &&
           bin_distfile="../../smartmontools-ubuntu-x86_64-gcc-${{ github.event.inputs.suffix }}-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" &&
           make bin_distfile="$bin_distfile" bin-dist && tar -tvf "$bin_distfile"
 
@@ -88,6 +90,7 @@ jobs:
     if: ${{ contains(github.event.inputs.platforms, 'ubuntu-arm64-gcc') }}
     needs: build-source-tarball
     runs-on: ubuntu-24.04-arm
+
     steps:
       - uses: actions/download-artifact@v4
         with:
@@ -100,9 +103,9 @@ jobs:
           version_sh=$("${distfile%.tar.gz}/src/getversion.sh" -s) && eval "${version_sh}" &&
           cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
           ../configure --with-build-info='(GHA/${{ github.event.inputs.suffix }})' \
-            ${{ github.event.inputs.cfg_options }} \
+            ${{ github.event.inputs.cfg-options }} \
             SOURCE_DATE_EPOCH=$((SMARTMONTOOLS_GIT_REV_EPOCH + 1)) &&
-          make ${{ github.event.inputs.make_options }} && make check &&
+          make ${{ github.event.inputs.make-options }} && make check &&
           bin_distfile="../../smartmontools-ubuntu-arm64-gcc-${{ github.event.inputs.suffix }}-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" &&
           make bin_distfile="$bin_distfile" bin-dist && tar -tvf "$bin_distfile"
 
@@ -116,6 +119,7 @@ jobs:
     if: ${{ contains(github.event.inputs.platforms, 'ubuntu-x86_64-clang') }}
     needs: build-source-tarball
     runs-on: ubuntu-latest
+
     steps:
       - run: sudo apt-get update && sudo apt-get install clang-tools
 
@@ -132,10 +136,10 @@ jobs:
           export SOURCE_DATE_EPOCH=$((SMARTMONTOOLS_GIT_REV_EPOCH + 1)) &&
           ../configure --with-build-info='(GHA/clang/${{ github.event.inputs.suffix }})' \
             CC=clang CXX=clang++ \
-            ${{ github.event.inputs.cfg_options }} &&
+            ${{ github.event.inputs.cfg-options }} &&
           ../src/clang-scan-build.sh \
             -f "../../smartmontools-ubuntu-x86_64-clang-report-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" \
-            make ${{ github.event.inputs.make_options }} &&
+            make ${{ github.event.inputs.make-options }} &&
           make check &&
           bin_distfile="../../smartmontools-ubuntu-x86_64-clang-${{ github.event.inputs.suffix }}-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" &&
           make bin_distfile="$bin_distfile" bin-dist && tar -tvf "$bin_distfile"
@@ -156,6 +160,7 @@ jobs:
     if: ${{ contains(github.event.inputs.platforms, 'ubuntu-arm64-clang') }}
     needs: build-source-tarball
     runs-on: ubuntu-24.04-arm
+
     steps:
       - run: sudo apt-get update && sudo apt-get install clang-tools
 
@@ -172,10 +177,10 @@ jobs:
           export SOURCE_DATE_EPOCH=$((SMARTMONTOOLS_GIT_REV_EPOCH + 1)) &&
           ../configure --with-build-info='(GHA/clang/${{ github.event.inputs.suffix }})' \
             CC=clang CXX=clang++ \
-            ${{ github.event.inputs.cfg_options }} &&
+            ${{ github.event.inputs.cfg-options }} &&
           ../src/clang-scan-build.sh \
             -f "../../smartmontools-ubuntu-arm64-clang-report-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" \
-            make ${{ github.event.inputs.make_options }} &&
+            make ${{ github.event.inputs.make-options }} &&
           make check &&
           bin_distfile="../../smartmontools-ubuntu-arm64-clang-${{ github.event.inputs.suffix }}-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" &&
           make bin_distfile="$bin_distfile" bin-dist && tar -tvf "$bin_distfile"
@@ -198,6 +203,7 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/smartmontools/docker-build:master
+
     steps:
       - uses: actions/download-artifact@v4
         with:
@@ -213,12 +219,12 @@ jobs:
           cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
           ../configure --build=$(../config.guess) --host=x86_64-apple-darwin20.4 \
             --with-build-info='(GHA/${{ github.event.inputs.suffix }})' \
-            ${{ github.event.inputs.cfg_options }} \
+            ${{ github.event.inputs.cfg-options }} \
             --sysconfdir=/private/etc CC=o64-clang CXX=o64-clang++ \
             CFLAGS="-arch arm64 -arch x86_64" \
             CXXFLAGS="-arch arm64 -arch x86_64 -stdlib=libc++" \
             SOURCE_DATE_EPOCH=$((SMARTMONTOOLS_GIT_REV_EPOCH + 1)) &&
-          make ${{ github.event.inputs.make_options }} && make check &&
+          make ${{ github.event.inputs.make-options }} && make check &&
           bin_distfile="../../smartmontools-darwin-${{ github.event.inputs.suffix }}-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" &&
           make bin_distfile="$bin_distfile" bin-dist && tar -tvf "$bin_distfile" &&
           make pkg_darwin="smartmontools-${SMARTMONTOOLS_GIT_VER_FNAME}.pkg" \
@@ -242,6 +248,7 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/smartmontools/docker-build:master
+
     steps:
       - uses: actions/download-artifact@v4
         with:
@@ -257,10 +264,10 @@ jobs:
           target="$target -isystem /opt/cross-freebsd-14/usr/include/c++/v1" &&
           ../configure --build=$(../config.guess) --host=x86_64-pc-freebsd14 \
             --with-build-info='(GHA/${{ github.event.inputs.suffix }})' \
-            ${{ github.event.inputs.cfg_options }} \
+            ${{ github.event.inputs.cfg-options }} \
             CC="clang $target" CXX="clang++ $target" \
             SOURCE_DATE_EPOCH=$((SMARTMONTOOLS_GIT_REV_EPOCH + 1)) &&
-          make ${{ github.event.inputs.make_options }} && make check &&
+          make ${{ github.event.inputs.make-options }} && make check &&
           bin_distfile="../../smartmontools-freebsd-14-${{ github.event.inputs.suffix }}-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" &&
           make bin_distfile="$bin_distfile" bin-dist && tar -tvf "$bin_distfile"
 
@@ -272,11 +279,12 @@ jobs:
 
   build-windows-x86_64:
     # TODO: '--enable-shared' fails due to missing stack check functions
-    if: ${{ contains(github.event.inputs.platforms, 'windows-x86_64') && !contains(github.event.inputs.cfg_options, '--enable-shared') }}
+    if: ${{ contains(github.event.inputs.platforms, 'windows-x86_64') && !contains(github.event.inputs.cfg-options, '--enable-shared') }}
     needs: build-source-tarball
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/smartmontools/docker-build:master
+
     steps:
       - uses: actions/download-artifact@v4
         with:
@@ -290,9 +298,9 @@ jobs:
           cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
           ../configure --build=$(../config.guess) --host=x86_64-w64-mingw32 \
             --with-build-info='(GHA/${{ github.event.inputs.suffix }})' \
-            ${{ github.event.inputs.cfg_options }} \
+            ${{ github.event.inputs.cfg-options }} \
             SOURCE_DATE_EPOCH=$((SMARTMONTOOLS_GIT_REV_EPOCH + 1)) &&
-          make ${{ github.event.inputs.make_options }} && make check &&
+          make ${{ github.event.inputs.make-options }} && make check &&
           bin_distfile="../../smartmontools-windows-x86_64-${{ github.event.inputs.suffix }}-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" &&
           make bin_distfile="$bin_distfile" bin-dist && tar -tvf "$bin_distfile" &&
           make distinst_win32="../../../smartmontools-windows-x86_64-setup-${{ github.event.inputs.suffix }}-${SMARTMONTOOLS_GIT_VER_FNAME}.exe" \
@@ -312,12 +320,13 @@ jobs:
 
   build-cygwin:
     # TODO: '--enable-shared' is ignored due to missing import libraries
-    if: ${{ contains(github.event.inputs.platforms, 'cygwin') && !contains(github.event.inputs.cfg_options, '--enable-shared') }}
+    if: ${{ contains(github.event.inputs.platforms, 'cygwin') && !contains(github.event.inputs.cfg-options, '--enable-shared') }}
     needs: build-source-tarball
     runs-on: ubuntu-latest
     # Cross build on Fedora is faster than the native build done by 'cygwin.yml'.
     # The recipes below are partly borrowed from Cygwin's own CI build.
     container: fedora:latest
+
     steps:
       - name: Install cross-cygwin toolchain
         run: |
@@ -338,9 +347,9 @@ jobs:
           cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
           ../configure --build=$(../config.guess) --host=x86_64-pc-cygwin \
             --with-build-info='(GHA/${{ github.event.inputs.suffix }})' \
-            ${{ github.event.inputs.cfg_options }} \
+            ${{ github.event.inputs.cfg-options }} \
             SOURCE_DATE_EPOCH=$((SMARTMONTOOLS_GIT_REV_EPOCH + 1)) &&
-          make ${{ github.event.inputs.make_options }} && make check &&
+          make ${{ github.event.inputs.make-options }} && make check &&
           bin_distfile="../../smartmontools-cygwin-${{ github.event.inputs.suffix }}-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" &&
           make bin_distfile="$bin_distfile" bin-dist && tar -tvf "$bin_distfile"
 
