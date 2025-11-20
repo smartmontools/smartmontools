@@ -4,9 +4,11 @@ on:
   workflow_dispatch:
     inputs:
       platforms:
-        description: 'List of build platforms (defaults to all)'
+        description: Build platforms (defaults to all)
         required: false
-        default: 'linux-x86_64 linux-arm64 darwin freebsd-14 windows-x86_64 cygwin'
+        default: >-
+          ubuntu-x86_64-gcc ubuntu-arm64-gcc ubuntu-x86_64-clang ubuntu-arm64-clang
+          darwin freebsd-14 windows-x86_64 cygwin
       cfg_options:
         description: "'configure' options to select library"
         required: false
@@ -54,8 +56,8 @@ jobs:
           path: build/smartmontools-*.tar.gz
           retention-days: 30
 
-  build-linux-x86_64:
-    if: ${{ contains(github.event.inputs.platforms, 'linux-x86_64') }}
+  build-ubuntu-x86_64-gcc:
+    if: ${{ contains(github.event.inputs.platforms, 'ubuntu-x86_64-gcc') }}
     needs: build-source-tarball
     runs-on: ubuntu-latest
     steps:
@@ -73,17 +75,17 @@ jobs:
             ${{ github.event.inputs.cfg_options }} \
             SOURCE_DATE_EPOCH=$((SMARTMONTOOLS_GIT_REV_EPOCH + 1)) &&
           make ${{ github.event.inputs.make_options }} && make check &&
-          bin_distfile="../../smartmontools-linux-x86_64-${{ github.event.inputs.suffix }}-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" &&
+          bin_distfile="../../smartmontools-ubuntu-x86_64-gcc-${{ github.event.inputs.suffix }}-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" &&
           make bin_distfile="$bin_distfile" bin-dist && tar -tvf "$bin_distfile"
 
       - uses: actions/upload-artifact@v4
         with:
-          name: smartmontools-linux-x86_64-${{ github.event.inputs.suffix }}
-          path: smartmontools-linux-x86_64-${{ github.event.inputs.suffix }}-*.tar.gz
+          name: smartmontools-ubuntu-x86_64-gcc-${{ github.event.inputs.suffix }}
+          path: smartmontools-ubuntu-x86_64-gcc-${{ github.event.inputs.suffix }}-*.tar.gz
           retention-days: 30
 
-  build-linux-arm64:
-    if: ${{ contains(github.event.inputs.platforms, 'linux-arm64') }}
+  build-ubuntu-arm64-gcc:
+    if: ${{ contains(github.event.inputs.platforms, 'ubuntu-arm64-gcc') }}
     needs: build-source-tarball
     runs-on: ubuntu-24.04-arm
     steps:
@@ -98,16 +100,96 @@ jobs:
           version_sh=$("${distfile%.tar.gz}/src/getversion.sh" -s) && eval "${version_sh}" &&
           cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
           ../configure --with-build-info='(GHA/${{ github.event.inputs.suffix }})' \
-          ${{ github.event.inputs.cfg_options }} \
+            ${{ github.event.inputs.cfg_options }} \
             SOURCE_DATE_EPOCH=$((SMARTMONTOOLS_GIT_REV_EPOCH + 1)) &&
           make ${{ github.event.inputs.make_options }} && make check &&
-          bin_distfile="../../smartmontools-linux-arm64-${{ github.event.inputs.suffix }}-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" &&
+          bin_distfile="../../smartmontools-ubuntu-arm64-gcc-${{ github.event.inputs.suffix }}-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" &&
           make bin_distfile="$bin_distfile" bin-dist && tar -tvf "$bin_distfile"
 
       - uses: actions/upload-artifact@v4
         with:
-          name: smartmontools-linux-arm64-${{ github.event.inputs.suffix }}
-          path: smartmontools-linux-arm64-${{ github.event.inputs.suffix }}-*.tar.gz
+          name: smartmontools-ubuntu-arm64-gcc-${{ github.event.inputs.suffix }}
+          path: smartmontools-ubuntu-arm64-gcc-${{ github.event.inputs.suffix }}-*.tar.gz
+          retention-days: 30
+
+  build-ubuntu-x86_64-clang:
+    if: ${{ contains(github.event.inputs.platforms, 'ubuntu-x86_64-clang') }}
+    needs: build-source-tarball
+    runs-on: ubuntu-latest
+    steps:
+      - run: sudo apt-get update && sudo apt-get install clang-tools
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: smartmontools-src
+
+      - name: Build
+        run: |
+          distfile=$(ls -d smartmontools-*.tar.gz) && test "$(echo "$distfile" | wc -l)" = 1 &&
+          tar -xf "$distfile" &&
+          version_sh=$("${distfile%.tar.gz}/src/getversion.sh" -s) && eval "${version_sh}" &&
+          cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
+          export SOURCE_DATE_EPOCH=$((SMARTMONTOOLS_GIT_REV_EPOCH + 1)) &&
+          ../configure --with-build-info='(GHA/clang/${{ github.event.inputs.suffix }})' \
+            CC=clang CXX=clang++ \
+            ${{ github.event.inputs.cfg_options }} &&
+          ../src/clang-scan-build.sh \
+            -f "../../smartmontools-ubuntu-x86_64-clang-report-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" \
+            make ${{ github.event.inputs.make_options }} &&
+          make check &&
+          bin_distfile="../../smartmontools-ubuntu-x86_64-clang-${{ github.event.inputs.suffix }}-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" &&
+          make bin_distfile="$bin_distfile" bin-dist && tar -tvf "$bin_distfile"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: smartmontools-ubuntu-x86_64-clang-${{ github.event.inputs.suffix }}
+          path: smartmontools-ubuntu-x86_64-clang-${{ github.event.inputs.suffix }}-*.tar.gz
+          retention-days: 30
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: smartmontools-ubuntu-x86_64-clang-report
+          path: smartmontools-ubuntu-x86_64-clang-report-*.tar.gz
+          retention-days: 30
+
+  build-ubuntu-arm64-clang:
+    if: ${{ contains(github.event.inputs.platforms, 'ubuntu-arm64-clang') }}
+    needs: build-source-tarball
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - run: sudo apt-get update && sudo apt-get install clang-tools
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: smartmontools-src
+
+      - name: Build
+        run: |
+          distfile=$(ls -d smartmontools-*.tar.gz) && test "$(echo "$distfile" | wc -l)" = 1 &&
+          tar -xf "$distfile" &&
+          version_sh=$("${distfile%.tar.gz}/src/getversion.sh" -s) && eval "${version_sh}" &&
+          cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
+          export SOURCE_DATE_EPOCH=$((SMARTMONTOOLS_GIT_REV_EPOCH + 1)) &&
+          ../configure --with-build-info='(GHA/clang/${{ github.event.inputs.suffix }})' \
+            CC=clang CXX=clang++ \
+            ${{ github.event.inputs.cfg_options }} &&
+          ../src/clang-scan-build.sh \
+            -f "../../smartmontools-ubuntu-arm64-clang-report-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" \
+            make ${{ github.event.inputs.make_options }} &&
+          make check &&
+          bin_distfile="../../smartmontools-ubuntu-arm64-clang-${{ github.event.inputs.suffix }}-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" &&
+          make bin_distfile="$bin_distfile" bin-dist && tar -tvf "$bin_distfile"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: smartmontools-ubuntu-arm64-clang-${{ github.event.inputs.suffix }}
+          path: smartmontools-ubuntu-arm64-clang-${{ github.event.inputs.suffix }}-*.tar.gz
+          retention-days: 30
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: smartmontools-ubuntu-arm64-clang-report
+          path: smartmontools-ubuntu-arm64-clang-report-*.tar.gz
           retention-days: 30
 
   build-darwin:
