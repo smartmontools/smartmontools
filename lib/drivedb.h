@@ -4985,6 +4985,32 @@ const drive_settings builtin_knowndrives[] = {
     "ST6[468]022CF",
     "", "", ""
   },
+  { "Seagate BarraCuda series SSD", // tested with Seagate SSD/ST8S1024,
+      // Seagate BarraCuda SSD ZA250CM10002/STAS1024, Seagate BarraCuda 120 SSD ZA1000CM10003/STRSD013,
+      // Seagate BarraCuda 120 SSD ZA2000CM10003/STZSE014
+    "Seagate (SSD|BarraCuda (120 )?SSD ZA(250|500|1000|2000)CM1000[23])",
+    "", "",
+  //"-v 1,raw48,Raw_Read_Error_Rate "
+  //"-v 9,raw24(raw8),Power_On_Hours "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 16,raw48,Spare_Blocks_Available "
+    "-v 17,raw48,Spare_Blocks_Remaining "
+    "-v 168,raw48,SATA_PHY_Error_Count "
+    "-v 170,raw16,Early/Later_Bad_Blck_Ct "
+    "-v 173,raw16,Max/Avg/Min_Erase_Count "
+    "-v 174,raw48,Unexpect_Power_Loss_Ct "
+    "-v 177,raw48,Wear_Range_Delta "
+    "-v 192,raw48,Unexpect_Power_Loss_Ct "
+  //"-v 194,tempminmax,Temperature_Celsius "
+    "-v 218,raw48,SATA_CRC_Error_Count "
+    "-v 231,raw8,SSD_Life_Left "
+    "-v 232,raw24/raw32,Read_Failure_Blk_Count "
+    "-v 233,raw48,Flash_Writes_GiB "
+    "-v 234,raw48,Unknown_Seagate_Attrib "  // FW STZSE014
+    "-v 235,raw48,Flash_Writes_Sectors "
+    "-v 241,raw48,Host_Writes_GiB "
+    "-v 242,raw48,Host_Reads_GiB "
+  },
   { "Seagate Nytro XF1230 SATA SSD", // tested with XF1230-1A0480/ST200354
     "XF1230-1A(0240|0480|0960|1920)",
     "", "",
