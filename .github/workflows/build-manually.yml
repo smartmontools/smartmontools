@@ -340,8 +340,7 @@ jobs:
           retention-days: 30
 
   build-cygwin:
-    # TODO: '--enable-shared' is ignored due to missing import libraries
-    if: ${{ contains(github.event.inputs.platforms, 'cygwin') && !contains(github.event.inputs.cfg-options, '--enable-shared') }}
+    if: ${{ contains(github.event.inputs.platforms, 'cygwin') }}
     needs: build-source-tarball
     runs-on: ubuntu-latest
     # Cross build on Fedora is faster than the native build done by 'cygwin.yml'.
@@ -369,6 +368,7 @@ jobs:
           ../configure --build=$(../config.guess) --host=x86_64-pc-cygwin \
             --with-build-info='(GHA/${{ github.event.inputs.suffix }})' \
             ${{ github.event.inputs.cfg-options }} \
+            LDFLAGS='-L/usr/x86_64-pc-cygwin/sys-root/usr/lib/w32api' \
             SOURCE_DATE_EPOCH=$((SMARTMONTOOLS_GIT_REV_EPOCH + 1)) &&
           make ${{ github.event.inputs.make-options }} && make check &&
           bin_distfile="../../smartmontools-cygwin-${{ github.event.inputs.suffix }}-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" &&
