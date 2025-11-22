@@ -4486,10 +4486,12 @@ const drive_settings builtin_knowndrives[] = {
     "ST3(402111?|80[28]110?|120[28]1[0134]|160[28]1[012]|200827|250[68]24|300[68]22|(320|400)[68]33|500[68](32|41))AS?.*",
     "", "", ""
   },
-  { "Seagate Barracuda 7200.10", // tested with GB0160EAFJE/HPG0
+  { "Seagate Barracuda 7200.10", // tested with ST3320820AS/3.AHG, GB0160EAFJE/HPG0
     "ST3((80|160)[28]15|200820|250[34]10|(250|300|320|400)[68]20|360320|500[68]30|750[68]40)AS?|"
     "GB0160EAFJE", // HP OEM
-    "", "", ""
+    "", "",
+    "-v 7,raw24/raw32 "
+    "-v 195,raw24/raw32,ECC_On_the_Fly_Count "
   },
   { "Seagate Barracuda 7200.11", // unaffected firmware
     "ST3(160813|320[68]13|500[368]20|640[36]23|640[35]30|750[36]30|1000(333|[36]40)|1500341)AS?",
@@ -4581,12 +4583,14 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Seagate Barracuda 7200.14 (AF)", // different part number, tested with
       // ST1000DM003-1CH162/CC47, ST1000DM003-1CH162/CC49, ST2000DM001-1CH164/CC24,
-      // ST1000DM000-9TS15E/CC92, APPLE HDD ST3000DM001/AP15 (no attr 240),
+      // ST1000DM000-9TS15E/CC92, ST1000DM003-1SB102/1001, APPLE HDD ST3000DM001/AP15 (no attr 240),
       // APPLE HDD ST1000DM003/AP18
     "ST(1000|1500|2000|2500|3000)DM00[0-3]-.*|"
     "APPLE HDD ST([13]000DM00[13])",
     "", "",
-    "-v 188,raw16 -v 240,msec24hour32"
+    "-v 1,raw24/raw32 -v 7,raw24/raw32 -v 188,raw16 "
+    "-v 195,raw24/raw32,ECC_On_the_Fly_Count "
+    "-v 240,msec24hour32"
   },
   { "Seagate Barracuda 7200.14 (AF)", // < 1TB, tested with ST250DM000-1BC141
     "ST(250|320|500|750)DM00[0-3]-.*",
@@ -4603,9 +4607,11 @@ const drive_settings builtin_knowndrives[] = {
       // ST4000DM004-2CV104/0001 (TRIM: no), ST4000DM005-2DP166/0001, ST8000DM004-2CX188/0001
     "ST(2000DM00[58]|3000DM007|[48]000DM004|6000DM003)-.*",
     "", "",
+    "-v 1,raw24/raw32 -v 7,raw24/raw32 -v 188,raw16 "
     "-v 9,msec24hour32 " // ST4000DM004-2CV104/0001
+    "-v 195,raw24/raw32,ECC_On_the_Fly_Count "
     "-v 200,raw48,Pressure_Limit "
-    "-v 188,raw16 -v 240,msec24hour32"
+    "-v 240,msec24hour32"
   },
   { "Seagate Desktop HDD.15", // tested with ST4000DM000-1CD168/CC43, ST5000DM000-1FK178/CC44,
       // ST6000DM001-1XY17Z/CC48
