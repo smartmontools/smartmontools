@@ -1002,6 +1002,8 @@ const drive_settings builtin_knowndrives[] = {
     "Kingmax SATA SSD (120|240|480|960)GB|" // tested with Kingmax SATA SSD 240GB/SBFMY1.3
     "SATA SSD|" // tested with Supermicro SSD-DM032-PHI (SATA SSD/S9FM02.1),
       // PC Engines msata16d (SATA SSD/S9FM02.3), FoxLine flssd240x4s(SATA SSD/SBFM10.5)
+    "FOXLINE FLSSD(120|128|240|256|480|512|960|1024)X5SE|"
+      // tested with FoxLine FLSSD240X5SE/SBFM61.5
     "SPCC Solid State Disk|" // Silicon Power, tested with SPCC Solid State Disk/SBFD00.3,
       // SPCC Solid State Disk/SBFM61.2, SPCC Solid State Disk/SBFMT1.3
     "SSDPR-CX400-(128|256|512|1024|2028)-G2", // Goodram CX400 G2, tested with
