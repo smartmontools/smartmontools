@@ -742,6 +742,7 @@ $(distzip_win32): $(distdir_win32).stamp
 # Note: Only option character '-' is also compatible with Linux version of makensis
 $(distinst_win32): os_win32/installer.nsi Makefile os_win32/smartctl_res.rc $(distdir_win32).stamp
 	$(AM_V_GEN)
+	@test '$(enable_static_link)' = 'yes' || ! echo "$(distinst_win32): requires '--enable-static-link'"
 	@test -n '$(MAKENSIS)' || ! echo 'makensis: command not found (https://nsis.sourceforge.io)'
 	$(AM_V_at)test -z '$(builddir_win64)' || ( cd $(builddir_win64) && $(MAKE) distdir-win32 )
 	@. ../include/smartmon/version.sh && \

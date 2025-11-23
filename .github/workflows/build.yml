@@ -69,7 +69,8 @@ jobs:
         run: |
           tar -xvf artifacts/smartmontools-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz &&
           cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
-          ../configure --with-build-info='(GHA Build)' LDFLAGS="--static" SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
+          ../configure --with-build-info='(GHA Build)' --enable-static-link \
+            SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
           make -j && make check &&
           mkdir -p ${GITHUB_WORKSPACE}/artifacts &&
           make bin-dist bin_distfile="${GITHUB_WORKSPACE}/artifacts/smartmontools-linux-x86_64-static-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz"
@@ -101,8 +102,8 @@ jobs:
         run: |
           tar -xvf artifacts/smartmontools-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz &&
           cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
-          setarch i686 ../configure --with-build-info='(GHA Build)' \
-            CC="gcc -m32" CXX="g++ -m32" LDFLAGS="--static" SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
+          setarch i686 ../configure --with-build-info='(GHA Build)' --enable-static-link \
+            CC="gcc -m32" CXX="g++ -m32" SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
           make -j && make check &&
           mkdir -p ${GITHUB_WORKSPACE}/artifacts &&
           make bin-dist bin_distfile="${GITHUB_WORKSPACE}/artifacts/smartmontools-linux-i386-static-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz"
@@ -176,9 +177,8 @@ jobs:
           mkdir build && cd build &&
           export TARGET="-target x86_64-unknown-freebsd14 --sysroot=/opt/cross-freebsd-14/" &&
           TARGET="$TARGET -isystem /opt/cross-freebsd-14/usr/include/c++/v1" &&
-          ../configure --host=x86_64-pc-freebsd14 --with-build-info='(GHA Build)' \
-            CC="clang $TARGET" CXX="clang++ $TARGET" \
-            LDFLAGS="-static" SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
+          ../configure --host=x86_64-pc-freebsd14 --with-build-info='(GHA Build)' --enable-static-link \
+            CC="clang $TARGET" CXX="clang++ $TARGET" SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
           make -j && make check &&
           mkdir -p ${GITHUB_WORKSPACE}/artifacts &&
           make bin-dist bin_distfile="${GITHUB_WORKSPACE}/artifacts/smartmontools-freebsd-14-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz"
@@ -197,9 +197,8 @@ jobs:
           mkdir build && cd build &&
           export TARGET="-target x86_64-unknown-freebsd13 --sysroot=/opt/cross-freebsd-13/" &&
           TARGET="$TARGET -isystem /opt/cross-freebsd-13/usr/include/c++/v1" &&
-          ../configure --host=x86_64-pc-freebsd13 --with-build-info='(GHA Build)' \
-            CC="clang $TARGET" CXX="clang++ $TARGET" \
-            LDFLAGS="-static" SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
+          ../configure --host=x86_64-pc-freebsd13 --with-build-info='(GHA Build)' --enable-static-link \
+            CC="clang $TARGET" CXX="clang++ $TARGET" SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
           make -j && make check &&
           mkdir -p ${GITHUB_WORKSPACE}/artifacts &&
           make bin-dist bin_distfile="${GITHUB_WORKSPACE}/artifacts/smartmontools-freebsd-13-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz"
@@ -233,11 +232,13 @@ jobs:
           cd smartmontools-${SMARTMONTOOLS_PKG_VER} &&
           mkdir build && cd build &&
           ../configure --build=$(../config.guess) --host=i686-w64-mingw32 \
-            --with-build-info='(GHA Build)' SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
+            --with-build-info='(GHA Build)' --enable-static-link \
+            SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
           make -j && make check && make distdir-win32 &&
           cd .. && mkdir build64 && cd build64 &&
           ../configure --build=$(../config.guess) --host=x86_64-w64-mingw32 \
-            --with-build-info='(GHA Build)' SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
+            --with-build-info='(GHA Build)' --enable-static-link \
+            SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
           make -j && make check && make distdir-win32 &&
           cd ../build &&
           dest="smartmontools-win32-setup-${SMARTMONTOOLS_GIT_VER_FNAME}.exe" && \

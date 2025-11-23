@@ -12,7 +12,7 @@ on:
       cfg-options:
         description: "'configure' options to select library"
         required: false
-        default: '--enable-shared --disable-static'
+        default: '--enable-shared --disable-static --disable-static-link'
       make-options:
         description: "'make' options"
         required: false
@@ -331,13 +331,13 @@ jobs:
           retention-days: 30
 
       - name: Build installer
-        if: ${{ !contains(github.event.inputs.cfg-options, '--enable-shared') }}
+        if: ${{ contains(github.event.inputs.cfg-options, '--enable-static-link') }}
         run: |
           make distinst_win32="../../../smartmontools-windows-x86_64-setup-${{ github.event.inputs.suffix }}-${SMARTMONTOOLS_GIT_VER_FNAME}.exe" \
             installer-win32
 
       - uses: actions/upload-artifact@v4
-        if: ${{ !contains(github.event.inputs.cfg-options, '--enable-shared') }}
+        if: ${{ contains(github.event.inputs.cfg-options, '--enable-static-link') }}
         with:
           name: smartmontools-windows-x86_64-${{ github.event.inputs.suffix }}-setup
           path: smartmontools-windows-x86_64-setup-${{ github.event.inputs.suffix }}-*.exe

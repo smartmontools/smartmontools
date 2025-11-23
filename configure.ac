@@ -166,6 +166,21 @@ AC_SUBST(CPPFLAGS)
 AC_SUBST(LDFLAGS)
 AC_SUBST(ASFLAGS)
 
+AC_ARG_ENABLE(static-link,
+  [AS_HELP_STRING([--enable-static-link], [Do not link against shared libraries [no]])],
+  [ case "$enableval:$enable_shared: $LDFLAGS " in
+      *\ --static\ *|*\ -static\ *|*:*\ -Bstatic\ *)
+        AC_MSG_ERROR(['--enable-static-link=$enableval' is not compatible with LDFLAGS='$LDFLAGS']) ;;
+      yes:yes:*)
+        AC_MSG_ERROR(['--enable-static-link' is not compatible with '--enable-shared']) ;;
+      yes:*)
+        # Use '--static' because '-static' is a libtool option with a different meaning
+        # TODO: This requires GCC or Clang
+        LDFLAGS="${LDFLAGS}${LDFLAGS:+ }--static" ;;
+    esac
+  ], [enable_static_link=no])
+AC_SUBST([enable_static_link])
+
 AC_ARG_WITH(build-info,
   [AS_HELP_STRING([--with-build-info='(TEXT)'],
     [Build information printed the in first output line [(local build)]])],
@@ -599,12 +614,6 @@ AC_ARG_WITH(mingw-aslr,
 The option '--with-mingw-aslr' is no longer supported.  Recent versions
 of the MinGW-w64 toolchain usually enable ASLR by default.
 ])])
-
-# MinGW defaults: link statically and indicate DEP and TS compatibility
-# Note: libtool requires '--static' instead of '-static'
-case "$host_os:${LDFLAGS:+nonempty}" in
-  mingw*:) LDFLAGS="--static -Wl,--nxcompat,--tsaware" ;;
-esac
 
 os_win32_manifest=
 case "$host" in
