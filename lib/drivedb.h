@@ -4809,9 +4809,11 @@ const drive_settings builtin_knowndrives[] = {
     "MB[14]000GCW(CV|DC)", // HP OEM
     "", "", ""
   },
-  { "Seagate Constellation CS", // tested with ST3000NC000/CE02, ST3000NC002-1DY166/CN02
-    "ST(1000|2000|3000)NC00[0-3](-.*)?",
-    "", "", ""
+  { "Seagate Constellation CS", // tested with ST3000NC000/CE02, ST3000NC002-1DY166/CN02,
+      // ST4000NC000-1FR168/CE03
+    "ST[1-4]000NC00[0-3](-.*)?",
+    "", "",
+    "-v 1,raw24/raw32 -v 7,raw24/raw32 -v 188,raw16 "
   },
   { "Seagate Constellation.2 (SATA)", // 2.5", tested with ST91000640NS/SN02, MM1000GBKAL/HPGB
     "ST9(25061|50062|100064)[012]NS|" // *SS = SAS
