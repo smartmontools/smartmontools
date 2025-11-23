@@ -4888,6 +4888,15 @@ const drive_settings builtin_knowndrives[] = {
     "-v 200,raw48,Pressure_Limit "
     "-v 240,msec24hour32"
   },
+  { "Seagate Exos 2X14", // tested with ST14000NM0121/SN01
+    "ST14000NM0121",
+    "", "",
+    "-v 1,raw24/raw32 -v 7,raw24/raw32 "
+    "-v 18,raw48,Head_Health "
+    "-v 188,raw16 "
+    "-v 200,raw48,Pressure_Limit "
+    "-v 240,msec24hour32"
+  },
   { "Seagate Exos X16", // tested with ST10000NM001G-2MW103/SN02
       // ST14000NM001G-2KJ103/SN02, ST14000NM001G-2KJ1037/SN04, ST16000NM001G-2KK103/SN02,
       // ST16000NM001G-2KK103/SN03
