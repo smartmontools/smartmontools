@@ -5034,6 +5034,11 @@ const drive_settings builtin_knowndrives[] = {
     "ST9(40|80)210AS?",
     "", "", ""
   },
+  { "Seagate Video 2.5", // tested with ST320VT000-1BS14C/0001SDC1
+    "ST(320|500)VT000-.*",
+    "", "",
+    "-v 1,raw24/raw32 -v 7,raw24/raw32 -v 188,raw16 "
+  },
   { "Seagate ST1.2 CompactFlash", // tested with ST68022CF/3.01
     "ST6[468]022CF",
     "", "", ""
