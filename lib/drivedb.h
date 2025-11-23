@@ -608,23 +608,38 @@ const drive_settings builtin_knowndrives[] = {
     "-v 253,raw48,Unkn_CrucialMicron_Attr " // M6CR030
     "-v 254,raw48,Unkn_CrucialMicron_Attr"  // M6CR030
   },
-  { "Lexar 128GB SSD", // for other Lexar drives see ticket #1529
-    "Lexar 128GB SSD", // Lexar 128GB SSD/H190117D
-    "", "",
-    "-v 5,raw48,New_Bad_Blk_Cnt "
+  { "Maxio based SSDs", // MAS0902, MAS1102
+    "Lexar 128GB SSD|"  // Lexar 128GB SSD/H190117D
+        // for other Lexar drives see trac ticket 1529
+    "Patriot Burst Elite (120|240|480|960|1920)GB|"  // Patriot Burst Elite 120GB/SN08979, 1920GB/SN09405
+    "SPCC Solid State Disk|"                         // Silicon Power A55, tested with SPCC Solid State Disk/H190117H (512GB)
+        // SPCC Solid State Disk/SN08921 (128GB)
+        // also available with Phison controllers
+    "SSDPR-CX400-(128|256|512|01T|02T)-G2|"          // GOODRAM CX400 G2, tested with SSDPR-CX400-128-G2/SN07373
+        // also available with Phison controllers
+    "Verbatim Vi560 SATA III M.2 SSD",               // Verbatim Vi560 SATA III M.2 SSD/H190505 (256GB)
+    "H19[0-9]{4}[DH]?|SN0[789][0-9]{3}", "",
+  //"-v 1,raw48,Raw_Read_Error_Rate "
+  //"-v 2,raw48,Throughput_Performance "
+  //"-v 3,raw16(avg16),Spin_Up_Time "
+    "-v 5,raw16(raw16),New_Bad_Blk_Cnt "
+    "-v 7,raw48,Unknown_Maxio_Attribute "   // FW SN09405
+    "-v 8,raw48,Unknown_Maxio_Attribute "   // FW SN09405
   //"-v 9,raw24(raw8),Power_On_Hours "
+    "-v 10,raw48,Unknown_Maxio_Attribute "  // FW SN09405
   //"-v 12,raw48,Power_Cycle_Count "
     "-v 167,raw48,SSD_Protect_mode "
     "-v 168,raw48,SATA_PHY_Error_Cnt "
-    "-v 169,raw48,Bad_Block_Cnt "
+    "-v 169,raw16(raw16),Bad_Block_Cnt "
     "-v 171,raw48,Program_Fail_Cnt "
     "-v 172,raw48,Erase_Fail_Cnt "
-    "-v 173,raw48,Erase_Cnt "
+    "-v 173,raw16,Erase_Cnt "
+    "-v 174,raw48,Unknown_Maxio_Attribute " // FW SN07373, SN08979
     "-v 175,raw48,Bad_Cluster_Cnt "
     "-v 177,raw48,Read_Retry_Cnt "
     "-v 180,raw48,Spare_Blk_Cnt_Left "
   //"-v 187,raw48,Reported_Uncorrect "
-  //"-v 192,raw48,Power-Off_Retract_Count "
+    "-v 192,raw48,Unexpect_Power_Loss_Ct "
   //"-v 194,tempminmax,Temperature_Celsius "
   //"-v 199,raw48,UDMA_CRC_Error_Count "
     "-v 206,raw48,Min_Erase_Cnt "
@@ -634,9 +649,46 @@ const drive_settings builtin_knowndrives[] = {
     "-v 210,raw48,SLC_Max_Erase_Cnt "
     "-v 211,raw48,SLC_Avg_Erase_Cnt "
     "-v 231,raw48,SSD_Life_Left "
-  //"-v 241,raw48,Total_LBAs_Written "
-  //"-v 242,raw48,Total_LBAs_Read "
-    "-v 245,raw48,Bit_Error_Cnt "
+    "-v 241,raw48,Lifetime_Writes_GiB "
+    "-v 242,raw48,Lifetime_Reads_GiB "
+    "-v 243,raw48,Unknown_Maxio_Attribute " // FW SN07373
+    "-v 245,raw16(raw16),Bit_Error_Cnt "
+  },
+  { "Maxio based SSDs (newer firmware)", // MAS1102
+    "V Series SATA SSD (120|240|250|480|500|960)GB|" // Integral V Series, tested with V Series SATA SSD 480GB/SN12521
+    "PNY 1TB SATA SSD|"                  // PNY CS900, tested with PNY 1TB SATA SSD/H220916a
+        // also available with Phison controllers
+    "Verbatim Vi550 S3|"                 // Verbatim Vi550 S3/H220916a (1TB)
+        // also available with Silicon Motion controllers
+    "Verbatim Vi560 S3",                 // Verbatim Vi560 S3/H220916a (1TB)
+    "SN12[0-9]{3}|H22[0-9]{4}a?", "",
+    "-v 5,raw16(raw16),New_Bad_Blk_Cnt "
+  //"-v 9,raw24(raw8),Power_On_Hours "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 164,raw16,Erase_Count "
+    "-v 165,raw48,Max_Erase_Count "
+    "-v 166,raw48,Min_Erase_Count "
+    "-v 167,raw48,Average_Erase_Count "
+    "-v 168,raw48,SATA_Phy_Error_Count "
+    "-v 169,raw16(raw16),Bad_Block_Count "
+    "-v 170,raw48,Unknown_Maxio_Attribute " // FW H220916a
+    "-v 171,raw48,Program_Fail_Count "
+    "-v 172,raw48,Erase_Fail_Count "
+    "-v 174,raw48,Unknown_Maxio_Attribute " // FW H220916a
+    "-v 175,raw48,Bad_Cluster_Cnt "
+    "-v 180,raw48,Spare_Blk_Cnt_Left "
+  //"-v 187,raw48,Reported_Uncorrect "
+    "-v 192,raw48,Unexpect_Power_Loss_Ct "
+  //"-v 194,tempminmax,Temperature_Celsius "
+  //"-v 199,raw48,UDMA_CRC_Error_Count "
+    "-v 209,raw48,SLC_Min_Erase_Cnt "
+    "-v 210,raw48,SLC_Max_Erase_Cnt "
+    "-v 211,raw48,SLC_Avg_Erase_Cnt "
+    "-v 231,raw48,SSD_Life_Left "
+    "-v 241,raw48,Lifetime_Writes_GiB "
+    "-v 242,raw48,Lifetime_Reads_GiB "
+    "-v 243,raw48,Unknown_Maxio_Attribute " // FW H220916a
+    "-v 245,raw16(raw16),Bit_Error_Cnt "
   },
   { "Micron 5100 / 52x0 / 5300 / 5400 SSDs",
     "(Micron_5100_)?(EE|MT)FDDA[KV](240|480|960|1T9|3T8|7T6)T(BY|CB|CC)(_SED)?|" // Matches both stock and Dell OEM
