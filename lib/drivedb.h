@@ -5347,9 +5347,10 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Western Digital RE4", // tested with WDC WD2003FYYS-18W0B0/01.01D02,
-      // WDC WD1003FBYZ-010FB0/01.01V03
+      // WDC WD1003FBYZ-010FB0/01.01V03, WDC WD5003ABYX-18WERA0/01.01S02,
       // WDC WD5003ABYZ-011FA0/01.01S03
-    "WDC WD((25|50)03ABY[XZ]|1003FBY[XZ]|(15|20)03FYYS)-.*",
+      // WD5003ABYX-23        00W1141 00W1445IBM/WC38
+    "(WDC )?WD((25|50)03ABY[XZ]|1003FBY[XZ]|(15|20)03FYYS)-.*",
     "", "", ""
   },
   { "Western Digital RE4-GP", // tested with WDC WD2002FYPS-02W3B0/04.01G01,
