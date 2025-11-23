@@ -4999,11 +4999,13 @@ const drive_settings builtin_knowndrives[] = {
     "ST([1-5]000VX00[01234]1?|31000526SV|3500411SV)(-.*)?",
     "", "", ""
   },
-  { "Seagate SkyHawk", // tested with ST3000VX010-2H916L/CV11, ST4000VX016-3CV104/CV10,
-      // ST6000VX0023-2EF110/SC60
-    "ST(1000VX005|2000VX008|3000VX0(09|10)|4000VX0(07|16)|6000VX00(1|23)|8000VX00(4|22))-.*",
+  { "Seagate SkyHawk", // tested with ST2000VX017-3CV102/CV10, ST3000VX010-2H916L/CV11,
+      // ST4000VX016-3CV104/CV10, ST6000VX0023-2EF110/SC60
+    "ST(1000VX0(05|13)|2000VX0(08|15|17)|3000VX0(09|10|15)|4000VX0(07|13|16)|6000VX00(1|9|23)|8000VX0(04|10|022)|10000VX0004)-.*",
     "", "",
+    "-v 1,raw24/raw32 -v 7,raw24/raw32 -v 188,raw16 "
     "-v 9,msec24hour32 " // CV* Firmware only?
+    "-v 195,raw24/raw32,ECC_On_the_Fly_Count "
     "-v 240,msec24hour32"
   },
   { "Seagate DB35", // tested with ST3250823ACE/3.03, ST3300831SCE/3.03
