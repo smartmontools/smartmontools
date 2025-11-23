@@ -299,8 +299,7 @@ jobs:
           retention-days: 30
 
   build-windows-x86_64:
-    # TODO: '--enable-shared' fails due to missing stack check functions
-    if: ${{ contains(github.event.inputs.platforms, 'windows-x86_64') && !contains(github.event.inputs.cfg-options, '--enable-shared') }}
+    if: ${{ contains(github.event.inputs.platforms, 'windows-x86_64') }}
     needs: build-source-tarball
     runs-on: ubuntu-latest
     container:
@@ -323,9 +322,7 @@ jobs:
             SOURCE_DATE_EPOCH=$((SMARTMONTOOLS_GIT_REV_EPOCH + 1)) &&
           make ${{ github.event.inputs.make-options }} && make check &&
           bin_distfile="../../smartmontools-windows-x86_64-${{ github.event.inputs.suffix }}-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" &&
-          make bin_distfile="$bin_distfile" bin-dist && tar -tvf "$bin_distfile" &&
-          make distinst_win32="../../../smartmontools-windows-x86_64-setup-${{ github.event.inputs.suffix }}-${SMARTMONTOOLS_GIT_VER_FNAME}.exe" \
-            installer-win32
+          make bin_distfile="$bin_distfile" bin-dist && tar -tvf "$bin_distfile"
 
       - uses: actions/upload-artifact@v4
         with:
@@ -333,7 +330,14 @@ jobs:
           path: smartmontools-windows-x86_64-${{ github.event.inputs.suffix }}-*.tar.gz
           retention-days: 30
 
+      - name: Build installer
+        if: ${{ !contains(github.event.inputs.cfg-options, '--enable-shared') }}
+        run: |
+          make distinst_win32="../../../smartmontools-windows-x86_64-setup-${{ github.event.inputs.suffix }}-${SMARTMONTOOLS_GIT_VER_FNAME}.exe" \
+            installer-win32
+
       - uses: actions/upload-artifact@v4
+        if: ${{ !contains(github.event.inputs.cfg-options, '--enable-shared') }}
         with:
           name: smartmontools-windows-x86_64-${{ github.event.inputs.suffix }}-setup
           path: smartmontools-windows-x86_64-setup-${{ github.event.inputs.suffix }}-*.exe
