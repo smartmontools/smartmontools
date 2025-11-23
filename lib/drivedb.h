@@ -3946,6 +3946,11 @@ const drive_settings builtin_knowndrives[] = {
     "HGST HUS72(6T[46]|8T8)TAL[AE]6L[14]",
     "", "", ""
   },
+  { "Western Digital Ultrastar DC HC330", // tested with WUS721010ALE6L4/VXGAW9C0,
+        // WDC  WUS721010ALE6L4/VXGNW9G0,
+    "(WDC  )?WUS721010ALE6L[14]",
+    "", "", ""
+  },
   { "HGST Ultrastar He6", // tested with HGST HUS726060ALA640/AHGNT1E2
     "HGST HUS726060ALA64[01]",
     "", "", ""
