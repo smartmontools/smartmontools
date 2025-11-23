@@ -554,8 +554,9 @@ const drive_settings builtin_knowndrives[] = {
       // Crucial_CT1024M550SSD1/MU01, Crucial_CT128M550SSD4/MU02
     "CT(120|240|480)BX300SSD1|" // Silicon Motion SM2258, same attributes as Marvell-based Crucial SSDs,
       // tested with CT240BX300SSD1/M2CR010
-    "CT(120|240|480|960|[124]000)BX500SSD1|" // Silicon Motion SM2258XT, tested with CT120BX500SSD1/M6CR013,
-      // CT1000BX500SSD1/M6CR030, CT2000BX500SSD1/M6CR030, CT4000BX500SSD1/M6CR082
+    "CT(120|240|480|960|[124]000)BX500SSD1|" // Silicon Motion SM2258XTSM2259XT2, tested with CT120BX500SSD1/M6CR013,
+      // CT480BX500SSD1/M6CR041, CT1000BX500SSD1/M6CR030, CT1000BX500SSD1/M6CR061, CT2000BX500SSD1/M6CR030,
+      // CT4000BX500SSD1/M6CR082
     "CT(250|500|[124]000)MX500SSD[14][A-Z]?|" // Silicon Motion SM2258, tested with CT250MX500SSD1/M3CR010,
       // CT500MX500SSD1/M3CR010, CT1000MX500SSD1/M3CR010, CT2000MX500SSD1/M3CR010, CT500MX500SSD1/M3CR020,
       // CT250MX500SSD4/M3CR022, CT500MX500SSD1/M3CR022, CT500MX500SSD1/M3CR023, CT1000MX500SSD1/M3CR032,
@@ -597,16 +598,16 @@ const drive_settings builtin_knowndrives[] = {
     "-v 202,raw48,Percent_Lifetime_Remain " // norm = max(100-raw,0); raw = percent_lifetime_used
     "-v 206,raw48,Write_Error_Rate "
     "-v 210,raw48,Success_RAIN_Recov_Cnt "
-    "-v 223,raw48,Unkn_CrucialMicron_Attr " // M6CR030
+    "-v 223,raw48,Tot_Bg_Scan_ECC_Fail_Ct "
     "-v 246,raw48,Total_LBAs_Written "
     "-v 247,raw48,Host_Program_Page_Count "
     "-v 248,raw48,FTL_Program_Page_Count "
-    "-v 249,raw48,Unkn_CrucialMicron_Attr " // M6CR030
-  //"-v 250,raw48,Read_Error_Retry_Rate "   // M6CR030
-    "-v 251,raw48,Unkn_CrucialMicron_Attr " // M6CR030
-    "-v 252,raw48,Unkn_CrucialMicron_Attr " // M6CR030
-    "-v 253,raw48,Unkn_CrucialMicron_Attr " // M6CR030
-    "-v 254,raw48,Unkn_CrucialMicron_Attr"  // M6CR030
+    "-v 249,raw48,Total_Refresh_ISP_Count "
+    "-v 250,raw48,Total_Do_RefCal_Count "
+    "-v 251,hex48,Tot_NAND_Rd_Plane_Cnt_L "
+    "-v 252,hex48,Tot_NAND_Rd_Plane_Cnt_H "
+    "-v 253,raw48,Tot_Blk_Remap_Pass_Cnt "
+    "-v 254,raw48,Tot_Bg_Scan_Over_Limit"
   },
   { "Maxio based SSDs", // MAS0902, MAS1102
     "Lexar 128GB SSD|"  // Lexar 128GB SSD/H190117D
