@@ -2900,9 +2900,13 @@ const drive_settings builtin_knowndrives[] = {
     "FUJITSU MHW20(40|60)AC",
     "", "", ""
   },
-  { "Fujitsu MHW BH",
-    "FUJITSU MHW2(04|06|08|10|12|16)0BH.*",
-    "", "", ""
+  { "Fujitsu MHW2 BH", // tested with FUJITSU MHW2020BH/00930013
+    "FUJITSU MHW2(02|04|06|08|10|12|16)0BH.*",
+    "", "",
+    "-v 2,raw16 "
+    "-v 195,raw48,ECC_On_the_Fly_Count "
+    "-v 200,raw48,Write_Error_Rate "
+    "-v 240,raw48,Transfer_Error_Rate"
   },
   { "Fujitsu MHW BJ",
     "FUJITSU MHW2(08|12|16)0BJ.*",
