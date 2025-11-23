@@ -4302,6 +4302,10 @@ const drive_settings builtin_knowndrives[] = {
     "TOSHIBA HDWT(7[24]|8[46])0",
     "", "", ""
   },
+  { "Toshiba V300", // tested with TOSHIBA HDWU120/MZ4OACK0
+    "TOSHIBA HDWU1[123]0",
+    "", "", ""
+  },
   { "Toshiba X300", // tested with TOSHIBA HDWE160/FS2A, TOSHIBA HDWF180/GX0B
       // TOSHIBA HDWR480/0601
     "TOSHIBA HDW(E1[456]0|[FR]180|R(4[468]0|11A|21[CE]|31[EG]|51J))", // 4n0:nTB, 11A:10TB,
