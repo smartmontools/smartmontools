@@ -783,6 +783,21 @@ with a signal.\fP
 \- the device consists of multiple SATA disks connected to a JMicron JMS56x
 USB to SATA RAID bridge.
 See \*(Aqjmb39x...\*(Aq above for valid arguments.
+.Sp
+.\" %IF OS Linux
+.I ps3stor,n
+\- [Linux only]
+the device consists of one or more SCSI/SAS or SATA disks connected to a
+PS3Stor RAID controller.
+The non-negative integer N (in the range of 0 to 127 inclusive) denotes which disk on the controller is monitored.
+Use syntax such as:
+.br
+\fBsmartctl \-a \-d ps3stor,1 /dev/bus/0\fP
+.br
+It is possible to set RAID device name as /dev/bus/N, where N is a
+SCSI bus number.
+.Sp
+.\" %ENDIF OS Linux
 .TP
 .B \-T TYPE, \-\-tolerance=TYPE
 [ATA only] Specifies how tolerant \fBsmartctl\fP should be of ATA and SMART
