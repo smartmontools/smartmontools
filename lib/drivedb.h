@@ -4936,7 +4936,7 @@ const drive_settings builtin_knowndrives[] = {
       // ST16000NM000E-3NV101/ZZF1 (recertified). ST22000NM000C-3WC103/SN02 (recertified),
       // OOS20000G/OOS1
     "ST(16|18|20)000NM00[0347]D-.*|" // X20
-    "ST(16|2[02])000NM00[01]E-.*|" // X22
+    "ST(16|2[02])000NM00[014]E-.*|" // X22
     "ST22000NM000C-.*|" // 22TB recertified
     "OOS20000G", // 20TB refurbished and rebranded
     "", "",
