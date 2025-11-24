@@ -905,6 +905,7 @@ const drive_settings builtin_knowndrives[] = {
     "Corsair Force LE(200)? SSD|" // tested with Corsair Force LE SSD/SAFC11.0,
       // Corsair Force LE200 SSD/SBFM10, .../SBFM60.9
     "DGSR2(128|256|512)GP13T|"  // tested with DGSR2512GP13T/SBFM61.5
+    "FOXLINE FLSSD(120|128|240|256|480|512|960|1024)X5SE|" // tested with FoxLine FLSSD240X5SE/SBFM61.5
     "GIGABYTE GP-GSTFS31((120|240|256|480)G|100T)NTD|" // tested with GIGABYTE GP-GSTFS31120GNTD/SBFM61.3
     "GOODRAM IRIDIUM PRO|" // tested with GOODRAM IRIDIUM PRO/SAFM01.5
     "IRP?-SSDPR-S25[AC]-(120|240|256|480|512|960|0[12]T)|" // Goodram IRIDM (PRO), tested with
