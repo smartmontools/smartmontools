@@ -5237,7 +5237,8 @@ const drive_settings builtin_knowndrives[] = {
     "WDC WDBNCE(250|500|00[124])0PNC(-.*)?|" // Blue 3D
     "WDC  ?WDS((120|240|250|400|480|500)G|[124]00T)(1B|2B|1G|2G|[12]R)0[AB](-.*)?|"
       // *B* = Blue, *G* = Green, *2B* = Blue 3D NAND, *[12]R* = Red SA500
-    "WD (Blue|Red) SA5[01]0 2\\.5 ((25|50|100)0G|[24]T)B|" // tested with
+    "WD (Green|(Blue|Red) SA5[01]0) 2\\.5 ((25|50|100)0G|[24]T)B|" // tested with
+      // WD Green 2.5 1000GB/42077100,
       // WD Blue SA510 2.5 1000GB/52008100, WD Blue SA510 2.5 4TB/530309WD,
       // WD Red SA500 2.5 4TB/540400WD,
       // WD Red SA500 2.5 4TB/540500WD (printed label: WDS400T2R0A-68CKB0)
@@ -5247,7 +5248,7 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct " // Reassigned Block Count
   //"-v 9,raw24(raw8),Power_On_Hours "
   //"-v 12,raw48,Power_Cycle_Count "
-    "-v 165,raw48,Block_Erase_Count "
+    "-v 165,raw16,Block_Erase_Count "
     "-v 166,raw48,Minimum_PE_Cycles_TLC "
     "-v 167,raw48,Max_Bad_Blocks_per_Die "
     "-v 168,raw48,Maximum_PE_Cycles_TLC "
@@ -5262,7 +5263,7 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 188,raw48,Command_Timeout "
   //"-v 194,tempminmax,Temperature_Celsius "
   //"-v 199,raw48,UDMA_CRC_Error_Count " // SATA CRC Errors
-    "-v 230,hex48,Media_Wearout_Indicator " // Maybe hex16
+    "-v 230,raw16,Media_Wearout_Indicator "
   //"-v 232,raw48,Available_Reservd_Space"
     "-v 233,raw48,NAND_GB_Written_TLC "
     "-v 234,raw48,NAND_GB_Written_SLC "
