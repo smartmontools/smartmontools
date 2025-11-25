@@ -610,6 +610,8 @@ const drive_settings builtin_knowndrives[] = {
     "-v 254,raw48,Tot_Bg_Scan_Over_Limit"
   },
   { "Maxio based SSDs", // MAS0902, MAS1102
+    "Fanxiang S101 ((128|256|500|512)G|[124]T)B|"    // Fanxiang S101, tested with Fanxiang S101 2TB/SN14130
+    "HP SSD S600 (120|240)GB|"                       // tested with HP SSD S600 240GB/SN8108
     "Lexar 128GB SSD|"  // Lexar 128GB SSD/H190117D
         // for other Lexar drives see trac ticket 1529
     "Patriot Burst Elite (120|240|480|960|1920)GB|"  // Patriot Burst Elite 120GB/SN08979, 1920GB/SN09405
@@ -619,7 +621,7 @@ const drive_settings builtin_knowndrives[] = {
     "SSDPR-CX400-(128|256|512|01T|02T)-G2|"          // GOODRAM CX400 G2, tested with SSDPR-CX400-128-G2/SN07373
         // also available with Phison controllers
     "Verbatim Vi560 SATA III M.2 SSD",               // Verbatim Vi560 SATA III M.2 SSD/H190505 (256GB)
-    "H19[0-9]{4}[DH]?|SN0[789][0-9]{3}", "",
+    "H19[0-9]{4}[DH]?|SN(0[789]|8|14)[0-9]{3}", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 2,raw48,Throughput_Performance "
   //"-v 3,raw16(avg16),Spin_Up_Time "
@@ -652,17 +654,18 @@ const drive_settings builtin_knowndrives[] = {
     "-v 231,raw48,SSD_Life_Left "
     "-v 241,raw48,Lifetime_Writes_GiB "
     "-v 242,raw48,Lifetime_Reads_GiB "
-    "-v 243,raw48,Unknown_Maxio_Attribute " // FW SN07373
+    "-v 243,raw16(raw16),Unknown_Maxio_Attribute " // FW SN8108, SN07373
     "-v 245,raw16(raw16),Bit_Error_Cnt "
   },
   { "Maxio based SSDs (newer firmware)", // MAS1102
+    "(128|256|512)GB SSD|"               // AZW M.2 SSD in Beelink Mini PCs, tested with 128GB SSD/SN12521, 512GB SSD/SN11986
     "V Series SATA SSD (120|240|250|480|500|960)GB|" // Integral V Series, tested with V Series SATA SSD 480GB/SN12521
     "PNY 1TB SATA SSD|"                  // PNY CS900, tested with PNY 1TB SATA SSD/H220916a
         // also available with Phison controllers
     "Verbatim Vi550 S3|"                 // Verbatim Vi550 S3/H220916a (1TB)
         // also available with Silicon Motion controllers
     "Verbatim Vi560 S3",                 // Verbatim Vi560 S3/H220916a (1TB)
-    "SN12[0-9]{3}|H22[0-9]{4}a?", "",
+    "SN1[12][0-9]{3}|H22[0-9]{4}a?", "",
     "-v 5,raw16(raw16),New_Bad_Blk_Cnt "
   //"-v 9,raw24(raw8),Power_On_Hours "
   //"-v 12,raw48,Power_Cycle_Count "
