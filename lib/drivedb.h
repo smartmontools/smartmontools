@@ -4933,11 +4933,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Seagate Exos X20/X22", // tested with ST20000NM007D-3DJ103/SN01, .../SN03,
       // ST22000NM001E-3HM103/SN03, ST16000NM000D-3PC101/SN01 (recertified),
-      // ST16000NM000E-3NV101/ZZF1 (recertified). ST22000NM000C-3WC103/SN02 (recertified),
+      // ST16000NM000E-3NV101/ZZF1 (recertified),
       // OOS20000G/OOS1
     "ST(16|18|20)000NM00[0347]D-.*|" // X20
     "ST(16|2[02])000NM00[01]E-.*|" // X22
-    "ST22000NM000C-.*|" // 22TB recertified
     "OOS20000G", // 20TB refurbished and rebranded
     "", "",
     "-v 1,raw24/raw32 -v 7,raw24/raw32 "
@@ -4946,9 +4945,24 @@ const drive_settings builtin_knowndrives[] = {
     "-v 200,raw48,Pressure_Limit "
     "-v 240,msec24hour32"
   },
-  { "Seagate Exos X24", // tested with ST24000NM002H-3KS133/SE03,
-      // ST24000NM000C-3WD103/SN02 (30TB HAMR recertified to 24TB CMR ?)
-    "ST((12|16|20|24)000NM002H|24000NM000C)-.*",
+  { "Seagate Exos X24", // tested with ST24000NM002H-3KS133/SE03
+    "ST(12|16|20|24)000NM002H-.*",
+    "", "",
+    "-v 1,raw24/raw32 -v 7,raw24/raw32 "
+    "-v 18,raw48,Head_Health "
+    "-v 188,raw16 "
+    "-v 200,raw48,Pressure_Limit "
+    "-v 240,msec24hour32"
+  },
+  { "Seagate Exos Recertified (HAMR)", // tested with ST22000NM000C-3WC103/SN02
+      // HAMR based Factory Recertified Exos line
+      // ST16000NM002C-3YG103/SN04
+      // ST20000NM002C-3X6103/SN04
+      // ST22000NM000C-3WC103/SN02
+      // ST24000NM000C-3WD103/SN02
+      // ST26000NM000C-3WE103/SN02
+      // ST28000NM000C-3WM103/SN04
+    "ST(16|20|22|24|26|28)NM00[02]-3..103",
     "", "",
     "-v 1,raw24/raw32 -v 7,raw24/raw32 "
     "-v 18,raw48,Head_Health "
