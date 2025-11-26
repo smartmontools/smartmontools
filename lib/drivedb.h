@@ -691,6 +691,56 @@ const drive_settings builtin_knowndrives[] = {
     "-v 243,raw48,Unknown_Maxio_Attribute " // FW H220916a
     "-v 245,raw16(raw16),Bit_Error_Cnt "
   },
+  { "Hosin Global HG2258 based SSDs",
+    "M.2 2280 SATA SSD|" // tested with M.2 2280 SATA SSD/PAFEC2.0 (128GB)
+    "Verbatim Vi550 S3", // tested with Verbatim Vi550 S3/HAFEA2.0 (256GB)
+      // also available with Silicon Motion or Maxio controllers
+    "[HP]AFE[AC]2\\.0", "",
+  //"-v 1,raw48,Raw_Read_Error_Rate "
+  //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
+  //"-v 9,raw24(raw8),Power_On_Hours "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 161,raw48,Valid_Spare_Block_Cnt "
+    "-v 163,raw48,Initial_Bad_Block_Count "
+    "-v 165,raw48,Max_Erase_Count "
+    "-v 166,raw48,Min_Erase_Count "
+    "-v 167,raw48,Average_Erase_Count "
+    "-v 172,raw48,Erase_Fail_Count "
+    "-v 173,raw48,Unkn_HosinGlobal_Attr " // FW HAFEA2.0, PAFEC2.0
+    "-v 192,raw48,Unexpect_Power_Loss_Ct "
+  //"-v 194,tempminmax,Temperature_Celsius "
+  //"-v 196,raw16(raw16),Reallocated_Event_Count "
+  //"-v 198,raw48,Offline_Uncorrectable "
+  //"-v 199,raw48,UDMA_CRC_Error_Count "
+    "-v 241,raw48,Lifetime_Writes_GiB "
+    "-v 242,raw48,Lifetime_Reads_GiB "
+    "-v 249,raw48,Unkn_HosinGlobal_Attr" // FW HAFEA2.0
+  },
+  { "Hosin Global HG2259 based SSDs",
+    "Patriot P220 (128|256|512)GB", // tested with Patriot P220 256GB/HDFEB3.2
+    "HDFEB3\\.2", "",
+  //"-v 1,raw48,Raw_Read_Error_Rate "
+  //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
+  //"-v 9,raw24(raw8),Power_On_Hours "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 160,raw48,Uncorrectable_Error_Cnt "
+    "-v 161,raw48,Valid_Spare_Block_Cnt "
+    "-v 163,raw48,Initial_Bad_Block_Count "
+    "-v 164,raw48,Total_Erase_Count "
+    "-v 165,raw48,Max_Erase_Count "
+    "-v 166,raw48,Min_Erase_Count "
+    "-v 167,raw48,Average_Erase_Count "
+    "-v 172,raw48,Erase_Fail_Count "
+    "-v 173,raw48,Unkn_HosinGlobal_Attr " // FW HDFEB3.2
+    "-v 192,raw48,Unexpect_Power_Loss_Ct "
+  //"-v 194,tempminmax,Temperature_Celsius "
+  //"-v 196,raw16(raw16),Reallocated_Event_Count "
+  //"-v 198,raw48,Offline_Uncorrectable "
+  //"-v 199,raw48,UDMA_CRC_Error_Count "
+    "-v 241,raw48,Host_Writes_32MiB "
+    "-v 242,raw48,Host_Reads_32MiB "
+    "-v 249,raw48,Unkn_HosinGlobal_Attr" // FW HDFEB3.2
+  },
   { "Micron 5100 / 52x0 / 5300 / 5400 SSDs",
     "(Micron_5100_)?(EE|MT)FDDA[KV](240|480|960|1T9|3T8|7T6)T(BY|CB|CC)(_SED)?|" // Matches both stock and Dell OEM
       // tested with Micron_5100_MTFDDAK3T8TCB/D0MU410, MTFDDAK3T8TCB/D0MU410,
