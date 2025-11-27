@@ -4962,7 +4962,7 @@ const drive_settings builtin_knowndrives[] = {
       // ST24000NM000C-3WD103/SN02
       // ST26000NM000C-3WE103/SN02
       // ST28000NM000C-3WM103/SN04
-    "ST(16|20|22|24|26|28)NM00[02]-3..103",
+    "ST(16|20|22|24|26|28)000NM00[02]C-3..103",
     "", "",
     "-v 1,raw24/raw32 -v 7,raw24/raw32 "
     "-v 18,raw48,Head_Health "
