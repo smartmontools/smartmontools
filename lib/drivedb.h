@@ -2885,11 +2885,11 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-v 9,seconds"
   },
-  { "Fujitsu MPA..MPG",
+  { "Fujitsu MPA..MPG", // tested with FUJITSU MPE3136AT/ED-03-04
     "FUJITSU MP[A-G]3...A[HTEV]U?.*",
-    "",
-    "",
-    "-v 9,seconds"
+    "", "",
+    "-v 9,seconds "
+    "-v 200,raw48,Write_Error_Rate"
   },
   { "Fujitsu MHY BH",
     "FUJITSU MHY2(04|06|08|10|12|16|20|25)0BH.*",
@@ -2916,11 +2916,30 @@ const drive_settings builtin_knowndrives[] = {
     "FUJITSU MHZ2(04|08|12|16|20|25|32)0BH.*",
     "", "", ""
   },
-  { "Fujitsu MHZ BJ",
-    "FUJITSU MHZ2(08|12|16|20|25|32)0BJ.*",
-    "",
-    "",
-    "-v 9,minutes"
+  { "Fujitsu MHZ2 BJ G1", // tested with FUJITSU MHZ2160BJ G1/00840022
+    "FUJITSU MHZ2(08|12|16|20|25|32)0BJ G1",
+    "", "",
+    "-v 2,raw16 "
+    "-v 195,raw48,ECC_On_the_Fly_Count "
+    "-v 200,raw48,Write_Error_Rate "
+    "-v 240,raw48,Transfer_Error_Rate"
+  },
+  { "Fujitsu MHZ2 BJ G2", // tested with FUJITSU MHZ2250BJ G2/891A
+    "FUJITSU MHZ2(08|12|16|20|25|32)0BJ G2",
+    "", "",
+    "-v 2,raw16 -v 187,raw16 -v 188,raw16 "
+    "-v 191,raw16 -v 192,raw16 "
+    "-v 195,raw48,ECC_On_the_Fly_Count"
+  },
+  { "Fujitsu MHZ2 BJ FFS G2", // tested with FUJITSU MHZ2250BJ FFS G2/0085001C
+    "FUJITSU MHZ2(08|12|16|20|25|32)0BJ FFS G2",
+    "", "",
+    "-v 9,minutes "
+    "-v 193,raw24/raw32 "
+    "-v 200,raw48,Write_Error_Rate "
+    "-v 240,raw48,Transfer_Error_Rate "
+    "-v 241,hex48 "
+    "-v 242,hex48"
   },
   { "Fujitsu MHZ BS",
     "FUJITSU MHZ2(12|25)0BS.*",
