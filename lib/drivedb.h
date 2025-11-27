@@ -2885,11 +2885,11 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-v 9,seconds"
   },
-  { "Fujitsu MPA..MPG",
+  { "Fujitsu MPA..MPG", // tested with FUJITSU MPE3136AT/ED-03-04
     "FUJITSU MP[A-G]3...A[HTEV]U?.*",
-    "",
-    "",
-    "-v 9,seconds"
+    "", "",
+    "-v 9,seconds "
+    "-v 200,raw48,Write_Error_Rate"
   },
   { "Fujitsu MHY BH",
     "FUJITSU MHY2(04|06|08|10|12|16|20|25)0BH.*",
@@ -2916,11 +2916,13 @@ const drive_settings builtin_knowndrives[] = {
     "FUJITSU MHZ2(04|08|12|16|20|25|32)0BH.*",
     "", "", ""
   },
-  { "Fujitsu MHZ BJ",
+  { "Fujitsu MHZ2 BJ", // tested with FUJITSU MHZ2160BJ G1/00840022
     "FUJITSU MHZ2(08|12|16|20|25|32)0BJ.*",
-    "",
-    "",
-    "-v 9,minutes"
+    "", "",
+    "-v 2,raw16 "
+    "-v 195,raw48,ECC_On_the_Fly_Count "
+    "-v 200,raw48,Write_Error_Rate "
+    "-v 240,raw48,Transfer_Error_Rate"
   },
   { "Fujitsu MHZ BS",
     "FUJITSU MHZ2(12|25)0BS.*",
