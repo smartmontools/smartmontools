@@ -712,8 +712,8 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 196,raw16(raw16),Reallocated_Event_Count "
   //"-v 198,raw48,Offline_Uncorrectable "
   //"-v 199,raw48,UDMA_CRC_Error_Count "
-    "-v 241,raw48,Lifetime_Writes_GiB "
-    "-v 242,raw48,Lifetime_Reads_GiB "
+    "-v 241,raw48,Host_Writes_GiB "
+    "-v 242,raw48,Host_Reads_GiB "
     "-v 249,raw48,Unkn_HosinGlobal_Attr" // FW HAFEA2.0
   },
   { "Hosin Global HG2259 based SSDs",
