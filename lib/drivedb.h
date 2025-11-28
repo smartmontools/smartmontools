@@ -334,20 +334,22 @@ const drive_settings builtin_knowndrives[] = {
   { "Apple MacBook Air SSD", // probably Toshiba
     "APPLE SSD TS(064|128)E", // tested with APPLE SSD TS064E/TQAABBF0
     "", "",
-    "-v 173,raw48,Wear_Leveling_Count " //  ]
+    "-v 169,raw16,Unknown_Apple_Attrib "
+    "-v 173,raw16,Block_Erase_Count "
     "-v 241,raw48,Host_Writes_GiB "     //  ]  guessed (ticket #655)
-    "-v 242,raw48,Host_Reades_GiB "     //  ]
+    "-v 242,raw48,Host_Reads_GiB "      //  ]
   },
   { "Apple SD/SM/TS...E/F/G SSDs", // SanDisk/Samsung/Toshiba?
     "APPLE SSD (S[DM]|TS)0?(128|256|512|768|1024)[EFG]", // tested with APPLE SSD SD256E/1021AP, SD0128F/A223321
       // APPLE SSD SM768E/CXM90A1Q, SM0512F/UXM2JA1Q, TS0256F/109L0704, SM0512G/BXW1SA0Q, SM1024G/BXW1SA0Q
+      // APPLE SSD SM0256G/BXZ13A0Q
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
   //"-v 9,raw24(raw8),Power_On_Hours "
   //"-v 12,raw48,Power_Cycle_Count "
-    "-v 169,raw48,Unknown_Apple_Attrib "
-    "-v 173,raw48,Wear_Leveling_Count " // ]
+    "-v 169,raw16,Unknown_Apple_Attrib "
+    "-v 173,raw16,Block_Erase_Count "
     "-v 174,raw48,Host_Reads_MiB "      // ] guessed (ticket #342), S[DM]*F only
     "-v 175,raw48,Host_Writes_MiB "     // ]
   //"-v 192,raw48,Power-Off_Retract_Count "
