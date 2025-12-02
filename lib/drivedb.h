@@ -957,6 +957,7 @@ const drive_settings builtin_knowndrives[] = {
     "BP4 mSATA SSD|" // MyDigital BP4, tested with BP4 mSATA SSD/S8FM06.9
     "Corsair Force LE(200)? SSD|" // tested with Corsair Force LE SSD/SAFC11.0,
       // Corsair Force LE200 SSD/SBFM10, .../SBFM60.9
+    "CUBEX CS500 (128|256|480|960|1024)GB|" // tested with CUBEX CS500 128GB/CSFMP1.3
     "DGSR2(128|256|512)GP13T|"  // tested with DGSR2512GP13T/SBFM61.5
     "GIGABYTE GP-GSTFS31((120|240|256|480)G|100T)NTD|" // tested with GIGABYTE GP-GSTFS31120GNTD/SBFM61.3
     "GOODRAM IRIDIUM PRO|" // tested with GOODRAM IRIDIUM PRO/SAFM01.5
