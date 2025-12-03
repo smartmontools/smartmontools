@@ -5007,7 +5007,12 @@ const drive_settings builtin_knowndrives[] = {
     "-v 240,msec24hour32"
   },
   { "Seagate Exos X24", // tested with ST24000NM002H-3KS133/SE03
-    "ST(12|16|20|24)000NM002H-.*",
+      // SED Model                 ISE Model
+      // ST12000NM001H-3KX113      ST12000NM002H-3KX133/SE03
+      // ST16000NM001H-3KW113/RS04 ST16000NM002H-3KW133/RE05
+      // ST20000NM001H-3KV113      ST20000NM002H-3KV133/RE04
+      // ST24000NM001H-3KS113      ST24000NM002H-3KS133/SE03 /SE04
+    "ST(12|16|20|24)000NM00[12]H-.*",
     "", "",
     "-v 1,raw24/raw32 -v 7,raw24/raw32 "
     "-v 18,raw48,Head_Health "
