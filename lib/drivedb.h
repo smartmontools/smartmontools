@@ -1526,9 +1526,9 @@ const drive_settings builtin_knowndrives[] = {
     "-v 228,raw48,Workload_Minutes"
   },
   { "Intel 311/313 Series SSDs", // tested with INTEL SSDSA2VP020G2/2CV102M5,
-      // INTEL SSDSA2VP020G3/9CV10379, INTEL SSDMAEXC024G3H/9CV10379
-    "INTEL SSD(SA2VP|MAEXC)(020|024)G[23]H?",
-      // SA2VP = 2.5", MAEXC = mSATA, G2 = 311, G3 = 313
+      // INTEL SSDSA2VP020G3/9CV10379, INTEL SSDMAESC020G2/2CV102M5, INTEL SSDMAEXC024G3H/9CV10379
+    "INTEL SSD(SA2VP|MAE[SX]C)(020|024)G[23]H?",
+      // SA2VP = 2.5", MAE[SX]C = mSATA, G2 = 311, G3 = 313
     "", "",
   //"-v 3,raw16(avg16),Spin_Up_Time "
   //"-v 4,raw48,Start_Stop_Count "
