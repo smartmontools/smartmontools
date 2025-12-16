@@ -7087,6 +7087,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  { "USB: OWC Mercury Elite Pro; ",
+    "0x1e91:0xde46",
+    "", // 0x0115
+    "",
+    "-d sat"
+  },
   { "USB: OWC Express 1M2; ASMedia ASM2464PD",
     "0x1e91:0xde79",
     "", // 0x0100
