@@ -46,7 +46,8 @@ jobs:
           version_sh=$(src/getversion.sh -s) && eval "${version_sh}" &&
           ./autogen.sh && mkdir build && cd build &&
           SOURCE_DATE_EPOCH=$((SMARTMONTOOLS_GIT_REV_EPOCH + 1)) &&
-          ../configure --with-build-info='(GHA/MSYS2)' SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
+          ../configure --with-build-info='(GHA/MSYS2)' --enable-static-link \
+            SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
           case ${{matrix.env}} in clang*) export SOURCE_DATE_EPOCH ;; esac &&
           make -j && make check &&
           make distinst_win32="smartmontools-mingw64-${{matrix.env}}-${SMARTMONTOOLS_GIT_VER_FNAME}.exe" \

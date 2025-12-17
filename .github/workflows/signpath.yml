@@ -25,10 +25,12 @@ jobs:
           echo "Starting build: SOURCE_DATE_EPOCH: ${SOURCE_DATE_EPOCH}, VERSION: ${VERSION}" &&
           ./autogen.sh && mkdir build && cd build &&
           ../configure --build=$(../config.guess) --host=i686-w64-mingw32 \
-            --with-build-info='(GHA/signpath)' SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
+            --with-build-info='(GHA/signpath)' --enable-static-link \
+            SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
           make -j && make distdir-win32 && cd .. && mkdir build64 && cd build64 &&
           ../configure --build=$(../config.guess) --host=x86_64-w64-mingw32 \
-            --with-build-info='(GHA/signpath)' SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
+            --with-build-info='(GHA/signpath)' --enable-static-link \
+            SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
           make -j && make distdir-win32 &&
           cd ../build/src && dest="smartmontools-win32-setup-${VERSION}.exe" &&
           make builddir_win64=../../build64/src distinst_win32="$dest" installer-win32 &&
