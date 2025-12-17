@@ -4166,6 +4166,7 @@ std::string win_smart_interface::get_os_version_str()
           case 22621:   w = "w11-22H2"; break;
           case 22631:   w = "w11-23H2"; break;
           case 26100:   w = "w11-24H2"; break;
+          case 26200:   w = "w11-25H2"; break;
           default:      w = (vi.dwBuildNumber < 22000
                           ? "w10"
                           : "w11");
