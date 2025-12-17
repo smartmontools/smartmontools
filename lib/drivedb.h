@@ -644,14 +644,14 @@ const drive_settings builtin_knowndrives[] = {
     "HP SSD S600 (120|240)GB|"                       // tested with HP SSD S600 240GB/SN8108
     "Lexar 128GB SSD|"  // Lexar 128GB SSD/H190117D
         // for other Lexar drives see trac ticket 1529
-    "Patriot Burst Elite (120|240|480|960|1920)GB|"  // Patriot Burst Elite 120GB/SN08979, 1920GB/SN09405
+    "Patriot Burst Elite (120|240|480|960|1920)GB|"  // Patriot Burst Elite 120GB/SN08979, 960GB/H221215a, 1920GB/SN09405
     "SPCC Solid State Disk|"                         // Silicon Power A55, tested with SPCC Solid State Disk/H190117H (512GB)
         // SPCC Solid State Disk/SN08921 (128GB)
         // also available with Phison controllers
     "SSDPR-CX400-(128|256|512|01T|02T)-G2|"          // GOODRAM CX400 G2, tested with SSDPR-CX400-128-G2/SN07373
         // also available with Phison controllers
     "Verbatim Vi560 SATA III M.2 SSD",               // Verbatim Vi560 SATA III M.2 SSD/H190505 (256GB)
-    "H19[0-9]{4}[DH]?|SN(0[789]|8|14)[0-9]{3}", "",
+    "H(19[0-9]{4}[DH]?|2212[0-9]{2}a?)|SN(0[789]|8|14)[0-9]{3}", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 2,raw48,Throughput_Performance "
   //"-v 3,raw16(avg16),Spin_Up_Time "
@@ -690,12 +690,13 @@ const drive_settings builtin_knowndrives[] = {
   { "Maxio based SSDs (variant 3)", // MAS1102
     "(128|256|512)GB SSD|"               // AZW M.2 SSD in Beelink Mini PCs, tested with 128GB SSD/SN12521, 512GB SSD/SN11986
     "V Series SATA SSD (120|240|250|480|500|960)GB|" // Integral V Series, tested with V Series SATA SSD 480GB/SN12521
+    "Patriot Burst Elite (120|240|480|960|1920)GB|"  // Patriot Burst Elite 1920GB/H220916a
     "PNY 1TB SATA SSD|"                  // PNY CS900, tested with PNY 1TB SATA SSD/H220916a
         // also available with Phison controllers
     "Verbatim Vi550 S3|"                 // Verbatim Vi550 S3/H220916a (1TB)
         // also available with Silicon Motion controllers
     "Verbatim Vi560 S3",                 // Verbatim Vi560 S3/H220916a (1TB)
-    "SN1[12][0-9]{3}|H22[0-9]{4}a?", "",
+    "SN1[12][0-9]{3}|H2209[0-9]{2}a?", "",
     "-v 5,raw16(raw16),New_Bad_Blk_Count "
   //"-v 9,raw24(raw8),Power_On_Hours "
   //"-v 12,raw48,Power_Cycle_Count "
