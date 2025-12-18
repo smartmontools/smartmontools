@@ -1817,10 +1817,15 @@ const drive_settings builtin_knowndrives[] = {
     "-v 174,raw48,Unexpect_Power_Loss_Ct "
     "-v 183,raw48,SATA_Downshift_Count "
     "-v 187,raw48,Uncorrectable_Error_Cnt "
+    "-v 192,raw48,Unsafe_Shutdown_Count "
     "-v 225,raw48,Host_Writes_32MiB "
     "-v 226,raw48,Workld_Media_Wear_Indic "
     "-v 227,raw48,Workld_Host_Reads_Perc "
     "-v 228,raw48,Workload_Minutes "
+    "-v 236,raw48,Unknown_Intel_Attribute " // LBFD16N
+    "-v 238,raw48,Unknown_Intel_Attribute " // LBFD16N
+    "-v 241,raw48,Host_Writes_32MiB "
+    "-v 242,raw48,Host_Reads_32MiB "
     "-v 249,raw48,NAND_Writes_1GiB "
   },
   { "Intel DC S3110 Series SSDs", // Tested with INTEL SSDSCKKI256G8
