@@ -3297,6 +3297,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Seagate Mobile HDD", // tested with ST1000LM035-1RK172/ACM1,
      // ST1000LM035-1RK172/ACM2, ST1000LM035-1RK172/EB01 (0x1005:0xc004),
+     // ST1000LM035-1RK172/SBM3 (0x125f:0xa42a),
      // ST2000LM007-1R8174/SBK2
     "ST(2000LM0(07|09|10)|1000LM03[578])-.*",
     "", "", ""
@@ -4112,6 +4113,7 @@ const drive_settings builtin_knowndrives[] = {
       // WDC WD100EZAZ-11TDBA0/83.H0A83, WDC WD120EMAZ-11BLFA0/81.00A81,
       // WDC WD140EDFZ-11A0VA0/81.00A81 (Easystore 0x1058:0x25fb),
       // WDC WD140EDGZ-11B2DA2/85.00A85, WDC WD140EDGZ-11B1PA0/85.00A85,
+      // WDC WD160EDGZ-11BHMA0/85.00A85 (My Book),
       // WDC WD160EDGZ-11CMXA0/85.00A85 (My Book 0x1058:0x25ee),
       // WDC WD80EDAZ-11TA3A0/81.00A81, WDC WD120EDAZ-11F3RA0/81.00A81
     "WDC WD(8|10|12|14|16)0E([MZ]A|DA|DF|DG)Z-.*",
@@ -4137,8 +4139,8 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 22,raw48,Helium_Level"
   },
   { "Western Digital Ultrastar DC HC560", // tested with WDC  WUH722020ALN604/PQGNW108
-    // WDC WUH722020BLE6L4,
-    // WDC WD200EDGZ-11BLDS0/85.00A85 (White label, Elements 0x1058:0x25a3)
+    // WDC WUH722020BLE6L4, WDC WD200EDGZ-11B9PA0/85.00A85
+    // WDC WD200EDGZ-11BLDS0/85.00A85 (White label, Elements 0x1058:0x25a3),
     "(WDC  ?)?WUH722020[AB]L[EN]6[0L][014]|"
     "WDC WD200EDGZ-.*",
     "", "",
@@ -4154,7 +4156,8 @@ const drive_settings builtin_knowndrives[] = {
     "-v 82,raw16,Head_Health_Score "
     "-v 90,hex48,NAND_Master"
   },
-  { "Western Digital Ultrastar DC HC580", // tested with WDC  WUH722424ALE6L4/LVGNWF10
+  { "Western Digital Ultrastar DC HC580", // tested with WDC  WUH722424ALE6L4/LVGNWF10,
+      // WDC  WUH722424ALE6L4/LVGNWHA2
     "(WDC  ?)?WUH72242[24]ALE6L[14]",
     "", "",
   //"-v 22,raw48,Helium_Level "
@@ -4864,7 +4867,8 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Seagate BarraCuda 2.5", // tested with ST2000LM015-2E8174/SDM1,
-      // ST4000LM024-2AN17V/0001, ST5000LM000-2AN170/0001, ST1000LM049-2GH172/SDM1
+      // ST4000LM024-2AN17V/0001, ST5000LM000-2AN170/0001 (0x0bc2:0xac25),
+      // ST1000LM049-2GH172/SDM1
       // 7200rpm: ST500LM034, ST1000LM049
     "ST(500LM03[04]|1000LM04[89]|2000LM015|[34]000LM024|5000LM000)-.*",
     "", "",
@@ -5051,7 +5055,8 @@ const drive_settings builtin_knowndrives[] = {
     "-v 240,msec24hour32"
   },
   { "Seagate Exos X18", // tested with ST12000NM000J-2TY103/SN02,
-      // ST16000NM000J-2TW103/SC02, ST18000NM000J-2TV103/SN01, .../SN02,
+      // ST16000NM000J-2TW103/SC02, ST16000NM000J-2TW103/SCE2,
+      // ST18000NM000J-2TV103/SN01, ST18000NM000J-2TV103/SN02,
       // ST18000NM002J-2TV133/PAL7 (Dell)
     "ST1(0000NM0(18|20)G|[2468]000NM00[012]J)-.*",
     "", "",
@@ -5091,7 +5096,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 240,msec24hour32"
   },
   { "Seagate Exos Recertified (HAMR)", // tested with ST22000NM000C-3WC103/SN02,
-      // ST24000NM000C-3WD103/SN02
+      // ST24000NM000C-3WD103/SN02, ST26000NM000C-3WE103/SN02
       // HAMR based Factory Recertified Exos line
       // ST16000NM002C-3YG103/SN04
       // ST20000NM002C-3X6103/SN04
@@ -5201,7 +5206,7 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Seagate SkyHawk", // tested with ST2000VX017-3CV102/CV10, ST3000VX010-2H916L/CV11,
-      // ST4000VX016-3CV104/CV10, ST6000VX0023-2EF110/SC60
+      // ST4000VX016-3CV104/CV10, ST4000VX007-2DT166/CV11, ST6000VX0023-2EF110/SC60
     "ST(1000VX0(05|13)|2000VX0(08|15|17)|3000VX0(09|10|15)|4000VX0(07|13|16)|6000VX00(1|9|23)|8000VX0(04|10|022)|10000VX0004)-.*",
     "", "",
     "-v 1,raw24/raw32 -v 7,raw24/raw32 -v 188,raw16 "
@@ -5527,13 +5532,14 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Western Digital Blue (CMR)", // tested with WDC WD5000AZLX-00K4KA0/80.00A80,
       // WDC WD10EZEX-00RKKA0/80.00A80, WDC WD10EZEX-75M2NA0/01.01A01,
-      // WDC WD40EZRZ-00WN9B0/80.00A80, WDC WD80EAZZ-00BKLB0/80.00A80,
+      // WDC WD40EZAX-00C8UB0/01.01A01, WDC WD40EZRZ-00WN9B0/80.00A80,
+      // WDC WD80EAZZ-00BKLB0/80.00A80,
       // APPLE HDD WDC WD10EALX-408EA0/07.01D03
     "(APPLE HDD )?WDC WD((25|32|50)00AAKX|5000AZ(LX|RZ)|7500A(AL|ZE)X|[123468]0E(ALX|A[ARZ]Z|Z[AE]X|ZRZ))-.*",
     "", "", ""
   },
   { "Western Digital Blue (SMR)", // tested with WDC WD40EZAZ-00SF3B0/80.00A80 (TRIM: zeroed),
-      // WDC WD40EDAZ-11SLVB0/80.00A80
+      // WDC WD40EDAZ-11SLVB0/80.00A80, WDC WD20EZBX-00AYRA0/01.01A01 (TRIM: deterministic)
     "WDC WD[2346]0E(DAZ|ZAZ|ZBX)-.*", // *EDAZ: White label, MyBook
     "",
     "Data recovery specialists reported serious problems with\n"
@@ -5619,7 +5625,8 @@ const drive_settings builtin_knowndrives[] = {
       // WDC WD4003FZEX-00Z4SA0/01.01A01, WDC WD5003AZEX-00RKKA0/80.00A80,
       // WDC WD4004FZWX-00GBGB0/81.H0A81, WDC WD4005FZBX-00K5WB0/01.01A01,
       // WDC WD6003FZBX-00K5WB0/01.01A01, WDC WD6004FZWX-00BKVA0/02.01A02,
-      // WDC WD8002FZWX-00BKUA0/02.01A02
+      // WDC WD8001FZBX-00ASYA0/01.01A01, WDC WD8002FZWX-00BKUA0/02.01A02,
+      // WDC WD101FZBX-00ATAA0/01.01A01
     "WDC WD(102|101|8002|8001|6004|6003|4006|6001|2003|5001|1003|4003|4004|4005|5003|3003|3001)(FZW|FZE|FZB|AZE)X-.*|" // could be
     // new series  WD6001FZWX WD2003FZEX WD5001FZWX WD1003FZEX
     //             WD4003FZEX WD5003AZEX WD3003FZEX WD4004FZWX
@@ -5743,9 +5750,10 @@ const drive_settings builtin_knowndrives[] = {
     "-v 71,raw16,Milli_Micro_Actuator " // WD221KFGX
     "-v 90,hex48,NAND_Master" // WD201KFGX, WD221KFGX
   },
-  { "Western Digital Purple (Pro)", // tested with WDC WD40PURX-64GVNY0/80.00A80,
-      // WDC WD10PURZ-85U8XY0/01.01A01, WDC WD40PURZ-85TTDY0/80.00A80,
-      // WDC WD80PUZX-64NEAY0/80.H0A80, WDC WD121PURP-85B5SY0/82.00A82
+  { "Western Digital Purple (Pro)", // tested with WDC WD10PURZ-85U8XY0/01.01A01,
+      // WDC WD30PURZ-85GU6Y0/80.00A80, WDC WD40PURX-64GVNY0/80.00A80,
+      // WDC WD40PURZ-85TTDY0/80.00A80, WDC WD80PUZX-64NEAY0/80.H0A80,
+      // WDC WD121PURP-85B5SY0/82.00A82
     "WDC WD[1234568](0|[0248]1)PU[RZ][PXZ]-.*",
     "", "", ""
   //"-v 22,raw48,Helium_Level" // WD121PURP-85B5SY0, WD80PUZX-64NEAY0
