@@ -5772,8 +5772,8 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Western Digital Blue Mobile", // tested with WDC WD5000LPVX-08V0TT2/03.01A03,
       // WDC WD10JPVX-75JC3T0/0301A03,  WDC WD10JPVX-22JC3T0/01.01A01,
-      // WDC WD20NPVZ-00WFZT0/01.01A01
-    "WDC WD(3200LPCX|5000[BL]P[CV]X|7500BPVX|10JP[VZ]X|(15|20)NPVZ)-.*",
+      // WDC WD10JPCX-24UE4T0/01.01A01, WDC WD20NPVZ-00WFZT0/01.01A01
+    "WDC WD(3200LPCX|5000[BL]P[CV]X|7500BPVX|10JP[CVZ]X|(15|20)NPVZ)-.*",
     "", "", ""
   },
   { "Western Digital Blue Mobile (SMR)", // ticket #1313, tested with
