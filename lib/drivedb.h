@@ -5057,8 +5057,9 @@ const drive_settings builtin_knowndrives[] = {
   { "Seagate Exos X18", // tested with ST12000NM000J-2TY103/SN02,
       // ST16000NM000J-2TW103/SC02, ST16000NM000J-2TW103/SCE2,
       // ST18000NM000J-2TV103/SN01, ST18000NM000J-2TV103/SN02,
-      // ST18000NM002J-2TV133/PAL7 (Dell)
-    "ST1(0000NM0(18|20)G|[2468]000NM00[012]J)-.*",
+      // ST18000NM002J-2TV133/PAL7 (Dell), OOS14000G/OOS1
+    "ST1(0000NM0(18|20)G|[2468]000NM00[012]J)-.*|"
+    "OOS14000G", // 14TB refurbished and rebranded
     "", "",
     "-v 1,raw24/raw32 -v 7,raw24/raw32 "
     "-v 18,raw48,Head_Health "
