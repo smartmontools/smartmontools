@@ -7222,6 +7222,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  { "USB: Transcend TS-CM10G; ",
+    "0x2174:0x7010",
+    "", // 0x2227
+    "",
+    "-d sntrealtek"
+  },
   // 0x235c (?)
   { "USB: ; ",
     "0x235c:0xa006", // Terramaster D4-320 (see also 0x5432:0x235c)
