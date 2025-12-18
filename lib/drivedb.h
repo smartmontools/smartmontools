@@ -7202,6 +7202,12 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   // VIA Labs
+  { "USB: ; VIA",
+    "0x2109:0x0561", // UnionSine docking station
+    "", // 0x0002
+    "",
+    "-d sat" // ATA output registers missing
+  },
   { "USB: ; VIA VL700", // USB2/3->SATA
     "0x2109:0x0700", // Diginote 2.5" USB-3.0 HDD enclosure 80000894
     "", // 0x0005
