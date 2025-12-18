@@ -3761,9 +3761,10 @@ const drive_settings builtin_knowndrives[] = {
     "IBM-DTCA-2(324|409)0",
     "", "", ""
   },
-  { "IBM Travelstar 6GN",
+  { "IBM Travelstar 6GN", // tested with IBM-DBCA-204860/BC3OA87F
     "IBM-DBCA-20(324|486|648)0",
-    "", "", ""
+    "", "",
+    "-v 8,raw16 -v 226,raw16"
   },
   { "IBM Travelstar 25GS, 18GT, and 12GN",
     "IBM-DARA-2(25|18|15|12|09|06)000",
@@ -3789,9 +3790,10 @@ const drive_settings builtin_knowndrives[] = {
     "IBM-DKLA-2(216|324|432)0",
     "", "", ""
   },
-  { "IBM/Hitachi Travelstar 60GH and 40GN",
+  { "IBM/Hitachi Travelstar 60GH and 40GN", // tested with IC25N030ATCS04-0/CA3OA71A
     "(IBM-|Hitachi )?IC25(T060ATC[SX]05|N0[4321]0ATC[SX]04)-.",
-    "", "", ""
+    "", "",
+    "-v 191,raw16"
   },
   { "IBM/Hitachi Travelstar 40GNX",
     "(IBM-|Hitachi )?IC25N0[42]0ATC[SX]05-.",
