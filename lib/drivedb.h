@@ -6329,6 +6329,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "" // unsupported
   },
+  { "USB: Crucial X10 Pro; ",
+    "0x0634:0x5604",
+    "", // 0x5604: 4TB
+    "",
+    "-d sat"
+  },
   // Prolific
   { "USB: ; Prolific PL2507", // USB->PATA
     "0x067b:0x2507",
