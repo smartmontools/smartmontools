@@ -642,16 +642,19 @@ const drive_settings builtin_knowndrives[] = {
   { "Maxio based SSDs (variant 2)", // MAS0902, MAS1102
     "Fanxiang S101 ((128|256|500|512)G|[124]T)B|"    // Fanxiang S101, tested with Fanxiang S101 2TB/SN14130
     "HP SSD S600 (120|240)GB|"                       // tested with HP SSD S600 240GB/SN8108
+    "HS-SSD-E100N? (128|256|512|1024)G|"             // Hikvision E100[N], tested with HS-SSD-E100 512G/031fAA20,
+        // HS-SSD-E100N 1024G/030fAA20
     "Lexar 128GB SSD|"  // Lexar 128GB SSD/H190117D
         // for other Lexar drives see trac ticket 1529
-    "Patriot Burst Elite (120|240|480|960|1920)GB|"  // Patriot Burst Elite 120GB/SN08979, 960GB/H221215a, 1920GB/SN09405
+    "Patriot Burst Elite (120|240|480|960|1920)GB|"  // Patriot Burst Elite 120GB/SN08979, 960GB/030fAA20, 960GB/H221215a,
+        // 1920GB/SN09405
     "SPCC Solid State Disk|"                         // Silicon Power A55, tested with SPCC Solid State Disk/H190117H (512GB)
-        // SPCC Solid State Disk/SN08921 (128GB)
+        // SPCC Solid State Disk/SN08921 (128GB), SPCC Solid State Disk/J00fae20 (512GB)
         // also available with Phison controllers
     "SSDPR-CX400-(128|256|512|01T|02T)-G2|"          // GOODRAM CX400 G2, tested with SSDPR-CX400-128-G2/SN07373
         // also available with Phison controllers
     "Verbatim Vi560 SATA III M.2 SSD",               // Verbatim Vi560 SATA III M.2 SSD/H190505 (256GB)
-    "H(19[0-9]{4}[DH]?|2212[0-9]{2}a?)|SN(0[789]|8|14)[0-9]{3}", "",
+    "03[01]fAA20|J00fae20|H(19[0-9]{4}[DH]?|2212[0-9]{2}a?)|SN(0[789]|8|14)[0-9]{3}", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 2,raw48,Throughput_Performance "
   //"-v 3,raw16(avg16),Spin_Up_Time "
@@ -664,16 +667,20 @@ const drive_settings builtin_knowndrives[] = {
     "-v 167,raw48,SSD_Protect_Mode "
     "-v 168,raw48,SATA_PHY_Error_Count "
     "-v 169,raw16(raw16),Bad_Block_Count "
+    "-v 170,raw48,Unknown_Maxio_Attribute " // FW 030fAA20, 031fAA20, J00fae20
     "-v 171,raw48,Program_Fail_Count "
     "-v 172,raw48,Erase_Fail_Count "
     "-v 173,raw16,Erase_Count "
-    "-v 174,raw48,Unknown_Maxio_Attribute " // FW SN07373, SN08979
+    "-v 174,raw48,Unknown_Maxio_Attribute " // FW 030fAA20, 031fAA20, J00fae20, SN07373, SN08979
     "-v 175,raw48,Bad_Cluster_Count "
     "-v 177,raw48,Read_Retry_Count "
     "-v 180,raw48,Spare_Blk_Count_Left "
+  //"-v 183,raw48,Runtime_Bad_Block "
+  //"-v 184,raw48,End-to-End_Error "
   //"-v 187,raw48,Reported_Uncorrect "
     "-v 192,raw48,Unexpect_Power_Loss_Ct "
   //"-v 194,tempminmax,Temperature_Celsius "
+  //"-v 196,raw16(raw16),Reallocated_Event_Count "
   //"-v 199,raw48,UDMA_CRC_Error_Count "
     "-v 206,raw48,Min_Erase_Count "
     "-v 207,raw48,Max_Erase_Count "
@@ -682,9 +689,11 @@ const drive_settings builtin_knowndrives[] = {
     "-v 210,raw48,SLC_Max_Erase_Count "
     "-v 211,raw48,SLC_Avg_Erase_Count "
     "-v 231,raw48,SSD_Life_Left "
+  //"-v 233,raw48,Media_Wearout_Indicator,SSD "
+    "-v 234,raw48,Unknown_Maxio_Attribute " // FW 030fAA20, 031fAA20, J00fae20
     "-v 241,raw48,Host_Writes_GiB "
     "-v 242,raw48,Host_Reads_GiB "
-    "-v 243,raw16(raw16),Unknown_Maxio_Attribute " // FW SN8108, SN07373
+    "-v 243,raw16(raw16),Unknown_Maxio_Attribute " // FW 030fAA20, 031fAA20, J00fae20, SN8108, SN07373
     "-v 245,raw16(raw16),Bit_Error_Count"
   },
   { "Maxio based SSDs (variant 3)", // MAS1102
