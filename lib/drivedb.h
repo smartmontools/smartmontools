@@ -5167,7 +5167,6 @@ const drive_settings builtin_knowndrives[] = {
     "ST(24000NT031|28000NT000|30000NT011|32000NT000)-...103",
     "", "",
     "-v 1,raw24/raw32 -v 7,raw24/raw32 "
-    "-v 18,raw48,Head_Health "
     "-v 188,raw16 "
     "-v 200,raw48,Pressure_Limit "
     "-v 240,msec24hour32"
