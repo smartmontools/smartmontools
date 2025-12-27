@@ -2595,6 +2595,7 @@ const drive_settings builtin_knowndrives[] = {
     "240GB|" // from Lenovo T430 Thinkpad, tested with 240GB/P0510E
     "BR 64GB|" // tested with BR 64GB/U0309A0
     "Dogfish SSD (128|256|512)GB|" // tested with Dogfish SSD 128GB/S1211A0
+    "EX276539RUS|" // tested with ExeGate NextPro UV500TS240/HP3418B2
     "GIM(16|32|64|128|256|512)|"// GUDGA GIM, tested with GIM128/U0401A0
     "INTENSO( SSD)?|" // tested with INTENSO/S1211A0 (Portable SSD 256GB premium edition),
       // INTENSO/V0609A0, INTENSO SSD/V0823A0, INTENSO/V0718B0, INTENSO SSD/W0413A0, INTENSO SSD/W0714A0,
@@ -2621,7 +2622,7 @@ const drive_settings builtin_knowndrives[] = {
     "Verbatim Vi550 S3|" // tested with Verbatim Vi550 S3/U1124A0 (128GB),
        // may also exist with different controllers (tickets #1626, #1629, #1774, #1930, GH issues/185),
     "Vi550 S3", // another variant (ticket #1899), tested with Vi550 S3/HP3418C5
-    "HP(3418C5|S2227I)|KFS03005|P0510E|P0725A|Q(0627|1107)A0|R(0529A|0817B0)|"
+    "HP(3418(B2|C5)|S2227I)|KFS03005|P0510E|P0725A|Q(0627|1107)A0|R(0529A|0817B0)|"
     "S(0222|0424|0509|0618|1211|1230)A0|S112[78]B0|T0(311|519|910)A0|"
     "U(0202|0309|0401|0506|1124|1209)A0|V0((414|609|823)A|(303|718)B)0|V1(027|102)A0|VE0R6327|"
     "W(0201|0413|0714|0825)A0",
