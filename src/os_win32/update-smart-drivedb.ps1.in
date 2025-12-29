@@ -162,11 +162,8 @@ function test_f($file)
 
 function touch($file)
 {
-  if (Test-Path -PathType Leaf -LiteralPath $file) {
-    (Get-Item $file).LastWriteTime = Get-Date
-  } else {
-    New-Item -ItemType File -Path $file | Out-Null
-  }
+  vecho "Touch '$file'"
+  (Get-Item $file).LastWriteTime = Get-Date
 }
 
 function cmp($file1, $file2)
@@ -408,7 +405,8 @@ function gpg_verify($ascfile, $file, [ref]$ok)
 
   # Create temp home dir
   rm_rf $gnupgtmp
-  New-Item -Type Directory -Path $gnupgtmp | Out-Null
+  vecho "New-Item -ItemType Directory -Path '$gnupgtmp'"
+  New-Item -ItemType Directory -Path $gnupgtmp | Out-Null
 
   # Import public key
   $env:LC_MESSAGES = "C"
@@ -714,7 +712,8 @@ if ($equal) {
     }
   }
   rm_f "${Drivedb}.new" "${Drivedb}.new.asc" "${Drivedb}.raw" "${Drivedb}.raw.asc"
-  touch "${Drivedb}.lastcheck"
+  vecho "New-Item '${Drivedb}.lastcheck'"
+  New-Item -ItemType File -Path "${Drivedb}.lastcheck" | Out-Null
   iecho "$Drivedb $newver is already up to date$(if ($NoVerify) {" (NOT VERIFIED)"})"
   exit 0
 }
