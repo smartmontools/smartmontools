@@ -2514,7 +2514,9 @@ const drive_settings builtin_knowndrives[] = {
     "TS(128G|256G|512G|1T|2T|4T)SSD230S|" // TS128GSSD230S/P1025F8, TS2TSSD230S/22Z4W14J
     "TS(120|240|480|960)GSSD220S|" // TS480GSSD220S/P0520AA
     "TS((64|128|256|512)G|[12]T)SSD452K|"// Transcend 452K, tested with TS128GSSD452K/02J0S86A
+    "TS((128|256|512)G|[124]T)SSD470K|"// Transcend 470K, tested with TS512GSSD470K/22Z2UCFS
     "TS(16G|32G|64G|128G|256G|512G|1T)MTS800S?|" // MTS800, tested with TS1TMTS800/O1225H1
+    "TS(120|240|480|960)GMTS820S|" // Transcend 820S, tested with TS120GMTS820S/U1001A0
     "TS(16|32|64)GMSA630|" // MSA630 mSATA SSD, tested with TS32GMSA630/N0113E1
     "TS(32|64|128)GPSD330|" // Transcend PSD SSD, tested with TS64GPSD330/20140121
     "TS(16|32|64|96|128|256)GSSD(630|360S)|" // Transcend 630/360S, tested with TS16GSSD630/N0113E1,
@@ -2523,7 +2525,8 @@ const drive_settings builtin_knowndrives[] = {
       // TS256GESD400K/R0605AS (0x2174:0x2000)
     "TS(128G|256G|512G|1T)MTS830S|" // Transcend 830S, tested with TS256GMTS830S/02J0T3HB
     "TSG(16|32|64|128|256|512)MTS400ISI|" // Transcend MTS400I, tested with TSG64MTS400ISI/S0903D
-    "UMAX 2242 (128|256|512)GB", // tested with UMAX 2242 256GB/U0330A0
+    "UMAX 2242 (128|256|512)GB|" // tested with UMAX 2242 256GB/U0330A0
+    "ZOZT G3000 (120|240|480)GB", // tested with ZOZT G3000 120GB/U0817A0
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 2,raw48,Throughput_Performance "
