@@ -394,15 +394,25 @@ function run_join_out_err($cmd) # ARG...
 
 function gpg_verify($ascfile, $file, [ref]$ok)
 {
-  # Create temp home dir
+  # Create temp home dir path
   if (!$env:TEMP) { error "Environment variable TEMP is not set" }
   $gnupgtmp = Join-Path $env:TEMP "gnupg.$(New-Guid)"
+
+  # Convert path if Cygwin or MSYS2 version of GnuPG is used
+  if ($gpg_cygpath) {
+    $gnupgtmp_cyg = & $gpg_cygpath $gnupgtmp
+    if (!$gnupgtmp_cyg) { error "$gpg_cygpath '$gnupgtmp': failed" }
+  } else {
+    $gnupgtmp_cyg = $gnupgtmp
+  }
+
+  # Create temp home dir
   rm_rf $gnupgtmp
   New-Item -Type Directory -Path $gnupgtmp | Out-Null
 
   # Import public key
   $env:LC_MESSAGES = "C"
-  $out = ($public_key | run_join_out_err $gpg "--batch" "--no-tty" "--homedir=$gnupgtmp" "--import")
+  $out = ($public_key | run_join_out_err $gpg "--batch" "--no-tty" "--homedir=$gnupgtmp_cyg" "--import")
   if ($LASTEXITCODE -ne 0) {
     echo $out
     exit 1
@@ -410,12 +420,11 @@ function gpg_verify($ascfile, $file, [ref]$ok)
   vecho $out
 
   # Verify
-  $out = run_join_out_err $gpg "--batch" "--no-tty" "--homedir=$gnupgtmp" "--verify" $ascfile $file
+  $out = run_join_out_err $gpg "--batch" "--no-tty" "--homedir=$gnupgtmp_cyg" "--verify" $ascfile $file
   if ($LASTEXITCODE -eq 0) {
     vecho $out
     $ok.Value = $true
-  }
-  else {
+  } else {
     # print gpg error always
     echo $out
     $ok.Value = $false
@@ -423,7 +432,7 @@ function gpg_verify($ascfile, $file, [ref]$ok)
 
   # Stop the gpg-agent possibly started by gpg
   if ($gpgconf) {
-    $out = run_join_out_err $gpgconf "--homedir=$gnupgtmp" "--kill" "gpg-agent"
+    $out = run_join_out_err $gpgconf "--homedir=$gnupgtmp_cyg" "--kill" "gpg-agent"
     if ($LASTEXITCODE -ne 0) {
       echo $out
     }
@@ -559,6 +568,7 @@ if ($Smartctl -ne "-") {
 
 # Check for GnuPG
 $gpgconf = ""
+$gpg_cygpath = ""
 if (!$NoVerify) {
   $gpgobj = $null
   if ($gpg) {
@@ -569,14 +579,23 @@ if (!$NoVerify) {
   }
   $public_key = ""
   selectkey $Branch ([ref]$public_key)
-  # Check for gpgconf in same directory
+
+  # Check for 'gpgconf' in same directory
   $gpgpath = Split-Path ($gpgobj[0]).Source
   $gpgconf = "gpgconf"
   $gpgconfobj = Get-Command -Type Application -Name $gpgconf -TotalCount 1 -ErrorAction Ignore
   if (!($gpgconfobj -and ($gpgpath -eq (Split-Path ($gpgconfobj[0]).Source)))) {
     $gpgconf = ""
   }
-  vecho "$gpg$(if ($gpgconf) { " and $gpgconf" }) found in: $gpgpath"
+
+  # Assume Cygwin or MSYS2 version of GnuPG if 'cygpath' is in same directory
+  $gpg_cygpath = "cygpath"
+  $gpg_cygpathobj = Get-Command -Type Application -Name $gpg_cygpath -TotalCount 1 -ErrorAction Ignore
+  if (!($gpg_cygpathobj -and ($gpgpath -eq (Split-Path ($gpg_cygpathobj[0]).Source)))) {
+    $gpg_cygpath = ""
+  }
+
+  vecho "'$gpg'$(if ($gpgconf) { " and '$gpgconf'" })$(if ($gpg_cygpath) { " and '$gpg_cygpath'" }) found in: $gpgpath"
 }
 
 # Remove possible garbage from last download
