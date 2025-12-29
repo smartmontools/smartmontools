@@ -204,12 +204,12 @@ function selecturl($url_of, [ref]$url)
 {
   switch ($url_of) {
     'github' {
-       #    https://github.com/smartmontools/smartmontools/raw/refs/heads/main/src/drivedb.h
+       #    https://github.com/smartmontools/smartmontools/raw/refs/heads/main/lib/drivedb.h
        #    redirected to:
-       $u = 'https://raw.githubusercontent.com/smartmontools/smartmontools/refs/heads/main/src/drivedb.h'
+       $u = 'https://raw.githubusercontent.com/smartmontools/smartmontools/refs/heads/main/lib/drivedb.h'
      }
     'svn'  { $u = 'https://svn.code.sf.net/p/smartmontools/code/trunk/smartmontools/drivedb.h' }
-    'trac' { $u = 'https://www.smartmontools.org/browser/src/drivedb.h?format=raw&rev=main' }
+    'trac' { $u = 'https://www.smartmontools.org/browser/lib/drivedb.h?format=raw&rev=main' }
     default { error "${url_of}: is none of 'github svn trac'" }
   }
   $url.Value = $u
@@ -512,7 +512,7 @@ if (!$Url -and !$File) {
         $Url = $Url -replace "/main/","/drivedb/$Branch/" `
                     -replace "rev=main","rev=drivedb/$Branch"
         if ($Branch -match '^[567]\.') {
-         $Url = $Url -replace '/src/','/smartmontools/'
+         $Url = $Url -replace '/lib/','/smartmontools/'
         }
       } elseif (!$NoVerify) {
         error "'-Main' requires '-NoVerify'"

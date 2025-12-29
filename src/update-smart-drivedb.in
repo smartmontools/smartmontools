@@ -124,11 +124,11 @@ warning()
 selecturl()
 {
   case $1 in
-    github) # https://github.com/smartmontools/smartmontools/raw/refs/heads/main/src/drivedb.h
+    github) # https://github.com/smartmontools/smartmontools/raw/refs/heads/main/lib/drivedb.h
             # redirected to:
-            url='https://raw.githubusercontent.com/smartmontools/smartmontools/refs/heads/main/src/drivedb.h' ;;
+            url='https://raw.githubusercontent.com/smartmontools/smartmontools/refs/heads/main/lib/drivedb.h' ;;
     svn)    url='https://svn.code.sf.net/p/smartmontools/code/trunk/smartmontools/drivedb.h' ;;
-    trac)   url='https://www.smartmontools.org/browser/src/drivedb.h?format=raw&rev=main' ;;
+    trac)   url='https://www.smartmontools.org/browser/lib/drivedb.h?format=raw&rev=main' ;;
     *) error "$1: is none of 'github svn trac'"
   esac
 }
@@ -588,7 +588,7 @@ case "${url_of:+url_of}${url:+url}${file:+file}" in
           url=`echo "$url" | sed -e "s,/main/,/drivedb/$branch/," \
                                  -e "s,rev=main,rev=drivedb/$branch,"`
           case $branch in
-            [567].*) url=`echo "$url" | sed -e 's,/src/,/smartmontools/,'` ;;
+            [567].*) url=`echo "$url" | sed -e 's,/lib/,/smartmontools/,'` ;;
           esac
         elif [ -z "$no_verify" ]; then
           error "'--main' requires '--no-verify'"
