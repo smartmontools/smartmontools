@@ -1,0 +1,70 @@
+name: Check update-smart-drivedb.ps1
+
+on: workflow_dispatch
+
+jobs:
+  drivedb-check-win-7_X:
+    strategy:
+      matrix:
+        version: [ "7_3", "7_4", "7_5" ]
+
+    runs-on: windows-latest
+
+    steps:
+      - name: Download smartmontools-7.X.win32-setup.exe
+        run: |
+          $b = "${{ matrix.version }}"
+          $v = $b -replace '_','.' -replace '([34])$','${1}-1'
+          Invoke-WebRequest `
+            -Uri "https://github.com/smartmontools/smartmontools/releases/download/RELEASE_${b}/smartmontools-${v}.win32-setup.exe" `
+            -OutFile "smartmontools-win32-setup.exe"
+
+      - name: Unpack smartmontools-7.X.win32-setup.exe
+        run: |
+          7z x "smartmontools-win32-setup.exe" "bin"
+
+      - name: Run update-smart-drivedb.ps1
+        # '-NoVerify' is required because only the MSYS2 version of GnuPG is
+        # available (as part of the official Git for Windows package)
+        run: |
+          cd bin
+          ./update-smart-drivedb.ps1 -Verbose -NoVerify
+
+  drivedb-check-win-main:
+    runs-on: windows-latest
+
+    steps:
+      - name: Install MSYS2 and ucrt-x86_64 build tools
+        uses: msys2/setup-msys2@v2
+        with:
+          release: false # try to re-use official MSYS2 GHA Runner Image
+          msystem: ucrt64
+          install: >-
+            mingw-w64-ucrt-x86_64-gcc
+            autoconf
+            automake
+            git
+            libtool
+            make
+
+      - run: git config --global core.autocrlf input # prevent CRLF checkout
+
+      - uses: actions/checkout@v4
+
+      - name: Build
+        run: |
+          ./autogen.sh &&
+          mkdir build && cd build && ../configure &&
+          make -j V=0 && make check &&
+          make -C src os_win32/update-smart-drivedb.ps1
+        shell: msys2 '{0}'
+
+      - name: Run update-smart-drivedb.ps1
+        run: |
+          cd build\src
+          os_win32\update-smart-drivedb.ps1 -Verbose -Smartctl .\smartctl.exe ..\..\lib\drivedb.h
+
+      - name: Rebuild
+        run: |
+          cd build && make -j V=0 && make check
+        shell: msys2 '{0}'
