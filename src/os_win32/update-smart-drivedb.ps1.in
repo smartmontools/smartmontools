@@ -199,8 +199,8 @@ function rm_rf($dir)
 function mv_f($oldfile, $newfile)
 {
   rm_f $newfile
-  vecho "Rename-Item '$oldfile' '$newfile'"
-  Rename-Item $oldfile $newfile
+  vecho "Move-Item '$oldfile' '$newfile'"
+  Move-Item $oldfile $newfile
 }
 
 function selecturl($url_of, [ref]$url)
