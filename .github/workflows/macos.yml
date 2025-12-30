@@ -18,7 +18,7 @@ jobs:
           # Provide at least the commit log since last release for 'getversion.sh'.
           # 'git clone --shallow-since=2025-04-29' would be sufficient but this is
           # not supported by 'actions/checkout@v4'.
-          fetch-depth: 300
+          fetch-depth: 800
           # Include (future) release tags for 'getversion.sh'
           fetch-tags: true
 
