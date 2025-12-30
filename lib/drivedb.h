@@ -5122,6 +5122,19 @@ const drive_settings builtin_knowndrives[] = {
     "-v 200,raw48,Pressure_Limit "
     "-v 240,msec24hour32"
   },
+  { "Seagate Exos M", // tested with ST30000NM004K-3RM133/SE02
+      // HAMR based Exos M, Mozaic 3+ platform
+      // ST24000NM001K-3TH133/SE02
+      // ST28000NM003K-3TE133/SE02
+      // ST30000NM004K-3RM133/SE02
+      // ST32000NM004K-3UB133/SE02
+    "ST(24000NM001|28000NM003|30000NM004|32000NM004)K-3..133",
+    "", "",
+    "-v 1,raw24/raw32 -v 7,raw24/raw32 "
+    "-v 188,raw16 "
+    "-v 200,raw48,Pressure_Limit "
+    "-v 240,msec24hour32"
+  },
   // new models: ST8000VN0002, ST6000VN0021, ST4000VN000
   //             ST8000VN0012, ST6000VN0031, ST4000VN003
   // tested with ST8000VN0002-1Z8112/ZA13YGNF
