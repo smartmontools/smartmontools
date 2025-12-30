@@ -82,7 +82,7 @@ scsi_device::query_cmd_support()
     bool res = true;
     int k, err, cd_len, bump;
     int r_len = 0;
-    uint8_t * rp = (uint8_t *)calloc(sizeof(uint8_t), RSOC_RESP_SZ);
+    uint8_t * rp = (uint8_t *)calloc(RSOC_RESP_SZ, sizeof(uint8_t));
     const uint8_t * last_rp;
     uint8_t * cmdp;
     static const int max_bytes_of_cmds = RSOC_RESP_SZ - 4;
