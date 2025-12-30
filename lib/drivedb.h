@@ -7182,6 +7182,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  { "USB: Corsair EX400U; ", // Phison PS2251-21 (U21) NAND Flash controller, partly
+    "0x1b1c:0x1a20", // emulates NVMe information, some SMART values are bogus.
+    "",
+    "",
+    "-d sntasmedia"
+  },
   // SunplusIT
   { "USB: ; SunplusIT",
     "0x1bcf:0x0c31",
