@@ -348,11 +348,11 @@ jobs:
             --notes "Smartmontools CI build: [smartmontools-${SMARTMONTOOLS_GIT_VER_FNAME}](https://github.com/smartmontools/smartmontools/tree/${GITHUB_SHA})" \
             --prerelease
       - name: Clean old builds
-        # leave only last 30 builds and delete everything else
+        # Leave only last 50 builds and delete everything else
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}        
         run: |
           gh -R smartmontools/smartmontools-builds release list \
-            --json tagName -q '.[30:][]|.tagName' | \
+            -L 100 --json tagName -q '.[50:][]|.tagName' | \
             xargs -n1 --no-run-if-empty \
-            gh release delete -R smartmontools/smartmontools-build --yes --cleanup-tag
+            gh -R smartmontools/smartmontools-builds release delete --cleanup-tag --yes
