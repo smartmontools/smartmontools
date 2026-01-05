@@ -22,10 +22,11 @@ jobs:
           # Include (future) release tags for 'getversion.sh'
           fetch-tags: true
 
-      - name: Build files to install
+      - name: Build installer
         run: |
           export SOURCE_DATE_EPOCH=$(git log -1 --format="%at") &&
           SOURCE_DATE_EPOCH=$((SOURCE_DATE_EPOCH + 1)) &&
+          VERSION=$(src/getversion.sh -n) &&
           ./autogen.sh && mkdir build && cd build &&
           ../configure --build=$(../config.guess) --host=i686-w64-mingw32 \
             --with-build-info='(GHA/signpath)' --enable-static-link \
@@ -34,19 +35,34 @@ jobs:
           ../configure --build=$(../config.guess) --host=x86_64-w64-mingw32 \
             --with-build-info='(GHA/signpath)' --enable-static-link \
             SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
-          make -j && make distdir-win32 && cd .. &&
-          mkdir unsigned-binaries &&
-          cp -v build64/src/smartmontools-*.win64/bin/*.exe unsigned-binaries
+          make -j && make distdir-win32 &&
+          cd ../build/src && dest="smartmontools-win32-setup-${VERSION}.exe" &&
+          make MAKENSISFLAGS=-DEXPORT_UNINST builddir_win64=../../build64/src \
+            distinst_win32="$dest" installer-win32 &&
+          sha256sum smartmontools-win32-setup-*.exe &&
+          cd ../.. && mkdir -p unsigned-binaries/bin32 &&
+          mv -v build64/src/smartmontools-*.win64/bin/*.exe unsigned-binaries &&
+          mv -v build/src/smartmontools-*.win32/bin/*.exe unsigned-binaries/bin32 &&
+          mv -v build/src/smartmontools-*.win32/bin/smartd_mailer.ps1 unsigned-binaries &&
+          mv -v build/src/smartmontools-*.win32/bin/update-smart-drivedb.ps1 unsigned-binaries &&
+          mv -v build/src/uninst-smartmontools.exe unsigned-binaries
 
-      - name: Upload x86_64 binaries
+      - name: Upload installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: smartmontools-windows
+          path: build/src/smartmontools-win32-setup-*.exe
+          retention-days: 30
+
+      - name: Upload binaries
         id: binaries-upload-step
         uses: actions/upload-artifact@v4
         with:
-          name: smartmontools-windows-x86_64-bin
-          path: unsigned-binaries/*.exe
-          retention-days: 30
+          name: smartmontools-windows-temp-bin
+          path: unsigned-binaries/*
+          retention-days: 1
 
-      - name: Submit x86_64 binaries to signpath.io to sign
+      - name: Submit binaries to signpath.io to sign
         # Signing requests must be submitted from upstream repository
         if: ${{ github.repository == 'smartmontools/smartmontools' }}
         uses: signpath/github-action-submit-signing-request@v1.1
@@ -63,28 +79,33 @@ jobs:
         run: |
           cp -rv unsigned-binaries signed-binaries
 
-      - name: Upload signed x86_64 binaries
+      - name: Upload signed binaries
         uses: actions/upload-artifact@v4
         with:
-          name: smartmontools-windows-x86_64-bin-signed
-          path: signed-binaries/*.exe
-          retention-days: 30
+          name: smartmontools-windows-temp-bin-signed
+          path: signed-binaries/*
+          retention-days: 1
 
-      - name: Build installer
+      - name: Rebuild installer
         run: |
-          mv -fv signed-binaries/*.exe build64/src/smartmontools-*.win64/bin &&
           VERSION=$(src/getversion.sh -n) &&
+          rm -v build/src/smartmontools-win32-setup-${VERSION}.exe &&
+          mv -v signed-binaries/uninst-smartmontools.exe build/src &&
+          mv -v signed-binaries/*.exe build64/src/smartmontools-*.win64/bin &&
+          mv -v signed-binaries/bin32/*.exe build/src/smartmontools-*.win32/bin &&
+          mv -v signed-binaries/*.ps1 build/src/smartmontools-*.win32/bin &&
           cd build/src && dest="smartmontools-win32-setup-${VERSION}.exe" &&
-          make builddir_win64=../../build64/src distinst_win32="$dest" installer-win32 &&
-          sha256sum *.exe
+          make MAKENSISFLAGS=-DIMPORT_UNINST builddir_win64=../../build64/src \
+            distinst_win32="$dest" installer-win32 &&
+          sha256sum smartmontools-win32-setup-*.exe
 
-      - name: Upload installer
+      - name: Upload rebuilt installer
         id: installer-upload-step
         uses: actions/upload-artifact@v4
         with:
-          name: smartmontools-windows
+          name: smartmontools-windows-temp
           path: build/src/smartmontools-win32-setup-*.exe
-          retention-days: 30
+          retention-days: 1
 
       - name: Submit installer to signpath.io to sign
         if: ${{ github.repository == 'smartmontools/smartmontools' }}
