@@ -738,6 +738,9 @@ $(distzip_win32): $(distdir_win32).stamp
 	@test -z '$(SOURCE_DATE_EPOCH)' \
 	|| echo "Warning: '$(distzip_win32)' is not reproducible if SOURCE_DATE_EPOCH is used." >&2
 
+# Variable to pass '-DEXPORT_UNINST' and then '-DIMPORT_UNINST' to 'makensis' for code signing
+MAKENSISFLAGS =
+
 # Build NSIS installer
 # Note: Only option character '-' is also compatible with Linux version of makensis
 $(distinst_win32): os_win32/installer.nsi Makefile os_win32/smartctl_res.rc $(distdir_win32).stamp
@@ -750,8 +753,8 @@ $(distinst_win32): os_win32/installer.nsi Makefile os_win32/smartctl_res.rc $(di
 	yy=`echo "$$SMARTMONTOOLS_GIT_REV_DATE" | sed -n 's,^20\([0-9][0-9]\).*$$,\1,p'` && yy="$${yy:-XX}" && \
 	verstr=$$SMARTMONTOOLS_GIT_VER_WIN && \
 	d64= && if [ -n '$(builddir_win64)' ]; then d64='-DINPDIR64=$(builddir_win64)/$(PACKAGE)-$(VERSION).win64'; fi && \
-	$(ECHO_V) "'$(MAKENSIS)' -V2 -NOCD -DINPDIR=$(distdir_win32) $$d64 -DOUTFILE=$@ -DVERSION=$$version -DYY=$$yy -DVERSTR='$$verstr' $(srcdir)/os_win32/installer.nsi" && \
-	'$(MAKENSIS)' -V2 -NOCD -DINPDIR=$(distdir_win32) $$d64 -DOUTFILE=$@ -DVERSION=$$version -DYY=$$yy -DVERSTR="$$verstr" $(srcdir)/os_win32/installer.nsi
+	$(ECHO_V) "'$(MAKENSIS)' -V2 -NOCD -DINPDIR=$(distdir_win32) $$d64 -DOUTFILE=$@ -DVERSION=$$version -DYY=$$yy -DVERSTR='$$verstr' $(MAKENSISFLAGS) $(srcdir)/os_win32/installer.nsi" && \
+	'$(MAKENSIS)' -V2 -NOCD -DINPDIR=$(distdir_win32) $$d64 -DOUTFILE=$@ -DVERSION=$$version -DYY=$$yy -DVERSTR="$$verstr" $(MAKENSISFLAGS) $(srcdir)/os_win32/installer.nsi
 	$(AM_V_at)test -z '$(SOURCE_DATE_EPOCH)' || touch -d @$(SOURCE_DATE_EPOCH) $@
 	$(AM_V_at)md5sum $@ > $@.md5
 	$(AM_V_at)sha1sum $@ > $@.sha1

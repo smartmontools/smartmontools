@@ -3,16 +3,18 @@
 ;
 ; Home page of code is: https://www.smartmontools.org
 ;
-; Copyright (C) 2006-25 Christian Franke
+; Copyright (C) 2006-26 Christian Franke
 ;
 ; SPDX-License-Identifier: GPL-2.0-or-later
 ;
 
 
 ;--------------------------------------------------------------------
-; Command line arguments:
+; Command line arguments (all defines are optional):
 ; makensis -DINPDIR=<input-dir> -DINPDIR64=<input-dir-64-bit> \
-;   -DOUTFILE=<output-file> -DVERSTR=<version-string> -DYY=<year> \
+;   -DOUTFILE=<output-file> -DVERSION=<version> \
+;   -DVERSTR=<display-version> -DYY=<version-year> \
+;   -D[IM|EX]PORT_UNINST \
 ;   installer.nsi
 
 !ifndef INPDIR
@@ -258,22 +260,24 @@ Section "Uninstaller" UNINST_SECTION
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "NoModify" 1
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools" "NoRepair" 1
 
-  Goto +2 ; Use dummy SetOutPath to control archive location of uninstaller
-    SetOutPath "$INSTDIR"
+  SetOutPath "$INSTDIR"
+!ifdef IMPORT_UNINST
+  File "uninst-smartmontools.exe"
+!else
   WriteUninstaller "uninst-smartmontools.exe"
+!endif
 
 SectionEnd
 
-; Run dummy "signing" command after creation of the uninstaller.
-; This avoids that the uninstaller inherits the file header
-; from the installer.  Otherwise some header fields (checksum,
-; security directory entry) of the uninstaller would be invalid if
-; the installer file is later modified by code signing.
-!if "${NSIS_PACKEDVERSION}" >= 0x03008000 ; Requires NSIS >= 3.08
-  !uninstfinalize "echo uninstfinalize %1"
-!else
-  !warning "NSIS ${NSIS_VERSION} (< v3.08): uninstaller may not work if installer is signed"
-!endif
+!ifdef EXPORT_UNINST
+  ; Export the uninstaller for 'makensis -DIMPORT_UNINST'
+  !system 'exit 256' STATUS ; POSIX systems truncate STATUS to 8 bit
+  !if ${STATUS} = 256 ; Assume native build
+    !uninstfinalize 'echo copy /Y "%1" uninst-smartmontools.exe&copy /Y "%1" uninst-smartmontools.exe >nul'
+  !else ; Assume cross build
+    !uninstfinalize 'cp -fv "%1" uninst-smartmontools.exe'
+  !endif
+!endif ; EXPORT_UNINST
 
 Section "Start Menu Shortcuts" MENU_SECTION
 
@@ -432,6 +436,7 @@ SectionGroupEnd
 
 ;--------------------------------------------------------------------
 
+!ifndef IMPORT_UNINST
 Section "Uninstall"
   
   ; Stop & remove service
@@ -547,6 +552,7 @@ Section "Uninstall"
   ${EndIf}
 
 SectionEnd
+!endif ; IMPORT_UNINST
 
 ;--------------------------------------------------------------------
 ; Functions
@@ -811,7 +817,7 @@ done:
   Pop $0
 FunctionEnd
 
-
+!ifndef IMPORT_UNINST
 ; RemoveFromPath - Removes dir from PATH
 ;
 ; Based on example from:
@@ -863,7 +869,7 @@ done:
   Pop $1
   Pop $0
 FunctionEnd
- 
+!endif ; IMPORT_UNINST
 
 ; StrStr - find substring in a string
 ;
@@ -903,8 +909,9 @@ Function ${un}StrStr
 FunctionEnd
 !macroend
 !insertmacro StrStr ""
-!insertmacro StrStr "un."
-
+!ifndef IMPORT_UNINST
+  !insertmacro StrStr "un."
+!endif
 
 ;--------------------------------------------------------------------
 ; Set Run As Administrator flag in shortcut
