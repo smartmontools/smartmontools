@@ -503,6 +503,7 @@ Section "Uninstall"
   Delete "$INSTDIR\doc\COPYING.txt"
   Delete "$INSTDIR\doc\INSTALL.txt"
   Delete "$INSTDIR\doc\NEWS.txt" ; TODO: Remove after smartmontools 8.1
+  Delete "$INSTDIR\doc\README.md"
   Delete "$INSTDIR\doc\README.txt" ; TODO: Remove after smartmontools 8.1
   Delete "$INSTDIR\doc\TODO.txt" ; TODO: Remove after smartmontools 8.1
   Delete "$INSTDIR\doc\checksums*.txt"
