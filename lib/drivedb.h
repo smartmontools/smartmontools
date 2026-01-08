@@ -613,21 +613,29 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Maxio based SSDs (variant 1)", // MK8115, MAS0902
     "NT-(128|256|512)|"         // KingSpec NT, tested with NT-512/T180731
-    "P3-(128|256|512|[124]TB)", // KingSpec P3, tested with P3-256/T180910, P3-1TB/T180731
-    "T18[0-9]{4}", "",
+    "P3-(128|256|512|[124]TB)|" // KingSpec P3, tested with P3-256/T180910, P3-1TB/T180731
+    "ZHITAI SC001 (Active ((256|512)GB|1TB) SSD|XT (250|500|1000)GB)",  // tested with
+    // ZHITAI SC001 SATA SSD/ZT016200
+    "T18[0-9]{4}|ZT[0-9A-Z]{6}", "",
+    "-v 5,raw16(raw16),New_Bad_Block_Count "
   //"-v 9,raw24(raw8),Power_On_Hours "
   //"-v 12,raw48,Power_Cycle_Count "
     "-v 167,raw48,SSD_Protect_Mode "
     "-v 168,raw48,SATA_PHY_Error_Count "
     "-v 169,raw16(raw16),Bad_Block_Count "
+    "-v 170,raw48,Max_Bad_Block_Count "
     "-v 171,raw48,Program_Fail_Count "
     "-v 172,raw48,Erase_Fail_Count "
     "-v 173,raw16,Erase_Count "
     "-v 175,raw48,Bad_Cluster_Count "
     "-v 180,raw48,Spare_Blk_Count_Left "
+    "-v 183,raw48,SATA_Downshift_Count "
+  //"-v 184,raw48,End-to-End_Error "
   //"-v 187,raw48,Reported_Uncorrect "
+    "-v 190,tempminmax,Temperature_Celsius "
     "-v 192,raw48,Unexpect_Power_Loss_Ct "
   //"-v 194,tempminmax,Temperature_Celsius "
+    "-v 196,raw48,Reallocated_Event_Count "
     "-v 206,raw48,Min_Erase_Count "
     "-v 207,raw48,Max_Erase_Count "
     "-v 208,raw48,Avg_Erase_Count "
@@ -635,8 +643,11 @@ const drive_settings builtin_knowndrives[] = {
     "-v 210,raw48,SLC_Max_Erase_Count "
     "-v 211,raw48,SLC_Avg_Erase_Count "
     "-v 231,raw48,SSD_Life_Left "
+    "-v 233,raw48,NAND_Write_Sector_Cnt "
+    "-v 234,raw48,NAND_Read_Sector_Cnt "
   //"-v 241,raw48,Total_LBAs_Written "
   //"-v 242,raw48,Total_LBAs_Read "
+    "-v 243,raw48,NAND_Temperature "
     "-v 245,raw16(raw16),Bit_Error_Count"
   },
   { "Maxio based SSDs (variant 2)", // MAS0902, MAS1102
