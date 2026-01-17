@@ -5032,6 +5032,14 @@ const drive_settings builtin_knowndrives[] = {
     "-v 188,raw16 "
     "-v 240,msec24hour32"
   },
+  { "Seagate Exos 7E2000",
+    "ST(1000NX0(3[0145]|42)3|2000NX0(2[458]|30|40)3)-.*|"
+    "ST(1000NX044|2000NX042)3", // tested with ST1000NX0443/NB33 (Dell)
+    "", "",
+    "-v 1,raw24/raw32 -v 7,raw24/raw32 -v 188,raw16 "
+    "-v 195,raw24/raw32,ECC_On_the_Fly_Count "
+    "-v 240,msec24hour32"
+  },
   { "Seagate Exos X12", // tested with ST12000NM0007-2A1101/SN02
     "ST12000NM00[01]7-.*", // *17 = SED
     "", "",
