@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "VERSION: 7.0/6061 2025-12-30 16:13:39 +0000 1b8764c8d90e",
+  { "VERSION: 7.0/6083 2026-01-31 17:09:26 +0000 11599607dcf2",
     "-", "-",
     "Version information",
     ""
@@ -613,21 +613,29 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Maxio based SSDs (variant 1)", // MK8115, MAS0902
     "NT-(128|256|512)|"         // KingSpec NT, tested with NT-512/T180731
-    "P3-(128|256|512|[124]TB)", // KingSpec P3, tested with P3-256/T180910, P3-1TB/T180731
-    "T18[0-9]{4}", "",
+    "P3-(128|256|512|[124]TB)|" // KingSpec P3, tested with P3-256/T180910, P3-1TB/T180731
+    "ZHITAI SC001 (Active ((256|512)GB|1TB) SSD|XT (250|500|1000)GB)",  // tested with
+    // ZHITAI SC001 SATA SSD/ZT016200
+    "T18[0-9]{4}|ZT[0-9A-Z]{6}", "",
+    "-v 5,raw16(raw16),New_Bad_Block_Count "
   //"-v 9,raw24(raw8),Power_On_Hours "
   //"-v 12,raw48,Power_Cycle_Count "
     "-v 167,raw48,SSD_Protect_Mode "
     "-v 168,raw48,SATA_PHY_Error_Count "
     "-v 169,raw16(raw16),Bad_Block_Count "
+    "-v 170,raw48,Max_Bad_Block_Count "
     "-v 171,raw48,Program_Fail_Count "
     "-v 172,raw48,Erase_Fail_Count "
     "-v 173,raw16,Erase_Count "
     "-v 175,raw48,Bad_Cluster_Count "
     "-v 180,raw48,Spare_Blk_Count_Left "
+    "-v 183,raw48,SATA_Downshift_Count "
+  //"-v 184,raw48,End-to-End_Error "
   //"-v 187,raw48,Reported_Uncorrect "
+    "-v 190,tempminmax,Temperature_Celsius "
     "-v 192,raw48,Unexpect_Power_Loss_Ct "
   //"-v 194,tempminmax,Temperature_Celsius "
+    "-v 196,raw48,Reallocated_Event_Count "
     "-v 206,raw48,Min_Erase_Count "
     "-v 207,raw48,Max_Erase_Count "
     "-v 208,raw48,Avg_Erase_Count "
@@ -635,8 +643,11 @@ const drive_settings builtin_knowndrives[] = {
     "-v 210,raw48,SLC_Max_Erase_Count "
     "-v 211,raw48,SLC_Avg_Erase_Count "
     "-v 231,raw48,SSD_Life_Left "
+    "-v 233,raw48,NAND_Write_Sector_Cnt "
+    "-v 234,raw48,NAND_Read_Sector_Cnt "
   //"-v 241,raw48,Total_LBAs_Written "
   //"-v 242,raw48,Total_LBAs_Read "
+    "-v 243,raw48,NAND_Temperature "
     "-v 245,raw16(raw16),Bit_Error_Count"
   },
   { "Maxio based SSDs (variant 2)", // MAS0902, MAS1102
@@ -2478,6 +2489,7 @@ const drive_settings builtin_knowndrives[] = {
     "DREVO X1 SSD|" // tested with DREVO X1 SSD/Q0111A
     "Drevo X1 pro (64|128|256)G|" // tested with Drevo X1 pro 64G/Q0303B
     "DEXP SSD C100 (128|256|512)Gb|" // tested with DEXP SSD C100 256Gb/V0218A0
+    "EX27(8215|653[69]|668[35])RUS|" // ExeGate NextPro UV500TS, tested with EX276539RUS/HP3418B2 (240GB)
     "HP SSD S700 ((128|256|512)G|1T)B|" // tested with HP SSD S700 1TB/V0823A0
     "JAJS[56]00M((12[08]|240|256|480|512|960)C|1TB)(-1)?|" // J&A LEVEN JS500/600 (Intenso TOP), tested with
       // JAJS500M120C-1/P0614D, JAJS600M1TB/T0529A0, JAJS600M256C/U0803A0
@@ -2505,6 +2517,7 @@ const drive_settings builtin_knowndrives[] = {
     "SED2QII-LP SATA SSD ((64|128|256|512)GB|[12]TB)|" // ACPI SED2QII-LP, tested with
       // SED2QII-LP SATA SSD 64GB/S0410A
     "SH00M(120|240|480)GB|" // Yucun R580, tested with SH00M120GB/R0817A0
+    "SP DS72|" // Silicon Power DS72, tested with SP DS72/Y0328A00 (2TB) (0x090c:0x2320)
     "T60|" // KingSpec T60, tested with T60/20151120
     "TCSUNBOW [MX]3 (60|120|240|480)GB|" // TC-Sunbow M3/X3, tested with TCSUNBOW M3 240GB/R0327B0,
       // TCSUNBOW X3 120GB/R1211A0, TCSUNBOW X3 480GB/S0509A0
@@ -2557,6 +2570,8 @@ const drive_settings builtin_knowndrives[] = {
     "-v 167,raw48,Average_Erase_Count "
     "-v 168,raw48,Max_Erase_Count_of_Spec "
     "-v 169,raw48,Remaining_Lifetime_Perc "
+    "-v 172,raw48,Unkn_SiliconMotion_Attr " // SP DS72/Y0328A00
+    "-v 173,raw48,Unkn_SiliconMotion_Attr " // SP DS72/Y0328A00
   //"-v 175,raw48,Program_Fail_Count_Chip "
   //"-v 176,raw48,Erase_Fail_Count_Chip "
   //"-v 177,raw48,Wear_Leveling_Count "
@@ -2571,11 +2586,13 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 197,raw48,Current_Pending_Sector "
   //"-v 198,raw48,Offline_Uncorrectable "
   //"-v 199,raw48,UDMA_CRC_Error_Count "
+    "-v 218,raw48,Unkn_SiliconMotion_Attr " // SP DS72/Y0328A00
     "-v 225,raw48,Host_Writes_32MiB " // FW 20140402
     "-v 231,raw48,SSD_Life_Left " // KINGSTON SKC600256G/S4500105
   //"-v 232,raw48,Available_Reservd_Space "
     "-v 241,raw48,Host_Writes_32MiB "
     "-v 242,raw48,Host_Reads_32MiB "
+    "-v 244,raw48,Unkn_SiliconMotion_Attr " // SP DS72/Y0328A00
     "-v 245,raw48,TLC_Writes_32MiB " // FW N0815B, N1114H // TS128GMSA370I: Flash Write Sector Count
     "-v 246,raw48,SLC_Writes_32MiB "
     "-v 247,raw48,Raid_Recoverty_Ct "
@@ -2628,15 +2645,16 @@ const drive_settings builtin_knowndrives[] = {
       // KingDian S280, tested with SATA3 240GB SSD/T0519A0
     "SPCC M\\.2 SSD|" // Silicon Power A/M55, tested with SPCC M.2 SSD/Q0627A0, SPCC M.2 SSD/U0506A0,
       // SPCC M.2 SSD/U1209A0
+    "SPCC Solid State Disk|" // tested with SPCC Solid State Disk/Y0106A0 (2TB)
     "SSD 120GB|" // Intenso M.2 SSD High, tested with SSD 120GB/R0529A
-    "T-FORCE (128|256|512)GB|" // tested with T-FORCE 512GB/T0910A0
+    "T-FORCE ((128|256|512)G|[12]T)B|" // tested with T-FORCE 512GB/T0910A0, T-FORCE 2TB/HP3C09BA
     "Verbatim Vi550 S3|" // tested with Verbatim Vi550 S3/U1124A0 (128GB),
        // may also exist with different controllers (tickets #1626, #1629, #1774, #1930, GH issues/185),
     "Vi550 S3", // another variant (ticket #1899), tested with Vi550 S3/HP3418C5
-    "HP(3418C5|S2227I)|KFS03005|P0510E|P0725A|Q(0627|1107)A0|R(0529A|0817B0)|"
+    "HP(3418C5|3C09BA|S2227I)|KFS03005|P0510E|P0725A|Q(0627|1107)A0|R(0529A|0817B0)|"
     "S(0222|0424|0509|0618|1211|1230)A0|S112[78]B0|T0(311|519|910)A0|"
     "U(0202|0309|0401|0506|1124|1209)A0|V0((414|609|823)A|(303|718)B)0|V1(027|102)A0|VE0R6327|"
-    "W(0201|0413|0714|0825)A0",
+    "W(0201|0413|0714|0825)A0|Y0106A0",
     "",
     "-v 148,raw48,Total_SLC_Erase_Ct "
     "-v 149,raw48,Max_SLC_Erase_Ct "
@@ -4627,9 +4645,10 @@ const drive_settings builtin_knowndrives[] = {
     "", "",
     "-v 1,raw24/raw32 -v 7,raw24/raw32 -v 188,raw16"
   },
-  { "Seagate Laptop SSHD", // tested with ST500LM000-1EJ162/SM11
+  { "Seagate Laptop SSHD", // tested with ST500LM000-1EJ162/SM11, ST1000LM014-1EJ164/SM30
     "ST(500|1000)LM0(00|14)-.*",
-    "", "", ""
+    "", "",
+    "-v 1,raw24/raw32 -v 7,raw24/raw32 -v 188,raw16"
   },
   { "Seagate Medalist 1010, 1720, 1721, 2120, 3230 and 4340",  // ATA2, with -t permissive
     "ST3(1010|1720|1721|2120|3230|4340)A",
@@ -5030,6 +5049,14 @@ const drive_settings builtin_knowndrives[] = {
     "-v 1,raw24/raw32 -v 7,raw24/raw32 "
     "-v 18,raw48,Head_Health "
     "-v 188,raw16 "
+    "-v 240,msec24hour32"
+  },
+  { "Seagate Exos 7E2000",
+    "ST(1000NX0(3[0145]|42)3|2000NX0(2[458]|30|40)3)-.*|"
+    "ST(1000NX044|2000NX042)3", // tested with ST1000NX0443/NB33 (Dell)
+    "", "",
+    "-v 1,raw24/raw32 -v 7,raw24/raw32 -v 188,raw16 "
+    "-v 195,raw24/raw32,ECC_On_the_Fly_Count "
     "-v 240,msec24hour32"
   },
   { "Seagate Exos X12", // tested with ST12000NM0007-2A1101/SN02
@@ -6442,6 +6469,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  { "USB: Freecom; ",
+    "0x07ab:0xfc73",
+    "", // 0x0100
+    "",
+    "-d sat,12"
+  },
   { "USB: Freecom Quattro 3.0; ", // USB3.0+IEEE1394+eSATA->SATA
     "0x07ab:0xfc77",
     "",
@@ -6488,6 +6521,13 @@ const drive_settings builtin_knowndrives[] = {
   // 0x0860 (?)
   { "USB: ; ",
     "0x0860:0x0001",
+    "", // 0x0100
+    "",
+    "-d sat"
+  },
+  // Silicon Motion
+  { "USB: SP DS72; ",
+    "0x090c:0x2320",
     "", // 0x0100
     "",
     "-d sat"
@@ -7295,6 +7335,13 @@ const drive_settings builtin_knowndrives[] = {
   { "USB: Transcend TS-CM10G; ",
     "0x2174:0x7010",
     "", // 0x2227
+    "",
+    "" // smartmontools >= r5051: -d sntrealtek
+  },
+  // Longsys Electronics / Lexar
+  { "USB: Lexar E300; Realtek",
+    "0x21c4:0xb083",
+    "",
     "",
     "" // smartmontools >= r5051: -d sntrealtek
   },
