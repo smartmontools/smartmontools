@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "VERSION: 7.0/6083 2026-01-31 17:09:26 +0000 11599607dcf2",
+  { "VERSION: 7.0/6088 2026-02-09 15:31:35 +0000 0e29a834e52d",
     "-", "-",
     "Version information",
     ""
@@ -331,18 +331,10 @@ const drive_settings builtin_knowndrives[] = {
     "-v 231,raw48,Lifetime_Left "
   //"-v 241,raw48,Total_LBAs_Written "
   },
-  { "Apple MacBook Air SSD", // probably Toshiba
-    "APPLE SSD TS(064|128)E", // tested with APPLE SSD TS064E/TQAABBF0
-    "", "",
-    "-v 169,raw16,Unknown_Apple_Attrib "
-    "-v 173,raw16,Block_Erase_Count "
-    "-v 241,raw48,Host_Writes_GiB "     //  ]  guessed (ticket #655)
-    "-v 242,raw48,Host_Reads_GiB "      //  ]
-  },
   { "Apple SD/SM/TS...E/F/G SSDs", // SanDisk/Samsung/Toshiba?
-    "APPLE SSD (S[DM]|TS)0?(128|256|512|768|1024)[EFG]", // tested with APPLE SSD SD256E/1021AP, SD0128F/A223321
+    "APPLE SSD (S[DM]|TS)0?(64|128|256|512|768|1024)[EFG]", // tested with APPLE SSD SD256E/1021AP, SD0128F/A223321
       // APPLE SSD SM768E/CXM90A1Q, SM0512F/UXM2JA1Q, TS0256F/109L0704, SM0512G/BXW1SA0Q, SM1024G/BXW1SA0Q
-      // APPLE SSD SM0256G/BXZ13A0Q
+      // APPLE SSD SM0256G/BXZ13A0Q, APPLE SSD TS064E/TQAABBF0
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
@@ -657,6 +649,7 @@ const drive_settings builtin_knowndrives[] = {
         // HS-SSD-E100N 1024G/030fAA20
     "Lexar 128GB SSD|"  // Lexar 128GB SSD/H190117D
         // for other Lexar drives see trac ticket 1529
+    "P3-(128|256|512|[124]TB)|"                      // KingSpec P3, tested with P3-256/SN11873
     "Patriot Burst Elite (120|240|480|960|1920)GB|"  // Patriot Burst Elite 120GB/SN08979, 960GB/030fAA20, 960GB/H221215a,
         // 1920GB/SN09405
     "SPCC Solid State Disk|"                         // Silicon Power A55, tested with SPCC Solid State Disk/H190117H (512GB)
@@ -665,7 +658,7 @@ const drive_settings builtin_knowndrives[] = {
     "SSDPR-CX400-(128|256|512|01T|02T)-G2|"          // GOODRAM CX400 G2, tested with SSDPR-CX400-128-G2/SN07373
         // also available with Phison controllers
     "Verbatim Vi560 SATA III M.2 SSD",               // Verbatim Vi560 SATA III M.2 SSD/H190505 (256GB)
-    "03[01]fAA20|J00fae20|H(19[0-9]{4}[DH]?|2212[0-9]{2}a?)|SN(0[789]|8|14)[0-9]{3}", "",
+    "03[01]fAA20|J00fae20|H(19[0-9]{4}[DH]?|2212[0-9]{2}a?)|SN(0(73|89|94)|81|1(18|41))[0-9]{2}", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 2,raw48,Throughput_Performance "
   //"-v 3,raw16(avg16),Spin_Up_Time "
@@ -716,7 +709,7 @@ const drive_settings builtin_knowndrives[] = {
     "Verbatim Vi550 S3|"                 // Verbatim Vi550 S3/H220916a (1TB)
         // also available with Silicon Motion controllers
     "Verbatim Vi560 S3",                 // Verbatim Vi560 S3/H220916a (1TB)
-    "SN1[12][0-9]{3}|H2209[0-9]{2}a?", "",
+    "SN1(19|25)[0-9]{2}|H2209[0-9]{2}a?", "",
     "-v 5,raw16(raw16),New_Bad_Blk_Count "
   //"-v 9,raw24(raw8),Power_On_Hours "
   //"-v 12,raw48,Power_Cycle_Count "
@@ -747,7 +740,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Maxio based SSDs (variant 4)", // MAS1102
     "Lexar SSD NS100 ((128|256|512)G|[12]T)B", // Lexar NS100, tested with Lexar SSD NS100 256GB/SN17776
-    "SN17[0-9]{3}", "",
+    "SN177[0-9]{2}", "",
     "-v 5,raw16(raw16),New_Bad_Blk_Count "
   //"-v 9,raw24(raw8),Power_On_Hours "
   //"-v 12,raw48,Power_Cycle_Count "
@@ -1109,6 +1102,7 @@ const drive_settings builtin_knowndrives[] = {
       // KINGSTON SA400S37240G/SBFK10D7, KINGSTON SA400S37120G/SBFK71E0, */SBFKB1D1
       // KINGSTON  SA400S37480G/SBFK10D7 (two spaces), KINGSTON SA400M8240G/SBFK61E1
     "KIOXIA-EXCERIA SATA SSD|" // KIOXIA-EXCERIA SATA SSD/SBFA18.1 (480GB)
+    "MSI S270 (120|240|480|960)GB|" // tested with MSI S270 240GB/SBFM61.5
     "Patriot (Blast|Blaze|Flare|Ignite)|" // tested with Patriot Blast/SAFM11.3,
       // Patriot Blaze/S9FM02, Patriot Flare/SBFM91.2, Patriot Ignite/SAFM01.7
     "Patriot Burst( (120|240|480|960)GB)?|" // tested with Patriot Burst/SBFM11.2,
@@ -2399,7 +2393,10 @@ const drive_settings builtin_knowndrives[] = {
     "SanDisk SSD U110 (8|16|24|32|64|128)GB|" // tested with SanDisk SSD U110 32GB/U221000
     "SanDisk SDSA6[DGM]M-[0-9]*G-.*|" // tested with SanDisk SDSA6GM-016G-1006/U221006, SanDisk SDSA6MM-016G-1006/U221006,
       // SanDisk SDSA6GM-016G-1006/U221006
-    "SanDisk SD7[SU]B[23]Q(064|128|256|512)G.*", // tested with SD7SB3Q064G1122/SD7UB3Q256G1122/SD7SB3Q128G/SD7UB2Q512G1122
+    "SanDisk SD7[SU]B[23]Q(064|128|256|512)G.*|" // tested with SanDisk SD7SB3Q064G1122,
+      // SanDisk SD7SB3Q128G, SanDisk SD7UB3Q256G1122, SanDisk SD7UB2Q512G1122
+    "SanDisk SD8S[NM]AT-(032|064|128|256|512)G-1006", // tested with SanDisk SD8SMAT-032G-1006/Z2311006,
+      // SanDisk SD8SNAT-256G-1006/Z2311006
     "", "",
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
   //"-v 9,raw24(raw8),Power_On_Hours "
