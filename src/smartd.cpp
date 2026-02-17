@@ -102,10 +102,7 @@ static void set_signal(int sig, signal_handler_type handler)
 
 #else
   // SVr4, POSIX.1-2001, ..., POSIX.1-2024
-  struct sigaction sa;
-  sa.sa_handler = SIG_DFL;
-  sigaction(sig, (struct sigaction *)0, &sa);
-  sa = {};
+  struct sigaction sa = {};
   sa.sa_handler = handler;
   sa.sa_flags = SA_RESTART; // BSD signal() semantics
   sigaction(sig, &sa, (struct sigaction *)0);
