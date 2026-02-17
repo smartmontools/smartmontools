@@ -94,7 +94,7 @@ extern "C" {
   typedef void (*signal_handler_type)(int);
 }
 
-static void set_signal_if_not_ignored(int sig, signal_handler_type handler)
+static void set_signal(int sig, signal_handler_type handler)
 {
 #if defined(_WIN32)
   // signal() emulation
@@ -105,9 +105,6 @@ static void set_signal_if_not_ignored(int sig, signal_handler_type handler)
   struct sigaction sa;
   sa.sa_handler = SIG_DFL;
   sigaction(sig, (struct sigaction *)0, &sa);
-  if (sa.sa_handler == SIG_IGN)
-    return;
-
   sa = {};
   sa.sa_handler = handler;
   sa.sa_flags = SA_RESTART; // BSD signal() semantics
@@ -4374,17 +4371,17 @@ static void CheckDevicesOnce(const dev_config_vector & configs, dev_state_vector
 static void install_signal_handlers()
 {
   // normal and abnormal exit
-  set_signal_if_not_ignored(SIGTERM, sighandler);
-  set_signal_if_not_ignored(SIGQUIT, sighandler);
+  set_signal(SIGTERM, sighandler);
+  set_signal(SIGQUIT, sighandler);
   
   // in debug mode, <CONTROL-C> ==> HUP
-  set_signal_if_not_ignored(SIGINT, (debugmode ? HUPhandler : sighandler));
+  set_signal(SIGINT, (debugmode ? HUPhandler : sighandler));
   
   // Catch HUP and USR1
-  set_signal_if_not_ignored(SIGHUP, HUPhandler);
-  set_signal_if_not_ignored(SIGUSR1, USR1handler);
+  set_signal(SIGHUP, HUPhandler);
+  set_signal(SIGUSR1, USR1handler);
 #ifdef _WIN32
-  set_signal_if_not_ignored(SIGUSR2, USR2handler);
+  set_signal(SIGUSR2, USR2handler);
 #endif
 }
 
