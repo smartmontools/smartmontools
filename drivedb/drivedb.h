@@ -2599,7 +2599,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 251,raw48,Unkn_SiliconMotion_Attr" // ADATA SU800/Q0913A
   },
   { "Silicon Motion based USB SSDs",
-    "TS((128|256|512)G|[12]T)ESD310[CPS]", // Transcend ESD310, tested with TS1TESD310C/W0807BMO (0x2174:2100)
+    "TS((128|256|512)G|[12]T)ESD310[CPS]", // Transcend ESD310, tested with TS1TESD310C/W0807BMO (0x2174:0x2100)
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 9,raw24(raw8),Power_On_Hours "
