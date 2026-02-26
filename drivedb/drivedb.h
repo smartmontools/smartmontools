@@ -3084,9 +3084,13 @@ const drive_settings builtin_knowndrives[] = {
     "FUJITSU MHZ2(08|12|16|25)0BK.*",
     "", "", ""
   },
-  { "Fujitsu MJA BH",
+  { "Fujitsu MJA2 BH", // tested with FUJITSU MJA2500BH G2/00000018
     "FUJITSU MJA2(08|12|16|25|32|40|50)0BH.*",
-    "", "", ""
+    "", "",
+    "-v 2,raw16 "
+    "-v 195,raw48,ECC_On_the_Fly_Count "
+    "-v 200,raw48,Write_Error_Rate "
+    "-v 240,raw48,Transfer_Error_Rate"
   },
   { "", // Samsung SV4012H (known firmware)
     "SAMSUNG SV4012H",
