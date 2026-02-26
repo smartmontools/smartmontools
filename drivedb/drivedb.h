@@ -2094,8 +2094,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "JMicron based SSDs", // JMicron JMF60x
     "Kingston SSDNow V Series [0-9]*GB|" // tested with Kingston SSDNow V Series 64GB/B090522a
+    "STT_FTM(8|16|32|64)GL25V|" // Super Talent VSSD, tested with STT_FTM8GL25V/090928S
     "TS(2|4|8|16|32|64|128|192)GSSD(18|25)[MS]?-[MS]", // Transcend IDE and SATA, tested with
       // TS32GSSD25-M/V090331, TS32GSSD18M-M/v090331
+    "09[0-9]{4}S|"
     "[BVv].*", // other Transcend SSD versions will be caught by subsequent entry
     "",
   //"-v 9,raw24(raw8),Power_On_Hours " // raw value always 0?
