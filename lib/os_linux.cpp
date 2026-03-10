@@ -2676,6 +2676,47 @@ smart_device * linux_scsi_device::autodetect_open()
 }
 
 /////////////////////////////////////////////////////////////////////////////
+/// NVMe transport type detection via sysfs
+
+// Read NVMe transport type from /sys/class/nvme/nvmeX/transport.
+// Returns "pcie", "tcp", "rdma", "fc", "loop", or empty string if unknown.
+static std::string get_nvme_transport(const char * dev_name)
+{
+  // Extract controller name "nvmeX" from device path like "/dev/nvme0" or "/dev/nvme0n1"
+  const char * base = strrchr(dev_name, '/');
+  base = (base ? base + 1 : dev_name);
+
+  // Parse "nvmeNN" prefix (without namespace suffix "nN")
+  int ctrl_num = -1;
+  int nc = -1;
+  if (!(sscanf(base, "nvme%d%n", &ctrl_num, &nc) == 1 && nc > 0 && ctrl_num >= 0))
+    return std::string();
+
+  // Build sysfs path: /sys/class/nvme/nvmeX/transport
+  char ctrl_name[16];
+  snprintf(ctrl_name, sizeof(ctrl_name), "nvme%d", ctrl_num);
+  std::string path = strprintf("/sys/class/nvme/%s/transport", ctrl_name);
+
+  FILE * f = fopen(path.c_str(), "r");
+  if (!f)
+    return std::string();
+
+  char buf[32] = "";
+  if (!fgets(buf, sizeof(buf), f)) {
+    fclose(f);
+    return std::string();
+  }
+  fclose(f);
+
+  // Strip trailing newline
+  int len = (int)strlen(buf);
+  if (len > 0 && buf[len - 1] == '\n')
+    buf[len - 1] = 0;
+
+  return std::string(buf);
+}
+
+/////////////////////////////////////////////////////////////////////////////
 /// NVMe support
 
 class linux_nvme_device
@@ -2697,6 +2738,10 @@ linux_nvme_device::linux_nvme_device(smart_interface * intf, const char * dev_na
   nvme_device(nsid),
   linux_smart_device(O_RDONLY | O_NONBLOCK)
 {
+  // Populate NVMe transport type from sysfs if available
+  std::string transport = get_nvme_transport(dev_name);
+  if (!transport.empty())
+    set_info().nvme_transport = transport;
 }
 
 bool linux_nvme_device::open()
@@ -2842,7 +2887,8 @@ protected:
 private:
   void get_dev_list(smart_device_list & devlist,
     const char * pattern, bool by_id, std::set<std::string> & devs_seen,
-    const char * type_scsi_sat, const char * type_nvme, const char * type_ata = nullptr);
+    const char * type_scsi_sat, const char * type_nvme,
+    const char * nvme_transport_filter = nullptr, const char * type_ata = nullptr);
 
   bool get_dev_megasas(smart_device_list & devlist);
   smart_device * missing_option(const char * opt);
@@ -2873,7 +2919,7 @@ std::string linux_smart_interface::get_app_examples(const char * appname)
 void linux_smart_interface::get_dev_list(smart_device_list & devlist,
   const char * pattern, bool by_id, std::set<std::string> & devs_seen,
   const char * type_scsi_sat, const char * type_nvme,
-  const char * type_ata /* = nullptr */)
+  const char * nvme_transport_filter /* = nullptr */, const char * type_ata /* = nullptr */)
 {
   bool debug = (ata_debugmode || scsi_debugmode || nvme_debugmode);
 
@@ -2964,9 +3010,22 @@ void linux_smart_interface::get_dev_list(smart_device_list & devlist,
       else // scsi or sat (later detected by autodetect_open())
         dev = new linux_scsi_device(this, name, type_scsi_sat, true /*scanning*/);
     }
-    else if (mi == 4 && type_nvme)
+    else if (mi == 4 && type_nvme) {
+      // Filter by transport if requested (e.g., "nvme+tcp")
+      if (nvme_transport_filter && nvme_transport_filter[0]) {
+        std::string transport = get_nvme_transport(name);
+        if (transport.empty() || strcmp(transport.c_str(), nvme_transport_filter)) {
+          if (debug)
+            lib_printf("%s, %s: NVMe transport '%s' does not match filter '%s', skipped\n",
+                 name, key.c_str(), transport.c_str(), nvme_transport_filter);
+          continue;
+        }
+      }
+
       // Use broadcast NSID for 'by-id' links which always refer to namespace devices
+      // Constructor auto-populates transport from sysfs
       dev = new linux_nvme_device(this, name, type_nvme, (by_id ? nvme_broadcast_nsid : 0));
+    }
     else if (mi == 6 && type_ata)
       dev = new linux_ata_device(this, name, type_ata);
     else {
@@ -3087,6 +3146,8 @@ bool linux_smart_interface::scan_smart_devices(smart_device_list & devlist,
   bool by_id = false, scan_megaraid = false, scan_sssraid = false;
   const char * type_ata = nullptr, * type_scsi = nullptr, * type_sat = nullptr;
   const char * type_nvme = nullptr;
+  std::string nvme_transport_filter_str; // e.g., "tcp", "pcie", "rdma", "fc", "loop"
+  const char * nvme_transport_filter = nullptr;
   for (unsigned i = 0; i < types.size(); i++) {
     const char * type = types[i].c_str();
     if (!strcmp(type, "by-id"))
@@ -3099,14 +3160,28 @@ bool linux_smart_interface::scan_smart_devices(smart_device_list & devlist,
       type_sat = "sat";
     else if (!strcmp(type, "nvme"))
       type_nvme = "nvme";
+    else if (!strncmp(type, "nvme+", 5) && type[5]) {
+      // Parse "nvme+TRANSPORT" syntax (e.g., "nvme+tcp", "nvme+pcie")
+      const char * transport = type + 5;
+      if (   strcmp(transport, "pcie") && strcmp(transport, "tcp")
+          && strcmp(transport, "rdma") && strcmp(transport, "fc")
+          && strcmp(transport, "loop"))
+        return set_err(EINVAL,
+                       "Invalid NVMe transport filter '%s', valid transports are:"
+                       " pcie, tcp, rdma, fc, loop",
+                       transport);
+      type_nvme = "nvme";
+      nvme_transport_filter_str = transport;
+      nvme_transport_filter = nvme_transport_filter_str.c_str();
+    }
     else if (!strcmp(type, "megaraid"))
       scan_megaraid = true;
     else if (!strcmp(type, "sssraid"))
       scan_sssraid = true;
     else
       return set_err(EINVAL,
-                     "Invalid type '%s', valid arguments are:"
-                     " by-id, ata, scsi, sat, nvme, megaraid, sssraid",
+                     "Invalid type '%s', valid arguments are: by-id, ata, scsi,"
+                     " sat, nvme, nvme+TRANSPORT, megaraid, sssraid",
                      type);
   }
   // Use default if no type specified
@@ -3124,10 +3199,12 @@ bool linux_smart_interface::scan_smart_devices(smart_device_list & devlist,
   std::set<std::string> devs_seen;
   if (by_id)
     // Scan unique symlinks first
-    get_dev_list(devlist, "/dev/disk/by-id/*", true, devs_seen, type_scsi_sat, type_nvme);
+    get_dev_list(devlist, "/dev/disk/by-id/*", true, devs_seen, type_scsi_sat, type_nvme,
+                 nvme_transport_filter);
 
   if (type_ata) // TODO: Remove?
-    get_dev_list(devlist, "/dev/hd[a-t]", false, devs_seen, nullptr, nullptr, type_ata);
+    get_dev_list(devlist, "/dev/hd[a-t]", false, devs_seen, nullptr, nullptr,
+                 nullptr, type_ata);
 
   if (type_scsi_sat) {
     get_dev_list(devlist, "/dev/sd[a-z]", false, devs_seen, type_scsi_sat, nullptr);
@@ -3135,8 +3212,10 @@ bool linux_smart_interface::scan_smart_devices(smart_device_list & devlist,
   }
 
   if (type_nvme) {
-    get_dev_list(devlist, "/dev/nvme[0-9]", false, devs_seen, nullptr, type_nvme);
-    get_dev_list(devlist, "/dev/nvme[1-9][0-9]", false, devs_seen, nullptr, type_nvme);
+    get_dev_list(devlist, "/dev/nvme[0-9]", false, devs_seen, nullptr, type_nvme,
+                 nvme_transport_filter);
+    get_dev_list(devlist, "/dev/nvme[1-9][0-9]", false, devs_seen, nullptr, type_nvme,
+                 nvme_transport_filter);
   }
 
   if (scan_megaraid)
@@ -3159,6 +3238,7 @@ scsi_device * linux_smart_interface::get_scsi_device(const char * name, const ch
 nvme_device * linux_smart_interface::get_nvme_device(const char * name, const char * type,
   unsigned nsid)
 {
+  // Constructor auto-populates NVMe transport type from sysfs
   return new linux_nvme_device(this, name, type, nsid);
 }
 

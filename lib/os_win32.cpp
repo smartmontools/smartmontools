@@ -4236,6 +4236,7 @@ scsi_device * win_smart_interface::get_scsi_device(const char * name, const char
 nvme_device * win_smart_interface::get_nvme_device(const char * name, const char * type,
   unsigned nsid)
 {
+  // TODO: NVMe transport detection not yet implemented on Windows
   if (str_starts_with(skipdev(name), "nvme"))
     return new win_nvme_device(this, name, type, nsid);
   return new win10_nvme_device(this, name, type, nsid);

@@ -559,6 +559,7 @@ scsi_device * netbsd_smart_interface::get_scsi_device(const char * name, const c
 
 nvme_device * netbsd_smart_interface::get_nvme_device(const char * name, const char * type, unsigned nsid)
 {
+  // TODO: NVMe transport detection not yet implemented on NetBSD
   return new netbsd_nvme_device(this, name, type, nsid);
 }
 

@@ -533,6 +533,7 @@ scsi_device * openbsd_smart_interface::get_scsi_device(const char * name, const 
 
 nvme_device * openbsd_smart_interface::get_nvme_device(const char * name, const char * type, unsigned nsid)
 {
+  // TODO: NVMe transport detection not yet implemented on OpenBSD
   return new openbsd_nvme_device(this, name, type, nsid);
 }
 

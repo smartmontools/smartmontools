@@ -1737,6 +1737,8 @@ scsi_device * freebsd_smart_interface::get_scsi_device(const char * name, const 
 nvme_device * freebsd_smart_interface::get_nvme_device(const char * name, const char * type,
   unsigned nsid)
 {
+  // TODO: NVMe transport detection not yet implemented on FreeBSD
+  // FreeBSD may expose transport info via sysctl or nvmecontrol(8)
   return new freebsd_nvme_device(this, name, type, nsid);
 }
 

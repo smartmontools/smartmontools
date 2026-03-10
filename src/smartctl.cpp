@@ -1535,13 +1535,19 @@ void failuretest(failure_type type, int returnvalue)
 // Return info string about device protocol
 static const char * get_protocol_info(const smart_device * dev)
 {
+  static char buf[64]; // static buffer for NVMe transport suffix
   switch (   (int)dev->is_ata()
           | ((int)dev->is_scsi() << 1)
           | ((int)dev->is_nvme() << 2)) {
     case 0x1: return "ATA";
     case 0x2: return "SCSI";
     case 0x3: return "ATA+SCSI";
-    case 0x4: return "NVMe";
+    case 0x4:
+      if (dev->get_nvme_transport()[0]) {
+        snprintf(buf, sizeof(buf), "NVMe [%s]", dev->get_nvme_transport());
+        return buf;
+      }
+      return "NVMe";
     default:  return "Unknown";
   }
 }
@@ -1553,6 +1559,8 @@ static void js_device_info(const json::ref & jref, const smart_device * dev)
   jref["info_name"] = dev->get_info_name();
   jref["type"] = dev->get_dev_type();
   jref["protocol"] = get_protocol_info(dev);
+  if (dev->is_nvme() && dev->get_nvme_transport()[0])
+    jref["nvme_transport"] = dev->get_nvme_transport();
 }
 
 // Device scan

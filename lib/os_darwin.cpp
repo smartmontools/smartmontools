@@ -633,6 +633,7 @@ scsi_device * darwin_smart_interface::get_scsi_device(const char *, const char *
 nvme_device * darwin_smart_interface::get_nvme_device(const char * name, const char * type,
   unsigned nsid)
 {
+  // TODO: NVMe transport detection not yet implemented on Darwin
   return new darwin_nvme_device(this, name, type, nsid);
 }
 

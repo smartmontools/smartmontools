@@ -47,6 +47,7 @@ public:
     std::string info_name; ///< Informal name
     std::string dev_type;  ///< Actual device type
     std::string req_type;  ///< Device type requested by user, empty if none
+    std::string nvme_transport; ///< NVMe transport type ("pcie", "tcp", "rdma", "fc", "loop"), empty if unknown or not NVMe
   };
 
   /// Error (number,message) pair
@@ -131,6 +132,9 @@ public:
   /// Get type requested by user, empty if none.
   const char * get_req_type() const
     { return m_info.req_type.c_str(); }
+  /// Get NVMe transport type, empty if unknown or not NVMe.
+  const char * get_nvme_transport() const
+    { return m_info.nvme_transport.c_str(); }
 
 protected:
   /// R/W access to device info struct.
