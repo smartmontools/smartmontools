@@ -4202,6 +4202,11 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   //"-v 22,raw16(raw16),Helium_Level"
   },
+  { "Western Digital Ultrastar DC HC555", // tested with WDC  WUH722018CLE6L4/PPGNWDE0
+    "(WDC  ?)?WUH7220(1[2468]|20)CLE6[0L][04]",
+    "", "", ""
+  //"-v 22,raw16(raw16),Helium_Level"
+  },
   { "Western Digital Ultrastar DC HC560", // tested with WDC  WUH722020ALN604/PQGNW108
     // WDC WUH722020BLE6L4, WDC WD200EDGZ-11B9PA0/85.00A85
     // WDC WD200EDGZ-11BLDS0/85.00A85 (White label, Elements 0x1058:0x25a3),
