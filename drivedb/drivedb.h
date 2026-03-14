@@ -2601,6 +2601,29 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 250,raw48,Read_Error_Retry_Rate " // ADATA SU800/Q0913A
     "-v 251,raw48,Unkn_SiliconMotion_Attr" // ADATA SU800/Q0913A
   },
+  { "Silicon Motion based USB SSDs",
+    "TS((128|256|512)G|[12]T)ESD310[CPS]", // Transcend ESD310, tested with TS1TESD310C/W0807BMO (0x2174:0x2100)
+    "", "",
+  //"-v 1,raw48,Raw_Read_Error_Rate "
+  //"-v 9,raw24(raw8),Power_On_Hours "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 161,raw48,Spare_Blocks_Remaining "
+    "-v 169,raw48,Remaining_Lifetime_Perc "
+    "-v 172,raw48,Erase_Fail_Count "
+  //"-v 181,raw48,Program_Fail_Cnt_Total "
+    "-v 187,raw48,Read_Fail_Count "
+    "-v 192,raw48,Unexpect_Power_Loss_Cnt "
+  //"-v 194,tempminmax,Temperature_Celsius "
+  //"-v 196,raw16(raw16),Reallocated_Event_Count "
+    "-v 218,raw48,USB3_Error_Recovery_Cnt "
+    "-v 231,raw48,SSD_Life_Left "
+    "-v 233,raw48,NAND_Writes_32MiB "
+    "-v 241,raw48,Host_Writes_32MiB "
+    "-v 242,raw48,Host_Reads_32MiB "
+    "-v 244,raw48,Avg_Erase_Count "
+    "-v 245,raw48,Max_Erase_Count "
+    "-v 246,raw48,Total_Erase_Count "
+  },
   // Supermicro SSD-DM032-SMCMVN1, tested with SuperMicro SSD/SOB20R, see (#1380)
   { "Supermicro SATA DOM (SuperDOM)",
     "SuperMicro SSD",
