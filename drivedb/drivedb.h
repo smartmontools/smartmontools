@@ -7015,6 +7015,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sntjmicron/sat"
   },
+  { "USB: ; JMicron",
+    "0x152d:0x0583", // USB->SATA adapter using default id of JMS583 (see below)
+    "0x0414",
+    "",
+    "-d sat"
+  },
   { "USB: ; JMicron JMS583", // USB->PCIe (NVMe)
     "0x152d:0x[0a]583",
     "", // 0x214
