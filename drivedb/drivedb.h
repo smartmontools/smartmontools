@@ -6483,8 +6483,8 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   { "USB: SanDisk Extreme; ASMedia ASM2362",
-    "0x0781:0x55ae", // SanDisk Extreme (Western Digital SN580E 1TB)
-    "", // 0x3008
+    "0x0781:0x55(ae|bb)", // 0x55ae(0x3008): SanDisk Extreme (Western Digital SN580E 1TB)
+    "", // 0x55bb(0x6004, 0x6006): SanDisk Portable SSD (WDC SN350E 1TB, WDC 360E 2TB)
     "",
     "-d sntasmedia"
   },
