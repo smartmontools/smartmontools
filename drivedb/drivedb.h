@@ -7441,6 +7441,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d usbsunplus"
   },
+  { "USB: PQI H550; ",
+    "0x3538:0x0902",
+    "0x010f",
+    "",
+    "-d usbsunplus"
+  },
   { "USB: PQI H560; ",
     "0x3538:0x0902",
     "", // 0x0000
