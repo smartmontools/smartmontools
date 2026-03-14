@@ -5498,9 +5498,10 @@ const drive_settings builtin_knowndrives[] = {
     "WDC WDBNCE(250|500|00[124])0PNC(-.*)?|" // Blue 3D
     "WDC  ?WDS((120|240|250|400|480|500)G|[124]00T)(1B|2B|1G|2G|[12]R)0[AB](-.*)?|"
       // *B* = Blue, *G* = Green, *2B* = Blue 3D NAND, *[12]R* = Red SA500
-    "WD (Green|(Blue|Red) SA5[01]0) 2\\.5 ((25|50|100)0G|[24]T)B|" // tested with
+    "WD (Green|(Blue|Red) SA5[01]0) (2\\.5|M\\.2 2280) ((25|50|100)0G|[24]T)B|" // tested with
       // WD Green 2.5 1000GB/42077100,
-      // WD Blue SA510 2.5 1000GB/52008100, WD Blue SA510 2.5 4TB/530309WD,
+      // WD Blue SA510 2.5 500GB/52046100, WD Blue SA510 2.5 1000GB/52008100,
+      // WD Blue SA510 2.5 4TB/530309WD,  WD Blue SA510 M.2 2280 1000GB/52048100,
       // WD Red SA500 2.5 4TB/540400WD,
       // WD Red SA500 2.5 4TB/540500WD (printed label: WDS400T2R0A-68CKB0)
     "SanDisk Portable SSD", // tested with SanDisk Portable SSD/UM5004RL
