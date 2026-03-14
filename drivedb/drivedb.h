@@ -5504,8 +5504,11 @@ const drive_settings builtin_knowndrives[] = {
       // WD Blue SA510 2.5 4TB/530309WD,  WD Blue SA510 M.2 2280 1000GB/52048100,
       // WD Red SA500 2.5 4TB/540400WD,
       // WD Red SA500 2.5 4TB/540500WD (printed label: WDS400T2R0A-68CKB0)
-    "SanDisk Portable SSD", // tested with SanDisk Portable SSD/UM5004RL
-                            // (Sandisk SDSSDE30-2T00, 0x0781:0x55b0)
+    "SanDisk (Extreme )?Portable SSD|" // tested with SanDisk Portable SSD/UM5004RL
+      // (SanDisk SDSSDE30-2T00, 0x0781:0x55b0),
+      // SanDisk Extreme Portable SSD/415000RL (SanDisk SDSSDE60-1T00-G25, 0x0781:0x558c)
+    "SanDisk SD9SN8W[124]T00", // tested with SanDisk SD9SN8W2T00/X61110RL
+      // (SanDisk Extreme Portable SSD, 0x0781:0x558c)
     "", "",
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct " // Reassigned Block Count
   //"-v 9,raw24(raw8),Power_On_Hours "
@@ -6484,9 +6487,9 @@ const drive_settings builtin_knowndrives[] = {
   },
   // SanDisk
   { "USB: SanDisk; ",
-    "0x0781:0x55(8[08]|b0)", // 0x5580: SanDisk SDCZ80 (SanDisk pSSD)
-    "", // 0x55b0: Sandisk SDSSDE30-2T00 (SanDisk Portable SSD)
-    "",
+    "0x0781:0x55(8[08c]|b0)", // 0x5580: SanDisk SDCZ80 (SanDisk pSSD)
+    "", // 0x558c: SanDisk SD9SN8W2T00, SanDisk Extreme Portable SSD (0x1012)
+    "", // 0x55b0: SanDisk SDSSDE30-2T00 (SanDisk Portable SSD)
     "-d sat"
   },
   { "USB: SanDisk Extreme; ASMedia ASM2362",
