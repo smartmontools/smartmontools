@@ -604,11 +604,13 @@ const drive_settings builtin_knowndrives[] = {
     "-v 254,raw48,Tot_Bg_Scan_Over_Limit"
   },
   { "Maxio based SSDs (variant 1)", // MK8115, MAS0902
+    "ADATA_IM2S3164-(064|128|256|512)G[DP]A|" // ADATA IM2S3164 BiCS3, tested with ADATA_IM2S3164-064GDA/S180718z
+    "ADATA_IM2S3168-((064|128|256|512)G|001T)[DP]|" // ADATA IM2S3168 BiCS3, tested with ADATA_IM2S3168-128GD/S180718z
     "NT-(128|256|512)|"         // KingSpec NT, tested with NT-512/T180731
     "P3-(128|256|512|[124]TB)|" // KingSpec P3, tested with P3-256/T180910, P3-1TB/T180731
     "ZHITAI SC001 (Active ((256|512)GB|1TB) SSD|XT (250|500|1000)GB)",  // tested with
     // ZHITAI SC001 SATA SSD/ZT016200
-    "T18[0-9]{4}|ZT[0-9A-Z]{6}", "",
+    "S180718z|T18[0-9]{4}|ZT[0-9A-Z]{6}", "",
     "-v 5,raw16(raw16),New_Bad_Block_Count "
   //"-v 9,raw24(raw8),Power_On_Hours "
   //"-v 12,raw48,Power_Cycle_Count "
