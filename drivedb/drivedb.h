@@ -90,7 +90,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 12,raw48,Power_Cycle_Count "
     "-v 13,raw48,Read_Soft_Error_Rate "
     //  14-21 Unknown_Attribute
-    "-v 22,raw48,Helium_Level,HDD " // WDC (HGST)
+    "-v 22,raw16(raw16),Helium_Level,HDD " // WDC, HGST
     "-v 23,raw48,Helium_Condition_Lower,HDD " // ] Toshiba
     "-v 24,raw48,Helium_Condition_Upper,HDD " // ]
     //  25-174 Unknown_Attribute
@@ -4107,7 +4107,7 @@ const drive_settings builtin_knowndrives[] = {
       // HGST HDN728080ALE604/A4GNW91X
     "HGST HDN72(40[34]|60[456]|808)0ALE6(04|1[04]|40)",
     "", "", ""
-  //"-v 22,raw48,Helium_Level" // HDN728080ALE604
+  //"-v 22,raw16(raw16),Helium_Level" // HDN728080ALE604
   },
   { "Hitachi/HGST Ultrastar 5K3000", // tested with Hitachi HUA5C3030ALA640/MEAOA800
     "(Hitachi |HGST )?HUA5C30(20|30)ALA64[01]",
@@ -4159,17 +4159,17 @@ const drive_settings builtin_knowndrives[] = {
   { "HGST Ultrastar He6", // tested with HGST HUS726060ALA640/AHGNT1E2
     "HGST HUS726060ALA64[01]",
     "", "", ""
-  //"-v 22,raw48,Helium_Level"
+  //"-v 22,raw16(raw16),Helium_Level"
   },
   { "HGST Ultrastar He8", // tested with HGST HUH728060ALE600/GR2OA230
     "HGST HUH7280(60|80)AL[EN]60[014]",
     "", "", ""
-  //"-v 22,raw48,Helium_Level"
+  //"-v 22,raw16(raw16),Helium_Level"
   },
   { "HGST Ultrastar He10", // tested with HGST HUH7210100ALE600/0F27452
     "HGST HUH7210(08|10)AL[EN]60[014]",
     "", "", ""
-  //"-v 22,raw48,Helium_Level"
+  //"-v 22,raw16(raw16),Helium_Level"
   },
   { "Western Digital Ultrastar (He10/12)", // WD white label, tested with
       // WDC WD80EMAZ-00WJTA0/83.H0A83 (Easystore 0x1058:0x25fb),
@@ -4182,25 +4182,25 @@ const drive_settings builtin_knowndrives[] = {
       // WDC WD80EDAZ-11TA3A0/81.00A81, WDC WD120EDAZ-11F3RA0/81.00A81
     "WDC WD(8|10|12|14|16)0E([MZ]A|DA|DF|DG)Z-.*",
     "", "", ""
-  //"-v 22,raw48,Helium_Level" // not: WD80EDAZ
+  //"-v 22,raw16(raw16),Helium_Level" // not: WD80EDAZ
   },
   { "HGST Ultrastar DC HC520 (He12)", // tested with HGST HUH721212ALE600/LEGNT3D0
     "HGST HUH721212AL[EN]60[014]",
     "", "", ""
-  //"-v 22,raw48,Helium_Level"
+  //"-v 22,raw16(raw16),Helium_Level"
   },
   { "Western Digital Ultrastar DC HC530", // tested with
       // WDC  WUH721414ALE604/LDAZW110, WDC  WUH721414ALE6L4/LDGNW07G
     "WDC  ?WUH721414ALE6[0L]4",
     "", "",
-  //"-v 22,raw48,Helium_Level "
+  //"-v 22,raw16(raw16),Helium_Level "
     "-v 188,raw16 "
   },
   { "Western Digital Ultrastar DC HC550", // tested with WDC  WUH721818ALE6L4/PCGNW110,
       // WUH721818ALE6L4/PCGAW232, WDC  WUH721818ALN6L4/PCGNW088
     "(WDC  ?)?WUH72181[68]AL[EN]6[0L][0146]",
     "", "", ""
-  //"-v 22,raw48,Helium_Level"
+  //"-v 22,raw16(raw16),Helium_Level"
   },
   { "Western Digital Ultrastar DC HC560", // tested with WDC  WUH722020ALN604/PQGNW108
     // WDC WUH722020BLE6L4, WDC WD200EDGZ-11B9PA0/85.00A85
@@ -4208,14 +4208,14 @@ const drive_settings builtin_knowndrives[] = {
     "(WDC  ?)?WUH722020[AB]L[EN]6[0L][014]|"
     "WDC WD200EDGZ-.*",
     "", "",
-  //"-v 22,raw48,Helium_Level "
+  //"-v 22,raw16(raw16),Helium_Level "
     "-v 82,raw16,Head_Health_Score "
     "-v 90,hex48,NAND_Master"
   },
   { "Western Digital Ultrastar DC HC570", // tested with WUH722222ALE604
     "(WDC  ?)?WUH722222[AB]L[EN]6[0L]4",
     "", "",
-  //"-v 22,raw48,Helium_Level "
+  //"-v 22,raw16(raw16),Helium_Level "
     "-v 71,raw16,Milli_Micro_Actuator "
     "-v 82,raw16,Head_Health_Score "
     "-v 90,hex48,NAND_Master"
@@ -4224,19 +4224,19 @@ const drive_settings builtin_knowndrives[] = {
       // WDC  WUH722424ALE6L4/LVGNWHA2
     "(WDC  ?)?WUH72242[24]ALE6L[14]",
     "", "",
-  //"-v 22,raw48,Helium_Level "
+  //"-v 22,raw16(raw16),Helium_Level "
     "-v 71,raw16,Milli_Micro_Actuator "
     "-v 90,hex48,NAND_Master"
   },
   { "Western Digital Ultrastar DC HC650", // tested with WDC  WSH722020ALE6L0/PCGMT421
     "(WDC  ?)?WSH7220(20|VC)AL[EN]6[0L][0146]",
     "", "", ""
-  //"-v 22,raw48,Helium_Level"
+  //"-v 22,raw16(raw16),Helium_Level"
   },
   { "Western Digital Ultrastar DC HC670", // WSH722626ALE604
     "(WDC  ?)?WSH722222[AB]L[EN]6[0L]4",
     "", "",
-  //"-v 22,raw48,Helium_Level "
+  //"-v 22,raw16(raw16),Helium_Level "
     "-v 71,raw16,Milli_Micro_Actuator "
     "-v 82,raw16,Head_Health_Score "
     "-v 90,hex48,NAND_Master"
@@ -5820,7 +5820,7 @@ const drive_settings builtin_knowndrives[] = {
       // WDC WD160EMFZ-11AFXA0/81.00A81,
     "WDC WD(7500BFCX|80EZZX|1[26]0EMFZ)-.*",
     "", "", ""
-  //"-v 22,raw48,Helium_Level" // WD120EMFZ, WD160EMFZ
+  //"-v 22,raw16(raw16),Helium_Level" // WD120EMFZ, WD160EMFZ
   },
   { "Western Digital Red (SMR)", // ticket #1313, tested with WDC WD60EFAX-68SHWN0/82.00A82
     "WDC WD[2346]0EFAX-.*",
@@ -5843,7 +5843,7 @@ const drive_settings builtin_knowndrives[] = {
       // WDC WD140EFFX-68VBXN0/81.00A81
     "WDC WD(10JFCX|[1-6]0EFRX|[2-8]0EFPX|[23468]0E[FZ](ZX|ZZ)|(80|10[01]|1[24]0|1[68]1)(JFC|EF[ABFRG])X)-.*",
     "", "", ""
-  //"-v 22,raw48,Helium_Level" // WD80EFAX, WD80EFZX, WD100EFAX, >= 12TB
+  //"-v 22,raw16(raw16),Helium_Level" // WD80EFAX, WD80EFZX, WD100EFAX, >= 12TB
   },
   { "Western Digital Red Pro", // tested with WDC WD2001FFSX-68JNUN0/81.00A81,
       // WDC WD4005FFBX-68CAUN0/83.00A83, WDC WD6002FFWX-68TZ4N0/83.H0A83,
@@ -5854,7 +5854,7 @@ const drive_settings builtin_knowndrives[] = {
       // WDC WD221KFGX-68B9KN0/83.00A83
     "WDC WD([2-68]00[1235]FF[BSW]|1[02][12]KFB|(1[468]|2[02])[12]KFG)X-.*",
     "", "",
-  //"-v 22,raw48,Helium_Level " // not WD102KFBX
+  //"-v 22,raw16(raw16),Helium_Level " // not WD102KFBX
     "-v 71,raw16,Milli_Micro_Actuator " // WD221KFGX
     "-v 90,hex48,NAND_Master" // WD201KFGX, WD221KFGX
   },
@@ -5866,7 +5866,7 @@ const drive_settings builtin_knowndrives[] = {
       // WDC WD121PURP-85B5SY0/82.00A82
     "WDC WD([1-68][024]|8002|1[02]1)PU[RZ][PXZ]-.*",
     "", "", ""
-  //"-v 22,raw48,Helium_Level" // WD121PURP-85B5SY0, WD80PUZX-64NEAY0
+  //"-v 22,raw16(raw16),Helium_Level" // WD121PURP-85B5SY0, WD80PUZX-64NEAY0
   },
   { "Western Digital Gold", // tested with WDC WD1005FBYZ-01YCBB1/RR04,
       // WDC WD1005FBYZ-01YCBB2/RR07, WDC WD1005VBYZ-02RRWB2/RR07,
@@ -5878,7 +5878,7 @@ const drive_settings builtin_knowndrives[] = {
       // WDC WD141KRYZ-01C66B0/01.01H01, WDC WD161KRYZ-01AGBB0/01.01H01
     "WDC WD([12]005[FV]B|4002FY|4003FR|600[23]FR|800[2-5]FR|([12][02468]1|102)KR)YZ-.*",
     "", "", ""
-  //"-v 22,raw48,Helium_Level" // WD121KRYZ, WD141KRYZ
+  //"-v 22,raw16(raw16),Helium_Level" // WD121KRYZ, WD141KRYZ
   },
   { "Western Digital Blue Mobile", // tested with WDC WD5000LPVX-08V0TT2/03.01A03,
       // WDC WD10JPVX-75JC3T0/0301A03,  WDC WD10JPVX-22JC3T0/01.01A01,
