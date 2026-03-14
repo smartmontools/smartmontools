@@ -4762,7 +4762,7 @@ const drive_settings builtin_knowndrives[] = {
     "ST3((80|160)[28]15|200820|250[34]10|(250|300|320|400)[68]20|360320|500[68]30|750[68]40)AS?|"
     "GB0160EAFJE", // HP OEM
     "", "",
-    "-v 7,raw24/raw32 "
+    "-v 1,raw24/raw32 -v 7,raw24/raw32 "
     "-v 195,raw24/raw32,ECC_On_the_Fly_Count "
   },
   { "Seagate Barracuda 7200.11", // unaffected firmware
