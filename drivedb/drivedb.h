@@ -644,6 +644,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Maxio based SSDs (variant 2)", // MAS0902, MAS1102
     "Fanxiang S101 ((128|256|500|512)G|[124]T)B|"    // Fanxiang S101, tested with Fanxiang S101 2TB/SN14130
+    "FORESEE ((128|256|512)G|[12]T)B SSD|"           // Foresee S58A, tested with FORESEE 512GB SSD/V1.2.7
     "HP SSD S600 (120|240)GB|"                       // tested with HP SSD S600 240GB/SN8108
     "HS-SSD-E100N? (128|256|512|1024)G|"             // Hikvision E100[N], tested with HS-SSD-E100 512G/031fAA20,
         // HS-SSD-E100N 1024G/030fAA20
@@ -658,7 +659,7 @@ const drive_settings builtin_knowndrives[] = {
     "SSDPR-CX400-(128|256|512|01T|02T)-G2|"          // GOODRAM CX400 G2, tested with SSDPR-CX400-128-G2/SN07373
         // also available with Phison controllers
     "Verbatim Vi560 SATA III M.2 SSD",               // Verbatim Vi560 SATA III M.2 SSD/H190505 (256GB)
-    "03[01]fAA20|J00fae20|H(19[0-9]{4}[DH]?|2212[0-9]{2}a?)|SN(0(73|89|94)|81|1(18|41))[0-9]{2}", "",
+    "03[01]fAA20|J00fae20|H(19[0-9]{4}[DH]?|2212[0-9]{2}a?)|SN(0(73|89|94)|81|1(18|41))[0-9]{2}|V1.2.7", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 2,raw48,Throughput_Performance "
   //"-v 3,raw16(avg16),Spin_Up_Time "
