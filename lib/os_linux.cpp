@@ -17,6 +17,11 @@
  * Original MegaRAID code:
  *  Copyright (C) 2008    Jordan Hargrave <jordan_hargrave@dell.com>
  *
+ * Original Mpi3mr code:
+ *  Copyright (C) 2025 Alexandra Löber <a.loeber@de.leaseweb.com>
+ *  Copyright (C) 2025 Andreas Pelger <a.pelger@de.leaseweb.com>
+ *  Copyright (C) 2025 Tranquillity Codes <tranquillitycodes@proton.me>
+ *
  * 3ware code was derived from code that was:
  *
  *  Written By: Adam Radford <linux@3ware.com>
@@ -73,6 +78,7 @@
 #include <smartmon/utility.h>
 #include "cciss.h"
 #include "megaraid.h"
+#include "mpi3mr.h"
 #include "sssraid.h"
 #include "aacraid.h"
 #include <smartmon/nvmecmds.h>
@@ -1380,6 +1386,462 @@ bool linux_megaraid_device::megadev_cmd(int cdbLen, void *cdb,
                    uio.pthru.scsistatus);
   }
   return true;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+/// MPI3MR support
+
+class linux_mpi3mr_device
+: public /* implements */ scsi_device,
+  public /* extends */ linux_smart_device
+{
+
+public:
+  linux_mpi3mr_device(smart_interface *intf, const char *dev_name,
+    unsigned int tgt);
+
+  virtual ~linux_mpi3mr_device();
+
+  virtual smart_device * autodetect_open() override;
+
+  virtual bool open() override;
+  virtual bool close() override;
+
+  virtual bool scsi_pass_through(scsi_cmnd_io *iop) override;
+  static int get_mrioc_id(int bus_no);
+  static int mpi3mr_dev_list_cmd(int mrioc_id, void *buf,
+    size_t bufsize,int mpi3ctl_fd);
+
+private:
+  unsigned int m_disknum;
+  unsigned int m_hba;
+  unsigned int m_diskhandle = (unsigned int)-1;
+  unsigned int m_mrioc_id = (unsigned int)-1;
+  int m_fd;
+
+  bool mpi3mr_cmd(int cdbLen, void *cdb, int dataLen,
+    void *data, int senseLen,void *sense, int report, int dxfer_dir);
+  unsigned int mpi3mr_get_devhandle(int mrioc_id, unsigned int disknum);
+};
+
+linux_mpi3mr_device::linux_mpi3mr_device(smart_interface *intf,
+  const char *dev_name, unsigned int tgt)
+  : smart_device(intf, dev_name, "mpi3mr", "mpi3mr"),
+  linux_smart_device(O_RDWR | O_NONBLOCK),
+  m_disknum(tgt),
+  m_hba(-1), m_fd(-1)
+{
+  set_info().info_name = strprintf("%s [mpi3mr_disk_%02d]", dev_name, m_disknum);
+  set_info().dev_type = strprintf("mpi3mr,%d", tgt);
+}
+
+linux_mpi3mr_device::~linux_mpi3mr_device()
+{
+  close();
+  if (m_fd >= 0)
+    ::close(m_fd);
+}
+
+smart_device * linux_mpi3mr_device::autodetect_open()
+{
+  int report = scsi_debugmode;
+
+  // Open device
+  if (!open())
+    return this;
+
+  // The code below is based on smartd.cpp:SCSIFilterKnown()
+  if (strcmp(get_req_type(), "mpi3mr"))
+    return this;
+
+  // Get INQUIRY
+  unsigned char req_buff[64] = {0, };
+  int req_len = 36;
+  if (scsiStdInquiry(this, req_buff, req_len)) {
+      close();
+      set_err(EIO, "INQUIRY failed");
+      return this;
+  }
+
+  int avail_len = req_buff[4] + 5;
+  int len = (avail_len < req_len ? avail_len : req_len);
+  if (len < 36)
+      return this;
+
+  if (report)
+    lib_printf("Got MPI3MR inquiry.. %s\n", req_buff+8);
+
+  // Use INQUIRY to detect type
+  {
+    // SAT?
+    ata_device * newdev = smi()->autodetect_sat_device(this, req_buff, len);
+    if (newdev) // NOTE: 'this' is now owned by '*newdev'
+      return newdev;
+  }
+
+  // Nothing special found
+  return this;
+}
+
+bool linux_mpi3mr_device::open()
+{
+  int report = scsi_debugmode;
+  char  mpi3_fname[128] = {0};
+  bool  mpi3mr_found = false;
+  FILE * fp = NULL;
+
+  if (sscanf(get_dev_name(), "/dev/bus/%u", &m_hba) == 0) {
+  if (!linux_smart_device::open())
+    return false;
+  /* Get device HBA */
+  struct sg_scsi_id sgid;
+  if (ioctl(get_fd(), SG_GET_SCSI_ID, &sgid) == 0) {
+    m_hba = sgid.host_no;
+  }
+  else if (ioctl(get_fd(), SCSI_IOCTL_GET_BUS_NUMBER, &m_hba) != 0) {
+    int err = errno;
+    linux_smart_device::close();
+    return set_err(err, "can't get bus number");
+  } // we don't need this device anymore
+  linux_smart_device::close();
+  }
+
+  // check if the bus-number corresponds to mpi3mr driver
+  char sysfsfile[128] = {0};
+  snprintf(sysfsfile, sizeof(sysfsfile) - 1,
+  "/sys/class/scsi_host/host%u/proc_name", m_hba);
+  if((fp = fopen(sysfsfile, "r")) != NULL) {
+  char line[128] = {0};
+  // check if it is using mpi3mr
+  if(fgets(line, sizeof(line), fp) != NULL && !strncmp(line,"mpi3mr",6))
+    mpi3mr_found = true;
+  fclose(fp);
+  } else {
+    if(report > 0)
+    lib_printf("cannot open %s, err %d\n",sysfsfile, errno);
+  }
+
+  if (mpi3mr_found == true) {
+  m_mrioc_id = get_mrioc_id(m_hba);
+  sprintf(mpi3_fname, "/dev/bsg/mpi3mrctl%d", m_mrioc_id);
+  if ((m_fd = ::open(mpi3_fname, O_RDWR)) >= 0) {
+    set_fd(m_fd);
+  }
+  else {
+    int err = errno;
+    return set_err(err, "cannot open %s", mpi3_fname);
+  }
+  }
+  else {
+  return set_err(false, "mpi3mr driver not related to bus %d", m_hba);
+  }
+
+  return true;
+}
+
+int
+linux_mpi3mr_device::get_mrioc_id(int bus_no)
+{
+  int mrioc_id = -1;
+  char sysfsfile[128] = {0};
+  char line[64] = {0};
+  FILE * fp = NULL;
+
+  snprintf(sysfsfile, sizeof(sysfsfile) - 1,
+  "/sys/class/scsi_host/host%u/unique_id", bus_no);
+  if((fp = fopen(sysfsfile, "r")) == NULL)
+    return (mrioc_id);
+  if(fgets(line, sizeof(line), fp) != NULL)
+    mrioc_id=atoi(line);
+  fclose(fp);
+  return (mrioc_id);
+}
+
+int
+linux_mpi3mr_device::mpi3mr_dev_list_cmd(int mrioc_id, void *buf,
+  size_t bufsize, int mpi3ctl_fd)
+{
+    struct mpi3mr_bsg_packet *bsg_req = NULL;
+    struct sg_io_v4 io_hdr_v4;
+    uint8_t sense_buffer[32] = { 0 };
+    uint32_t din_buffers_size = bufsize;
+    uint8_t *sgl_din_base_ptr = (uint8_t*)buf;
+    uint32_t bsg_req_len=0;
+
+    if (buf == NULL || bufsize == 0 || mpi3ctl_fd < 0)    {
+      errno = EINVAL;
+      return (-errno);
+    }
+
+    // bsg_packet memory allocation
+    bsg_req_len = sizeof(struct mpi3mr_bsg_packet);
+    bsg_req = (struct mpi3mr_bsg_packet *)malloc(bsg_req_len);
+    if (!bsg_req)
+      throw std::bad_alloc();
+
+    bsg_req->cmd.drvrcmd.mrioc_id = mrioc_id;
+    bsg_req->cmd.drvrcmd.opcode = MPI3MR_DRVBSG_OPCODE_ALLTGTDEVINFO;
+    bsg_req->cmd_type = MPI3MR_DRV_CMD;
+
+    // clean up the previous data
+    memset(&io_hdr_v4, 0,sizeof(io_hdr_v4));
+    io_hdr_v4.guard = 'Q';
+    io_hdr_v4.protocol = BSG_PROTOCOL_SCSI;
+    io_hdr_v4.subprotocol = BSG_SUB_PROTOCOL_SCSI_TRANSPORT;
+    io_hdr_v4.response = (uint64_t)sense_buffer;
+    io_hdr_v4.max_response_len = sizeof(sense_buffer);
+    io_hdr_v4.timeout = MPI3MR_APP_DEFAULT_TIMEOUT;
+    io_hdr_v4.request = (uint64_t)bsg_req;
+    io_hdr_v4.request_len = sizeof(struct mpi3mr_bsg_packet);
+    io_hdr_v4.din_xferp = (uint64_t)sgl_din_base_ptr;
+    io_hdr_v4.din_xfer_len = din_buffers_size;
+
+    int r = ioctl(mpi3ctl_fd, SG_IO, &io_hdr_v4);
+    if (r < 0) {
+        lib_printf("IOCTL failed. line %d, r %d, errno %d\n", __LINE__, r, errno);
+        free(bsg_req);
+        return (r);
+    }
+
+    free(bsg_req);
+
+    return (0);
+}
+
+bool linux_mpi3mr_device::close()
+{
+  if (m_fd >= 0)
+    ::close(m_fd);
+  m_fd = -1;
+  set_fd(m_fd);
+  return true;
+}
+
+unsigned int
+linux_mpi3mr_device::mpi3mr_get_devhandle(int mrioc_id, unsigned int disknum)
+{
+  unsigned int devhandle = (unsigned int)-1;
+  uint32_t din_buffers_size=0x800;
+  uint8_t *sgl_din_base_ptr = NULL;
+  struct mpi3mr_all_tgt_info *drv_all_tgt_info = NULL;
+
+  /* get the devices from the driver to map the devh */
+  sgl_din_base_ptr = (uint8_t *)malloc(din_buffers_size);
+  if (!sgl_din_base_ptr)
+    throw std::bad_alloc();
+
+  if (mpi3mr_dev_list_cmd(mrioc_id, sgl_din_base_ptr, din_buffers_size, m_fd) < 0)    {
+  free(sgl_din_base_ptr);
+  return (devhandle);
+  }
+
+  // process the response
+  drv_all_tgt_info = (struct mpi3mr_all_tgt_info *)sgl_din_base_ptr;
+  for (int j = 0; j < drv_all_tgt_info->num_devices; j++) {
+    if(disknum == drv_all_tgt_info->dmi[j].perst_id) {
+      devhandle = drv_all_tgt_info->dmi[j].handle;
+      break;
+    }
+  }
+
+  free(sgl_din_base_ptr);
+
+  return (devhandle);
+}
+
+/* Issue passthrough scsi commands to MR8 controllers */
+bool
+linux_mpi3mr_device::mpi3mr_cmd(int cdbLen, void *cdb,
+  int dataLen, void *data,
+  int /*senseLen*/, void * /*sense*/, int /*report*/, int dxfer_dir)
+{
+  struct mpi3mr_bsg_packet *bsg_req = NULL;
+  struct sg_io_v4 io_hdr_v4;
+  uint8_t sense_buffer[32] = { 0 };
+  uint32_t dout_buffers_size=0, din_buffers_size=0;
+  uint8_t *sgl_din_base_ptr = NULL, *sgl_dout_base_ptr = NULL;
+  uint32_t bsg_buf_entry_list_size=0, bsg_req_len=0;
+  uint32_t i = 0, dir_flag = 0;
+  struct mpi3_scsi_io_request *mpi_scsi_req = NULL;
+  uint8_t in_buf = 2; // 1 MPI Resp + DATA_IN
+  uint8_t out_buf = 2; // 1 MPI Req + DATA_OUT
+
+  // get the mrioc_id for the bus, if not already known
+  if (m_mrioc_id == (unsigned int)-1) {
+    m_mrioc_id = get_mrioc_id(m_hba);
+    if (m_mrioc_id == (unsigned int)-1) {
+      return set_err(EINVAL, "Unknown / Invalid Bus Num %d\n", m_hba);
+    }
+  }
+
+  // get the devhandle for this device, if not already known
+  if (m_diskhandle == (unsigned int)-1) {
+    m_diskhandle = mpi3mr_get_devhandle(m_mrioc_id, m_disknum);
+    if (m_diskhandle == (unsigned int)-1) {
+      return set_err(EINVAL, "Unknown / Invalid disk %d\n", m_disknum);
+    }
+  }
+
+  switch (dxfer_dir) {
+    case DXFER_FROM_DEVICE:
+      din_buffers_size = dataLen;
+      dir_flag |= MPI3_SCSIIO_FLAGS_DATADIRECTION_READ;
+      break;
+    case DXFER_TO_DEVICE:
+      dout_buffers_size = dataLen;
+      dir_flag |= MPI3_SCSIIO_FLAGS_DATADIRECTION_WRITE;
+      break;
+    case DXFER_NONE:
+      dir_flag &= ~(MPI3_SCSIIO_FLAGS_DATADIRECTION_MASK);
+      break;
+    default:
+      return set_err(EINVAL, "mpi3mr_cmd: bad dxfer_dir");
+  }
+
+  bsg_buf_entry_list_size = sizeof(struct mpi3mr_buf_entry_list) + (sizeof(struct mpi3mr_buf_entry) * ((in_buf+out_buf)-1));
+
+  bsg_req_len = sizeof(struct mpi3mr_bsg_packet) + bsg_buf_entry_list_size;
+  bsg_req = (struct mpi3mr_bsg_packet *)malloc(bsg_req_len);
+  if (!bsg_req)
+    throw std::bad_alloc();
+
+  bsg_req->cmd.mptcmd.timeout = MPI3MR_APP_DEFAULT_TIMEOUT;
+  bsg_req->cmd_type = MPI3MR_MPT_CMD;
+  bsg_req->cmd.mptcmd.mrioc_id = m_mrioc_id;
+
+  bsg_req->cmd.mptcmd.buf_entry_list.buf_entry[0].buf_type = MPI3MR_BSG_BUFTYPE_MPI_REPLY;
+  bsg_req->cmd.mptcmd.buf_entry_list.buf_entry[0].buf_len = sizeof(SL8_MPI_REPLY_BUF) + sizeof(MPI3_SCSI_IO_REPLY);
+  bsg_req->cmd.mptcmd.buf_entry_list.buf_entry[1].buf_type = MPI3MR_BSG_BUFTYPE_DATA_OUT;
+  bsg_req->cmd.mptcmd.buf_entry_list.buf_entry[1].buf_len = dout_buffers_size;
+  bsg_req->cmd.mptcmd.buf_entry_list.buf_entry[2].buf_type = MPI3MR_BSG_BUFTYPE_DATA_IN;
+  bsg_req->cmd.mptcmd.buf_entry_list.buf_entry[2].buf_len = din_buffers_size;
+  bsg_req->cmd.mptcmd.buf_entry_list.buf_entry[3].buf_type = MPI3MR_BSG_BUFTYPE_MPI_REQUEST;
+  bsg_req->cmd.mptcmd.buf_entry_list.buf_entry[3].buf_len = sizeof(struct mpi3_scsi_io_request) - (4 * sizeof(MPI3_SGE_UNION));
+  bsg_req->cmd.mptcmd.buf_entry_list.num_of_entries = (in_buf+out_buf);
+
+  // get the total buffer size and allocate the memory
+  for(i = 0, dout_buffers_size = 0, din_buffers_size = 0; i < (in_buf+out_buf); i++) {
+    switch (bsg_req->cmd.mptcmd.buf_entry_list.buf_entry[i].buf_type)   {
+      case MPI3MR_BSG_BUFTYPE_RAIDMGMT_CMD:
+      case MPI3MR_BSG_BUFTYPE_DATA_OUT:
+      case MPI3MR_BSG_BUFTYPE_MPI_REQUEST:
+        dout_buffers_size += bsg_req->cmd.mptcmd.buf_entry_list.buf_entry[i].buf_len;
+        break;
+      case MPI3MR_BSG_BUFTYPE_RAIDMGMT_RESP:
+      case MPI3MR_BSG_BUFTYPE_DATA_IN:
+      case MPI3MR_BSG_BUFTYPE_MPI_REPLY:
+      case MPI3MR_BSG_BUFTYPE_ERR_RESPONSE:
+        din_buffers_size += bsg_req->cmd.mptcmd.buf_entry_list.buf_entry[i].buf_len;
+        break;
+      default:
+      return set_err(EINVAL, "mpi3mr_cmd: bad buff_type");
+    }
+  }
+
+  // allocate the memory for the request / response buffers
+  sgl_dout_base_ptr = (uint8_t *)malloc(dout_buffers_size);
+  if (!sgl_dout_base_ptr)
+    throw std::bad_alloc();
+
+  sgl_din_base_ptr = (uint8_t *)malloc(din_buffers_size);
+  if (!sgl_din_base_ptr)
+    throw std::bad_alloc();
+
+  memset(sgl_dout_base_ptr, 0, dout_buffers_size);
+  memset(sgl_din_base_ptr, 0xFF, din_buffers_size);
+
+  // populate the requests : MPI req
+  mpi_scsi_req = (struct mpi3_scsi_io_request *) (sgl_dout_base_ptr + dout_buffers_size - (sizeof(struct mpi3_scsi_io_request)-(4 * sizeof(MPI3_SGE_UNION))));
+  mpi_scsi_req->function = MPI3_FUNCTION_SCSI_IO;
+  mpi_scsi_req->dev_handle = (uint16_t)(m_diskhandle);
+  mpi_scsi_req->flags = dir_flag;
+  mpi_scsi_req->data_length = dataLen;
+  memcpy(mpi_scsi_req->cdb.cdb32, cdb, cdbLen);
+
+  io_hdr_v4.guard = 'Q';
+  io_hdr_v4.protocol = BSG_PROTOCOL_SCSI;
+  io_hdr_v4.subprotocol = BSG_SUB_PROTOCOL_SCSI_TRANSPORT;
+  io_hdr_v4.response = (uint64_t)sense_buffer;
+  io_hdr_v4.max_response_len = sizeof(sense_buffer);
+  io_hdr_v4.request = (uint64_t)bsg_req;
+  io_hdr_v4.request_len = (uint32_t) bsg_req_len;
+  io_hdr_v4.timeout = MPI3MR_APP_DEFAULT_TIMEOUT;
+  io_hdr_v4.din_xferp = (uint64_t) sgl_din_base_ptr;
+  io_hdr_v4.din_xfer_len = (uint32_t) din_buffers_size;
+  io_hdr_v4.dout_xferp = (uint64_t) sgl_dout_base_ptr;
+  io_hdr_v4.dout_xfer_len = (uint32_t) dout_buffers_size;
+
+  int r = ioctl(m_fd, SG_IO, &io_hdr_v4);
+  if (r < 0) {
+    lib_printf("IOCTL failed. line %d, r %d, errno %d\n", __LINE__, r, errno);
+    free(sgl_dout_base_ptr);
+    free(sgl_din_base_ptr);
+    free(bsg_req);
+    return set_err(errno, "IOCTL failed. line %d, r %d, errno %d\n", __LINE__, r, errno);
+  }
+
+  // copy the buffer
+  uint8_t *buff = (uint8_t *)(sgl_din_base_ptr + sizeof(SL8_MPI_REPLY_BUF) + sizeof(MPI3_SCSI_IO_REPLY));
+  memcpy(data, buff, dataLen);
+
+  // free memory
+  free(sgl_dout_base_ptr);
+  free(sgl_din_base_ptr);
+  free(bsg_req);
+
+  return true;
+}
+
+bool linux_mpi3mr_device::scsi_pass_through(scsi_cmnd_io *iop)
+{
+  int report = scsi_debugmode;
+
+  if (report > 0) {
+    int k, j;
+    const unsigned char * ucp = iop->cmnd;
+    const char * np;
+    char buff[256];
+    const int sz = (int)sizeof(buff);
+
+    np = scsi_get_opcode_name(ucp);
+    j = snprintf(buff, sz, " [%s: ", np ? np : "<unknown opcode>");
+    for (k = 0; k < (int)iop->cmnd_len; ++k)
+      j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "%02x ", ucp[k]);
+    if ((report > 1) &&
+      (DXFER_TO_DEVICE == iop->dxfer_dir) && (iop->dxferp)) {
+      int trunc = (iop->dxfer_len > 256) ? 1 : 0;
+
+      snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n  Outgoing "
+           "data, len=%d%s:\n", (int)iop->dxfer_len,
+           (trunc ? " [only first 256 bytes shown]" : ""));
+      dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
+    }
+    else
+      snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n");
+    lib_printf("%s", buff);
+  }
+
+  // Controller rejects Test Unit Ready
+  if (iop->cmnd[0] == 0x00)
+  return true;
+
+  if (iop->cmnd[0] == SAT_ATA_PASSTHROUGH_12 || iop->cmnd[0] == SAT_ATA_PASSTHROUGH_16) {
+  // Controller does not return ATA output registers in SAT sense data
+  if (iop->cmnd[2] & (1 << 5)) // chk_cond
+    return set_err(ENOSYS, "ATA return descriptor not supported by controller firmware");
+  }
+  // SMART WRITE LOG SECTOR causing media errors
+  if ((iop->cmnd[0] == SAT_ATA_PASSTHROUGH_16 // SAT16 WRITE LOG
+    && iop->cmnd[14] == ATA_SMART_CMD && iop->cmnd[3]==0 && iop->cmnd[4] == ATA_SMART_WRITE_LOG_SECTOR) ||
+    (iop->cmnd[0] == SAT_ATA_PASSTHROUGH_12 // SAT12 WRITE LOG
+     && iop->cmnd[9] == ATA_SMART_CMD && iop->cmnd[3] == ATA_SMART_WRITE_LOG_SECTOR))
+  {
+  if(!failuretest_permissive)
+     return set_err(ENOSYS, "SMART WRITE LOG SECTOR may cause problems, try with -T permissive to force");
+  }
+  return mpi3mr_cmd(iop->cmnd_len, iop->cmnd,
+  iop->dxfer_len, iop->dxferp,
+  iop->max_sense_len, iop->sensep, report, iop->dxfer_dir);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -2849,6 +3311,10 @@ private:
   int megasas_dcmd_cmd(int bus_no, uint32_t opcode, void *buf,
     size_t bufsize, uint8_t *mbox, size_t mboxlen, uint8_t *statusp);
   int megasas_pd_add_list(int bus_no, smart_device_list & devlist);
+
+  bool get_dev_mpi3mr(smart_device_list & devlist);
+  int mpi3mr_pd_add_list(int bus_no, smart_device_list & devlist);
+
   bool get_dev_sssraid(smart_device_list & devlist);
   int sssraid_pd_add_list(int bus_no, smart_device_list & devlist);
   int sssraid_pdlist_cmd(int bus_no, uint16_t start_idx, void *buf, size_t bufsize, uint8_t *statusp);
@@ -2985,6 +3451,39 @@ void linux_smart_interface::get_dev_list(smart_device_list & devlist,
   globfree(&globbuf);
 }
 
+bool linux_smart_interface::get_dev_mpi3mr(smart_device_list & devlist)
+{
+  // getting bus numbers with megaraid devices
+  // we are using sysfs to get list of all scsi hosts
+  DIR * dp = opendir ("/sys/class/scsi_host/");
+  char line[128];
+  FILE * fp = NULL;
+  if (dp != NULL)
+  {
+    struct dirent *ep;
+    while ((ep = readdir (dp)) != NULL) {
+      unsigned int host_no = 0;
+      if (!sscanf(ep->d_name, "host%u", &host_no))
+        continue;
+      /* proc_name should be mpi3mr */
+      char sysfsdir[256] = {0};
+      snprintf(sysfsdir, sizeof(sysfsdir) - 1,
+        "/sys/class/scsi_host/host%u/proc_name", host_no);
+      if((fp = fopen(sysfsdir, "r")) == NULL)
+        continue;
+      if(fgets(line, sizeof(line), fp) != NULL && !strncmp(line,"mpi3mr",6)) {
+          mpi3mr_pd_add_list(host_no, devlist);
+      }
+      fclose(fp);
+    }
+    (void) closedir (dp);
+  } else {
+    /* sysfs not mounted */
+    return false;
+  }
+  return true;
+}
+
 // getting devices from LSI SAS MegaRaid, if available
 bool linux_smart_interface::get_dev_megasas(smart_device_list & devlist)
 {
@@ -3084,7 +3583,7 @@ bool linux_smart_interface::scan_smart_devices(smart_device_list & devlist,
     return set_err(EINVAL, "DEVICESCAN with pattern not implemented yet");
 
   // Scan type list
-  bool by_id = false, scan_megaraid = false, scan_sssraid = false;
+  bool by_id = false, scan_megaraid = false, scan_sssraid = false, scan_mpi3mr = false;
   const char * type_ata = nullptr, * type_scsi = nullptr, * type_sat = nullptr;
   const char * type_nvme = nullptr;
   for (unsigned i = 0; i < types.size(); i++) {
@@ -3101,21 +3600,23 @@ bool linux_smart_interface::scan_smart_devices(smart_device_list & devlist,
       type_nvme = "nvme";
     else if (!strcmp(type, "megaraid"))
       scan_megaraid = true;
+    else if (!strcmp(type, "mpi3mr"))
+      scan_mpi3mr = true;
     else if (!strcmp(type, "sssraid"))
       scan_sssraid = true;
     else
       return set_err(EINVAL,
                      "Invalid type '%s', valid arguments are:"
-                     " by-id, ata, scsi, sat, nvme, megaraid, sssraid",
+                     " by-id, ata, scsi, sat, nvme, megaraid, mpi3mr, sssraid",
                      type);
   }
   // Use default if no type specified
-  if (!(type_ata || type_scsi || type_sat || type_nvme || scan_megaraid || scan_sssraid)) {
+  if (!(type_ata || type_scsi || type_sat || type_nvme || scan_megaraid || scan_mpi3mr || scan_sssraid)) {
      type_ata = type_scsi = type_sat = "";
 #ifdef WITH_NVME_DEVICESCAN // TODO: Remove when NVMe support is no longer EXPERIMENTAL
      type_nvme = "";
 #endif
-     scan_megaraid = scan_sssraid = true;
+     scan_megaraid = scan_mpi3mr = scan_sssraid = true;
   }
 
   const char * type_scsi_sat = ((type_scsi && type_sat) ? "" // detect both
@@ -3141,6 +3642,8 @@ bool linux_smart_interface::scan_smart_devices(smart_device_list & devlist,
 
   if (scan_megaraid)
     get_dev_megasas(devlist);
+  if (scan_mpi3mr)
+    get_dev_mpi3mr(devlist);
   if (scan_sssraid)
     get_dev_sssraid(devlist);
   return true;
@@ -3223,6 +3726,88 @@ linux_smart_interface::megasas_dcmd_cmd(int bus_no, uint32_t opcode, void *buf,
   }
   return (0);
 }
+
+int
+linux_smart_interface::mpi3mr_pd_add_list(int bus_no, smart_device_list & devlist)
+{
+  /*
+  * Keep fetching the list in a loop until we have a large enough
+  * buffer to hold the entire list.
+  */
+  struct mpi3mr_all_tgt_info * list = 0;
+  int mrioc_id = linux_mpi3mr_device::get_mrioc_id(bus_no);
+  int   fd;
+  char  fname[100] = {0};
+
+  if (mrioc_id < 0)
+    return (-1);
+
+  sprintf(fname, "/dev/bsg/mpi3mrctl%d", mrioc_id);
+  if ((fd = open(fname, O_RDWR)) < 0) {
+    lib_printf("Couldn't open %s. line %d, errno %d\n", fname, __LINE__, errno);
+    return (-errno);
+  }
+
+  for (unsigned list_size = 1024; ; ) {
+    list = reinterpret_cast<struct mpi3mr_all_tgt_info *>(realloc(list, list_size));
+    if (!list)  {
+      close(fd);
+      throw std::bad_alloc();
+    }
+    memset(list, 0, list_size);
+    if (linux_mpi3mr_device::mpi3mr_dev_list_cmd(mrioc_id, list, list_size, fd) < 0)    {
+    free(list);
+    close(fd);
+      return (-1);
+    }
+    size_t size = list->num_devices * sizeof(struct mpi3mr_device_map_info);
+    size += (sizeof(struct mpi3mr_all_tgt_info)-sizeof(struct mpi3mr_device_map_info));
+    if (size <= list_size)
+      break;
+    list_size = size;
+  }
+  close(fd);
+
+  // adding all SCSI devices
+  for (unsigned i = 0; i < list->num_devices; i++) {
+    char line[128];
+    snprintf(line, sizeof(line) - 1, "/dev/bus/%d", bus_no);
+    smart_device * dev = new linux_mpi3mr_device(this, line, list->dmi[i].perst_id);
+
+    if (dev->is_scsi()) {
+        uint8_t inq[4] = {0}; // get the first 4 bytes
+        uint8_t cdb[6] = {INQUIRY, 0x00, 0x00, 0x00, 0x04, 0x00};
+        uint8_t sense[32];
+        scsi_cmnd_io cmd = {};
+
+        // populate the command
+        cmd.cmnd = cdb;
+         cmd.cmnd_len = sizeof(cdb);
+        cmd.dxfer_dir = DXFER_FROM_DEVICE;
+        cmd.dxfer_len = sizeof(inq);
+        cmd.dxferp = inq;
+        cmd.sensep = sense;
+        cmd.max_sense_len = sizeof(sense);
+        cmd.timeout = SCSI_TIMEOUT_DEFAULT;
+
+        dev->open();
+        (dev->to_scsi())->scsi_pass_through(&cmd);
+        dev->close();
+
+        if (inq[0] != 0x0d) // skip the SES targets
+          devlist.push_back(dev);
+        else
+          delete dev;
+    } else {
+      // unexpected device found
+      delete dev;
+    }
+  }
+
+  free(list);
+  return (0);
+}
+
 
 int
 linux_smart_interface::megasas_pd_add_list(int bus_no, smart_device_list & devlist)
@@ -3595,6 +4180,11 @@ smart_device * linux_smart_interface::get_custom_smart_device(const char * name,
   // MegaRAID ?
   if (sscanf(type, "megaraid,%d", &disknum) == 1) {
     return new linux_megaraid_device(this, name, disknum);
+  }
+
+  // mpi3mr
+  if (sscanf(type, "mpi3mr,%d", &disknum) == 1) {
+    return new linux_mpi3mr_device(this, name, disknum);
   }
 
   // SSSRAID
