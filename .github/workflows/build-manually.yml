@@ -219,7 +219,8 @@ jobs:
           cd smartmontools-[89].[0-9]/build/src && ./smartctl ${{ github.event.inputs.check-options }}
 
   build-darwin:
-    if: ${{ contains(github.event.inputs.platforms, 'darwin') }}
+    # '--enable-static-link' fails due to missing 'crt0.o'.
+    if: ${{ contains(github.event.inputs.platforms, 'darwin') && !contains(github.event.inputs.cfg-options, '--enable-static-link') }}
     needs: build-source-tarball
     runs-on: ubuntu-latest
     container:
