@@ -17,8 +17,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Run actions/checkout@v4 svn/tags/RELEASE_${{ matrix.version }}
-        uses: actions/checkout@v4
+      - name: Run actions/checkout@v6 svn/tags/RELEASE_${{ matrix.version }}
+        uses: actions/checkout@v6
         with:
           ref: svn/tags/RELEASE_${{ matrix.version }}
 
@@ -54,11 +54,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           # Provide at least the commit log since last release for 'getversion.sh'.
           # 'git clone --shallow-since=2025-04-29' would be sufficient but this is
-          # not supported by 'actions/checkout@v4'.
+          # not supported by 'actions/checkout@v6'.
           fetch-depth: 800
           # Include (future) release tags for 'getversion.sh'
           fetch-tags: true

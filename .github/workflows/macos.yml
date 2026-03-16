@@ -11,13 +11,13 @@ jobs:
           brew install automake
           brew install libtool
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           # Done above as the builtin would use a path for Windows git.
           set-safe-directory: false
           # Provide at least the commit log since last release for 'getversion.sh'.
           # 'git clone --shallow-since=2025-04-29' would be sufficient but this is
-          # not supported by 'actions/checkout@v4'.
+          # not supported by 'actions/checkout@v6'.
           fetch-depth: 800
           # Include (future) release tags for 'getversion.sh'
           fetch-tags: true
@@ -37,7 +37,7 @@ jobs:
           make bin-dist bin_distfile="smartmontools-macos-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz"
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: smartmontools-macos
           path: build/smartmontools-macos-*.tar.gz

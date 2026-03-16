@@ -8,11 +8,11 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y cppcheck
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           # Provide at least the commit log since last release for 'getversion.sh'.
           # 'git clone --shallow-since=2025-04-29' would be sufficient but this is
-          # not supported by 'actions/checkout@v4'.
+          # not supported by 'actions/checkout@v6'.
           fetch-depth: 800
           # Include (future) release tags for 'getversion.sh'
           fetch-tags: true
@@ -23,7 +23,7 @@ jobs:
           echo "Creating $DEST..." &&
           src/cppcheck.sh -j6 -q | tee "$DEST"
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: smartmontools-cppcheck
           path: smartmontools-cppcheck-*.txt

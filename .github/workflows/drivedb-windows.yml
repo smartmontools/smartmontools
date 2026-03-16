@@ -66,11 +66,11 @@ jobs:
 
       - run: git config --global core.autocrlf input # prevent CRLF checkout
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           # Provide at least the commit log since last release for 'getversion.sh'.
           # 'git clone --shallow-since=2025-04-29' would be sufficient but this is
-          # not supported by 'actions/checkout@v4'.
+          # not supported by 'actions/checkout@v6'.
           fetch-depth: 800
           # Include (future) release tags for 'getversion.sh'
           fetch-tags: true
