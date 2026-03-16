@@ -3,7 +3,7 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2016-25 Christian Franke
+ * Copyright (C) 2016-26 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -790,7 +790,11 @@ int nvmePrintMain(nvme_device * device, const nvme_print_options & options)
     unsigned nsid = device->get_nsid();
     if (nsid == nvme_broadcast_nsid) {
       // Broadcast namespace
-      if (id_ctrl.nn == 1) {
+      if (!id_ctrl.nn) {
+        // No namespaces, don't print namespace information
+        nsid = 0;
+      }
+      else if (id_ctrl.nn == 1) {
         // No namespace management, get size from single namespace
         nsid = 1;
         if (!nvme_read_id_ns(device, nsid, id_ns))
