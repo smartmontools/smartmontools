@@ -20,11 +20,11 @@ jobs:
       artficact-id: ${{ steps.artifact-upload-step.outputs.artifact-id }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           # Provide at least the commit log since last release for 'getversion.sh'.
           # 'git clone --shallow-since=2025-04-29' would be sufficient but this is
-          # not supported by 'actions/checkout@v4'.
+          # not supported by 'actions/checkout@v6'.
           fetch-depth: 800
           # Include (future) release tags for 'getversion.sh'
           fetch-tags: true
@@ -47,7 +47,7 @@ jobs:
 
       - name: Upload artifacts
         id: artifact-upload-step
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: artifacts
           path: build/artifacts/
@@ -62,9 +62,10 @@ jobs:
       SMARTMONTOOLS_PKG_VER: ${{ needs.make-src-tgz.outputs.SMARTMONTOOLS_PKG_VER }}
       SMARTMONTOOLS_GIT_VER_FNAME: ${{ needs.make-src-tgz.outputs.SMARTMONTOOLS_GIT_VER_FNAME }}      
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           artifact-ids: ${{ needs.make-src-tgz.outputs.artficact-id }}      
+          path: artifacts
       - name: build
         run: |
           tar -xvf artifacts/smartmontools-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz &&
@@ -75,7 +76,7 @@ jobs:
           mkdir -p ${GITHUB_WORKSPACE}/artifacts &&
           make bin-dist bin_distfile="${GITHUB_WORKSPACE}/artifacts/smartmontools-linux-x86_64-static-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz"
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: linux_static_x86_64
           path: artifacts/smartmontools-linux-x86_64-static-${{ needs.make-src-tgz.outputs.SMARTMONTOOLS_GIT_VER_FNAME }}.tar.gz
@@ -90,9 +91,10 @@ jobs:
       SMARTMONTOOLS_PKG_VER: ${{ needs.make-src-tgz.outputs.SMARTMONTOOLS_PKG_VER }}
       SMARTMONTOOLS_GIT_VER_FNAME: ${{ needs.make-src-tgz.outputs.SMARTMONTOOLS_GIT_VER_FNAME }}      
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           artifact-ids: ${{ needs.make-src-tgz.outputs.artficact-id }}    
+          path: artifacts
       - name: install m32 dependencies
         run: sudo apt-get update && sudo apt-get install gcc-multilib g++-multilib
       - name: build
@@ -108,7 +110,7 @@ jobs:
           mkdir -p ${GITHUB_WORKSPACE}/artifacts &&
           make bin-dist bin_distfile="${GITHUB_WORKSPACE}/artifacts/smartmontools-linux-i386-static-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz"
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: linux_static_i386
           path: artifacts/smartmontools-linux-i386-static-${{ needs.make-src-tgz.outputs.SMARTMONTOOLS_GIT_VER_FNAME }}.tar.gz
@@ -127,9 +129,10 @@ jobs:
       SMARTMONTOOLS_PKG_VER: ${{ needs.make-src-tgz.outputs.SMARTMONTOOLS_PKG_VER }}
       SMARTMONTOOLS_GIT_VER_FNAME: ${{ needs.make-src-tgz.outputs.SMARTMONTOOLS_GIT_VER_FNAME }} 
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           artifact-ids: ${{ needs.make-src-tgz.outputs.artficact-id }}
+          path: artifacts
       - name: build
         run: |
           export PATH=/usr/osxcross/bin/:$PATH &&
@@ -147,7 +150,7 @@ jobs:
           mkdir -p inst ${GITHUB_WORKSPACE}/artifacts &&
           mv ./src/smartmontools-${SMARTMONTOOLS_GIT_VER_FNAME}.dmg ${GITHUB_WORKSPACE}/artifacts
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: darwin
           path: artifacts/smartmontools-${{ needs.make-src-tgz.outputs.SMARTMONTOOLS_GIT_VER_FNAME }}.dmg
@@ -167,9 +170,10 @@ jobs:
       SMARTMONTOOLS_PKG_VER: ${{ needs.make-src-tgz.outputs.SMARTMONTOOLS_PKG_VER }}
       SMARTMONTOOLS_GIT_VER_FNAME: ${{ needs.make-src-tgz.outputs.SMARTMONTOOLS_GIT_VER_FNAME }} 
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           artifact-ids: ${{ needs.make-src-tgz.outputs.artficact-id }}
+          path: artifacts
       - name: FreeBSD 14 build
         run: |
           tar -xvf artifacts/smartmontools-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz &&
@@ -183,7 +187,7 @@ jobs:
           mkdir -p ${GITHUB_WORKSPACE}/artifacts &&
           make bin-dist bin_distfile="${GITHUB_WORKSPACE}/artifacts/smartmontools-freebsd-14-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz"
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: freebsd14
           path: artifacts/smartmontools-freebsd-14-${{ needs.make-src-tgz.outputs.SMARTMONTOOLS_GIT_VER_FNAME }}.tar.gz
@@ -203,7 +207,7 @@ jobs:
           mkdir -p ${GITHUB_WORKSPACE}/artifacts &&
           make bin-dist bin_distfile="${GITHUB_WORKSPACE}/artifacts/smartmontools-freebsd-13-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz"
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: freebsd13
           path: artifacts/smartmontools-freebsd-13-${{ needs.make-src-tgz.outputs.SMARTMONTOOLS_GIT_VER_FNAME }}.tar.gz
@@ -223,9 +227,10 @@ jobs:
       SMARTMONTOOLS_PKG_VER: ${{ needs.make-src-tgz.outputs.SMARTMONTOOLS_PKG_VER }}
       SMARTMONTOOLS_GIT_VER_FNAME: ${{ needs.make-src-tgz.outputs.SMARTMONTOOLS_GIT_VER_FNAME }}
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           artifact-ids: ${{ needs.make-src-tgz.outputs.artficact-id }}
+          path: artifacts
       - name: Windows build
         run: |
           tar -xvf artifacts/smartmontools-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz &&
@@ -247,7 +252,7 @@ jobs:
           mv ./src/smartmontools-win32-setup-${SMARTMONTOOLS_GIT_VER_FNAME}.exe ${GITHUB_WORKSPACE}/artifacts
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: windows
           path: artifacts/smartmontools-win32-setup-${{ needs.make-src-tgz.outputs.SMARTMONTOOLS_GIT_VER_FNAME }}.exe
@@ -275,9 +280,10 @@ jobs:
         run: |
           dnf copr enable -y yselkowitz/cygwin
           dnf install -y cygwin64-gcc-c++
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           artifact-ids: ${{ needs.make-src-tgz.outputs.artficact-id }}
+          path: artifacts
       - name: Cygwin build
         run: |
           tar -xvf artifacts/smartmontools-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz &&
@@ -288,7 +294,7 @@ jobs:
           mkdir -p ${GITHUB_WORKSPACE}/artifacts &&
           make bin-dist bin_distfile="${GITHUB_WORKSPACE}/artifacts/smartmontools-cygwin-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz"
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: cygwin
           path: artifacts/smartmontools-cygwin-${{ needs.make-src-tgz.outputs.SMARTMONTOOLS_GIT_VER_FNAME }}.tar.gz
@@ -320,7 +326,7 @@ jobs:
       name: mainbranch
       url: https://github.com/smartmontools/smartmontools-builds
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           merge-multiple: true
           path: artifacts

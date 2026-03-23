@@ -39,11 +39,11 @@ jobs:
                "make-options: '${{ github.event.inputs.make-options }}'," \
                "suffix: '${{ github.event.inputs.suffix }}'"
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           # Provide at least the commit log since last release for 'getversion.sh'.
           # 'git clone --shallow-since=2025-04-29' would be sufficient but this is
-          # not supported by 'actions/checkout@v4'.
+          # not supported by 'actions/checkout@v6'.
           fetch-depth: 800
           # Include (future) release tags for 'getversion.sh'
           fetch-tags: true
@@ -55,7 +55,7 @@ jobs:
           ../configure SOURCE_DATE_EPOCH=$((SMARTMONTOOLS_GIT_REV_EPOCH + 1)) &&
           make dist && tar -tvf "smartmontools-${SMARTMONTOOLS_PKG_VER}.tar.gz"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: smartmontools-src
           path: build/smartmontools-*.tar.gz
@@ -67,7 +67,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: smartmontools-src
 
@@ -84,7 +84,7 @@ jobs:
           bin_distfile="../../smartmontools-ubuntu-x86_64-gcc-${{ github.event.inputs.suffix }}-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" &&
           make bin_distfile="$bin_distfile" bin-dist && tar -tvf "$bin_distfile"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: smartmontools-ubuntu-x86_64-gcc-${{ github.event.inputs.suffix }}
           path: smartmontools-ubuntu-x86_64-gcc-${{ github.event.inputs.suffix }}-*.tar.gz
@@ -101,7 +101,7 @@ jobs:
     runs-on: ubuntu-24.04-arm
 
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: smartmontools-src
 
@@ -118,7 +118,7 @@ jobs:
           bin_distfile="../../smartmontools-ubuntu-arm64-gcc-${{ github.event.inputs.suffix }}-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" &&
           make bin_distfile="$bin_distfile" bin-dist && tar -tvf "$bin_distfile"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: smartmontools-ubuntu-arm64-gcc-${{ github.event.inputs.suffix }}
           path: smartmontools-ubuntu-arm64-gcc-${{ github.event.inputs.suffix }}-*.tar.gz
@@ -136,7 +136,7 @@ jobs:
     steps:
       - run: sudo apt-get update && sudo apt-get install clang-tools
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: smartmontools-src
 
@@ -157,13 +157,13 @@ jobs:
           bin_distfile="../../smartmontools-ubuntu-x86_64-clang-${{ github.event.inputs.suffix }}-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" &&
           make bin_distfile="$bin_distfile" bin-dist && tar -tvf "$bin_distfile"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: smartmontools-ubuntu-x86_64-clang-${{ github.event.inputs.suffix }}
           path: smartmontools-ubuntu-x86_64-clang-${{ github.event.inputs.suffix }}-*.tar.gz
           retention-days: 30
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: smartmontools-ubuntu-x86_64-clang-report
           path: smartmontools-ubuntu-x86_64-clang-report-*.tar.gz
@@ -181,7 +181,7 @@ jobs:
     steps:
       - run: sudo apt-get update && sudo apt-get install clang-tools
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: smartmontools-src
 
@@ -202,13 +202,13 @@ jobs:
           bin_distfile="../../smartmontools-ubuntu-arm64-clang-${{ github.event.inputs.suffix }}-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" &&
           make bin_distfile="$bin_distfile" bin-dist && tar -tvf "$bin_distfile"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: smartmontools-ubuntu-arm64-clang-${{ github.event.inputs.suffix }}
           path: smartmontools-ubuntu-arm64-clang-${{ github.event.inputs.suffix }}-*.tar.gz
           retention-days: 30
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: smartmontools-ubuntu-arm64-clang-report
           path: smartmontools-ubuntu-arm64-clang-report-*.tar.gz
@@ -219,14 +219,15 @@ jobs:
           cd smartmontools-[89].[0-9]/build/src && ./smartctl ${{ github.event.inputs.check-options }}
 
   build-darwin:
-    if: ${{ contains(github.event.inputs.platforms, 'darwin') }}
+    # '--enable-static-link' fails due to missing 'crt0.o'.
+    if: ${{ contains(github.event.inputs.platforms, 'darwin') && !contains(github.event.inputs.cfg-options, '--enable-static-link') }}
     needs: build-source-tarball
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/smartmontools/docker-build:master
 
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: smartmontools-src
 
@@ -251,13 +252,13 @@ jobs:
           make pkg_darwin="smartmontools-${SMARTMONTOOLS_GIT_VER_FNAME}.pkg" \
             dmg_darwin="../../../smartmontools-${SMARTMONTOOLS_GIT_VER_FNAME}.dmg" install-darwin
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: smartmontools-darwin-${{ github.event.inputs.suffix }}-tar
           path: smartmontools-darwin-${{ github.event.inputs.suffix }}-*.tar.gz
           retention-days: 30
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: smartmontools-darwin-${{ github.event.inputs.suffix }}-dmg
           path: smartmontools-*.dmg
@@ -271,7 +272,7 @@ jobs:
       image: ghcr.io/smartmontools/docker-build:master
 
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: smartmontools-src
 
@@ -292,7 +293,7 @@ jobs:
           bin_distfile="../../smartmontools-freebsd-14-${{ github.event.inputs.suffix }}-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" &&
           make bin_distfile="$bin_distfile" bin-dist && tar -tvf "$bin_distfile"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: smartmontools-freebsd-14-${{ github.event.inputs.suffix }}
           path: smartmontools-freebsd-14-${{ github.event.inputs.suffix }}-*.tar.gz
@@ -306,7 +307,7 @@ jobs:
       image: ghcr.io/smartmontools/docker-build:master
 
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: smartmontools-src
 
@@ -328,13 +329,13 @@ jobs:
           make distinst_win32="../../../smartmontools-windows-x86_64-setup-${{ github.event.inputs.suffix }}-${SMARTMONTOOLS_GIT_VER_FNAME}.exe" \
             installer-win32
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: smartmontools-windows-x86_64-${{ github.event.inputs.suffix }}-tar
           path: smartmontools-windows-x86_64-${{ github.event.inputs.suffix }}-*.tar.gz
           retention-days: 30
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: ${{ contains(github.event.inputs.cfg-options, '--enable-static-link') }}
         with:
           name: smartmontools-windows-x86_64-${{ github.event.inputs.suffix }}-setup
@@ -357,7 +358,7 @@ jobs:
           dnf copr enable -y yselkowitz/cygwin
           dnf install -y cygwin64-gcc-c++
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: smartmontools-src
 
@@ -376,7 +377,7 @@ jobs:
           bin_distfile="../../smartmontools-cygwin-${{ github.event.inputs.suffix }}-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" &&
           make bin_distfile="$bin_distfile" bin-dist && tar -tvf "$bin_distfile"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: smartmontools-cygwin-${{ github.event.inputs.suffix }}
           path: smartmontools-cygwin-${{ github.event.inputs.suffix }}-*.tar.gz

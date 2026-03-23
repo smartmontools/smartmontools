@@ -2,7 +2,7 @@
  * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen
- * Copyright (C) 2008-25 Christian Franke
+ * Copyright (C) 2008-26 Christian Franke
  * Copyright (C) 2000    Michael Cornwell <cornwell@acm.org>
  * Copyright (C) 2008    Oliver Bock <brevilo@users.sourceforge.net>
  *
@@ -2863,8 +2863,10 @@ static int NVMeDeviceScan(dev_config & cfg, dev_state & state, nvme_device * nvm
   // Init total error count
   cfg.nvme_err_log_max_entries = id_ctrl.elpe + 1; // 0's based value
   if (cfg.errorlog || cfg.xerrorlog) {
-    if (!check_nvme_error_log(cfg, state, nvmedev)) {
-      PrintOut(LOG_INFO, "Device: %s, Error Information unavailable, ignoring -l [x]error\n", name);
+    // Assume missing log if only one entry is reported (id_ctrl.elpe = 0).
+    if (!(id_ctrl.elpe && check_nvme_error_log(cfg, state, nvmedev))) {
+      PrintOut(LOG_INFO, "Device: %s, Error Information unavailable%s, ignoring -l [x]error\n",
+               name, (!id_ctrl.elpe ? " (guessed)" : ""));
       cfg.errorlog = cfg.xerrorlog = false;
     }
     else

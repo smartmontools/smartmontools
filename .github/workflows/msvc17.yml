@@ -49,11 +49,11 @@ jobs:
 
       - run: sudo apt-get update && sudo apt-get install -y g++-mingw-w64-x86-64
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           # Provide at least the commit log since last release for 'getversion.sh'.
           # 'git clone --shallow-since=2025-04-29' would be sufficient but this is
-          # not supported by 'actions/checkout@v4'.
+          # not supported by 'actions/checkout@v6'.
           fetch-depth: 800
           # Include (future) release tags for 'getversion.sh'
           fetch-tags: true
@@ -65,7 +65,7 @@ jobs:
           make config-vc && make distdir && mv smartmontools-*.* smartmontools &&
           cp -av ../src/os_win32/vc17 smartmontools/src/os_win32
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: smartmontools-msvc17-src
           path: build/smartmontools/
@@ -81,7 +81,7 @@ jobs:
     steps:
       - uses: microsoft/setup-msbuild@v2
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: smartmontools-msvc17-src
 
@@ -94,7 +94,7 @@ jobs:
       - run: |
           src/os_win32/vc17/${{matrix.platform}}/${{matrix.config}}/smartctl ${{ github.event.inputs.check-options }}
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: smartmontools-msvc17-${{matrix.platform}}-${{matrix.config}}-bin
           path: |
@@ -103,7 +103,7 @@ jobs:
           compression-level: 9
           retention-days: 30
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: smartmontools-msvc17-${{matrix.platform}}-${{matrix.config}}-pdb
           path: src/os_win32/vc17/${{matrix.platform}}/${{matrix.config}}/*.pdb

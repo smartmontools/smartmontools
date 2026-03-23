@@ -18,16 +18,16 @@ jobs:
             libtool
             make
 
-        # 'actions/checkout@v4' now uses Cygwin git instead of Windows git.
+        # 'actions/checkout@v6' now uses Cygwin git instead of Windows git.
       - run: git config --global --add safe.directory /cygdrive/d/a/smartmontools/smartmontools
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           # Done above as the builtin would use a path for Windows git.
           set-safe-directory: false
           # Provide at least the commit log since last release for 'getversion.sh'.
           # 'git clone --shallow-since=2025-04-29' would be sufficient but this is
-          # not supported by 'actions/checkout@v4'.
+          # not supported by 'actions/checkout@v6'.
           fetch-depth: 800
           # Include (future) release tags for 'getversion.sh'
           fetch-tags: true
@@ -51,7 +51,7 @@ jobs:
         shell: bash --noprofile --norc -e -o igncr '{0}'
 
       - name: Upload gcc artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: smartmontools-cygwin-gcc
           path: build-gcc/smartmontools-cygwin-x86_64-gcc-*.tar.gz
@@ -70,14 +70,14 @@ jobs:
         shell: bash --noprofile --norc -e -o igncr '{0}'
 
       - name: Upload clang artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: smartmontools-cygwin-clang
           path: build-clang/smartmontools-cygwin-x86_64-clang-*.tar.gz
           retention-days: 30
 
       - name: Upload clang static analyzer artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: smartmontools-cygwin-clang-report
           path: build-clang/smartmontools-cygwin-clang-report-*.tar.gz

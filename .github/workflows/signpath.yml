@@ -13,11 +13,11 @@ jobs:
           sudo apt-get install -y g++-mingw-w64-x86-64 g++-mingw-w64-i686 \
             unzip wget man2html-base groff nsis dos2unix
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           # Provide at least the commit log since last release for 'getversion.sh'.
           # 'git clone --shallow-since=2025-04-29' would be sufficient but this is
-          # not supported by 'actions/checkout@v4'.
+          # not supported by 'actions/checkout@v6'.
           fetch-depth: 800
           # Include (future) release tags for 'getversion.sh'
           fetch-tags: true
@@ -48,7 +48,7 @@ jobs:
           mv -v build/src/uninst-smartmontools.exe unsigned-binaries
 
       - name: Upload installer
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: smartmontools-windows
           path: build/src/smartmontools-win32-setup-*.exe
@@ -56,7 +56,7 @@ jobs:
 
       - name: Upload binaries
         id: binaries-upload-step
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: smartmontools-windows-temp-bin
           path: unsigned-binaries/*
@@ -80,7 +80,7 @@ jobs:
           cp -rv unsigned-binaries signed-binaries
 
       - name: Upload signed binaries
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: smartmontools-windows-temp-bin-signed
           path: signed-binaries/*
@@ -101,7 +101,7 @@ jobs:
 
       - name: Upload rebuilt installer
         id: installer-upload-step
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: smartmontools-windows-temp
           path: build/src/smartmontools-win32-setup-*.exe
@@ -120,7 +120,7 @@ jobs:
 
       - name: Upload signed installer
         if: ${{ github.repository == 'smartmontools/smartmontools' }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: smartmontools-windows-signed
           path: signed-installer/*.exe
