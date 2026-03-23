@@ -4124,8 +4124,7 @@ smart_device * linux_smart_interface::get_custom_smart_device(const char * name,
 
   // mpi3mr
   int n = -1;
-  size_t type_len = (type ? strlen(type) : 0);
-  if (sscanf(type, "mpi3mr,%d%n", &disknum, &n) == 1 && n == (int)type_len) {
+  if (type && sscanf(type, "mpi3mr,%d%n", &disknum, &n) == 1 && n == (int)strlen(type)) {
     return new linux_mpi3mr_device(this, name, disknum);
   }
 
