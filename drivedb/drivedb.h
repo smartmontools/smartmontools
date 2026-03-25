@@ -742,8 +742,9 @@ const drive_settings builtin_knowndrives[] = {
     "-v 245,raw16(raw16),Bit_Error_Count"
   },
   { "Maxio based SSDs (variant 4)", // MAS1102
+    "Lexar SSD NQ100 (24|48|96)0GB|" // Lexar NQ100, tested with Lexar SSD NQ100 240GB/SN15926
     "Lexar SSD NS100 ((128|256|512)G|[12]T)B", // Lexar NS100, tested with Lexar SSD NS100 256GB/SN17776
-    "SN177[0-9]{2}", "",
+    "SN1(59|77)[0-9]{2}", "",
     "-v 5,raw16(raw16),New_Bad_Blk_Count "
   //"-v 9,raw24(raw8),Power_On_Hours "
   //"-v 12,raw48,Power_Cycle_Count "
