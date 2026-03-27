@@ -706,13 +706,14 @@ const drive_settings builtin_knowndrives[] = {
   { "Maxio based SSDs (variant 3)", // MAS1102
     "(128|256|512)GB SSD|"               // AZW M.2 SSD in Beelink Mini PCs, tested with 128GB SSD/SN12521, 512GB SSD/SN11986
     "V Series SATA SSD (120|240|250|480|500|960)GB|" // Integral V Series, tested with V Series SATA SSD 480GB/SN12521
+    "Lexar SSD NQ100 (24|48|96)0GB|" // Lexar NQ100, tested with Lexar SSD NQ100 240GB/SN15926
     "Patriot Burst Elite (120|240|480|960|1920)GB|"  // Patriot Burst Elite 1920GB/H220916a
     "PNY 1TB SATA SSD|"                  // PNY CS900, tested with PNY 1TB SATA SSD/H220916a
         // also available with Phison and Silicon Motion controllers
     "Verbatim Vi550 S3|"                 // Verbatim Vi550 S3/H220916a (1TB)
         // also available with Silicon Motion controllers
     "Verbatim Vi560 S3",                 // Verbatim Vi560 S3/H220916a (1TB)
-    "SN1(19|25)[0-9]{2}|H2209[0-9]{2}a?", "",
+    "SN1(19|25|59)[0-9]{2}|H2209[0-9]{2}a?", "",
     "-v 5,raw16(raw16),New_Bad_Blk_Count "
   //"-v 9,raw24(raw8),Power_On_Hours "
   //"-v 12,raw48,Power_Cycle_Count "
