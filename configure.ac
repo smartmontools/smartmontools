@@ -382,6 +382,15 @@ AC_SUBST(attributelog)
 AC_SUBST(attributelogdir)
 AM_CONDITIONAL(ENABLE_ATTRIBUTELOG, [test -n "$attributelog"])
 
+jsonstatedir=
+AC_ARG_WITH(jsonstatedir,
+  [AS_HELP_STRING([--with-jsonstatedir@<:@=PREFIX|yes|no@:>@],
+    [Enable default smartd JSON state files [no] (yes=LOCALSTATEDIR/lib/smartmontools/smartd.)])],
+  [case "$withval" in yes) jsonstatedir='${localstatedir}/lib/${PACKAGE}/smartd.' ;;
+                      no) ;; *) jsonstatedir="$withval" ;; esac])
+AC_SUBST(jsonstatedir)
+AM_CONDITIONAL(ENABLE_JSONSTATEDIR, [test -n "$jsonstatedir"])
+
 AC_ARG_ENABLE(sample,
   [AS_HELP_STRING([--enable-sample], [Enables appending .sample to the installed smartd rc script and configuration file])],
   [smartd_suffix=; test "$enableval" = "yes" && smartd_suffix=".sample"],
