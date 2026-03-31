@@ -26,6 +26,9 @@ endif
 if ENABLE_ATTRIBUTELOG
 AM_CPPFLAGS += -DSMARTMONTOOLS_ATTRIBUTELOG='"$(attributelog)"'
 endif
+if ENABLE_JSONSTATE
+AM_CPPFLAGS += -DSMARTMONTOOLS_JSONSTATE='"$(jsonstate)"'
+endif
 
 if OS_WIN32_MINGW
 AM_CPPFLAGS += -I$(srcdir)/os_win32
@@ -355,7 +358,7 @@ smartd.service: smartd.service.in Makefile
 # Create empty directories if configured.
 # Default install rules no longer create empty directories since automake 1.11.
 installdirs-local:
-	@for d in '$(smartdplugindir)' '$(drivedbdir)' '$(savestatesdir)' '$(attributelogdir)'; do \
+	@for d in '$(smartdplugindir)' '$(drivedbdir)' '$(savestatesdir)' '$(attributelogdir)' '$(jsonstatedir)'; do \
 	  test -n "$$d" || continue; \
 	  echo " $(MKDIR_P) '$(DESTDIR)$$d'"; \
 	  $(MKDIR_P) "$(DESTDIR)$$d" || exit 1; \
@@ -405,6 +408,11 @@ MAN_FILTER = { \
       sed 's|/usr/local/etc/rc\.d/init\.d/|$(initddir)/|g' ; \
     else \
       sed '/^\.\\" %IF ENABLE_INITSCRIPT/,/^\.\\" %ENDIF ENABLE_INITSCRIPT/ s,^,.\\"\# ,' ; \
+    fi | \
+    if test -n '$(jsonstate)'; then \
+      sed 's|/usr/local/var/lib/smartmontools/smartd-json\.|$(jsonstate)|g' ; \
+    else \
+      sed '/^\.\\" %IF ENABLE_JSONSTATE/,/^\.\\" %ENDIF ENABLE_JSONSTATE/ s,^,.\\"\# ,' ; \
     fi | \
     if test -n '$(savestates)'; then \
       sed 's|/usr/local/var/lib/smartmontools/smartd\.|$(savestates)|g' ; \

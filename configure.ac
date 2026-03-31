@@ -382,6 +382,17 @@ AC_SUBST(attributelog)
 AC_SUBST(attributelogdir)
 AM_CONDITIONAL(ENABLE_ATTRIBUTELOG, [test -n "$attributelog"])
 
+jsonstate=
+AC_ARG_WITH(jsonstate,
+  [AS_HELP_STRING([--with-jsonstate@<:@=PREFIX|yes|no@:>@],
+    [Enable default smartd JSON state files [no] (yes=LOCALSTATEDIR/lib/smartmontools/smartd-json.)])],
+  [case "$withval" in yes) jsonstate='${localstatedir}/lib/${PACKAGE}/smartd-json.' ;;
+                      no) ;; *) jsonstate="$withval" ;; esac])
+jsonstatedir="${jsonstate%/*}"
+AC_SUBST(jsonstate)
+AC_SUBST(jsonstatedir)
+AM_CONDITIONAL(ENABLE_JSONSTATE, [test -n "$jsonstate"])
+
 AC_ARG_ENABLE(sample,
   [AS_HELP_STRING([--enable-sample], [Enables appending .sample to the installed smartd rc script and configuration file])],
   [smartd_suffix=; test "$enableval" = "yes" && smartd_suffix=".sample"],
@@ -1002,6 +1013,9 @@ info=`
       if test -n "$attributelog"; then
         echo "smartd attribute logs:  \`eval eval eval echo $attributelog\`MODEL-SERIAL.TYPE.csv"
       fi
+      if test -n "$jsonstate"; then
+        echo "smartd JSON state:      \`eval eval eval echo $jsonstate\`MODEL-SERIAL.TYPE.json"
+      fi
       ;;
 
     *)
@@ -1072,6 +1086,11 @@ info=`
         echo "smartd attribute logs:  \`eval eval eval echo $attributelog\`MODEL-SERIAL.TYPE.csv"
       else
         echo "smartd attribute logs:  [[disabled]]"
+      fi
+      if test -n "$jsonstate"; then
+        echo "smartd JSON state:      \`eval eval eval echo $jsonstate\`MODEL-SERIAL.TYPE.json"
+      else
+        echo "smartd JSON state:      [[disabled]]"
       fi
       case "$host_os" in
         linux*)
