@@ -26,6 +26,9 @@ endif
 if ENABLE_ATTRIBUTELOG
 AM_CPPFLAGS += -DSMARTMONTOOLS_ATTRIBUTELOG='"$(attributelog)"'
 endif
+if ENABLE_JSONSTATEDIR
+AM_CPPFLAGS += -DSMARTMONTOOLS_JSONSTATEDIR='"$(jsonstatedir)"'
+endif
 
 if OS_WIN32_MINGW
 AM_CPPFLAGS += -I$(srcdir)/os_win32
@@ -415,6 +418,11 @@ MAN_FILTER = { \
       sed 's|/usr/local/var/lib/smartmontools/attrlog\.|$(attributelog)|g' ; \
     else \
       sed '/^\.\\" %IF ENABLE_ATTRIBUTELOG/,/^\.\\" %ENDIF ENABLE_ATTRIBUTELOG/ s,^,.\\"\# ,' ; \
+    fi | \
+    if test -n '$(jsonstatedir)'; then \
+      sed 's|/usr/local/var/lib/smartmontools/smartd\.|$(jsonstatedir)|g' ; \
+    else \
+      sed '/^\.\\" %IF ENABLE_JSONSTATEDIR/,/^\.\\" %ENDIF ENABLE_JSONSTATEDIR/ s,^,.\\"\# ,' ; \
     fi | \
     if test -n '$(smartdplugindir)'; then \
       sed 's|/usr/local/etc/smartd_warning\.d|$(smartdplugindir)|g' ; \

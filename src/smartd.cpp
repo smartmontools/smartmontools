@@ -71,6 +71,7 @@ typedef int pid_t;
 #include <smartmon/knowndrives.h>
 #include <smartmon/scsicmds.h>
 #include <smartmon/nvmecmds.h>
+#include <smartmon/json.h>
 #include <smartmon/utility.h>
 #include <smartmon/sg_unaligned.h>
 
@@ -154,6 +155,13 @@ static std::string attrlog_path_prefix
           = SMARTMONTOOLS_ATTRIBUTELOG
 #endif
                                     ;
+
+// command-line: path prefix of JSON state file, empty if no JSON output.
+static std::string json_state_path_prefix
+#ifdef SMARTMONTOOLS_JSONSTATEDIR
+          = SMARTMONTOOLS_JSONSTATEDIR
+#endif
+                                        ;
 
 // configuration file name
 static const char * configfile;
@@ -370,6 +378,8 @@ struct dev_config
   std::string dev_idinfo;                 // Device identify info for warning emails and duplicate check
   std::string dev_idinfo_bc;              // Same without namespace id for duplicate check
   std::string state_file;                 // Path of the persistent state file, empty if none
+  std::string json_state_file;            // Path of the JSON state file, empty if none
+  char json_dev_type{};                   // 'a'=ATA, 's'=SCSI, 'n'=NVMe (set during device scan)
   std::string attrlog_file;               // Path of the persistent attrlog file, empty if none
   int checktime{};                        // Individual check interval, 0 if none
   bool ignore{};                          // Ignore this entry
@@ -513,6 +523,8 @@ struct temp_dev_state
 
   unsigned char temperature{};            // last recorded Temperature (in Celsius)
   time_t tempmin_delay{};                 // time where Min Temperature tracking will start
+
+  int smart_health_status{};              // 0=not checked, 1=passed, -1=failed
 
   bool removed{};                         // true if open() failed for removable device
 
@@ -900,6 +912,140 @@ static void write_nvme_attrlog(FILE * f, const dev_state & state)
     uile128_clamp_to_uint64(s.media_errors),
     uile128_clamp_to_uint64(s.num_err_log_entries)
   );
+}
+
+// Write a JSON state file for one device, using the same json tree builder
+// and field names as smartctl -j so consumers can share a single parser.
+static bool write_dev_state_json(const char * path, const dev_config & cfg,
+                                 const dev_state & state)
+{
+  std::string tmppath = path; tmppath += '~';
+
+  stdio_file f(tmppath.c_str(), "w");
+  if (!f) {
+    lib_printf("Cannot create JSON state file \"%s\"\n", tmppath.c_str());
+    return false;
+  }
+
+  json js;
+  js.enable();
+
+  js["json_format_version"][0] = 1;
+  js["json_format_version"][1] = 0;
+
+  js["device"]["name"] = cfg.name;
+  js["device"]["type"] = (cfg.json_dev_type == 'n' ? "nvme" :
+                          cfg.json_dev_type == 'a' ? "ata"  : "scsi");
+  if (!cfg.dev_idinfo.empty())
+    js["device"]["info_name"] = cfg.dev_idinfo;
+
+  js["local_time"]["time_t"] = (long long)time(nullptr);
+
+  if (state.smart_health_status > 0)
+    js["smart_status"]["passed"] = true;
+  else if (state.smart_health_status < 0)
+    js["smart_status"]["passed"] = false;
+
+  if (state.temperature) {
+    js["temperature"]["current"] = (int)state.temperature;
+    if (state.tempmin)
+      js["temperature"]["lifetime_min"] = (int)state.tempmin;
+    if (state.tempmax)
+      js["temperature"]["lifetime_max"] = (int)state.tempmax;
+  }
+
+  if (state.selflogcount) {
+    js["smartd_self_test_errors"]["count"] = (int)state.selflogcount;
+    if (state.selfloghour)
+      js["smartd_self_test_errors"]["last_lifetime_hours"] = state.selfloghour;
+  }
+
+  if (cfg.json_dev_type == 'a') {
+    if (state.ataerrorcount)
+      js["ata_smart_error_log"]["extended"]["count"] = state.ataerrorcount;
+
+    int ji = 0;
+    for (int i = 0; i < NUMBER_ATA_SMART_ATTRIBUTES; i++) {
+      const auto & pa = state.ata_attributes[i];
+      if (!pa.id)
+        continue;
+      json::ref jref = js["ata_smart_attributes"]["table"][ji++];
+      jref["id"] = (int)pa.id;
+      jref["value"] = (int)pa.val;
+      jref["worst"] = (int)pa.worst;
+      jref["raw"]["value"] = pa.raw;
+    }
+
+  } else if (cfg.json_dev_type == 'n') {
+    const nvme_smart_log & s = state.nvme_smartval;
+    json::ref jref = js["nvme_smart_health_information_log"];
+    jref["critical_warning"] = (int)s.critical_warning;
+    jref["available_spare"] = (int)s.avail_spare;
+    jref["available_spare_threshold"] = (int)s.spare_thresh;
+    jref["percentage_used"] = (int)s.percent_used;
+    jref["data_units_read"].set_unsafe_uile128(s.data_units_read);
+    jref["data_units_written"].set_unsafe_uile128(s.data_units_written);
+    jref["host_reads"].set_unsafe_uile128(s.host_reads);
+    jref["host_writes"].set_unsafe_uile128(s.host_writes);
+    jref["controller_busy_time"].set_unsafe_uile128(s.ctrl_busy_time);
+    jref["power_cycles"].set_unsafe_uile128(s.power_cycles);
+    jref["power_on_hours"].set_unsafe_uile128(s.power_on_hours);
+    jref["unsafe_shutdowns"].set_unsafe_uile128(s.unsafe_shutdowns);
+    jref["media_errors"].set_unsafe_uile128(s.media_errors);
+    jref["num_err_log_entries"].set_unsafe_uile128(s.num_err_log_entries);
+
+  } else if (cfg.json_dev_type == 's') {
+    const char * page_names[3] = {"read", "write", "verify"};
+    for (int k = 0; k < 3; k++) {
+      if (!state.scsi_error_counters[k].found)
+        continue;
+      const auto & ec = state.scsi_error_counters[k].errCounter;
+      json::ref jref = js["scsi_error_counter_log"][page_names[k]];
+      jref["errors_corrected_by_eccfast"] = ec.counter[0];
+      jref["errors_corrected_by_eccdelayed"] = ec.counter[1];
+      jref["errors_corrected_by_rereads_rewrites"] = ec.counter[2];
+      jref["total_errors_corrected"] = ec.counter[3];
+      jref["correction_algorithm_invocations"] = ec.counter[4];
+      jref["total_uncorrected_errors"] = ec.counter[6];
+    }
+    if (state.scsi_nonmedium_error.found && state.scsi_nonmedium_error.nme.gotPC0)
+      js["scsi_error_counter_log"]["non_medium_error"]["count"] = state.scsi_nonmedium_error.nme.counterPC0;
+  }
+
+  json::output_options opts;
+  opts.pretty = true;
+  opts.sorted = false;
+  js.output([&f](const char * str){ fputs(str, f); }, nullptr, opts);
+
+  f.close();
+  if (rename(tmppath.c_str(), path)) {
+    lib_printf("Cannot rename \"%s\" to \"%s\": %s\n", tmppath.c_str(), path, strerror(errno));
+    unlink(tmppath.c_str());
+    return false;
+  }
+
+  return true;
+}
+
+// Write JSON state files for devices that were checked this cycle.
+// If write_always is true (shutdown), write all devices regardless of dirty flag.
+static void write_all_dev_states_json(const dev_config_vector & configs,
+                                      dev_state_vector & states,
+                                      bool write_always = false)
+{
+  for (unsigned i = 0; i < states.size(); i++) {
+    const dev_config & cfg = configs.at(i);
+    if (cfg.json_state_file.empty())
+      continue;
+    dev_state & state = states[i];
+    if (!write_always && !state.attrlog_valid)
+      continue;
+    if (!write_dev_state_json(cfg.json_state_file.c_str(), cfg, state))
+      continue;
+    if (debugmode)
+      PrintOut(LOG_INFO, "Device: %s, JSON state written to %s\n",
+               cfg.name.c_str(), cfg.json_state_file.c_str());
+  }
 }
 
 // Write to the attrlog file
@@ -1633,6 +1779,7 @@ static const char *GetValidArgList(char opt)
 {
   switch (opt) {
   case 'A':
+  case 'J':
   case 's':
     return "<PATH_PREFIX>, -";
   case 'B':
@@ -1678,6 +1825,16 @@ static void Usage()
   PrintOut(LOG_INFO,"        Log attribute information to {PREFIX}MODEL-SERIAL.TYPE.csv\n");
 #ifdef SMARTMONTOOLS_ATTRIBUTELOG
   PrintOut(LOG_INFO,"        [default is " SMARTMONTOOLS_ATTRIBUTELOG "MODEL-SERIAL.TYPE.csv]\n");
+#endif
+  PrintOut(LOG_INFO,"\n");
+#ifdef SMARTMONTOOLS_JSONSTATEDIR
+  PrintOut(LOG_INFO,"  -J PREFIX|-, --jsonstate=PREFIX|-\n");
+#else
+  PrintOut(LOG_INFO,"  -J PREFIX, --jsonstate=PREFIX\n");
+#endif
+  PrintOut(LOG_INFO,"        Write JSON state to {PREFIX}MODEL-SERIAL.TYPE.json\n");
+#ifdef SMARTMONTOOLS_JSONSTATEDIR
+  PrintOut(LOG_INFO,"        [default is " SMARTMONTOOLS_JSONSTATEDIR "MODEL-SERIAL.TYPE.json]\n");
 #endif
   PrintOut(LOG_INFO,"\n");
   PrintOut(LOG_INFO,"  -B [+]FILE, --drivedb=[+]FILE\n");
@@ -2432,7 +2589,7 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
   // close file descriptor
   CloseDevice(atadev, name);
 
-  if (!state_path_prefix.empty() || !attrlog_path_prefix.empty()) {
+  if (!state_path_prefix.empty() || !attrlog_path_prefix.empty() || !json_state_path_prefix.empty()) {
     // Build file name for state file
     std::replace_if(model, model+strlen(model), not_allowed_in_filename, '_');
     std::replace_if(serial, serial+strlen(serial), not_allowed_in_filename, '_');
@@ -2447,6 +2604,10 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
     }
     if (!attrlog_path_prefix.empty())
       cfg.attrlog_file = strprintf("%s%s-%s.ata.csv", attrlog_path_prefix.c_str(), model, serial);
+    if (!json_state_path_prefix.empty()) {
+      cfg.json_state_file = strprintf("%s%s-%s.ata.json", json_state_path_prefix.c_str(), model, serial);
+      cfg.json_dev_type = 'a';
+    }
   }
 
   finish_device_scan(cfg, state);
@@ -2699,7 +2860,7 @@ static int SCSIDeviceScan(dev_config & cfg, dev_state & state, scsi_device * scs
   // close file descriptor
   CloseDevice(scsidev, device);
 
-  if (!state_path_prefix.empty() || !attrlog_path_prefix.empty()) {
+  if (!state_path_prefix.empty() || !attrlog_path_prefix.empty() || !json_state_path_prefix.empty()) {
     // Build file name for state file
     std::replace_if(model, model+strlen(model), not_allowed_in_filename, '_');
     std::replace_if(serial, serial+strlen(serial), not_allowed_in_filename, '_');
@@ -2714,6 +2875,10 @@ static int SCSIDeviceScan(dev_config & cfg, dev_state & state, scsi_device * scs
     }
     if (!attrlog_path_prefix.empty())
       cfg.attrlog_file = strprintf("%s%s-%s-%s.scsi.csv", attrlog_path_prefix.c_str(), vendor, model, serial);
+    if (!json_state_path_prefix.empty()) {
+      cfg.json_state_file = strprintf("%s%s-%s-%s.scsi.json", json_state_path_prefix.c_str(), vendor, model, serial);
+      cfg.json_dev_type = 's';
+    }
   }
 
   finish_device_scan(cfg, state);
@@ -2915,7 +3080,7 @@ static int NVMeDeviceScan(dev_config & cfg, dev_state & state, nvme_device * nvm
 
   CloseDevice(nvmedev, name);
 
-  if (!state_path_prefix.empty() || !attrlog_path_prefix.empty()) {
+  if (!state_path_prefix.empty() || !attrlog_path_prefix.empty() || !json_state_path_prefix.empty()) {
     // Build file name for state file
     std::replace_if(model, model+strlen(model), not_allowed_in_filename, '_');
     std::replace_if(serial, serial+strlen(serial), not_allowed_in_filename, '_');
@@ -2930,6 +3095,10 @@ static int NVMeDeviceScan(dev_config & cfg, dev_state & state, nvme_device * nvm
     }
     if (!attrlog_path_prefix.empty())
       cfg.attrlog_file = strprintf("%s%s-%s%s.nvme.csv", attrlog_path_prefix.c_str(), model, serial, nsstr);
+    if (!json_state_path_prefix.empty()) {
+      cfg.json_state_file = strprintf("%s%s-%s%s.nvme.json", json_state_path_prefix.c_str(), model, serial, nsstr);
+      cfg.json_dev_type = 'n';
+    }
   }
 
   finish_device_scan(cfg, state);
@@ -3739,6 +3908,7 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
   // check smart status
   if (cfg.smartcheck) {
     int status=ataSmartStatus2(atadev);
+    state.smart_health_status = (status == 1) ? -1 : (status == 0) ? 1 : 0;
     if (status==-1){
       PrintOut(LOG_INFO,"Device: %s, not capable of SMART self-check\n",name);
       MailWarning(cfg, state, 5, "Device: %s, not capable of SMART self-check", name);
@@ -3894,13 +4064,21 @@ static int SCSICheckDevice(const dev_config & cfg, dev_state & state, scsi_devic
     if (cp) {
       PrintOut(LOG_CRIT, "Device: %s, SMART Failure: %s\n", name, cp);
       MailWarning(cfg, state, 1,"Device: %s, SMART Failure: %s", name, cp);
+      state.smart_health_status = -1;
     } else if (asc == 4 && ascq == 9) {
       PrintOut(LOG_INFO,"Device: %s, self-test in progress\n", name);
-    } else if (debugmode)
-      PrintOut(LOG_INFO,"Device: %s, non-SMART asc,ascq: %d,%d\n",
-               name, (int)asc, (int)ascq);
-  } else if (debugmode)
-    PrintOut(LOG_INFO,"Device: %s, SMART health: passed\n", name);
+      state.smart_health_status = 1;
+    } else {
+      if (debugmode)
+        PrintOut(LOG_INFO,"Device: %s, non-SMART asc,ascq: %d,%d\n",
+                 name, (int)asc, (int)ascq);
+      state.smart_health_status = 1;
+    }
+  } else if (!state.SuppressReport) {
+    if (debugmode)
+      PrintOut(LOG_INFO,"Device: %s, SMART health: passed\n", name);
+    state.smart_health_status = 1;
+  }
 
   // check temperature limits
   if (cfg.tempdiff || cfg.tempinfo || cfg.tempcrit)
@@ -4141,6 +4319,7 @@ static int NVMeCheckDevice(const dev_config & cfg, dev_state & state, nvme_devic
       CloseDevice(nvmedev, name);
       PrintOut(LOG_INFO, "Device: %s, failed to read NVMe SMART/Health Information\n", name);
       MailWarning(cfg, state, 6, "Device: %s, failed to read NVMe SMART/Health Information", name);
+      state.smart_health_status = 0;
       state.must_write = true;
       return 0;
   }
@@ -4148,6 +4327,7 @@ static int NVMeCheckDevice(const dev_config & cfg, dev_state & state, nvme_devic
   // Check Critical Warning bits
   uint8_t w = smart_log.critical_warning, wm = w & cfg.smartcheck_nvme;
   if (wm) {
+    state.smart_health_status = -1;
     std::string msg;
     static const char * const wnames[8] = {
       "LowSpare", "Temperature", "Reliability", "R/O",
@@ -4173,6 +4353,8 @@ static int NVMeCheckDevice(const dev_config & cfg, dev_state & state, nvme_devic
     PrintOut(LOG_CRIT, "Device: %s, Critical Warning (0x%02x): %s\n", name, w, msg.c_str());
     MailWarning(cfg, state, 1, "Device: %s, Critical Warning (0x%02x): %s", name, w, msg.c_str());
     state.must_write = true;
+  } else if (cfg.smartcheck_nvme) {
+    state.smart_health_status = 1;
   }
 
   // Check some SMART/Health values
@@ -5446,7 +5628,7 @@ static int parse_options(int argc, char **argv)
 #endif
 
   // Please update GetValidArgList() if you edit shortopts
-  static const char shortopts[] = "c:l:q:dDni:p:r:s:A:B:w:Vh?"
+  static const char shortopts[] = "c:l:q:dDni:J:p:r:s:A:B:w:Vh?"
 #if defined(HAVE_POSIX_API) || defined(_WIN32)
                                                           "u:"
 #endif
@@ -5457,6 +5639,7 @@ static int parse_options(int argc, char **argv)
   // Please update GetValidArgList() if you edit longopts
   struct option longopts[] = {
     { "configfile",     required_argument, 0, 'c' },
+    { "jsonstate",      required_argument, 0, 'J' },
     { "logfacility",    required_argument, 0, 'l' },
     { "quit",           required_argument, 0, 'q' },
     { "debug",          no_argument,       0, 'd' },
@@ -5627,6 +5810,10 @@ static int parse_options(int argc, char **argv)
       // path prefix of attribute log file
       attrlog_path_prefix = (strcmp(optarg, "-") ? optarg : "");
       break;
+    case 'J':
+      // path prefix of JSON state file
+      json_state_path_prefix = (strcmp(optarg, "-") ? optarg : "");
+      break;
     case 'B':
       {
         const char * path = optarg;
@@ -5762,7 +5949,8 @@ static int parse_options(int argc, char **argv)
     // absolute path names are required due to chdir('/') in daemon_init()
     if (!(   check_abs_path('p', pid_file)
           && check_abs_path('s', state_path_prefix)
-          && check_abs_path('A', attrlog_path_prefix)))
+          && check_abs_path('A', attrlog_path_prefix)
+          && check_abs_path('J', json_state_path_prefix)))
       return EXIT_BADCMD;
   }
 #endif
@@ -6197,6 +6385,10 @@ static int main_worker(int argc, char **argv)
       write_all_dev_states(configs, states, write_states_always);
     write_states_always = false;
 
+    // Write JSON state files (before attrlogs which clear the dirty flag)
+    if (!json_state_path_prefix.empty())
+      write_all_dev_states_json(configs, states);
+
     // Write attribute logs
     if (!attrlog_path_prefix.empty())
       write_all_dev_attrlogs(configs, states);
@@ -6260,6 +6452,8 @@ static int main_worker(int argc, char **argv)
     // Write state files only on normal exit
     if (!status && !state_path_prefix.empty())
       write_all_dev_states(configs, states);
+    if (!status && !json_state_path_prefix.empty())
+      write_all_dev_states_json(configs, states, true /*write_always*/);
 
     // Delete PID file, if one was created
     if (!pid_file.empty() && unlink(pid_file.c_str()))
