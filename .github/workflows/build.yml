@@ -194,23 +194,23 @@ jobs:
           retention-days: 1
       - name: cleanup
         run: rm -rf smartmontools-${SMARTMONTOOLS_PKG_VER}
-      - name: FreeBSD 13 build
+      - name: FreeBSD 15 build
         run: |
           tar -xvf artifacts/smartmontools-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz &&
           cd smartmontools-${SMARTMONTOOLS_PKG_VER} &&
           mkdir build && cd build &&
-          export TARGET="-target x86_64-unknown-freebsd13 --sysroot=/opt/cross-freebsd-13/" &&
-          TARGET="$TARGET -isystem /opt/cross-freebsd-13/usr/include/c++/v1" &&
-          ../configure --host=x86_64-pc-freebsd13 --with-build-info='(GHA Build)' --enable-static-link \
+          export TARGET="-target x86_64-unknown-freebsd15 --sysroot=/opt/cross-freebsd-15/" &&
+          TARGET="$TARGET -isystem /opt/cross-freebsd-15/usr/include/c++/v1" &&
+          ../configure --host=x86_64-pc-freebsd15 --with-build-info='(GHA Build)' --enable-static-link \
             CC="clang $TARGET" CXX="clang++ $TARGET" SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
           make -j && make check &&
           mkdir -p ${GITHUB_WORKSPACE}/artifacts &&
-          make bin-dist bin_distfile="${GITHUB_WORKSPACE}/artifacts/smartmontools-freebsd-13-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz"
+          make bin-dist bin_distfile="${GITHUB_WORKSPACE}/artifacts/smartmontools-freebsd-15-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz"
       - name: Upload artifacts
         uses: actions/upload-artifact@v7
         with:
-          name: freebsd13
-          path: artifacts/smartmontools-freebsd-13-${{ needs.make-src-tgz.outputs.SMARTMONTOOLS_GIT_VER_FNAME }}.tar.gz
+          name: freebsd15
+          path: artifacts/smartmontools-freebsd-15-${{ needs.make-src-tgz.outputs.SMARTMONTOOLS_GIT_VER_FNAME }}.tar.gz
           retention-days: 1
 
   compile-windows:
