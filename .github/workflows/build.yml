@@ -337,7 +337,7 @@ jobs:
           private-key: ${{ secrets.PRIVATE_KEY }}
           owner: smartmontools
           repositories: smartmontools-builds
-      - name: gh create delete (clenup)
+      - name: gh create delete (cleanup)
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
         # cleanup release with the same name
