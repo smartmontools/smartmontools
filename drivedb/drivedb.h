@@ -7448,6 +7448,13 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  // Raspberry Pi
+  { "USB: Raspberry Pi USB Flash Drive; ",
+    "0x2e8a:0x0030",
+    "",
+    "",
+    "-d sat,12"
+  },
   // 0x2eb9 (?): See Realtek (0x0bda) above
   // KIOXIA (?)
   { "USB: ; ", // KIOXIA EXCERIA PLUS
