@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "VERSION: 7.5/6114 2026-03-14 16:43:06 +0000 ea5c2a0fd343",
+  { "VERSION: 7.5/6131 2026-04-16 14:41:09 +0000 9a9985f6690e",
     "-", "-",
     "Version information",
     ""
@@ -706,13 +706,15 @@ const drive_settings builtin_knowndrives[] = {
   { "Maxio based SSDs (variant 3)", // MAS1102
     "(128|256|512)GB SSD|"               // AZW M.2 SSD in Beelink Mini PCs, tested with 128GB SSD/SN12521, 512GB SSD/SN11986
     "V Series SATA SSD (120|240|250|480|500|960)GB|" // Integral V Series, tested with V Series SATA SSD 480GB/SN12521
+    "Lexar (512G|[12]T)B SSD|" // Lexar SL200, tested with Lexar 2TB SSD/SN13132
+    "Lexar SSD NQ100 (24|48|96)0GB|" // Lexar NQ100, tested with Lexar SSD NQ100 240GB/SN15926
     "Patriot Burst Elite (120|240|480|960|1920)GB|"  // Patriot Burst Elite 1920GB/H220916a
     "PNY 1TB SATA SSD|"                  // PNY CS900, tested with PNY 1TB SATA SSD/H220916a
         // also available with Phison and Silicon Motion controllers
     "Verbatim Vi550 S3|"                 // Verbatim Vi550 S3/H220916a (1TB)
         // also available with Silicon Motion controllers
     "Verbatim Vi560 S3",                 // Verbatim Vi560 S3/H220916a (1TB)
-    "SN1(19|25)[0-9]{2}|H2209[0-9]{2}a?", "",
+    "SN1(19|25|31|59)[0-9]{2}|H2209[0-9]{2}a?", "",
     "-v 5,raw16(raw16),New_Bad_Blk_Count "
   //"-v 9,raw24(raw8),Power_On_Hours "
   //"-v 12,raw48,Power_Cycle_Count "
@@ -1113,8 +1115,9 @@ const drive_settings builtin_knowndrives[] = {
       // Patriot Blaze/S9FM02, Patriot Flare/SBFM91.2, Patriot Ignite/SAFM01.7
     "Patriot Burst( (120|240|480|960)GB)?|" // tested with Patriot Burst/SBFM11.2,
       // Patriot Burst 480GB/SBFMLA.5
-    "PNY CS(900|1311|2211) ((12|24|48|50|96)0G|[12]T)B SSD|" // tested with PNY CS900 120GB SSD/CS900612,
-      // PNY CS900 240GB SSD/CS900613, PNY CS900 500GB SSD/CS900LA5, PNY CS900 500GB SSD/CS900Y13,
+    "PNY CS(900|1311|2211) ((12|2[45]|48|50|96)0G|[12]T)B SSD|" // tested with 
+      // PNY CS900 120GB SSD/CS900612, PNY CS900 240GB SSD/CS900613,
+      // PNY CS900 250GB SSD/CS900E00, PNY CS900 500GB SSD/CS900LA5, PNY CS900 500GB SSD/CS900Y13,
       // PNY CS900 1TB SSD/CS900615, PNY CS1311 120GB SSD/CS131122, PNY CS2211 240GB SSD/CS221016
     "PNY ELITE PSSD|" // tested with PNY ELITE PSSD/CS105P13 (240G)
     "S11-(128|256|512)G-PHISON-SSD-B27|" // tested with: S11-512G-PHISON-SSD-B27/SBFMJ1.3
@@ -2479,10 +2482,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Silicon Motion based SSDs",
     "ADATA_IMSS332-((008|016|032|064|128|256|512)G|001T)[AEMT]P?|" // tested with ADATA_IMSS332-128GTP/Q0810B
-    "ADATA (SP550|SU(630|650(NS38)?|655|[89]00))|" // tested with ADATA SP550/O0803B5a, ADATA SU630/S1127B0,
-      // ADATA SU650/S0212B0, ADATA SU650/V8X01c45, ADATA SU650/V8X21c64, ADATA SU650NS38/P191202a,
-      // ADATA SU655/V8X01c55, ADATA SU800/Q0913A, ADATA SU800/R0427A, ADATA SU800/R0918B, ADATA SU900/Q0125A,
-      // ADATA SU900/Q0710B
+    "ADATA (SP550|SU(63[05]|650(NS38)?|655|[89]00))|" // tested with ADATA SP550/O0803B5a,
+      // ADATA SU630/S1127B0, ADATA SU635/V8X04c12, ADATA SU650/S0212B0, ADATA SU650/V8X01c45,
+      // ADATA SU650/V8X21c64, ADATA SU650NS38/P191202a, ADATA SU655/V8X01c55, ADATA SU800/Q0913A,
+      // ADATA SU800/R0427A, ADATA SU800/R0918B, ADATA SU900/Q0125A, ADATA SU900/Q0710B
     "AMD R5SL512G|"// tested with AMD R5SL512G/V0929A0
     "CORSAIR FORCE LX SSD|" // tested with CORSAIR FORCE LX SSD/N0307A
     "CHN (25SATA01M|mSATAM3) (060|128|256|512)|" // Zheino A1/M3 tested with CHN 25SATA01M 060/20150529,
@@ -2522,7 +2525,6 @@ const drive_settings builtin_knowndrives[] = {
     "SED2QII-LP SATA SSD ((64|128|256|512)GB|[12]TB)|" // ACPI SED2QII-LP, tested with
       // SED2QII-LP SATA SSD 64GB/S0410A
     "SH00M(120|240|480)GB|" // Yucun R580, tested with SH00M120GB/R0817A0
-    "SP DS72|" // Silicon Power DS72, tested with SP DS72/Y0328A00 (2TB) (0x090c:0x2320)
     "T60|" // KingSpec T60, tested with T60/20151120
     "TCSUNBOW [MX]3 (60|120|240|480)GB|" // TC-Sunbow M3/X3, tested with TCSUNBOW M3 240GB/R0327B0,
       // TCSUNBOW X3 120GB/R1211A0, TCSUNBOW X3 480GB/S0509A0
@@ -2541,6 +2543,7 @@ const drive_settings builtin_knowndrives[] = {
     "TS(128G|256G|512G|1T|2T|4T)SSD230S|" // TS128GSSD230S/P1025F8, TS2TSSD230S/22Z4W14J
     "TS(120|240|480|960)GSSD220S|" // TS480GSSD220S/P0520AA
     "TS((64|128|256|512)G|[12]T)SSD452K|"// Transcend 452K, tested with TS128GSSD452K/02J0S86A
+    "TS((64|128|256|512)G|[12]T)MTS952T|"// Transcend MTS952T, tested with TS128GMTS952T/02J0S86A
     "TS((128|256|512)G|[124]T)SSD470K|"// Transcend 470K, tested with TS512GSSD470K/22Z2UCFS
     "TS(16G|32G|64G|128G|256G|512G|1T)MTS800S?|" // MTS800, tested with TS1TMTS800/O1225H1
     "TS(120|240|480|960)GMTS820S|" // Transcend 820S, tested with TS120GMTS820S/U1001A0
@@ -2575,8 +2578,6 @@ const drive_settings builtin_knowndrives[] = {
     "-v 167,raw48,Average_Erase_Count "
     "-v 168,raw48,Max_Erase_Count_of_Spec "
     "-v 169,raw48,Remaining_Lifetime_Perc "
-    "-v 172,raw48,Unkn_SiliconMotion_Attr " // SP DS72/Y0328A00
-    "-v 173,raw48,Unkn_SiliconMotion_Attr " // SP DS72/Y0328A00
   //"-v 175,raw48,Program_Fail_Count_Chip "
   //"-v 176,raw48,Erase_Fail_Count_Chip "
   //"-v 177,raw48,Wear_Leveling_Count "
@@ -2591,13 +2592,11 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 197,raw48,Current_Pending_Sector "
   //"-v 198,raw48,Offline_Uncorrectable "
   //"-v 199,raw48,UDMA_CRC_Error_Count "
-    "-v 218,raw48,Unkn_SiliconMotion_Attr " // SP DS72/Y0328A00
     "-v 225,raw48,Host_Writes_32MiB " // FW 20140402
     "-v 231,raw48,SSD_Life_Left " // KINGSTON SKC600256G/S4500105
   //"-v 232,raw48,Available_Reservd_Space "
     "-v 241,raw48,Host_Writes_32MiB "
     "-v 242,raw48,Host_Reads_32MiB "
-    "-v 244,raw48,Unkn_SiliconMotion_Attr " // SP DS72/Y0328A00
     "-v 245,raw48,TLC_Writes_32MiB " // FW N0815B, N1114H // TS128GMSA370I: Flash Write Sector Count
     "-v 246,raw48,SLC_Writes_32MiB "
     "-v 247,raw48,Raid_Recoverty_Ct "
@@ -2607,15 +2606,26 @@ const drive_settings builtin_knowndrives[] = {
     "-v 251,raw48,Unkn_SiliconMotion_Attr" // ADATA SU800/Q0913A
   },
   { "Silicon Motion based USB SSDs",
+    "ADATA SE880|" // tested with ADATA SE880/W0928BR0 (500GB) (0x090c:0xa11a)
+    "SP DS72|" // Silicon Power DS72, tested with SP DS72/Y0328A00 (2TB) (0x090c:0x2320)
     "TS((128|256|512)G|[12]T)ESD310[CPS]", // Transcend ESD310, tested with TS1TESD310C/W0807BMO (0x2174:0x2100)
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 9,raw24(raw8),Power_On_Hours "
   //"-v 12,raw48,Power_Cycle_Count "
+    "-v 160,raw48,Uncorrectable_Error_Cnt "
     "-v 161,raw48,Spare_Blocks_Remaining "
+    "-v 163,raw48,Initial_Bad_Block_Count "
+    "-v 164,raw48,Total_Erase_Count "
+    "-v 165,raw48,Max_Erase_Count "
+    "-v 166,raw48,Min_Erase_Count "
+    "-v 167,raw48,Average_Erase_Count "
+    "-v 168,raw48,Max_Erase_Count_of_Spec "
     "-v 169,raw48,Remaining_Lifetime_Perc "
     "-v 172,raw48,Erase_Fail_Count "
+    "-v 173,raw48,Unkn_SiliconMotion_Attr " // ADATA SE880/W0928BR0, SP DS72/Y0328A00
   //"-v 181,raw48,Program_Fail_Cnt_Total "
+  //"-v 182,raw48,Erase_Fail_Count_Total "
     "-v 187,raw48,Read_Fail_Count "
     "-v 192,raw48,Unexpect_Power_Loss_Cnt "
   //"-v 194,tempminmax,Temperature_Celsius "
@@ -2625,7 +2635,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 233,raw48,NAND_Writes_32MiB "
     "-v 241,raw48,Host_Writes_32MiB "
     "-v 242,raw48,Host_Reads_32MiB "
-    "-v 244,raw48,Avg_Erase_Count "
+    "-v 244,raw48,Average_Erase_Count "
     "-v 245,raw48,Max_Erase_Count "
     "-v 246,raw48,Total_Erase_Count "
   },
@@ -5242,12 +5252,13 @@ const drive_settings builtin_knowndrives[] = {
   { "Seagate IronWolf Pro", // tested with ST4000NE0025-2EW107/EN02, ST6000NE0023-2EX110/EN02,
       // ST6000NE000-2KR101/EN01, ST8000NE001-2M7101/EN01, ST8000NE0004-1ZF11G/EN01,
       // ST8000NE0021-2EN112/EN02, ST12000NT001-3LX101/EN01, ST16000NE000-2RW103/EN02,
-      // ST16000NT001-3LV101/EN01, ST18000NE000-3G6101/EN01, ST18000NT001-3LU101/EN01,
-      // ST24000NT002-3N1101/EN01
+      // ST16000NT001-3LV101/EN01, ST16000NT001-3MC101/EN01, ST18000NE000-3G6101/EN01,
+      // ST18000NT001-3LU101/EN01, ST24000NT002-3N1101/EN01
     "ST([24]000NE00([01]|25)|6000NE00(0|23)|8000NE00([01]|0[48]|21))-.*|"
     "ST(1[02468]|2[02])000NE(000[478]?)-.*|"
     "ST([2468]|1[02468]|2[024])000NT00[12]-.*",
     "", "",
+    "-v 1,raw24/raw32 -v 7,raw24/raw32 "
     "-v 18,raw48,Head_Health " // ST16000NE000, ST18000NT001
     "-v 188,raw16 "
     "-v 200,raw48,Pressure_Limit "
@@ -6444,9 +6455,9 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "" // unsupported
   },
-  { "USB: Crucial X9 Pro; ",
-    "0x0634:0x5603", // CT2000X9PROSSD9 (Crucial X9 Pro 2TB, SM2320 USB->NAND controller)
-    "", // 0x5603
+  { "USB: Crucial X9 Pro/X10; ",
+    "0x0634:0x560[37]", // 0x5603(0x5603): CT2000X9PROSSD9 (Crucial X9 Pro 2TB, SM2320 USB->NAND)
+    "", // 0x5607(0x5607): CT2000X10SSD9C (Crucial X10 2TB)
     "",
     "-d sntasmedia" // Partly emulates both ATA(SAT) and NVMe(ASMedia) diagnostics.
       // ATA: 'Device Model' is empty, NVMe: 'Number of Namespaces: 0'.
@@ -7438,6 +7449,13 @@ const drive_settings builtin_knowndrives[] = {
     "", // 0x0100
     "",
     "-d sat"
+  },
+  // Raspberry Pi
+  { "USB: Raspberry Pi USB Flash Drive; ",
+    "0x2e8a:0x0030",
+    "",
+    "",
+    "-d sat,12"
   },
   // 0x2eb9 (?): See Realtek (0x0bda) above
   // KIOXIA (?)
