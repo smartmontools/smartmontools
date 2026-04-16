@@ -8,7 +8,7 @@ on:
         required: false
         default: >-
           ubuntu-x86_64-gcc ubuntu-arm64-gcc ubuntu-x86_64-clang ubuntu-arm64-clang
-          darwin freebsd-14 windows-x86_64 cygwin
+          darwin freebsd-14 freebsd-15 windows-x86_64 cygwin
       cfg-options:
         description: "'configure' options to select library"
         required: false
@@ -297,6 +297,41 @@ jobs:
         with:
           name: smartmontools-freebsd-14-${{ github.event.inputs.suffix }}
           path: smartmontools-freebsd-14-${{ github.event.inputs.suffix }}-*.tar.gz
+          retention-days: 30
+
+  build-freebsd-15:
+    if: ${{ contains(github.event.inputs.platforms, 'freebsd-15') }}
+    needs: build-source-tarball
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/smartmontools/docker-build:master
+
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: smartmontools-src
+
+      - name: Build
+        run: |
+          distfile=$(ls -d smartmontools-*.tar.gz) && test "$(echo "$distfile" | wc -l)" = 1 &&
+          tar -xf "$distfile" &&
+          version_sh=$("${distfile%.tar.gz}/src/getversion.sh" -s) && eval "${version_sh}" &&
+          cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
+          target="-target x86_64-unknown-freebsd15 --sysroot=/opt/cross-freebsd-15/" &&
+          target="$target -isystem /opt/cross-freebsd-15/usr/include/c++/v1" &&
+          ../configure --build=$(../config.guess) --host=x86_64-pc-freebsd15 \
+            --with-build-info='(GHA/${{ github.event.inputs.suffix }})' \
+            ${{ github.event.inputs.cfg-options }} \
+            CC="clang $target" CXX="clang++ $target" \
+            SOURCE_DATE_EPOCH=$((SMARTMONTOOLS_GIT_REV_EPOCH + 1)) &&
+          make ${{ github.event.inputs.make-options }} && make check &&
+          bin_distfile="../../smartmontools-freebsd-15-${{ github.event.inputs.suffix }}-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" &&
+          make bin_distfile="$bin_distfile" bin-dist && tar -tvf "$bin_distfile"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: smartmontools-freebsd-15-${{ github.event.inputs.suffix }}
+          path: smartmontools-freebsd-15-${{ github.event.inputs.suffix }}-*.tar.gz
           retention-days: 30
 
   build-windows-x86_64:
