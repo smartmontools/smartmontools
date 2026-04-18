@@ -2925,24 +2925,63 @@ void linux_smart_interface::get_dev_list(smart_device_list & devlist,
 
     // Find basename and detect device type
     static const regular_expression regex(
-    //     1 2              3 4                5                6
-      "^.*/((sd[a-z][a-z]?)|((nvme[0-9][0-9]?)(n[1-9][0-9]*)?)|(hd[a-z]))$"
+    //     1 2              3 4                5                6         7
+      "^.*/((sd[a-z][a-z]?)|((nvme[0-9][0-9]?)(n[1-9][0-9]*)?)|(hd[a-z])|(sg[0-9]+))$"
     );
-    constexpr int nmatch = 1 + 6;
+    constexpr int nmatch = 1 + 7;
     regular_expression::match_range match[nmatch];
     if (!regex.execute(chk_name, match)) {
       if (debug)
         lib_printf("%s, %s: device type ignored\n", name, chk_name);
       continue;
     }
-    int mi = 2; // 2 = sd*, 4 = nvme* (without namespace), 6 = hd*
+    int mi = 2; // 2 = sd*, 4 = nvme* (without namespace), 6 = hd*, 7 = sg*
     if (!(   match[mi].rm_so >= 0
           || match[mi+=2].rm_so >= 0
-          || match[mi+=2].rm_so >= 0))
+          || match[mi+=2].rm_so >= 0
+          || match[mi+=1].rm_so >= 0))
       continue; // Should not happen
 
-    // Skip if duplicate basename
+
     std::string key(chk_name + match[mi].rm_so, match[mi].rm_eo - match[mi].rm_so);
+
+    // Skip sg devices unless they are disks with no upper level driver bound.
+    // These are RAID physical disks on some drivers (e.g. mptsas/mpt3sas).
+    if (mi == 7) {
+      std::string devdir = "/sys/class/scsi_generic/" + key + "/device/";
+
+      stdio_file ftype((devdir + "type").c_str(), "r");
+      // Sysfs not mounted or path is not a SCSI device?
+      if (!ftype)
+        continue;
+
+      if (fgetc(ftype) != '0' || fgetc(ftype) != '\n') {
+        if (scsi_debugmode)
+          lib_printf("%s, %s: Ignoring: not a disk\n", name, key.c_str());
+        continue;
+      }
+
+      // Ignore as duplicate if the device has a driver attached
+      if (!access((devdir + "driver").c_str(), R_OK)) {
+        if (scsi_debugmode)
+          lib_printf("%s, %s: Ignoring: has an upper level driver (scan as disk)\n", name, key.c_str());
+        continue;
+      }
+
+      // Ignore "Universal Xport" devices, as they show up as disks but are
+      // masked out in the kernel (see drivers/scsi/scsi_devinfo.c)
+      stdio_file fmodel((devdir + "model").c_str(), "r");
+      if (fmodel) {
+        char model[256];
+        if (fgets(model, sizeof(model), fmodel) && !strncmp(model, "Universal Xport", 15)) {
+          if (scsi_debugmode)
+            lib_printf("%s, %s: Ignoring: Universal Xport device\n", name, key.c_str());
+          continue;
+        }
+      }
+    }
+
+    // Skip if duplicate basename
     if (devs_seen.count(key)) {
       if (debug)
         lib_printf("%s, %s: duplicate ignored\n", name, key.c_str());
@@ -2952,7 +2991,7 @@ void linux_smart_interface::get_dev_list(smart_device_list & devlist,
 
     // Allocate device object
     smart_device * dev;
-    if (mi == 2 && type_scsi_sat) {
+    if ((mi == 2 || mi == 7) && type_scsi_sat) {
       if (!*type_scsi_sat) { // scsi, sat, usb*, snt*
         dev = autodetect_smart_device(name);
         if (!dev) {
@@ -3084,7 +3123,7 @@ bool linux_smart_interface::scan_smart_devices(smart_device_list & devlist,
     return set_err(EINVAL, "DEVICESCAN with pattern not implemented yet");
 
   // Scan type list
-  bool by_id = false, scan_megaraid = false, scan_sssraid = false;
+  bool by_id = false, scan_megaraid = false, scan_sssraid = false, scan_sg = false;
   const char * type_ata = nullptr, * type_scsi = nullptr, * type_sat = nullptr;
   const char * type_nvme = nullptr;
   for (unsigned i = 0; i < types.size(); i++) {
@@ -3103,10 +3142,12 @@ bool linux_smart_interface::scan_smart_devices(smart_device_list & devlist,
       scan_megaraid = true;
     else if (!strcmp(type, "sssraid"))
       scan_sssraid = true;
+    else if (!strcmp(type, "sg"))
+      scan_sg = true;
     else
       return set_err(EINVAL,
                      "Invalid type '%s', valid arguments are:"
-                     " by-id, ata, scsi, sat, nvme, megaraid, sssraid",
+                     " by-id, ata, scsi, sat, sg, nvme, megaraid, sssraid",
                      type);
   }
   // Use default if no type specified
@@ -3132,6 +3173,14 @@ bool linux_smart_interface::scan_smart_devices(smart_device_list & devlist,
   if (type_scsi_sat) {
     get_dev_list(devlist, "/dev/sd[a-z]", false, devs_seen, type_scsi_sat, nullptr);
     get_dev_list(devlist, "/dev/sd[a-z][a-z]", false, devs_seen, type_scsi_sat, nullptr);
+  }
+
+  if (scan_sg) {
+    if (!type_scsi_sat)
+      type_scsi_sat = ""; // detect both
+    get_dev_list(devlist, "/dev/sg[0-9]", false, devs_seen, type_scsi_sat, nullptr);
+    get_dev_list(devlist, "/dev/sg[0-9][0-9]", false, devs_seen, type_scsi_sat, nullptr);
+    get_dev_list(devlist, "/dev/sg[0-9][0-9][0-9]", false, devs_seen, type_scsi_sat, nullptr);
   }
 
   if (type_nvme) {
