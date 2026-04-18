@@ -2100,7 +2100,7 @@ found they will appear in the SMART error log, visible with the
 If the \*(Aq\-c\*(Aq option to \fBsmartctl\fP shows that the device has the
 "Suspend Offline collection upon new command" capability then you can
 track the progress of the Immediate Offline test using the \*(Aq\-c\*(Aq
-option to \fBsmartctl\fP.  If the \*(Aq\-c\*(Aq option show that the device
+option to \fBsmartctl\fP.  If the \*(Aq\-c\*(Aq option shows that the device
 has the "Abort Offline collection upon new command" capability then
 most commands will abort the Immediate Offline Test, so you should not
 try to track the progress of the test with \*(Aq\-c\*(Aq, as it will abort
