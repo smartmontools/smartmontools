@@ -18,17 +18,31 @@ added for ATA and NVMe.
 
 - `smartctl -j`: the new JSON values `scsi_self_test_status: {...}` have been added for SCSI.
 
-- The NVMe/SAT autodetection enabled by the options `-d snt*/sat` now also checks for nonempty
-NVMe identify controller data before assuming that a NVMe device is connected.
+- USB/NVMe/SAT: the NVMe/SAT autodetection enabled by the options `-d snt*/sat` now also
+checks for nonempty NVMe identify controller data before assuming that a NVMe device is
+connected.
 
-- Linux: `smartctl --scan -d by-id` and `DEVICESCAN -d by-id` now also include `/dev/by-id`
-links to NVMe devices.
-Duplicates, including multiple namespaces, are removed and option `-d nvme,0xffffffff` is set.
+- Linux: `smartctl --scan -d by-id` and `DEVICESCAN -d by-id` now also include
+`/dev/disk/by-id` links to NVMe devices.
+Duplicates, including multiple namespaces, are removed.
+The option `-d nvme,0xffffffff` is always set.
 
 - Linux: `smartctl --scan -d TYPE` and `DEVICESCAN -d TYPE` no longer include devices
 behind `megaraid` or `sssraid` controllers if `TYPE` is `sat` and/or `scsi`.
 The new scan options `-d megaraid` and `-d sssraid` have been added to include these.
 If no `-d TYPE` option is specified, these controllers are included as before.
+
+- Linux: `smartctl --scan` and `DEVICESCAN` now also scans for "hidden" disks behind `/dev/sg*`
+devices which do not have an associated `/dev/sd*` device.
+This detects physical disks of RAID volumes if the controller uses the mptsas/mpt3sas driver.
+It may also work with other drivers.
+For now, this experimental feature needs to be enabled with the scan option `-d sg`.
+
+- Windows installer: a GUI option and a command line flag (`/SO ...,syspath,...`) to add the
+installation directory to the System `PATH` instead of the User `PATH` has been added.
+
+- Windows installer: signed versions of the installer now also contain signed versions of
+all `*.exe` and `*.ps1` files.
 
 - HDD, SSD and USB entries have been added to the drive database.
 
@@ -38,7 +52,7 @@ has been enhanced to 2030-12-31.
 
 - Windows: `update-smart-drivedb.ps1`: now also works with the Cygwin and MSYS2 versions of
 `gpg`.
-One of these versions is assumed if the `cygpath` tool is in present in the same directory.
+One of these versions is assumed if the `cygpath` tool is present in the same directory.
 
 - `configure`: the new option `--enable-static-link` has been added to enable static linkage.
 It replaces `LDFLAGS=-static` which no longer works due to the usage of `libtool`.
@@ -58,7 +72,19 @@ The latter could still be used but will be removed in a future version of smartm
 information printed in the first output line.
 It is no longer needed to use `make BUILD_INFO='"(TEXT)"'` but still possible.
 
+- Reproducible builds: if `SOURCE_DATE_EPOCH` is passed to `configure`, it is now also
+exported to the environment during `make`.
+This requires that `make` supports `export` (GNU make) or `.export` (BSD make).
+
 ### What changed
+
+- `smartctl -l error`: now assumes that the NVMe Error Information log is missing if only one
+entry is reported.
+This log is mandatory but some devices which emulate NVMe SMART/Health Information do not
+provide it.
+
+- `smartd`: no longer ignores the signals `SIGINT`, `SIGQUIT`, `SIGHUP`, `SIGTERM` and
+`SIGUSR1` if ignored at startup.
 
 - The version information string of pre-release builds now uses the form `pre-X.Y-NNN` where
 `X.Y` is the version of the next release and `NNN` is the number of git commits since the
@@ -76,6 +102,9 @@ or to `X.Y.0.1000` for releases.
 - The source tree has been reorganized.
 The source directory `smartmontools` has been renamed to `src`.
 
+- `configure`: now fails if the option `--without-nvme-devicescan` is used.
+NVMe device scanning is now always enabled by default if supported.
+
 - Windows: `configure`: `LDFLAGS=-static -Wl,--nxcompat,--tsaware` is no longer automatically
 set for MinGW-w64 builds.
 The new option `--enable-static-link` is now required to build the Windows installer.
@@ -84,6 +113,12 @@ The new option `--enable-static-link` is now required to build the Windows insta
 Most `packed` structure attributes are no longer needed and have been removed.
 
 ### Bug fixes
+
+- `smartctl -i`: no longer prints bogus NVMe namespace features if no namespace is available.
+
+- `smartctl -j`: no longer outputs invalid UTF-8 sequences in strings.
+
+- `smartctl --json=y`: no longer leaves some reserved YAML strings unquoted.
 
 - `smartctl -l farm`: fixed null pointer dereference on unknown form factor value.
 
@@ -123,4 +158,4 @@ This will keep the `update-smart-drivedb` scripts of these versions functional.
 
 Please see
 [doc/old/NEWS-5.0-7.5.txt](https://github.com/smartmontools/smartmontools/blob/main/doc/old/NEWS-5.0-7.5.txt)
-for older versions.
+for older releases.
