@@ -3152,10 +3152,7 @@ bool linux_smart_interface::scan_smart_devices(smart_device_list & devlist,
   }
   // Use default if no type specified
   if (!(type_ata || type_scsi || type_sat || type_nvme || scan_megaraid || scan_sssraid)) {
-     type_ata = type_scsi = type_sat = "";
-#ifdef WITH_NVME_DEVICESCAN // TODO: Remove when NVMe support is no longer EXPERIMENTAL
-     type_nvme = "";
-#endif
+     type_ata = type_scsi = type_sat = type_nvme = "";
      scan_megaraid = scan_sssraid = true;
   }
 

@@ -1971,11 +1971,7 @@ bool freebsd_smart_interface::scan_smart_devices(smart_device_list & devlist,
     return false;
   }
 
-#ifdef WITH_NVME_DEVICESCAN // TODO: Remove when NVMe support is no longer EXPERIMENTAL
   bool scan_nvme = !type || !strcmp(type, "nvme");
-#else
-  bool scan_nvme = type &&  !strcmp(type, "nvme");
-#endif
 
   // Make namelists
   char * * atanames = 0; int numata = 0;

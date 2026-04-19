@@ -3,7 +3,7 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2004-25 Christian Franke
+ * Copyright (C) 2004-26 Christian Franke
  *
  * Original AACRaid code:
  *  Copyright (C) 2015    Nidhi Malhotra <nidhi.malhotra@pmcs.com>
@@ -4593,12 +4593,7 @@ bool win_smart_interface::scan_smart_devices(smart_device_list & devlist,
   // Set valid types
   bool ata, scsi, sat, usb, csmi, nvme;
   if (!type) {
-    ata = scsi = usb = sat = csmi = true;
-#ifdef WITH_NVME_DEVICESCAN // TODO: Remove when NVMe support is no longer EXPERIMENTAL
-    nvme = true;
-#else
-    nvme = false;
-#endif
+    ata = scsi = usb = sat = csmi = nvme = true;
   }
   else {
     ata = scsi = usb = sat = csmi = nvme = false;
