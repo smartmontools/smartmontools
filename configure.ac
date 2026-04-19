@@ -508,14 +508,6 @@ AC_ARG_WITH(nvme-devicescan,
   [AS_HELP_STRING([--with-nvme-devicescan@<:@=yes|no@:>@],
     [Include NVMe devices in smartctl --scan and smartd DEVICESCAN [yes]])])
 
-# TODO: Remove after smartmontools 7.5
-AC_ARG_WITH(signal-func,
-  [AS_HELP_STRING([--with-signal-func], [(removed)])],
-  [AC_MSG_ERROR([
-The option '--with-signal-func' is no longer supported.  If this option is
-still needed, please inform $PACKAGE_BUGREPORT.
-])])
-
 AC_ARG_WITH(cxx11-option,
   [AS_HELP_STRING([--with-cxx11-option=@<:@OPTION|auto|no@:>@],
     [Compiler option to enable C++11 support, 'no' to skip check [auto]])],
