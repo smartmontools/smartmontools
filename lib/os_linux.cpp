@@ -103,10 +103,12 @@ class linux_smart_device
 : virtual public /*implements*/ smart_device
 {
 public:
-  explicit linux_smart_device(int flags, int retry_flags = -1)
+  explicit linux_smart_device(int flags, int retry_flags = -1,
+                              bool enable_is_powered_down = false)
     : smart_device(never_called),
       m_fd(-1),
-      m_flags(flags), m_retry_flags(retry_flags)
+      m_flags(flags), m_retry_flags(retry_flags),
+      m_enable_is_powered_down(enable_is_powered_down)
       { }
 
   virtual ~linux_smart_device();
@@ -116,6 +118,8 @@ public:
   virtual bool open() override;
 
   virtual bool close() override;
+
+  virtual bool is_powered_down() override;
 
 protected:
   /// Return filedesc for derived classes.
@@ -129,6 +133,7 @@ private:
   int m_fd; ///< filedesc, -1 if not open.
   int m_flags; ///< Flags for ::open()
   int m_retry_flags; ///< Flags to retry ::open(), -1 if no retry
+  bool m_enable_is_powered_down; ///< Enable sysfs runtime power management check
 };
 
 linux_smart_device::~linux_smart_device()
@@ -182,6 +187,124 @@ bool linux_smart_device::close()
   return true;
 }
 
+// Helper: Read a single line from a sysfs file into a buffer.
+// Returns false if file doesn't exist or read fails, otherwise true.
+static bool read_sysfs_line(const char * dev_name, const char * sysfs_path,
+                             char * buffer, size_t buffer_size)
+{
+  // Open file using stdio_file wrapper
+  stdio_file f(sysfs_path, "r");
+  if (!f) {
+    // File doesn't exist or cannot be opened - caller will handle as "not available"
+    return false;
+  }
+
+  // Read file content (fgets includes trailing newline if present)
+  if (!fgets(buffer, buffer_size, f)) {
+    // Read error or EOF
+    if (ferror(f)) {
+      lib_printf("Device: %s, error reading %s\n",
+                 dev_name, sysfs_path);
+    }
+    return false;
+  }
+
+  // Strip trailing newline if present (fgets includes it)
+  size_t len = strlen(buffer);
+  if (len > 0 && buffer[len - 1] == '\n')
+    buffer[len - 1] = 0;
+
+  return true;
+}
+
+// Query OS if device is powered up or down using sysfs runtime power management.
+// Check /sys/block/sdX/device/power/control for "auto" mode, then
+// check /sys/block/sdX/device/power/runtime_status for "suspend*" status.
+// Fallback includes "hidden" SCSI generic devices.
+// Returns true if the device is suspended, false in any other case.
+bool linux_smart_device::is_powered_down()
+{
+  bool debug = (ata_debugmode || scsi_debugmode || nvme_debugmode);
+
+  // Feature must be explicitly enabled for supported device types
+  if (!m_enable_is_powered_down) {
+    return false;
+  }
+
+  // Resolve symlinks to get the actual device path
+  unique_malloced_ptr<char[]> resolved_path(realpath(get_dev_name(), nullptr));
+  if (!resolved_path) {
+    lib_printf("Device: %s, cannot resolve device path: %s\n",
+               get_dev_name(), strerror(errno));
+    return false;
+  }
+
+  // Extract basename from the resolved path
+  const char * dev_base = strrchr(resolved_path.get(), '/');
+  if (!dev_base) {
+    lib_printf("Device: %s, invalid resolved path (no /): %s\n",
+               get_dev_name(), resolved_path.get());
+    return false;
+  }
+  dev_base++;  // Skip past the '/'
+
+  // Validate device name is a simple basename without path components
+  if (strchr(dev_base, '/')) {
+    lib_printf("Device: %s, invalid device name format after resolution: %s\n",
+               get_dev_name(), resolved_path.get());
+    return false;
+  }
+
+  char sysfs_path[128], buffer[64];
+
+  // Try block device path first (handles sd, nvme, etc.)
+  snprintf(sysfs_path, sizeof(sysfs_path), "/sys/block/%s/device/power/control", dev_base);
+
+  // Fallback to SCSI generic path (handles hidden sg devices without sd attachment)
+  if (access(sysfs_path, R_OK) != 0) {
+    snprintf(sysfs_path, sizeof(sysfs_path), "/sys/class/scsi_generic/%s/device/power/control", dev_base);
+  }
+
+  // Read power control file
+  if (!read_sysfs_line(get_dev_name(), sysfs_path, buffer, sizeof(buffer))) {
+    // Runtime power management not available for this device
+    if (debug)
+      lib_printf("Device: %s, runtime power management not available\n", get_dev_name());
+    return false;
+  }
+
+  // Control must be exactly "auto" for runtime status to be meaningful
+  if (strcmp(buffer, "auto") != 0) {
+    if (debug)
+      lib_printf("Device: %s, runtime power management control mode is '%s', not 'auto', ignoring status!\n",
+                 get_dev_name(), buffer);
+    return false;
+  }
+
+  // Try block device path first (handles sd, nvme, etc.)
+  snprintf(sysfs_path, sizeof(sysfs_path), "/sys/block/%s/device/power/runtime_status", dev_base);
+
+  // Fallback to SCSI generic path (handles hidden sg devices without sd attachment)
+  if (access(sysfs_path, R_OK) != 0) {
+    snprintf(sysfs_path, sizeof(sysfs_path), "/sys/class/scsi_generic/%s/device/power/runtime_status", dev_base);
+  }
+
+  // Read runtime status file
+  if (!read_sysfs_line(get_dev_name(), sysfs_path, buffer, sizeof(buffer))) {
+    // Runtime status not available
+    if (debug)
+      lib_printf("Device: %s, runtime power management status not available\n", get_dev_name());
+    return false;
+  }
+
+  // Report runtime status
+  if (debug)
+    lib_printf("Device: %s, runtime power management status is '%s'\n", get_dev_name(), buffer);
+
+  // Check if device power status is "suspended" (or "suspending")
+  bool result = str_starts_with(buffer, "suspend");
+  return result;
+}
 // examples for smartctl
 static const char  smartctl_examples[] =
                   "=================================================== SMARTCTL EXAMPLES =====\n\n"
@@ -220,7 +343,7 @@ protected:
 
 linux_ata_device::linux_ata_device(smart_interface * intf, const char * dev_name, const char * req_type)
 : smart_device(intf, dev_name, "ata", req_type),
-  linux_smart_device(O_RDONLY | O_NONBLOCK)
+  linux_smart_device(O_RDONLY | O_NONBLOCK, -1, true)
 {
 }
 
@@ -814,7 +937,7 @@ linux_scsi_device::linux_scsi_device(smart_interface * intf,
 : smart_device(intf, dev_name, "scsi", req_type),
   // If opened with O_RDWR, a SATA disk in standby mode
   // may spin-up after device close().
-  linux_smart_device(O_RDONLY | O_NONBLOCK),
+  linux_smart_device(O_RDONLY | O_NONBLOCK, -1, true),
   m_scanning(scanning)
 {
 }
@@ -2695,7 +2818,7 @@ linux_nvme_device::linux_nvme_device(smart_interface * intf, const char * dev_na
   const char * req_type, unsigned nsid)
 : smart_device(intf, dev_name, (nsid ? strprintf("nvme,0x%x", nsid).c_str() : "nvme"), req_type),
   nvme_device(nsid),
-  linux_smart_device(O_RDONLY | O_NONBLOCK)
+  linux_smart_device(O_RDONLY | O_NONBLOCK, -1, true)
 {
 }
 

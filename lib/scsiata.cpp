@@ -122,6 +122,8 @@ public:
 
   virtual ~sat_device();
 
+  virtual bool is_powered_down() override;
+
   virtual smart_device * autodetect_open() override;
 
   virtual bool ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out) override;
@@ -161,6 +163,21 @@ sat_device::sat_device(smart_interface * intf, scsi_device * scsidev,
 
 sat_device::~sat_device()
 {
+}
+
+// Check if the underlying SCSI device is powered down
+bool sat_device::is_powered_down()
+{
+  // Get the underlying SCSI device and check its power state
+  scsi_device * scsidev = get_tunnel_dev();
+  if (!scsidev)
+    return false;
+
+  // Forward to is_powered_down() of the underlying SCSI device.
+  // On Linux, linux_scsi_device inherits from linux_smart_device which
+  // provides the implementation using sysfs runtime power management.
+  // On other platforms, the base class returns false (no OS PM support).
+  return scsidev->is_powered_down();
 }
 
 
