@@ -7,6 +7,9 @@
 # directory. To update these files at a later date use:
 #	autoreconf -f -i -v
 
+
+some bogus change to check if code rabbit works
+
 force=; warnings=
 while [ $# -gt 0 ]; do case $1 in
   --force) force=$1; shift ;;
