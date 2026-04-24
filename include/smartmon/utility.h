@@ -20,7 +20,10 @@
 #include <stdarg.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <memory>
+#include <new>
 #include <string>
 
 namespace smartmon {
@@ -149,6 +152,58 @@ const char * format_with_thousands_sep(char * str, int strsize, uint64_t val,
 // Format capacity with SI prefixes
 const char * format_capacity(char * str, int strsize, uint64_t val,
                              const char * decimal_point = 0);
+
+// Deleter for 'unique_malloced_ptr' below
+template<typename T>
+struct malloced_ptr_deleter {
+  void operator()(T * p)
+    {
+      SMARTMON_STATIC_ASSERT(std::is_trivial<T>::value);
+      free(p);
+    }
+};
+
+template<typename T>
+struct malloced_ptr_deleter<T[]> {
+  void operator()(T * p)
+    {
+      SMARTMON_STATIC_ASSERT(std::is_trivial<T>::value);
+      free(p);
+    }
+};
+
+/// Variant of 'unique_ptr' for pointers which require 'free()' instead of 'delete'
+template<typename T>
+using unique_malloced_ptr = std::unique_ptr<T, malloced_ptr_deleter<T>>;
+
+/// Resize the array at PTR to SIZE elements of type T, return false on error.
+template<typename T>
+bool realloc_malloced_ptr_nothrow(unique_malloced_ptr<T[]> & ptr, size_t size)
+{
+  if (size > SIZE_MAX / sizeof(T))
+    return false;
+  if (size == 0) {
+    // Call 'free()' because POSIX also allows that 'realloc(p, 0)' fails
+    ptr.reset();
+    return true;
+  }
+  T * p1 = ptr.release();
+  T * p2 = reinterpret_cast<T *>(realloc(p1, size * sizeof(T)));
+  if (!p2) {
+    ptr.reset(p1);
+    return false;
+  }
+  ptr.reset(p2);
+  return true;
+}
+
+/// Resize the array at PTR to SIZE elements of type T, throw on error.
+template<typename T>
+void realloc_malloced_ptr(unique_malloced_ptr<T[]> & ptr, size_t size)
+{
+  if (!realloc_malloced_ptr_nothrow(ptr, size))
+    throw std::bad_alloc();
+}
 
 // Wrapper class for a raw data buffer
 class raw_buffer
