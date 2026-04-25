@@ -444,6 +444,42 @@ const drive_settings builtin_knowndrives[] = {
     "-v 248,raw48,PCT_Life_Remaining "
     "-v 249,raw48,Spare_Block_Remaining "
   },
+  { "BIWIN Storage Technology SSDs",
+    "Acer SSD SA100 (12|24|48|96)0GB", // tested with Acer SSD SA100 240GB/W0419B0,
+      // Acer SSD SA100 480GB/U0302B0 and U0401A0
+    "[UW]0[34]..[AB]0", "",
+  //"-v 1,raw48,Raw_Read_Error_Rate "
+  //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
+  //"-v 9,raw24(raw8),Power_On_Hours "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 160,raw48,Uncorrectable_Sectors "
+    "-v 161,raw48,Valid_Spare_Block_Cnt "
+    "-v 163,raw48,Initial_Bad_Block_Count "
+    "-v 164,raw48,Total_Erase_Count "
+    "-v 165,raw48,Max_Erase_Count "
+    "-v 166,raw48,Min_Erase_Count "
+    "-v 167,raw48,Average_Erase_Count "
+    "-v 168,raw48,Max_Erase_Count_of_Spec "
+    "-v 169,raw48,Remaining_Lifetime_Perc "
+  //"-v 175,raw48,Program_Fail_Count_Chip "
+  //"-v 176,raw48,Erase_Fail_Count_Chip "
+  //"-v 177,raw48,Wear_Leveling_Count "
+    "-v 178,raw48,Runtime_Invalid_Blk_Cnt "
+  //"-v 181,raw48,Program_Fail_Cnt_Total "
+  //"-v 182,raw48,Erase_Fail_Count_Total "
+  //"-v 192,raw48,Power-Off_Retract_Count "
+    "-v 194,raw48,Device_Temperature "
+  //"-v 195,raw48,Hardware_ECC_Recovered "
+  //"-v 196,raw16(raw16),Reallocated_Event_Count "
+  //"-v 196,raw48,Reallocated_Event_Count "
+  //"-v 197,raw48,Current_Pending_Sector "
+  //"-v 198,raw48,Offline_Uncorrectable "
+  //"-v 199,raw48,UDMA_CRC_Error_Count "
+  //"-v 232,raw48,Available_Reservd_Space "
+  //"-v 241,raw48,Total_LBAs_Written "
+  //"-v 242,raw48,Total_LBAs_Read "
+    "-v 245,raw48,Flash_Writes_Sectors "
+  },
   { "Crucial/Micron RealSSD C300/P300", // Marvell 88SS9174
     "C300-CTFDDA[AC](064|128|256)MAG|" // tested with C300-CTFDDAC128MAG/0002,
       // C300-CTFDDAC064MAG/0006
@@ -645,6 +681,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 245,raw16(raw16),Bit_Error_Count"
   },
   { "Maxio based SSDs (variant 2)", // MAS0902, MAS1102
+    "Acer SSD SA100 (12|24|48|96)0GB|"               // tested with Acer SSD SA100 480GB/SN11873
     "Fanxiang S101 ((128|256|500|512)G|[124]T)B|"    // Fanxiang S101, tested with Fanxiang S101 2TB/SN14130
     "FORESEE ((128|256|512)G|[12]T)B SSD|"           // Foresee S58A, tested with FORESEE 512GB SSD/V1.2.7
     "HP SSD S600 (120|240)GB|"                       // tested with HP SSD S600 240GB/SN8108
