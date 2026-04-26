@@ -446,7 +446,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "BIWIN Storage Technology SSDs",
     "Acer SSD SA100 (12|24|48|96)0GB", // tested with Acer SSD SA100 240GB/W0419B0,
-      // Acer SSD SA100 480GB/U0302B0 and U0401A0
+      // Acer SSD SA100 480GB/U0302B0, Acer SSD SA100 480GB/U0401A0
     "[UW]0[34]..[AB]0", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
