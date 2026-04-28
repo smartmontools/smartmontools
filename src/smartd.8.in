@@ -213,6 +213,37 @@ The remaining part is protocol-specific:
 [NVMe: NEW EXPERIMENTAL SMARTD 7.5 FEATURE]
 Writes NVMe SMART/Health information as "name;value;".
 .TP
+.B \-j PREFIX, \-\-jsonstate=PREFIX
+[NEW EXPERIMENTAL SMARTD 8.0 FEATURE]
+Writes per-device JSON state files
+.br
+\*(AqPREFIX\*(Aq\*(AqMODEL\-SERIAL[\-NSID].PRT.json\*(Aq
+.br
+after each check cycle.
+For PREFIX, MODEL, SERIAL, NSID and PRT, see the \*(Aq\-A\*(Aq option above.
+.Sp
+The JSON output uses the same field names as \fBsmartctl\fP(8) \-j
+output where applicable (smart_status, temperature, ata_smart_attributes,
+nvme_smart_health_information_log, scsi_error_counter_log).
+This allows external tools to read cached SMART health data from
+the filesystem instead of running \fBsmartctl\fP for each device.
+.Sp
+Each file is replaced atomically against concurrent readers (write
+to temporary file, then rename), so readers always observe a complete
+previous or new document.
+Note that smartd does not \fBfsync\fP the data before the rename, so
+a crash may still leave an empty or truncated file after recovery.
+.Sp
+.\" %IF ENABLE_JSONSTATE
+If this option is not specified, JSON state files are written to
+.br
+\*(Aq/usr/local/var/lib/smartmontools/smartd-json.MODEL\-SERIAL[\-NSID].PRT.json\*(Aq.
+.br
+If \*(Aq\-\*(Aq is specified as the argument, JSON state files are
+disabled.
+.Sp
+.\" %ENDIF ENABLE_JSONSTATE
+.TP
 .B \-B [+]FILE, \-\-drivedb=[+]FILE
 [ATA only] Read the drive database from FILE.  The new database replaces
 the built in database by default.  If \*(Aq+\*(Aq is specified, then the new
