@@ -18,9 +18,22 @@ added for ATA and NVMe.
 
 - `smartctl -j`: the new JSON values `scsi_self_test_status: {...}` have been added for SCSI.
 
+- `smartd`: the new command line option `-j PREFIX, --jsonstate=PREFIX` has been added to write
+per-device JSON state files after each successful check cycle.
+The JSON syntax is aligned with `smartctl`.
+This lets external tools read cached health data without spawning `smartctl` for each device.
+See also `configure --with-jsonstate` below.
+
 - USB/NVMe/SAT: the NVMe/SAT autodetection enabled by the options `-d snt*/sat` now also
 checks for nonempty NVMe identify controller data before assuming that a NVMe device is
 connected.
+
+- Linux: a check of runtime power management has been added for ATA, SCSI and NVMe devices.
+If the `-n standby` option or directive is specified, `/sys/.../device/power/control` and
+`/sys/.../device/power/runtime_status` are checked before opening the device.
+If a `suspending` or `suspended` runtime status is indicated, the device is not accessed.
+This could prevent that a device open or a pass-through call that checks the actual powermode
+spins up a disk.
 
 - Linux: `smartctl --scan -d by-id` and `DEVICESCAN -d by-id` now also include
 `/dev/disk/by-id` links to NVMe devices.
@@ -54,6 +67,9 @@ has been enhanced to 2030-12-31.
 `gpg`.
 One of these versions is assumed if the `cygpath` tool is present in the same directory.
 
+- `configure`: the new option `--with-jsonstate` has been added to specify a default path for the
+new `smartd` command line option `-j PREFIX, --jsonstate=PREFIX`.
+
 - `configure`: the new option `--enable-static-link` has been added to enable static linkage.
 It replaces `LDFLAGS=-static` which no longer works due to the usage of `libtool`.
 
@@ -78,10 +94,11 @@ This requires that `make` supports `export` (GNU make) or `.export` (BSD make).
 
 ### What changed
 
-- `smartctl -l error`: now assumes that the NVMe Error Information log is missing if only one
-entry is reported.
+- NVMe: it is now assumed that the NVMe Error Information log is missing if only one entry is
+reported.
 This log is mandatory but some devices which emulate NVMe SMART/Health Information do not
 provide it.
+The decision could be overridden (only) for `smartctl` with the option `-l error,1`.
 
 - `smartd`: no longer ignores the signals `SIGINT`, `SIGQUIT`, `SIGHUP`, `SIGTERM` and
 `SIGUSR1` if ignored at startup.
@@ -114,7 +131,8 @@ Most `packed` structure attributes are no longer needed and have been removed.
 
 ### Bug fixes
 
-- `smartctl -i`: no longer prints bogus NVMe namespace features if no namespace is available.
+- `smartctl -c`: no longer prints bogus NVMe `Namespace Features` if no namespace is
+available.
 
 - `smartctl -j`: no longer outputs invalid UTF-8 sequences in strings.
 
