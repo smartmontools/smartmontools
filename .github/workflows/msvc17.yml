@@ -79,7 +79,7 @@ jobs:
     runs-on: ${{ fromJSON('["windows-latest", "windows-11-arm"]')[matrix.platform == 'ARM64'] }}
 
     steps:
-      - uses: microsoft/setup-msbuild@v2
+      - uses: microsoft/setup-msbuild@v3
 
       - uses: actions/download-artifact@v8
         with:
