@@ -15,7 +15,7 @@ jobs:
 
     steps:
       - name: Install MSYS2 and ${{matrix.env}} build tools
-        uses: msys2/setup-msys2@v2.29.0
+        uses: msys2/setup-msys2@v2
         with:
           release: false # try to re-use official MSYS2 GHA Runner Image
           msystem: ${{matrix.sys}}
