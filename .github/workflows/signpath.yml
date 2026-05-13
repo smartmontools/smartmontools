@@ -65,7 +65,7 @@ jobs:
       - name: Submit binaries to signpath.io to sign
         # Signing requests must be submitted from upstream repository
         if: ${{ github.repository == 'smartmontools/smartmontools' }}
-        uses: signpath/github-action-submit-signing-request@v1.1
+        uses: signpath/github-action-submit-signing-request@v2
         with:
           api-token: '${{ secrets.SIGNPATH_API_TOKEN }}'
           organization-id: 0924a018-22d7-47ea-b10c-7c84c08e8d55
@@ -109,7 +109,7 @@ jobs:
 
       - name: Submit installer to signpath.io to sign
         if: ${{ github.repository == 'smartmontools/smartmontools' }}
-        uses: signpath/github-action-submit-signing-request@v1.1
+        uses: signpath/github-action-submit-signing-request@v2
         with:
           api-token: '${{ secrets.SIGNPATH_API_TOKEN }}'
           organization-id: 0924a018-22d7-47ea-b10c-7c84c08e8d55
