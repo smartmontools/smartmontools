@@ -1171,7 +1171,25 @@ const drive_settings builtin_knowndrives[] = {
   },
   // this is a copy of the Phison bases record for the OEM drives with a very
   // weak information in the model. Detection is based on Firmware.
-  { "Phison Driven OEM SSDs", // see MKP_521_Phison_SMART_attribute.pdf
+ { "Phison MSD210 Series SSD",
+  "MSD210-M(4096|3840|2048|1920|1280|1024|960|512|480|320|256|128)GPSCB5UFI-S12[12]"
+  "|MST360-M8PS(4096|3840|2048|1920|1280|1024|960|512|480|320|256|128)GWB5UFI-S17T2"
+  "|M8(4096|3840|2048|1920|1280|1024|960|512|480|320|256|128)GB5UFI-S171",
+  "S[CH]F[DMI][0-9T][0-9]\\.[0-9]",
+  "",
+  "-v 2,raw48,Not_In_Use "
+  "-v 5,raw48,Retired_Block_Count "
+  "-v 168,raw48,SATA_Phy_Error_Count "
+  "-v 170,raw24/raw24:z54z10,Bad_Blk_Ct_Lat/Erl "
+  "-v 173,raw24/raw24:z10z32,Erase_Ct_Max/Avg "
+  "-v 192,raw48,Unsafe_Shutdown_Count "
+  "-v 199,raw48,CRC_Error_Count "
+  "-v 231,raw48,SSD_Life_Left "
+  "-v 233,raw48,Flash_Writes_GiB "
+  "-v 241,raw48,Lifetime_Writes_GiB "
+  "-v 242,raw48,Lifetime_Reads_GiB "
+},  
+{ "Phison Driven OEM SSDs", // see MKP_521_Phison_SMART_attribute.pdf
     "Gigastone SSD|" // tested with GSTB512G (Gigastone SSD/SHFM20.2)
     "GOODRAM|" // tested with GOODRAM CX200 (GOODRAM/SAFM12.2)
     "INTENSO|" // tested with Intenso SSD SATA III Top (INTENSO/S9FM02.6, .../SAFM01.6)
