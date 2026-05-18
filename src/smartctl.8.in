@@ -1,6 +1,6 @@
 .ig
 Copyright (C) 2002-10 Bruce Allen
-Copyright (C) 2004-25 Christian Franke
+Copyright (C) 2004-26 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
@@ -2019,10 +2019,10 @@ Run
 \fB/usr/local/sbin/update-smart-drivedb\fP
 .\" %ENDIF NOT OS Windows
 .\" %IF OS ALL
-(Windows: \fBEXEDIR/update-smart-drivedb.exe\fP)
+(Windows: \fBEXEDIR/update-smart-drivedb.ps1\fP)
 .\" %ENDIF OS ALL
 .\" %IF OS Windows
-.\"! \fBEXEDIR/update-smart-drivedb.exe\fP
+.\"! \fBEXEDIR/update-smart-drivedb.ps1\fP
 .\" %ENDIF OS Windows
 to update this file from the smartmontools SVN repository.
 .\" %ENDIF ENABLE_UPDATE_SMART_DRIVEDB
