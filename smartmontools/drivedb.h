@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "VERSION: 7.5/6131 2026-04-16 14:41:09 +0000 9a9985f6690e",
+  { "VERSION: 7.5/6157 2026-05-18 16:46:51 +0000 fc8d1c2488e8",
     "-", "-",
     "Version information",
     ""
@@ -645,6 +645,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 245,raw16(raw16),Bit_Error_Count"
   },
   { "Maxio based SSDs (variant 2)", // MAS0902, MAS1102
+    "Acer SSD SA100 (12|24|48|96|192)0GB|"           // tested with Acer SSD SA100 480GB/SN11873
     "Fanxiang S101 ((128|256|500|512)G|[124]T)B|"    // Fanxiang S101, tested with Fanxiang S101 2TB/SN14130
     "FORESEE ((128|256|512)G|[12]T)B SSD|"           // Foresee S58A, tested with FORESEE 512GB SSD/V1.2.7
     "HP SSD S600 (120|240)GB|"                       // tested with HP SSD S600 240GB/SN8108
@@ -1115,7 +1116,7 @@ const drive_settings builtin_knowndrives[] = {
       // Patriot Blaze/S9FM02, Patriot Flare/SBFM91.2, Patriot Ignite/SAFM01.7
     "Patriot Burst( (120|240|480|960)GB)?|" // tested with Patriot Burst/SBFM11.2,
       // Patriot Burst 480GB/SBFMLA.5
-    "PNY CS(900|1311|2211) ((12|2[45]|48|50|96)0G|[12]T)B SSD|" // tested with 
+    "PNY CS(900|1311|2211) ((12|2[45]|48|50|96)0G|[12]T)B SSD|" // tested with
       // PNY CS900 120GB SSD/CS900612, PNY CS900 240GB SSD/CS900613,
       // PNY CS900 250GB SSD/CS900E00, PNY CS900 500GB SSD/CS900LA5, PNY CS900 500GB SSD/CS900Y13,
       // PNY CS900 1TB SSD/CS900615, PNY CS1311 120GB SSD/CS131122, PNY CS2211 240GB SSD/CS221016
@@ -2660,7 +2661,10 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Silicon Motion based OEM SSDs", // Like 'Silicon Motion based SSDs' but with FW detection
     "240GB|" // from Lenovo T430 Thinkpad, tested with 240GB/P0510E
+    "Acer SSD SA100 (12|24|48|96|192)0GB|" // tested with Acer SSD SA100 240GB/W0419B0,
+      // Acer SSD SA100 480GB/U0401A0, Acer SSD SA100 480GB/U0302B0 (attributes 241/242: not 32MiB)
     "BR 64GB|" // tested with BR 64GB/U0309A0
+    "BIWIN SSD|" // tested with BIWIN SSD/SHY09A0 (128GB) (attributes 241/242: not 32MiB)
     "Dogfish SSD (128|256|512)GB|" // tested with Dogfish SSD 128GB/S1211A0
     "GIM(16|32|64|128|256|512)|"// GUDGA GIM, tested with GIM128/U0401A0
     "INTENSO( SSD)?|" // tested with INTENSO/S1211A0 (Portable SSD 256GB premium edition),
@@ -2671,9 +2675,11 @@ const drive_settings builtin_knowndrives[] = {
     "KingFast|" // tested with KingFast/P0725A (F6M), KingFast/S0424A0 (120GB), KingFast/S1128B0 (512GB)
     "KSM512|" // KingSpec, tested with KSM512/S0509A0
     "LDLC|" // tested with LDLC/KFS03005
+    "M\\.2 SSD (128|256|512)GB|" // tested with M.2 SSD 512GB/2109XKR (attributes 241/242: not 32MiB)
     "Netac MobileDataStar|" // tested with Netac MobileDataStar/HPS2227I (0x0dd8:0x0562)
     "ORICO|" // ORICO S500PRO, tested with ORICO/W0201A0 (2TB)
     "ORTIAL SSD|" // tested with ORTIAL SSD/U0202A0 (128GB)
+    "P3-(128|256|512|[124]TB)|" // Kingspec P3, tested with P3-256/U0329A0 (attributes 241/242: not 32MiB)
     "P4-(120|240|480|960)|" // Kingspec P4, tested with P4-240/VE0R6327
     "Patriot Burst Elite (120|240|480|960|1920)GB|"  // tested with Patriot Burst Elite 480GB/V1102A0, 960GB/V0414A0
     "PNY 1TB SATA SSD|" // PNY CS900, tested with PNY 1TB SATA SSD/Y0307B0,
@@ -2691,10 +2697,11 @@ const drive_settings builtin_knowndrives[] = {
     "Verbatim Vi550 S3|" // tested with Verbatim Vi550 S3/U1124A0 (128GB),
        // may also exist with different controllers (tickets #1626, #1629, #1774, #1930, GH issues/185),
     "Vi550 S3", // another variant (ticket #1899), tested with Vi550 S3/HP3418C5
+    "2109XKR|"
     "HP(3418C5|3C09BA|S2227I)|KFS03005|P0510E|P0725A|Q(0627|1107)A0|R(0529A|0817B0)|"
     "S(0222|0424|0509|0618|1211|1230)A0|S112[78]B0|T0(311|519|910)A0|"
-    "U(0202|0309|0401|0506|1124|1209)A0|V0((414|609|823)A|(303|718)B)0|V1(027|102)A0|VE0R6327|"
-    "W(0201|0413|0714|0825)A0|Y0(106A0|307B0)",
+    "U((0202|03[02]9|0401|0506|1124|1209)A|0302B)0|V0((414|609|823)A|(303|718)B)0|V1(027|102)A0|VE0R6327|"
+    "W((0201|0413|0714|0825)A|0419B)0|Y0(106A|307B)0|SHY09A0",
     "",
     "-v 148,raw48,Total_SLC_Erase_Ct "
     "-v 149,raw48,Max_SLC_Erase_Ct "
@@ -2807,9 +2814,9 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 194,tempminmax,Temperature_Celsius"
   },
   { "SSSTC ERX GD/CD Series SSDs", // Marvel DEAN 2.1
-    "(SSSTC|SATA) ER[2-9]-[CG]D(240|480|960|1920|3840|7680|15360)A?|" // tested with
+    "(SSSTC|SATA) ER[2-9]-[CG]D((240|480|960|1920|3840|7680|15360)G?|1T92|3T84)A?|" // tested with
       // SSSTC ER3-GD240/F2MRD0F, SSSTC ER2-GD480/E4N23021, SSSTC ER3-CD960A/F3MRD0Y,
-      // SSSTC ER2-CD1920A/E5MN401, SSSTC ER4-CD7680A/G62RD14
+      // SSSTC ER2-CD1920A/E5MN401, SSSTC ER4-CD7680A/G62RD14, SSSTC ER5-CD3T84A/H42RD02
     "AF[2-9]MA31DT[ED]LT(240|480|960|1920|3840|7680|15360)A?", // tested with
       // AF2MA31DTDLT240A/F2M96T0, AF3MA31DTELT240A/F2M9601
     "","",
@@ -5189,7 +5196,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 240,msec24hour32"
   },
   { "Seagate Exos Recertified (HAMR)", // tested with ST22000NM000C-3WC103/SN02,
-      // ST24000NM000C-3WD103/SN02, ST26000NM000C-3WE103/SN02
+      // ST24000NM000C-3WD103/SN02, ST26000NM000C-3WE103/SN02, ST26000NM000C-3WE103/SN05
       // HAMR based Factory Recertified Exos line
       // ST16000NM002C-3YG103/SN04
       // ST20000NM002C-3X6103/SN04
@@ -5657,9 +5664,10 @@ const drive_settings builtin_knowndrives[] = {
   { "Western Digital Blue (CMR)", // tested with WDC WD5000AZLX-00K4KA0/80.00A80,
       // WDC WD10EZEX-00RKKA0/80.00A80, WDC WD10EZEX-75M2NA0/01.01A01,
       // WDC WD40EZAX-00C8UB0/01.01A01, WDC WD40EZRZ-00WN9B0/80.00A80,
-      // WDC WD80EAAZ-22BXBB0/01.01A01. WDC WD80EAZZ-00BKLB0/80.00A80
+      // WDC WD50EZRZ-00GZ5B1/80.00A80,
+      // WDC WD80EAAZ-22BXBB0/01.01A01. WDC WD80EAZZ-00BKLB0/80.00A80,
       // APPLE HDD WDC WD10EALX-408EA0/07.01D03
-    "(APPLE HDD )?WDC WD((25|32|50)00AAKX|5000AZ(LX|RZ)|7500A(AL|ZE)X|[123468]0E(ALX|A[ARZ]Z|Z[AE]X|ZRZ))-.*",
+    "(APPLE HDD )?WDC WD((25|32|50)00AAKX|5000AZ(LX|RZ)|7500A(AL|ZE)X|[1-68]0E(ALX|A[ARZ]Z|Z[AE]X|ZRZ))-.*",
     "", "", ""
   },
   { "Western Digital Blue (SMR)", // tested with WDC WD40EZAZ-00SF3B0/80.00A80 (TRIM: zeroed),
@@ -5938,9 +5946,9 @@ const drive_settings builtin_knowndrives[] = {
       // WDC WD20NMVW-11W68S0/01.01A01,
       // WDC WD20NMVW-59AV3S3/01.01A01 (0x1058:0x107d),
       // WDC WD30NMVW-11C3NS4/01.01A01,
-      // WDC WD40NMZW-11GX6S1/01.01A01 (0x1058:0x2599/25e2/25fa)
-      // WDC WD50NDZW-11A8JS1/01.01A01 (0x1058:0x2627)
-      // WDC WD50NDZW-11MR8S1/02.01A02
+      // WDC WD40NMZW-11GX6S1/01.01A01 (0x1058:0x2599/25e2/25fa),
+      // WDC WD50NDZW-11A8JS1/01.01A01 (0x1058:0x2627),
+      // WDC WD50NDZW-11MR8S1/02.01A02,
       // WDC WD40NDZM-59A8KS1/01.01A01
     "WDC WD((5000[LK]|7500[BK]|10[JST]|[234]0N)M|50ND|40ND)[VZ][VWM]-.*", // *W-* = USB 3.0
     // Model numbers with "M" suffix denote the use of USB-C receptacles instead of Micro-B.
@@ -7165,8 +7173,8 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   { "USB: ; JMicron JMS581", // USB3.2->SATA+PCIe (NVMe)
-    "0x152d:0xb581",
-    "", // 0x4403: Unitek M.2 NVMe/SATA USB adapter
+    "0x152d:0x[ab]581",  // 0xa581 (0x0210),
+    "", // 0xb581 (0x4403): Unitek M.2 NVMe/SATA USB adapter
     "",
     "-d sntjmicron/sat"
   },
@@ -7410,6 +7418,12 @@ const drive_settings builtin_knowndrives[] = {
     "-d sntrealtek"
   },
   // Longsys Electronics / Lexar
+  { "USB: Lexar SL200; ",
+    "0x21c4:0x00c8",
+    "", // 0x0310
+    "",
+    "-d sat"
+  },
   { "USB: Lexar E6; JMicron",
     "0x21c4:0xb06a", // Lexar E6 LPAE06N-RNBNG NVMe enclosure
     "", // 0x0214
