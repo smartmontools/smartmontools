@@ -645,6 +645,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 245,raw16(raw16),Bit_Error_Count"
   },
   { "Maxio based SSDs (variant 2)", // MAS0902, MAS1102
+    "Acer SSD SA100 (12|24|48|96|192)0GB|"           // tested with Acer SSD SA100 480GB/SN11873
     "Fanxiang S101 ((128|256|500|512)G|[124]T)B|"    // Fanxiang S101, tested with Fanxiang S101 2TB/SN14130
     "FORESEE ((128|256|512)G|[12]T)B SSD|"           // Foresee S58A, tested with FORESEE 512GB SSD/V1.2.7
     "HP SSD S600 (120|240)GB|"                       // tested with HP SSD S600 240GB/SN8108
@@ -2660,6 +2661,8 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "Silicon Motion based OEM SSDs", // Like 'Silicon Motion based SSDs' but with FW detection
     "240GB|" // from Lenovo T430 Thinkpad, tested with 240GB/P0510E
+    "Acer SSD SA100 (12|24|48|96|192)0GB|" // tested with Acer SSD SA100 240GB/W0419B0,
+      // Acer SSD SA100 480GB/U0401A0, Acer SSD SA100 480GB/U0302B0 (attributes 241/242: not 32MiB)
     "BR 64GB|" // tested with BR 64GB/U0309A0
     "BIWIN SSD|" // tested with BIWIN SSD/SHY09A0 (128GB) (attributes 241/242: not 32MiB)
     "Dogfish SSD (128|256|512)GB|" // tested with Dogfish SSD 128GB/S1211A0
@@ -2697,8 +2700,8 @@ const drive_settings builtin_knowndrives[] = {
     "2109XKR|"
     "HP(3418C5|3C09BA|S2227I)|KFS03005|P0510E|P0725A|Q(0627|1107)A0|R(0529A|0817B0)|"
     "S(0222|0424|0509|0618|1211|1230)A0|S112[78]B0|T0(311|519|910)A0|"
-    "U(0202|03[02]9|0401|0506|1124|1209)A0|V0((414|609|823)A|(303|718)B)0|V1(027|102)A0|VE0R6327|"
-    "W(0201|0413|0714|0825)A0|Y0(106A0|307B0)|SHY09A0",
+    "U((0202|03[02]9|0401|0506|1124|1209)A|0302B)0|V0((414|609|823)A|(303|718)B)0|V1(027|102)A0|VE0R6327|"
+    "W((0201|0413|0714|0825)A|0419B)0|Y0(106A|307B)0|SHY09A0",
     "",
     "-v 148,raw48,Total_SLC_Erase_Ct "
     "-v 149,raw48,Max_SLC_Erase_Ct "
