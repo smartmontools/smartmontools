@@ -2661,6 +2661,7 @@ const drive_settings builtin_knowndrives[] = {
   { "Silicon Motion based OEM SSDs", // Like 'Silicon Motion based SSDs' but with FW detection
     "240GB|" // from Lenovo T430 Thinkpad, tested with 240GB/P0510E
     "BR 64GB|" // tested with BR 64GB/U0309A0
+    "BIWIN SSD|" // tested with BIWIN SSD/SHY09A0 (128GB) (attributes 241/242: not 32MiB)
     "Dogfish SSD (128|256|512)GB|" // tested with Dogfish SSD 128GB/S1211A0
     "GIM(16|32|64|128|256|512)|"// GUDGA GIM, tested with GIM128/U0401A0
     "INTENSO( SSD)?|" // tested with INTENSO/S1211A0 (Portable SSD 256GB premium edition),
@@ -2696,7 +2697,7 @@ const drive_settings builtin_knowndrives[] = {
     "HP(3418C5|3C09BA|S2227I)|KFS03005|P0510E|P0725A|Q(0627|1107)A0|R(0529A|0817B0)|"
     "S(0222|0424|0509|0618|1211|1230)A0|S112[78]B0|T0(311|519|910)A0|"
     "U(0202|0309|0401|0506|1124|1209)A0|V0((414|609|823)A|(303|718)B)0|V1(027|102)A0|VE0R6327|"
-    "W(0201|0413|0714|0825)A0|Y0(106A0|307B0)",
+    "W(0201|0413|0714|0825)A0|Y0(106A0|307B0)|SHY09A0",
     "",
     "-v 148,raw48,Total_SLC_Erase_Ct "
     "-v 149,raw48,Max_SLC_Erase_Ct "
