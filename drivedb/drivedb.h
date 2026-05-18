@@ -2676,6 +2676,7 @@ const drive_settings builtin_knowndrives[] = {
     "Netac MobileDataStar|" // tested with Netac MobileDataStar/HPS2227I (0x0dd8:0x0562)
     "ORICO|" // ORICO S500PRO, tested with ORICO/W0201A0 (2TB)
     "ORTIAL SSD|" // tested with ORTIAL SSD/U0202A0 (128GB)
+    "P3-(128|256|512|[124]TB)|" // Kingspec P3, tested with P3-256/U0329A0 (attributes 241/242: not 32MiB)
     "P4-(120|240|480|960)|" // Kingspec P4, tested with P4-240/VE0R6327
     "Patriot Burst Elite (120|240|480|960|1920)GB|"  // tested with Patriot Burst Elite 480GB/V1102A0, 960GB/V0414A0
     "PNY 1TB SATA SSD|" // PNY CS900, tested with PNY 1TB SATA SSD/Y0307B0,
@@ -2696,7 +2697,7 @@ const drive_settings builtin_knowndrives[] = {
     "2109XKR|"
     "HP(3418C5|3C09BA|S2227I)|KFS03005|P0510E|P0725A|Q(0627|1107)A0|R(0529A|0817B0)|"
     "S(0222|0424|0509|0618|1211|1230)A0|S112[78]B0|T0(311|519|910)A0|"
-    "U(0202|0309|0401|0506|1124|1209)A0|V0((414|609|823)A|(303|718)B)0|V1(027|102)A0|VE0R6327|"
+    "U(0202|03[02]9|0401|0506|1124|1209)A0|V0((414|609|823)A|(303|718)B)0|V1(027|102)A0|VE0R6327|"
     "W(0201|0413|0714|0825)A0|Y0(106A0|307B0)|SHY09A0",
     "",
     "-v 148,raw48,Total_SLC_Erase_Ct "
