@@ -7165,8 +7165,8 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   { "USB: ; JMicron JMS581", // USB3.2->SATA+PCIe (NVMe)
-    "0x152d:0xb581",
-    "", // 0x4403: Unitek M.2 NVMe/SATA USB adapter
+    "0x152d:0x[ab]581",  // 0xa581 (0x0210),
+    "", // 0xb581 (0x4403): Unitek M.2 NVMe/SATA USB adapter
     "",
     "-d sntjmicron/sat"
   },
