@@ -546,15 +546,23 @@ static void print_smart_log(const nvme_smart_log & smart_log,
         jref["temperature_sensors"][i] = k - 273;
     }
   }
-  if (show_all || smart_log.thm_temp1_trans_count)
-    pout("Thermal Temp. 1 Transition Count:   %d\n", smart_log.thm_temp1_trans_count);
-  if (show_all || smart_log.thm_temp2_trans_count)
-    pout("Thermal Temp. 2 Transition Count:   %d\n", smart_log.thm_temp2_trans_count);
-  if (show_all || smart_log.thm_temp1_total_time)
-    pout("Thermal Temp. 1 Total Time:         %d\n", smart_log.thm_temp1_total_time);
-  if (show_all || smart_log.thm_temp2_total_time)
-    pout("Thermal Temp. 2 Total Time:         %d\n", smart_log.thm_temp2_total_time);
-  pout("\n");
+
+  // Thermal management values are optional (NVMe 1.3)
+  if (   show_all
+      || smart_log.thm_temp1_trans_count || smart_log.thm_temp1_total_time
+      || smart_log.thm_temp2_trans_count || smart_log.thm_temp2_total_time) {
+    jout("Thermal Temp. 1 Transition Count:   %d\n", smart_log.thm_temp1_trans_count);
+    jout("Thermal Temp. 1 Total Time:         %d\n", smart_log.thm_temp1_total_time);
+    jout("Thermal Temp. 2 Transition Count:   %d\n", smart_log.thm_temp2_trans_count);
+    jout("Thermal Temp. 2 Total Time:         %d\n", smart_log.thm_temp2_total_time);
+    jref += {
+      { "thermal_mgmt_temperature_1_transition_count", smart_log.thm_temp1_trans_count },
+      { "thermal_mgmt_temperature_1_total_time", smart_log.thm_temp1_total_time },
+      { "thermal_mgmt_temperature_2_transition_count", smart_log.thm_temp2_trans_count },
+      { "thermal_mgmt_temperature_2_total_time", smart_log.thm_temp2_total_time }
+    };
+  }
+  jout("\n");
 }
 
 static void print_error_log(const nvme_error_log_page * error_log,
