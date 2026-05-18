@@ -7410,6 +7410,12 @@ const drive_settings builtin_knowndrives[] = {
     "-d sntrealtek"
   },
   // Longsys Electronics / Lexar
+  { "USB: Lexar SL200; ",
+    "0x21c4:0x00c8",
+    "", // 0x0310
+    "",
+    "-d sat"
+  },
   { "USB: Lexar E6; JMicron",
     "0x21c4:0xb06a", // Lexar E6 LPAE06N-RNBNG NVMe enclosure
     "", // 0x0214
