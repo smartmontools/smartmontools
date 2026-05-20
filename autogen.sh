@@ -2,18 +2,55 @@
 #
 # autogen.sh
 #
+# Home page of code is: https://www.smartmontools.org
+#
+# Copyright (C) 2003    Guido Guenther
+# Copyright (C) 2003-08 Bruce Allen
+# Copyright (C) 2004-26 Christian Franke
+#
+# SPDX-License-Identifier: GPL-2.0-or-later
+#
+
 # Generate ./configure from configure.ac and Makefile.in from Makefile.am.
 # This also adds files like missing,depcomp,install-sh to the source
-# directory. To update these files at a later date use:
-#	autoreconf -f -i -v
+# directory.
 
-force=; warnings=
+# Missing double quotes around $warnings and $v are intentional
+# shellcheck disable=SC2086
+
+set -e
+
+myname=$0
+
+clean=false; force=false; v=; warnings=
 while [ $# -gt 0 ]; do case $1 in
-  --force) force=$1; shift ;;
-  --warnings=?*) warnings="${warnings} $1"; shift ;;
+  -v) v=-v ;;
+  --clean) clean=true ;;
+  --force) force=true ;;
+  --warnings=?*) warnings="${warnings}${warnings:+ }$1" ;;
   *) echo "Usage: [AUTOMAKE=...] [ACLOCAL=...] [LIBTOOLIZE=...] \\"
-     echo "       $0 [--force] [--warnings=CATEGORY ...]"; exit 1 ;;
-esac; done
+     echo "       $0 [-v] [--force] [--warnings=CATEGORY ...]";
+     echo "       $0 [-v] [--clean]"; exit 1 ;;
+esac; shift; done
+
+error()
+{
+  echo "$myname: $*" >&2
+  exit 1
+}
+
+test "${myname%/*}" = "." || error "Not run from \${srcdir}"
+
+if $clean || $force; then
+  rm -f $v \
+    aclocal.m4 compile configure configure~ config.guess config.h.in \
+    config.h.in~ config.sub depcomp install-sh ltmain.sh missing \
+    m4/libtool.m4 m4/libtool.m4~ m4/lt*.m4 m4/lt*.m4~ m4/pkg.m4 \
+    Makefile.in include/Makefile.in lib/Makefile.in src/Makefile.in
+  rm -f -r $v autom4te.cache
+  test ! -d m4 || rmdir $v m4 || exit 1
+  $force || exit 0
+fi
 
 # Check for CR/LF line endings
 if od -A n -t x1 src/smartctl.h | grep ' 0d' >/dev/null; then
@@ -25,23 +62,17 @@ if [ -n "$AUTOMAKE" ]; then
   ver=$("$AUTOMAKE" --version) || exit 1
 else
   maxver=
-  for v in 1.18 1.17 1.16 1.15 1.14 1.13; do
-    minver=$v; test -n "$maxver" || maxver=$v
-    ver=$(automake-$v --version 2>/dev/null) || continue
-    AUTOMAKE="automake-$v"
+  for i in 1.18 1.17 1.16 1.15 1.14 1.13; do
+    minver=$i; test -n "$maxver" || maxver=$i
+    ver=$(automake-$i --version 2>/dev/null) || continue
+    AUTOMAKE="automake-$i"
     break
   done
-  if [ -z "$AUTOMAKE" ]; then
-    echo "GNU Automake $minver (up to $maxver) is required"
-    exit 1
-  fi
+  test -n "$AUTOMAKE" || error "GNU Automake $minver (up to $maxver) is required"
 fi
 
 ver=$(echo "$ver" | sed -n '1s,^.*[^.0-9]\([12]\.[0-9][-.0-9pl]*\).*$,\1,p')
-if [ -z "$ver" ]; then
-  echo "$AUTOMAKE: Unable to determine automake version."
-  exit 1
-fi
+test -n "$ver" || error "$AUTOMAKE: Unable to determine automake version"
 
 # Check aclocal
 if [ -z "$ACLOCAL" ]; then
@@ -72,13 +103,15 @@ case "$ver" in
     echo "Please report success/failure to the smartmontools-support mailing list."
 esac
 
-set -e	# stops on error status
-
-test -z "$warnings" || set -x
+vrun()
+{
+  test -z "$v" || echo "$*"
+  "$@"
+}
 
 # Same order as 'autoreconf --install'
-"$ACLOCAL" --install $force $warnings
-"$LIBTOOLIZE" --copy $force $warnings
-autoconf $force $warnings
-autoheader $force $warnings
-"$AUTOMAKE" --add-missing --copy ${force:+--force-missing} $warnings
+vrun "$ACLOCAL" --install $warnings
+vrun "$LIBTOOLIZE" --copy $warnings
+vrun autoconf $warnings
+vrun autoheader $warnings
+vrun "$AUTOMAKE" --add-missing --copy $warnings
