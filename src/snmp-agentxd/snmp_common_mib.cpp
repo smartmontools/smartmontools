@@ -12,23 +12,6 @@
 #include <net-snmp/agent/net-snmp-agent-includes.h>
 
 // ---------------------------------------------------------------------------
-// Utility: encode time_t as 8-byte DateAndTime (local time)
-// ---------------------------------------------------------------------------
-static void encode_date_time(time_t t, uint8_t out[8]) {
-    struct tm *tm = localtime(&t);
-    if (!tm) { memset(out, 0, 8); return; }
-    uint16_t year = (uint16_t)(tm->tm_year + 1900);
-    out[0] = (uint8_t)(year >> 8);
-    out[1] = (uint8_t)(year & 0xff);
-    out[2] = (uint8_t)(tm->tm_mon + 1);
-    out[3] = (uint8_t)tm->tm_mday;
-    out[4] = (uint8_t)tm->tm_hour;
-    out[5] = (uint8_t)tm->tm_min;
-    out[6] = (uint8_t)tm->tm_sec;
-    out[7] = 0;
-}
-
-// ---------------------------------------------------------------------------
 // Device table iterator
 // ---------------------------------------------------------------------------
 
@@ -94,7 +77,7 @@ device_table_handler(netsnmp_mib_handler *,
         }
         case COL_DEV_LAST_POLL: {
             uint8_t dt[8];
-            encode_date_time(row->last_poll_time, dt);
+            snmp_encode_date_time(row->last_poll_time, dt);
             snmp_set_var_typed_value(req->requestvb, ASN_OCTET_STR, dt, 8);
             break;
         }
@@ -200,7 +183,7 @@ device_last_change_handler(netsnmp_mib_handler *,
                             netsnmp_request_info *requests) {
     if (reqinfo->mode != MODE_GET) return SNMP_ERR_NOERROR;
     uint8_t dt[8];
-    encode_date_time(g_cache.ts_device_table, dt);
+    snmp_encode_date_time(g_cache.ts_device_table, dt);
     snmp_set_var_typed_value(requests->requestvb, ASN_OCTET_STR, dt, sizeof(dt));
     return SNMP_ERR_NOERROR;
 }

@@ -139,7 +139,6 @@ static std::string readlink_normalized(const std::string &link_path) {
 // For NVMe controllers (/dev/nvme0) also match namespace block devices
 // (/dev/nvme0n<N>) because disk/by-* links point to the namespace.
 static std::string collect_by_disk_uris(const std::string &dev_path,
-                                         const std::string &dev_name,
                                          DeviceProto proto) {
     static const char *by_dirs[] = {
         "/dev/disk/by-id",
@@ -187,7 +186,6 @@ static std::string collect_by_disk_uris(const std::string &dev_path,
         }
         closedir(d);
     }
-    (void)dev_name;
     return result;
 }
 
@@ -218,7 +216,7 @@ static void populate_device_uris(CacheDeviceRow &row, DeviceProto proto) {
         append_uri(uris, sysfs);
 
     // /dev/disk/by-id and /dev/disk/by-path stable symlinks
-    std::string by_uris = collect_by_disk_uris(row.path, row.name, proto);
+    std::string by_uris = collect_by_disk_uris(row.path, proto);
     if (!by_uris.empty()) {
         if (!uris.empty()) uris += ' ';
         uris += by_uris;
@@ -239,7 +237,6 @@ static void populate_device_uris(CacheDeviceRow &row, DeviceProto proto) {
 // We reverse only the leading '/dev/' segment here, which is all we need for
 // the display path stored in CacheDeviceRow.
 static bool decode_state_filename(const std::string &basename,
-                                  std::string &dev_path,
                                   DeviceProto &proto) {
     // Determine type suffix and strip it
     struct { const char *suffix; DeviceProto proto; } types[] = {
@@ -265,11 +262,6 @@ static bool decode_state_filename(const std::string &basename,
         return false;
     }
 
-    // Everything between the first '.' (after the prefix) and the type suffix
-    // is the encoded device name. We don't attempt full decoding — we just
-    // expose it as-is. The actual path comes from parsing the JSON.
-    (void)basename;
-    dev_path = ""; // filled in from JSON "device.name"
     if (g_verbosity >= 1)
         syslog(LOG_DEBUG, "datasrc: accepted '%s' (suffix='%s')", basename.c_str(), type_suffix);
     return true;
@@ -312,6 +304,15 @@ static bool state_dir_has_json(const std::string &dir) {
 // ---------------------------------------------------------------------------
 // JSON → cache: individual protocol parsers
 // ---------------------------------------------------------------------------
+
+static std::string format_wwn(const JVal &wwn) {
+    char buf[64];
+    snprintf(buf, sizeof(buf), "%llu %07llX %010llX",
+        (unsigned long long)wwn["naa"].as_uint64(),
+        (unsigned long long)wwn["oui"].as_uint64(),
+        (unsigned long long)wwn["id"].as_uint64());
+    return buf;
+}
 
 static int health_status_from_passed(const JVal &root) {
     // SmartmonHealthStatus: 1=passed, 2=failed, 0=unknown
@@ -415,8 +416,8 @@ static void parse_nvme(uint32_t dev_idx, const JVal &root) {
 
     // Sensor rows: composite temperature, available spare, percentage used,
     // then per-sensor temperatures from temperature_sensors[]
+    time_t now = time(nullptr);
     {
-        time_t now = time(nullptr);
         uint32_t sidx = 1;
 
         // Sensor 1: composite temperature
@@ -792,19 +793,16 @@ static void parse_nvme(uint32_t dev_idx, const JVal &root) {
     }
 
     // Update last-change timestamps
-    {
-        time_t now_ts = time(nullptr);
-        g_cache.ts_device_table       = now_ts;
-        g_cache.ts_nvme_controller    = now_ts;
-        g_cache.ts_nvme_namespace     = now_ts;
-        g_cache.ts_nvme_health        = now_ts;
-        g_cache.ts_nvme_selftest      = now_ts;
-        g_cache.ts_nvme_error_log     = now_ts;
-        g_cache.ts_nvme_capability    = now_ts;
-        g_cache.ts_nvme_power_state   = now_ts;
-        g_cache.ts_nvme_lba_format    = now_ts;
-        g_cache.ts_sensor             = now_ts;
-    }
+    g_cache.ts_device_table       = now;
+    g_cache.ts_nvme_controller    = now;
+    g_cache.ts_nvme_namespace     = now;
+    g_cache.ts_nvme_health        = now;
+    g_cache.ts_nvme_selftest      = now;
+    g_cache.ts_nvme_error_log     = now;
+    g_cache.ts_nvme_capability    = now;
+    g_cache.ts_nvme_power_state   = now;
+    g_cache.ts_nvme_lba_format    = now;
+    g_cache.ts_sensor             = now;
 }
 
 static void parse_ata(uint32_t dev_idx, const JVal &root) {
@@ -1017,14 +1015,8 @@ static void parse_ata(uint32_t dev_idx, const JVal &root) {
         info.serial_number       = root["serial_number"].as_string();
         info.firmware_version    = root["firmware_version"].as_string();
         const JVal &wwn = root["wwn"];
-        if (!wwn.is_null()) {
-            char buf[64];
-            snprintf(buf, sizeof(buf), "%llu %07llX %010llX",
-                (unsigned long long)wwn["naa"].as_uint64(),
-                (unsigned long long)wwn["oui"].as_uint64(),
-                (unsigned long long)wwn["id"].as_uint64());
-            info.wwn = buf;
-        }
+        if (!wwn.is_null())
+            info.wwn = format_wwn(wwn);
         info.ata_version_string  = root["ata_version"]["string"].as_string();
         info.sata_version_string = root["sata_version"]["string"].as_string();
         info.rotation_rate       = static_cast<uint32_t>(root["rotation_rate"].as_uint64());
@@ -1241,14 +1233,8 @@ static void parse_scsi(uint32_t dev_idx, const JVal &root) {
         info.compliance          = root["scsi_version"].as_string();
         info.serial_number       = root["serial_number"].as_string();
         const JVal &wwn2 = root["wwn"];
-        if (!wwn2.is_null()) {
-            char buf[64];
-            snprintf(buf, sizeof(buf), "%llu %07llX %010llX",
-                (unsigned long long)wwn2["naa"].as_uint64(),
-                (unsigned long long)wwn2["oui"].as_uint64(),
-                (unsigned long long)wwn2["id"].as_uint64());
-            info.wwn = buf;
-        }
+        if (!wwn2.is_null())
+            info.wwn = format_wwn(wwn2);
         info.scsi_model_name     = root["scsi_model_name"].as_string();
         if (info.scsi_model_name.empty())
             info.scsi_model_name = info.vendor + " " + info.product;
@@ -1471,9 +1457,8 @@ static void scan_state_dir() {
         std::string name = ent->d_name;
         if (name == "." || name == "..") continue;
         ++n_total;
-        std::string dev_path;
         DeviceProto proto;
-        if (!decode_state_filename(name, dev_path, proto)) continue;
+        if (!decode_state_filename(name, proto)) continue;
         ++n_accepted;
         process_json_file(s_state_dir + "/" + name);
     }
@@ -1552,9 +1537,8 @@ void agentxd_datasrc_handle_events() {
             if (ev->len == 0) continue;
             std::string name = ev->name;
 
-            std::string dev_path;
             DeviceProto proto;
-            if (!decode_state_filename(name, dev_path, proto)) continue;
+            if (!decode_state_filename(name, proto)) continue;
 
             process_json_file(s_state_dir + "/" + name);
         }

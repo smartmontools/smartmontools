@@ -32,23 +32,6 @@
 #include <net-snmp/agent/net-snmp-agent-includes.h>
 
 // ---------------------------------------------------------------------------
-// Utility: encode time_t as 8-byte DateAndTime (local time)
-// ---------------------------------------------------------------------------
-static void sensor_encode_date_time(time_t t, uint8_t out[8]) {
-    struct tm *tm = localtime(&t);
-    if (!tm) { memset(out, 0, 8); return; }
-    uint16_t year = (uint16_t)(tm->tm_year + 1900);
-    out[0] = (uint8_t)(year >> 8);
-    out[1] = (uint8_t)(year & 0xff);
-    out[2] = (uint8_t)(tm->tm_mon + 1);
-    out[3] = (uint8_t)tm->tm_mday;
-    out[4] = (uint8_t)tm->tm_hour;
-    out[5] = (uint8_t)tm->tm_min;
-    out[6] = (uint8_t)tm->tm_sec;
-    out[7] = 0;
-}
-
-// ---------------------------------------------------------------------------
 // Iterator callbacks
 // ---------------------------------------------------------------------------
 
@@ -129,7 +112,7 @@ sensor_handler(netsnmp_mib_handler *,
                     (u_char*)row->units_display.c_str(),
                     row->units_display.size()); break;
         case 10: { uint8_t dt[8];
-                   sensor_encode_date_time(row->timestamp, dt);
+                   snmp_encode_date_time(row->timestamp, dt);
                    snmp_set_var_typed_value(req->requestvb, ASN_OCTET_STR,
                        dt, sizeof(dt)); break; }
         case 11: { u_long v = (u_long)row->update_rate;
@@ -202,7 +185,7 @@ sensor_last_change_handler(netsnmp_mib_handler *,
                             netsnmp_request_info *requests) {
     if (reqinfo->mode != MODE_GET) return SNMP_ERR_NOERROR;
     uint8_t dt[8];
-    sensor_encode_date_time(g_cache.ts_sensor, dt);
+    snmp_encode_date_time(g_cache.ts_sensor, dt);
     snmp_set_var_typed_value(requests->requestvb, ASN_OCTET_STR, dt, sizeof(dt));
     return SNMP_ERR_NOERROR;
 }
