@@ -2,6 +2,7 @@
 
 #include "agentxd_datasrc.h"
 #include "agentxd_cache.h"
+#include "agentxd_config.h"
 #include "agentxd_json.h"
 
 #include <algorithm>
@@ -102,13 +103,20 @@ static bool decode_state_filename(const std::string &basename,
             break;
         }
     }
-    if (!type_suffix) return false;
+    if (!type_suffix) {
+        if (g_verbosity >= 1)
+            syslog(LOG_DEBUG, "datasrc: skip '%s' (no recognized .TYPE.json suffix)",
+                   basename.c_str());
+        return false;
+    }
 
     // Everything between the first '.' (after the prefix) and the type suffix
     // is the encoded device name. We don't attempt full decoding — we just
     // expose it as-is. The actual path comes from parsing the JSON.
     (void)basename;
     dev_path = ""; // filled in from JSON "device.name"
+    if (g_verbosity >= 1)
+        syslog(LOG_DEBUG, "datasrc: accepted '%s' (suffix='%s')", basename.c_str(), type_suffix);
     return true;
 }
 
@@ -208,7 +216,11 @@ static void parse_nvme(uint32_t dev_idx, const JVal &root) {
         g_cache.nvme_lba_formats.end());
 
     const JVal &log = root["nvme_smart_health_information_log"];
-    if (log.is_null()) return;
+    if (log.is_null()) {
+        if (g_verbosity >= 1)
+            syslog(LOG_DEBUG, "datasrc: NVMe dev_idx=%u: nvme_smart_health_information_log missing — no sensors or health data", dev_idx);
+        return;
+    }
 
     CacheNvmeHealthRow h;
     h.device_index          = dev_idx;
@@ -254,7 +266,10 @@ static void parse_nvme(uint32_t dev_idx, const JVal &root) {
 
         // Sensor 1: composite temperature
         const JVal &temp_val = log["temperature"];
-        if (!temp_val.is_null()) {
+        if (temp_val.is_null()) {
+            if (g_verbosity >= 1)
+                syslog(LOG_DEBUG, "datasrc: NVMe dev_idx=%u: sensor[1] Composite skipped (temperature field null)", dev_idx);
+        } else {
             CacheSensorRow sr;
             sr.device_index  = dev_idx;
             sr.sensor_index  = sidx++;
@@ -282,6 +297,11 @@ static void parse_nvme(uint32_t dev_idx, const JVal &root) {
                     }
                 }
             }
+            if (g_verbosity >= 2)
+                syslog(LOG_DEBUG, "datasrc: NVMe dev_idx=%u: sensor[1] Composite temp=%d°C warn=%s(%d) crit=%s(%d)",
+                       dev_idx, sr.value,
+                       sr.has_high_warning  ? "yes" : "no", sr.high_warning,
+                       sr.has_high_critical ? "yes" : "no", sr.high_critical);
             g_cache.sensors.push_back(sr);
         }
 
@@ -301,6 +321,9 @@ static void parse_nvme(uint32_t dev_idx, const JVal &root) {
             sr.timestamp       = now;
             sr.has_low_warning = true;
             sr.low_warning     = static_cast<int32_t>(h.available_spare_thresh);
+            if (g_verbosity >= 2)
+                syslog(LOG_DEBUG, "datasrc: NVMe dev_idx=%u: sensor[2] AvailableSpare value=%d%% low_warn=%d%%",
+                       dev_idx, sr.value, sr.low_warning);
             g_cache.sensors.push_back(sr);
         }
 
@@ -318,13 +341,19 @@ static void parse_nvme(uint32_t dev_idx, const JVal &root) {
             sr.oper_status   = 1;
             sr.units_display = "percent";
             sr.timestamp     = now;
+            if (g_verbosity >= 2)
+                syslog(LOG_DEBUG, "datasrc: NVMe dev_idx=%u: sensor[3] PercentageUsed value=%d%%",
+                       dev_idx, sr.value);
             g_cache.sensors.push_back(sr);
         }
 
         // Sensors 10+: individual temperature sensors
         // NVMe spec provides no per-sensor thresholds; apply the composite threshold to all
         const JVal &tsensors = log["temperature_sensors"];
-        if (tsensors.is_array()) {
+        if (!tsensors.is_array()) {
+            if (g_verbosity >= 2)
+                syslog(LOG_DEBUG, "datasrc: NVMe dev_idx=%u: temperature_sensors not present (no per-sensor rows)", dev_idx);
+        } else {
             const JVal &thr = root["nvme_composite_temperature_threshold"];
             for (std::size_t i = 0; i < tsensors.size(); ++i) {
                 const JVal &tv = tsensors[i];
@@ -355,6 +384,9 @@ static void parse_nvme(uint32_t dev_idx, const JVal &root) {
                         sr.high_critical     = static_cast<int32_t>(crit.as_int64());
                     }
                 }
+                if (g_verbosity >= 2)
+                    syslog(LOG_DEBUG, "datasrc: NVMe dev_idx=%u: sensor[%zu] '%s' temp=%d°C",
+                           dev_idx, 10 + i, sr.name.c_str(), sr.value);
                 g_cache.sensors.push_back(sr);
             }
         }
@@ -658,6 +690,8 @@ static void parse_ata(uint32_t dev_idx, const JVal &root) {
         g_cache.sata_error_cmds.end());
 
     const JVal &attrs = root["ata_smart_attributes"]["table"];
+    if (!attrs.is_array() && g_verbosity >= 1)
+        syslog(LOG_DEBUG, "datasrc: ATA dev_idx=%u: ata_smart_attributes.table missing or not array", dev_idx);
     if (attrs.is_array()) {
         for (std::size_t i = 0; i < attrs.size(); ++i) {
             const JVal &a = attrs[i];
@@ -712,6 +746,14 @@ static void parse_ata(uint32_t dev_idx, const JVal &root) {
             if (a.attr_id == 194) { temp_attr = &a; break; }
             if (a.attr_id == 190 && !temp_attr) temp_attr = &a;
         }
+        if (!temp_attr) {
+            if (g_verbosity >= 1)
+                syslog(LOG_DEBUG, "datasrc: ATA dev_idx=%u: no temp attr (id 190/194) — sensor table will be empty for this device", dev_idx);
+        } else {
+            if (g_verbosity >= 2)
+                syslog(LOG_DEBUG, "datasrc: ATA dev_idx=%u: using attr id=%u raw_value=%lld for temperature sensor",
+                       dev_idx, temp_attr->attr_id, (long long)temp_attr->raw_value);
+        }
         if (temp_attr) {
             CacheSensorRow sr;
             sr.device_index  = dev_idx;
@@ -729,16 +771,21 @@ static void parse_ata(uint32_t dev_idx, const JVal &root) {
             sr.timestamp     = time(nullptr);
             {
                 uint32_t rrate = static_cast<uint32_t>(root["rotation_rate"].as_uint64());
-                if (rrate > 0) {
-                    // Rotating HDD: use operational thresholds per industry recommendation
+                if (rrate > 1) {
+                    // Rotating HDD: rotation_rate >1 means actual RPM (ATA spec: 1 = SSD/non-rotating)
                     sr.has_high_warning  = true;  sr.high_warning  = 45;
                     sr.has_high_critical = true;  sr.high_critical = 60;
                     sr.has_low_warning   = true;  sr.low_warning   = 5;
                     sr.has_low_critical  = true;  sr.low_critical  = 1;
+                    if (g_verbosity >= 2)
+                        syslog(LOG_DEBUG, "datasrc: ATA dev_idx=%u: HDD thresholds applied (rrate=%u)", dev_idx, rrate);
                 } else {
                     // SSD: use manufacturer thresholds from JSON temperature object
                     const JVal &tmp = root["temperature"];
-                    if (!tmp.is_null()) {
+                    if (tmp.is_null()) {
+                        if (g_verbosity >= 2)
+                            syslog(LOG_DEBUG, "datasrc: ATA dev_idx=%u: SSD, temperature object absent — no thresholds", dev_idx);
+                    } else {
                         const JVal &op_max = tmp["op_limit_max"];
                         if (!op_max.is_null()) {
                             sr.has_high_warning = true;
@@ -759,9 +806,19 @@ static void parse_ata(uint32_t dev_idx, const JVal &root) {
                             sr.has_low_critical = true;
                             sr.low_critical     = static_cast<int32_t>(lim_min.as_int64());
                         }
+                        if (g_verbosity >= 2)
+                            syslog(LOG_DEBUG, "datasrc: ATA dev_idx=%u: SSD thresholds: hi_warn=%s(%d) hi_crit=%s(%d) lo_warn=%s(%d) lo_crit=%s(%d)",
+                                   dev_idx,
+                                   sr.has_high_warning  ? "yes" : "no", sr.high_warning,
+                                   sr.has_high_critical ? "yes" : "no", sr.high_critical,
+                                   sr.has_low_warning   ? "yes" : "no", sr.low_warning,
+                                   sr.has_low_critical  ? "yes" : "no", sr.low_critical);
                     }
                 }
             }
+            if (g_verbosity >= 2)
+                syslog(LOG_DEBUG, "datasrc: ATA dev_idx=%u: sensor[1] Temperature value=%d°C → pushed to cache (total sensors=%zu)",
+                       dev_idx, sr.value, g_cache.sensors.size() + 1);
             g_cache.sensors.push_back(sr);
         }
     }
@@ -963,6 +1020,9 @@ static void parse_scsi(uint32_t dev_idx, const JVal &root) {
                            return r.device_index == dev_idx; }),
         g_cache.sas_bgscan.end());
 
+    if (g_verbosity >= 2)
+        syslog(LOG_DEBUG, "datasrc: SCSI/SAS dev_idx=%u: no sensor rows emitted (protocol has no temp attr mapping)", dev_idx);
+
     CacheSasHealthRow h;
     h.device_index      = dev_idx;
     h.overall_status    = health_status_from_passed(root);
@@ -1156,6 +1216,8 @@ static void log_cache_summary() {
 // ---------------------------------------------------------------------------
 
 static void process_json_file(const std::string &filepath) {
+    if (g_verbosity >= 1)
+        syslog(LOG_DEBUG, "datasrc: process_json_file '%s'", filepath.c_str());
     struct stat st;
     if (stat(filepath.c_str(), &st) != 0) {
         syslog(LOG_WARNING, "stat(%s): %s", filepath.c_str(), strerror(errno));
@@ -1174,6 +1236,10 @@ static void process_json_file(const std::string &filepath) {
     std::string dev_path = root["device"]["name"].as_string();
     std::string protocol = root["device"]["protocol"].as_string();
 
+    if (g_verbosity >= 1)
+        syslog(LOG_DEBUG, "datasrc: %s → device.name='%s' device.protocol='%s'",
+               filepath.c_str(), dev_path.c_str(), protocol.c_str());
+
     if (dev_path.empty()) {
         syslog(LOG_WARNING, "%s: missing device.name", filepath.c_str());
         return;
@@ -1187,7 +1253,13 @@ static void process_json_file(const std::string &filepath) {
     else if (protocol == "SAT")  proto = PROTO_SAT;
     else if (protocol == "SAS")  proto = PROTO_SAS;
 
+    if (proto == PROTO_UNKNOWN)
+        syslog(LOG_WARNING, "datasrc: %s: unrecognized protocol '%s'",
+               filepath.c_str(), protocol.c_str());
+
     uint32_t dev_idx = g_cache.upsert_device(dev_path, proto);
+    if (g_verbosity >= 2)
+        syslog(LOG_DEBUG, "datasrc: dev_idx=%u for '%s'", dev_idx, dev_path.c_str());
 
     // Update device row metadata
     for (auto &row : g_cache.devices) {
@@ -1199,6 +1271,8 @@ static void process_json_file(const std::string &filepath) {
         break;
     }
 
+    size_t sensors_before = g_cache.sensors.size();
+
     // Parse protocol-specific data
     if (proto == PROTO_NVME)
         parse_nvme(dev_idx, root);
@@ -1206,6 +1280,14 @@ static void process_json_file(const std::string &filepath) {
         parse_ata(dev_idx, root);
     else if (proto == PROTO_SCSI || proto == PROTO_SAS)
         parse_scsi(dev_idx, root);
+    else
+        syslog(LOG_DEBUG, "datasrc: no parser for proto=%d on '%s'",
+               (int)proto, dev_path.c_str());
+
+    size_t sensors_added = g_cache.sensors.size() - sensors_before;
+    if (g_verbosity >= 1)
+        syslog(LOG_DEBUG, "datasrc: '%s' added %zu sensor row(s) (total=%zu)",
+               dev_path.c_str(), sensors_added, g_cache.sensors.size());
 
     log_device_loaded(dev_idx, proto, dev_path);
 }
@@ -1215,21 +1297,30 @@ static void process_json_file(const std::string &filepath) {
 // ---------------------------------------------------------------------------
 
 static void scan_state_dir() {
+    if (g_verbosity >= 1)
+        syslog(LOG_DEBUG, "datasrc: scanning state_dir '%s'", s_state_dir.c_str());
     DIR *d = opendir(s_state_dir.c_str());
     if (!d) {
         syslog(LOG_ERR, "opendir(%s): %s", s_state_dir.c_str(), strerror(errno));
         return;
     }
+    int n_total = 0, n_accepted = 0;
     struct dirent *ent;
     while ((ent = readdir(d)) != nullptr) {
         std::string name = ent->d_name;
         if (name == "." || name == "..") continue;
+        ++n_total;
         std::string dev_path;
         DeviceProto proto;
         if (!decode_state_filename(name, dev_path, proto)) continue;
+        ++n_accepted;
         process_json_file(s_state_dir + "/" + name);
     }
     closedir(d);
+    if (g_verbosity >= 1)
+        syslog(LOG_DEBUG, "datasrc: scan done: %d file(s) found, %d accepted — cache=%p sensors.size=%zu ts_sensor=%ld",
+               n_total, n_accepted,
+               (void*)&g_cache, g_cache.sensors.size(), (long)g_cache.ts_sensor);
 }
 
 // ---------------------------------------------------------------------------

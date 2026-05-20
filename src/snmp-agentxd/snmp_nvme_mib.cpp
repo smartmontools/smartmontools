@@ -12,10 +12,10 @@
 #include <net-snmp/agent/net-snmp-agent-includes.h>
 
 // ---------------------------------------------------------------------------
-// Utility: encode time_t as 8-byte DateAndTime (UTC)
+// Utility: encode time_t as 8-byte DateAndTime (local time)
 // ---------------------------------------------------------------------------
 static void nvme_encode_dt(time_t t, uint8_t out[8]) {
-    struct tm *tm = gmtime(&t);
+    struct tm *tm = localtime(&t);
     if (!tm) { memset(out, 0, 8); return; }
     uint16_t y = (uint16_t)(tm->tm_year + 1900);
     out[0] = (uint8_t)(y >> 8); out[1] = (uint8_t)(y & 0xff);

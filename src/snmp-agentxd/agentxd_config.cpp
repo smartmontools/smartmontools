@@ -2,6 +2,8 @@
 
 #include "agentxd_config.h"
 
+int g_verbosity = 0;
+
 #include <cerrno>
 #include <cstdio>
 #include <cstring>

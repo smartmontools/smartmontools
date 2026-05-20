@@ -18,6 +18,9 @@ struct AgentxConfig {
     bool foreground { false };
 };
 
+// Verbosity level: 0=off, 1=-v (flow), 2=-vv (per-sensor/iterator detail)
+extern int g_verbosity;
+
 // Parse /etc/smartmontools/snmp-agentxd.conf (or path given on command line).
 // Returns false and logs an error if the file cannot be read or a required
 // option is missing.

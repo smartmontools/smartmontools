@@ -23,16 +23,19 @@
 
 #include <cstring>
 #include <ctime>
+#include <syslog.h>
+
+#include "agentxd_config.h"
 
 #include <net-snmp/net-snmp-config.h>
 #include <net-snmp/net-snmp-includes.h>
 #include <net-snmp/agent/net-snmp-agent-includes.h>
 
 // ---------------------------------------------------------------------------
-// Utility: encode time_t as 8-byte DateAndTime (UTC)
+// Utility: encode time_t as 8-byte DateAndTime (local time)
 // ---------------------------------------------------------------------------
 static void sensor_encode_date_time(time_t t, uint8_t out[8]) {
-    struct tm *tm = gmtime(&t);
+    struct tm *tm = localtime(&t);
     if (!tm) { memset(out, 0, 8); return; }
     uint16_t year = (uint16_t)(tm->tm_year + 1900);
     out[0] = (uint8_t)(year >> 8);
@@ -54,10 +57,16 @@ sensor_get_next(void **loop_ctx, void **data_ctx,
                 netsnmp_variable_list *put_idx,
                 netsnmp_iterator_info *) {
     size_t idx = (size_t)(uintptr_t)*loop_ctx;
+    if (g_verbosity >= 2)
+        syslog(LOG_DEBUG, "sensor_mib: get_next idx=%zu cache=%p sensors.size=%zu",
+               idx, (void*)&g_cache, g_cache.sensors.size());
     if (idx >= g_cache.sensors.size()) return nullptr;
     CacheSensorRow &row = g_cache.sensors[idx];
     *loop_ctx = (void*)(uintptr_t)(idx + 1);
     *data_ctx = &row;
+    if (g_verbosity >= 2)
+        syslog(LOG_DEBUG, "sensor_mib: get_next → dev_idx=%u sensor_idx=%u name='%s'",
+               row.device_index, row.sensor_index, row.name.c_str());
     // Index component 1: smartmonDeviceIndex
     u_long v = (u_long)row.device_index;
     snmp_set_var_typed_value(put_idx, ASN_UNSIGNED, (u_char*)&v, sizeof(v));
@@ -72,6 +81,9 @@ static netsnmp_variable_list *
 sensor_get_first(void **loop_ctx, void **data_ctx,
                  netsnmp_variable_list *put_idx,
                  netsnmp_iterator_info *ii) {
+    if (g_verbosity >= 2)
+        syslog(LOG_DEBUG, "sensor_mib: get_first cache=%p sensors.size=%zu",
+               (void*)&g_cache, g_cache.sensors.size());
     *loop_ctx = 0;
     return sensor_get_next(loop_ctx, data_ctx, put_idx, ii);
 }
@@ -176,6 +188,9 @@ sensor_row_count_handler(netsnmp_mib_handler *,
                          netsnmp_request_info *requests) {
     if (reqinfo->mode != MODE_GET) return SNMP_ERR_NOERROR;
     u_long v = (u_long)g_cache.sensors.size();
+    if (g_verbosity >= 2)
+        syslog(LOG_DEBUG, "sensor_mib: row_count_handler cache=%p sensors.size=%lu ts_sensor=%ld",
+               (void*)&g_cache, v, (long)g_cache.ts_sensor);
     snmp_set_var_typed_value(requests->requestvb, ASN_GAUGE, (u_char*)&v, sizeof(v));
     return SNMP_ERR_NOERROR;
 }
@@ -197,6 +212,9 @@ sensor_last_change_handler(netsnmp_mib_handler *,
 // ---------------------------------------------------------------------------
 
 void register_sensor_mib() {
+    if (g_verbosity >= 1)
+        syslog(LOG_DEBUG, "sensor_mib: register_sensor_mib called cache=%p sensors.size=%zu",
+               (void*)&g_cache, g_cache.sensors.size());
     // Sensor table row-count scalar
     {
         netsnmp_register_scalar(

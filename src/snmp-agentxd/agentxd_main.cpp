@@ -58,7 +58,7 @@ static void daemonise()
     if (pid > 0) exit(EXIT_SUCCESS);
 
     umask(0);
-    (void)chdir("/");
+    if (chdir("/") != 0) { perror("chdir"); exit(EXIT_FAILURE); }
 
     // Close and redirect standard fds
     int devnull = open("/dev/null", O_RDWR);
@@ -76,6 +76,8 @@ static void usage(const char *prog)
         "Usage: %s [options]\n"
         "  -c FILE   Config file (default: %s)\n"
         "  -f        Run in foreground (do not daemonise)\n"
+        "  -v        Verbose: log scan flow and device load summaries\n"
+        "  -vv       Very verbose: add per-sensor detail and SNMP iterator calls\n"
         "  -h        Show this help\n",
         prog, default_config_path);
 }
@@ -86,10 +88,11 @@ int main(int argc, char *argv[])
     bool foreground = false;
 
     int opt;
-    while ((opt = getopt(argc, argv, "c:fh")) != -1) {
+    while ((opt = getopt(argc, argv, "c:fhv")) != -1) {
         switch (opt) {
         case 'c': config_path = optarg; break;
         case 'f': foreground = true;    break;
+        case 'v': ++g_verbosity;        break;
         case 'h': usage(argv[0]); return EXIT_SUCCESS;
         default:  usage(argv[0]); return EXIT_FAILURE;
         }
