@@ -17,9 +17,17 @@
 #include <syslog.h>
 #include <sys/inotify.h>
 #include <sys/stat.h>
+#include <time.h>
 #include <unistd.h>
 #include <unordered_map>
 #include <vector>
+
+static inline long elapsed_ms(struct timespec start) {
+    struct timespec now;
+    clock_gettime(CLOCK_MONOTONIC, &now);
+    return (now.tv_sec - start.tv_sec) * 1000L
+         + (now.tv_nsec - start.tv_nsec) / 1000000L;
+}
 
 // ---------------------------------------------------------------------------
 // PCI vendor name lookup
@@ -1357,6 +1365,8 @@ static void log_cache_summary() {
 // ---------------------------------------------------------------------------
 
 static void process_json_file(const std::string &filepath) {
+    struct timespec t0;
+    clock_gettime(CLOCK_MONOTONIC, &t0);
     if (g_verbosity >= 1)
         syslog(LOG_DEBUG, "datasrc: process_json_file '%s'", filepath.c_str());
     struct stat st;
@@ -1437,6 +1447,9 @@ static void process_json_file(const std::string &filepath) {
                dev_path.c_str(), sensors_added, g_cache.sensors.size());
 
     log_device_loaded(dev_idx, proto, dev_path);
+    if (g_verbosity >= 1)
+        syslog(LOG_DEBUG, "datasrc: process_json_file '%s' done in %ldms",
+               filepath.c_str(), elapsed_ms(t0));
 }
 
 // ---------------------------------------------------------------------------
@@ -1444,6 +1457,8 @@ static void process_json_file(const std::string &filepath) {
 // ---------------------------------------------------------------------------
 
 static void scan_state_dir() {
+    struct timespec t0;
+    clock_gettime(CLOCK_MONOTONIC, &t0);
     if (g_verbosity >= 1)
         syslog(LOG_DEBUG, "datasrc: scanning state_dir '%s'", s_state_dir.c_str());
     DIR *d = opendir(s_state_dir.c_str());
@@ -1464,9 +1479,10 @@ static void scan_state_dir() {
     }
     closedir(d);
     if (g_verbosity >= 1)
-        syslog(LOG_DEBUG, "datasrc: scan done: %d file(s) found, %d accepted — cache=%p sensors.size=%zu ts_sensor=%ld",
+        syslog(LOG_DEBUG, "datasrc: scan done: %d file(s) found, %d accepted — cache=%p sensors.size=%zu ts_sensor=%ld elapsed=%ldms",
                n_total, n_accepted,
-               (void*)&g_cache, g_cache.sensors.size(), (long)g_cache.ts_sensor);
+               (void*)&g_cache, g_cache.sensors.size(), (long)g_cache.ts_sensor,
+               elapsed_ms(t0));
 }
 
 // ---------------------------------------------------------------------------
