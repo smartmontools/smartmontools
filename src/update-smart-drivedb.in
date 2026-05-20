@@ -9,6 +9,9 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
 
+# 'local' is used but still missing in POSIX (IEEE 1003.1-2024)
+# shellcheck disable=SC3043
+
 set -e
 
 # Set by config.status
@@ -182,7 +185,7 @@ vrun2()
     echo "$* > $f"
   else
     vecho "$* > $f"
-    err=`"$@" 2>&1 > $f` || rc=$?
+    err=$("$@" 2>&1 > "$f") || rc=$?
     if [ -n "$err" ]; then
       vecho "$err" >&2
       test $rc != 0 || rc=42
@@ -265,19 +268,19 @@ check_file()
 
   # Check first chars
   # shellcheck disable=SC2254
-  case `dd if="$f" bs=1 count=1 2>/dev/null` in
+  case $(dd if="$f" bs=1 count=1 2>/dev/null) in
     $firstchar) ;;
     \<) echo "HTML error message"; return 1 ;;
     *)   echo "unknown file contents"; return 1 ;;
   esac
 
   # Check file size
-  size=`wc -c < "$f"`
-  if test "$size" -lt $minsize; then
+  size=$(wc -c < "$f")
+  if test "$size" -lt "$minsize"; then
     echo "too small file size $size bytes"
     return 1
   fi
-  if test "$size" -gt $maxsize; then
+  if test "$size" -gt "$maxsize"; then
     echo "too large file size $size bytes"
     return 1
   fi
@@ -437,7 +440,7 @@ gpg_verify()
   chmod 0700 "$gnupgtmp"
 
   # Import public key
-  if ! out=`echo "$public_key" | "$gpg" --batch --no-tty --homedir="$gnupgtmp" --import 2>&1`; then
+  if ! out=$(echo "$public_key" | "$gpg" --batch --no-tty --homedir="$gnupgtmp" --import 2>&1); then
     echo "$out" >&2
     exit 1
   fi
@@ -445,7 +448,7 @@ gpg_verify()
 
   # Verify
   rc=0
-  out=`"$gpg" --batch --no-tty --homedir="$gnupgtmp" --verify "$1" "$2" </dev/null 2>&1` || rc=1
+  out=$("$gpg" --batch --no-tty --homedir="$gnupgtmp" --verify "$1" "$2" </dev/null 2>&1) || rc=1
   if [ $rc = 0 ]; then
     vecho "$out"
   else
@@ -455,12 +458,12 @@ gpg_verify()
 
   # Stop the gpg-agent possibly started by gpg
   if [ -n "$gpgconf" ]; then
-    out=`"$gpgconf" --homedir="$gnupgtmp" --kill gpg-agent </dev/null 2>&1` || echo "$out" >&2
+    out=$("$gpgconf" --homedir="$gnupgtmp" --kill gpg-agent </dev/null 2>&1) || echo "$out" >&2
   fi
 
   # Remove temp home dir, retry on failure
   i=0
-  while ! out=`rm -f -r "$gnupgtmp" 2>&1`; do
+  while ! out=$(rm -f -r "$gnupgtmp" 2>&1); do
     i=$((i+1))
     if [ $i -ge 10 ]; then
       echo "$out" >&2; break
@@ -476,10 +479,10 @@ gpg_verify()
 get_db_version()
 {
   local v
-  v=`sed -n '/^[ {]*"VERSION: .*"/{
+  v=$(sed -n '/^[ {]*"VERSION: .*"/{
        s,^[ {]*"VERSION: \([1-9][./0-9]*\)[ "].*$,\1,p
        q
-     }' "$1"` || return 1
+     }' "$1") || return 1
   test -n "$v" || return 0
   test "${v%/*}" != "$v" || v="$v/?"
   echo "$v"
@@ -626,10 +629,10 @@ case "${url_of:+url_of}${url:+url}${file:+file}" in
     case $url in
       */main/*|*rev=main*)
         if [ -z "$main" ]; then
-          url=`echo "$url" | sed -e "s,/main/,/drivedb/$branch/," \
-                                 -e "s,rev=main,rev=drivedb/$branch,"`
+          url=$(echo "$url" | sed -e "s,/main/,/drivedb/$branch/," \
+                                 -e "s,rev=main,rev=drivedb/$branch,")
           case $branch in [567].*)
-            url=`echo "$url" | sed -e 's,/drivedb/drivedb\.h,/smartmontools/drivedb.h,'` ;;
+            url=$(echo "$url" | sed -e 's,/drivedb/drivedb\.h,/smartmontools/drivedb.h,') ;;
           esac
         elif [ -z "$no_verify" ]; then
           error "'--main' requires '--no-verify'"
@@ -637,12 +640,12 @@ case "${url_of:+url_of}${url:+url}${file:+file}" in
         ;;
       */trunk/*)
         test -z "$main" || error "'--main' is not supported with '-u svn'"
-        url=`echo "$url" | sed -e "s,/trunk/,/branches/RELEASE_${branch}_DRIVEDB/," \
-                               -e 's,_\([0-9]*\)\.\([0-9]*\)_,_\1_\2_,'`;;
+        url=$(echo "$url" | sed -e "s,/trunk/,/branches/RELEASE_${branch}_DRIVEDB/," \
+                               -e 's,_\([0-9]*\)\.\([0-9]*\)_,_\1_\2_,');;
       *) error "$url: invalid URL (internal)" ;;
     esac ;;
   url)
-    test -z "`echo "$url" | sed -e 's,^[a-z][a-z0-9]*:[^ ][^ ]*$,,'`" \
+    test -z "$(echo "$url" | sed -e 's,^[a-z][a-z0-9]*:[^ ][^ ]*$,,')" \
     || error "$url: Invalid URL" ;;
   file) ;;
   *) error "only one of '-u', '--url', '--file' is allowed" ;;
@@ -659,7 +662,7 @@ if [ -z "$no_verify" ]; then
       *) raw= ;;
     esac
     case $url in
-      *\?*) url_asc=`echo "$url" | sed "s,?,$raw.asc?,"` ;;
+      *\?*) url_asc=$(echo "$url" | sed "s,?,$raw.asc?,") ;;
       *)    url_asc="$url$raw.asc" ;;
     esac
   else
@@ -718,7 +721,7 @@ fi
 usageerr=
 
 # Use destination directory as temp directory for gpg
-tmpdir=`dirname "$drivedb"`
+tmpdir=$(dirname "$drivedb")
 
 # Remove possible garbage from last download
 rm_f "$drivedb.new" "$drivedb.new.asc" "$drivedb.new.raw" "$drivedb.new.raw.asc" || exit 1
@@ -769,13 +772,13 @@ fi
 test -z "$dryrun" || exit 0
 
 # Check files, adjust timestamps and permissions
-errmsg=`check_file "$drivedb.new" '/' 10000 1000000` \
+errmsg=$(check_file "$drivedb.new" '/' 10000 1000000) \
 || drivedb_error ": $errmsg"
 touch "$drivedb.new"
 chmod 0644 "$drivedb.new"
 
 if [ -f "$drivedb.new.asc" ]; then
-  errmsg=`check_file "$drivedb.new.asc" '-' 200 2000` \
+  errmsg=$(check_file "$drivedb.new.asc" '-' 200 2000) \
   || drivedb_error ".asc: $errmsg"
   touch "$drivedb.new.asc"
   chmod 0644 "$drivedb.new.asc"
@@ -795,7 +798,7 @@ if [ -z "$no_verify" ]; then
 fi
 
 # Get version
-newver=`get_db_version "$drivedb.new"`
+newver=$(get_db_version "$drivedb.new")
 if [ -z "$newver" ]; then
   test -n "$force" \
   || drivedb_error ": no VERSION information found ('--force' to ignore)"
@@ -834,7 +837,7 @@ if [ -n "$equal" ]; then
 fi
 
 # Check branch and file version
-oldver=`get_db_version "$drivedb"`
+oldver=$(get_db_version "$drivedb")
 test -n "$oldver" || oldver="?/?"
 if    [ "${newver##*/}" = "?" ] \
    || [ "${oldver##*/}" = "?" ] \

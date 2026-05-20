@@ -3,7 +3,6 @@
 # do a smartmontools release
 # (C) 2003-11 Bruce Allen, Guido Guenther
 # (C) 2006-25 Christian Franke
-# $Id: do_release 5682 2025-04-13 13:15:27Z chrfranke $
 
 # Notes on generating releases:
 # (1) run with '--checkout' and then 'cd DESTDIR/trunk/smartmontools'
@@ -11,6 +10,9 @@
 # (3) update ChangeLog -- put in release date and number
 # (4) to test, run without '--commit'
 # (5) when satisfied, add option '--commit'
+
+# TODO: this script is outdated
+# shellcheck disable=SC2006,SC2086,SC2162
 
 set -e
 

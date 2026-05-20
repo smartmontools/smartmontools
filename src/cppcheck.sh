@@ -40,6 +40,7 @@ esac; shift; done
 
 # Set file list from command line or $srcdir
 if [ $# -ne 0 ]; then
+  # shellcheck disable=SC2116
   files=$(echo "$@")
   files_v=$files
   unused_func=
@@ -53,6 +54,7 @@ else
   cd "$srcdir" || exit 1
   files_v="include/smartmon/*.h lib/*.cpp lib/*.h src/*.cpp src/*.h"
   files_v="$files_v src/os_win32/*.cpp src/os_win32/*.h"
+  # shellcheck disable=SC2086
   if ! files=$(ls -d $files_v 2>/dev/null); then
     echo "$myname: Not run from \$srcdir" >&2
     exit 1
@@ -159,7 +161,7 @@ EOF
 rc=0
 
 # Run cppcheck with swapped stdout<>stderr
-# shellcheck disable=SC2090
+# shellcheck disable=SC2086,SC2090
 "$cppcheck" \
   $v \
   $jobs \

@@ -4,12 +4,13 @@
 #
 # Home page of code is: https://www.smartmontools.org
 #
-# Copyright (C) 2023 Christian Franke
+# Copyright (C) 2023-26 Christian Franke
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
-# $Id: pe32edit.sh 5597 2024-01-24 10:30:14Z chrfranke $
-#
+
+# The missing double quotes around $numeric_values are intentional
+# shellcheck disable=SC2086
 
 set -e -o pipefail
 
@@ -114,6 +115,7 @@ x=$(get_uint16 0)
 test "$x" = $((0x5a4d)) || error "$file: MS-DOS 'MZ' header not present"
 # pehdr_offs = IMAGE_DOS_HEADER.lfa_new
 pehdr_offs=$(get_uint32 $((0x3c)))
+# shellcheck disable=SC2015
 test $((0x40)) -le "$pehdr_offs" && test "$pehdr_offs" -le $((0x180)) \
 || error "$file: Invalid PE header offset: $pehdr_offs"
 # IMAGE_NT_HEADERS(32|64).Signature == "PE" ?
@@ -231,6 +233,7 @@ put_uint16()
   # Patch the file
   b0=$(($2 & 0xff))
   b1=$((($2 >> 8) & 0xff))
+  # shellcheck disable=SC2059
   printf "$(printf '\\x%02x\\x%02x' $b0 $b1)" \
   | dd bs=2 seek=$(($1 >> 1)) count=1 conv=notrunc of="$tempfile" 2>/dev/null \
   || error "$file: Patch at offset $1 failed"

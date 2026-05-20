@@ -4,7 +4,7 @@
 #
 # Home page of code is: https://www.smartmontools.org
 #
-# Copyright (C) 2025 Christian Franke
+# Copyright (C) 2025-26 Christian Franke
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
@@ -78,7 +78,7 @@ sbhelp=$("$sb" --help 2>&1) || error "$sb --help: command failed"
 
 # Create list of '-enable-checker' options
 enable_checkers=$(
-  # shellcheck disable=SC2034
+  # shellcheck disable=SC2034,SC2162
   echo "$extra_checkers" | while read c r; do
     case $c in ''|\#*) continue ;; esac
     case "$(echo "$sbhelp" | grep "^[ +]*${c}\\b")" in
@@ -92,6 +92,7 @@ enable_checkers=$(
 # Run scan-build
 rm -rf "$dir"
 echo "$sb" --use-cc="$cc" --use-c++="$cxx" -o "$dir" ... "$@"
+# shellcheck disable=SC2086
 "$sb" --use-cc="$cc" --use-c++="$cxx" -o "$dir" \
   -analyzer-config "stable-report-filename=true" \
   $enable_checkers "$@"

@@ -4,7 +4,7 @@
 #
 # Home page of code is: https://www.smartmontools.org
 #
-# Copyright (C) 2024-25 Christian Franke
+# Copyright (C) 2024-26 Christian Franke
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
@@ -63,7 +63,7 @@ if $i_opt; then
 fi
 
 srcdir=${myname%/*}
-test "$srcdir" != "$myname" || error 'unknown $srcdir'
+test "$srcdir" != "$myname" || error "unknown \$srcdir"
 top_srcdir="$srcdir/.."
 
 # Get PACKAGE_VERSION from configure.ac
@@ -126,6 +126,7 @@ if $is_git_co; then
   head="HEAD"
   if [ $# -gt 0 ]; then
     # Stay in current directory to keep PATH names valid
+    # shellcheck disable=SC2015
     head=$(git log -1 --format='format:%H' "$@" 2>/dev/null) \
     && [ -n "$head" ] || error "git revision not found for '$*'"
   fi

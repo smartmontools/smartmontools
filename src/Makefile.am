@@ -584,13 +584,9 @@ cppcheck.txt: $(smartctl_SOURCES) $(EXTRA_smartctl_SOURCES) \
 # Create shellcheck report
 shellcheck: shellcheck.txt
 
-SHELLCHECK=shellcheck
-
-# Exclude "SC3043 (warning): In POSIX sh, 'local' is undefined."
-# Virtually all relevant /bin/sh shells support 'local'
-SHELLCHECKFLAGS=-S warning -e SC3043
-
-SHELLSCRIPTS= \
+SHELLCHECK = shellcheck
+SHELLCHECKFLAGS =
+SHELLSCRIPTS = \
     $(top_srcdir)/autogen.sh \
     $(srcdir)/clang-scan-build.sh \
     $(srcdir)/cppcheck.sh \
