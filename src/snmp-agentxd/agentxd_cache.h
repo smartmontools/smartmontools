@@ -47,7 +47,7 @@ struct CacheDeviceRow {
 // NVMe health row (smartmonNvmeHealthTable)
 // --------------------------------------------------------------------
 struct CacheNvmeHealthRow {
-    uint32_t device_index;
+    uint32_t device_index    { 0 };
     int      overall_status          { 0 };  // SmartmonHealthStatus
     uint8_t  critical_warning        { 0 };  // bitmask
     uint32_t available_spare_pct     { 0 };
@@ -75,7 +75,7 @@ struct CacheNvmeHealthRow {
 // NVMe self-test row (smartmonNvmeSelfTestTable)
 // --------------------------------------------------------------------
 struct CacheNvmeSelfTestRow {
-    uint32_t    device_index;
+    uint32_t    device_index { 0 };
     uint32_t    entry_index   { 0 };
     uint32_t    number        { 0 };
     int         type          { 0 };  // SmartmonNvmeSelfTestType
@@ -93,7 +93,7 @@ struct CacheNvmeSelfTestRow {
 // ATA/SATA attribute row (smartmonSataAttrTable)
 // --------------------------------------------------------------------
 struct CacheSataAttrRow {
-    uint32_t    device_index;
+    uint32_t    device_index { 0 };
     uint32_t    attr_id     { 0 };
     std::string name;
     uint8_t     flags       { 0 };   // BITS bitmask
@@ -112,7 +112,7 @@ struct CacheSataAttrRow {
 // ATA/SATA self-test row (smartmonSataSelfTestTable)
 // --------------------------------------------------------------------
 struct CacheSataSelfTestRow {
-    uint32_t    device_index;
+    uint32_t    device_index { 0 };
     uint32_t    entry_index  { 0 };
     int         type         { 0 };  // SmartmonAtaSelfTestType
     int         result       { 0 };  // SmartmonAtaSelfTestResult
@@ -127,7 +127,7 @@ struct CacheSataSelfTestRow {
 // SAS health row (smartmonSasHealthTable)
 // --------------------------------------------------------------------
 struct CacheSasHealthRow {
-    uint32_t device_index;
+    uint32_t device_index    { 0 };
     int      overall_status     { 0 };
     uint32_t grown_defect_count { 0 };
     uint64_t non_medium_errors  { 0 };
@@ -139,7 +139,7 @@ struct CacheSasHealthRow {
 // SAS error counter row (smartmonSasErrorCounterTable)
 // --------------------------------------------------------------------
 struct CacheSasErrorCounterRow {
-    uint32_t device_index;
+    uint32_t device_index    { 0 };
     int      direction          { 0 };  // SmartmonScsiErrorDirection
     uint64_t ecc_delayed        { 0 };
     uint64_t ecc_fast           { 0 };
@@ -154,7 +154,7 @@ struct CacheSasErrorCounterRow {
 // SAS self-test row (smartmonSasSelfTestTable)
 // --------------------------------------------------------------------
 struct CacheSasSelfTestRow {
-    uint32_t    device_index;
+    uint32_t    device_index { 0 };
     uint32_t    entry_index  { 0 };
     int         type         { 0 };  // SmartmonSasSelfTestType
     int         result       { 0 };  // SmartmonAtaSelfTestResult (reused)
@@ -168,14 +168,14 @@ struct CacheSasSelfTestRow {
 // NVMe controller row (smartmonNvmeControllerTable)
 // --------------------------------------------------------------------
 struct CacheNvmeControllerRow {
-    uint32_t    device_index;
+    uint32_t    device_index { 0 };
     std::string model_number;
     std::string serial_number;
     std::string firmware_version;
     uint32_t    pci_vendor_id      { 0 };
     uint32_t    pci_subsystem_id   { 0 };
     std::string pci_vendor_id_text;
-    std::string pci_subsystem_id_text;
+    std::string pci_subsystem_vendor_text;
     uint32_t    ieee_oui           { 0 };
     uint64_t    total_capacity     { 0 };
     uint64_t    unallocated_capacity { 0 };
@@ -201,7 +201,7 @@ struct CacheNvmeControllerRow {
 // col 10 = capabilityIndex (NOT-ACCESSIBLE)
 // --------------------------------------------------------------------
 struct CacheNvmeCapabilityRow {
-    uint32_t    device_index;
+    uint32_t    device_index { 0 };
     uint32_t    firmware_update_raw     { 0 };
     uint32_t    firmware_slot_count     { 0 };
     bool        firmware_reset_required { false };
@@ -229,7 +229,7 @@ struct CacheNvmeCapabilityRow {
 // col 11 = exitLatencyUsec
 // --------------------------------------------------------------------
 struct CacheNvmePowerStateRow {
-    uint32_t    device_index;
+    uint32_t    device_index { 0 };
     uint32_t    state_index           { 0 };
     bool        operational           { true };
     uint32_t    max_power_mw          { 0 };
@@ -255,7 +255,7 @@ struct CacheNvmePowerStateRow {
 // col 5  = lbaFormatRelativePerformance
 // --------------------------------------------------------------------
 struct CacheNvmeLbaFormatRow {
-    uint32_t    device_index;
+    uint32_t    device_index { 0 };
     uint32_t    namespace_id  { 0 };
     uint32_t    format_id     { 0 };
     bool        current       { false };
@@ -268,7 +268,7 @@ struct CacheNvmeLbaFormatRow {
 // NVMe namespace row (smartmonNvmeNamespaceTable)
 // --------------------------------------------------------------------
 struct CacheNvmeNamespaceRow {
-    uint32_t    device_index;
+    uint32_t    device_index { 0 };
     uint32_t    namespace_id       { 0 };
     uint64_t    size_bytes         { 0 };
     uint64_t    capacity_bytes     { 0 };
@@ -283,7 +283,7 @@ struct CacheNvmeNamespaceRow {
 // NVMe error log row (smartmonNvmeErrorLogTable)
 // --------------------------------------------------------------------
 struct CacheNvmeErrorLogRow {
-    uint32_t    device_index;
+    uint32_t    device_index { 0 };
     uint32_t    entry_index   { 0 };
     uint64_t    error_count   { 0 };
     uint32_t    sqid          { 0 };
@@ -303,7 +303,7 @@ struct CacheNvmeErrorLogRow {
 // SATA info row (smartmonSataInfoTable)
 // --------------------------------------------------------------------
 struct CacheSataInfoRow {
-    uint32_t    device_index;
+    uint32_t    device_index { 0 };
     std::string model_family;
     std::string model_name;
     std::string serial_number;
@@ -326,7 +326,7 @@ struct CacheSataInfoRow {
 // SATA health row (smartmonSataHealthTable)
 // --------------------------------------------------------------------
 struct CacheSataHealthRow {
-    uint32_t    device_index;
+    uint32_t    device_index { 0 };
     int         overall_status   { 0 };
     uint32_t    offline_status_value { 0 };
     std::string offline_status_string;
@@ -354,7 +354,7 @@ struct CacheSataHealthRow {
 // SATA error log row (smartmonSataErrorLogTable)
 // --------------------------------------------------------------------
 struct CacheSataErrorLogRow {
-    uint32_t    device_index;
+    uint32_t    device_index { 0 };
     uint32_t    entry_index  { 0 };
     uint32_t    error_number { 0 };
     uint64_t    lifetime_hours { 0 };
@@ -374,7 +374,7 @@ struct CacheSataErrorLogRow {
 // SAS info row (smartmonSasInfoTable)
 // --------------------------------------------------------------------
 struct CacheSasInfoRow {
-    uint32_t    device_index;
+    uint32_t    device_index { 0 };
     std::string vendor;
     std::string product;
     std::string revision;
@@ -397,7 +397,7 @@ struct CacheSasInfoRow {
 // SmartmonSensorDataScale: units=9 (10^0)
 // --------------------------------------------------------------------
 struct CacheSensorRow {
-    uint32_t    device_index;
+    uint32_t    device_index { 0 };
     uint32_t    sensor_index    { 0 };   // stable per-device index
     int         type            { 2 };   // SmartmonSensorDataType (unknown=2)
     std::string name;
@@ -434,7 +434,7 @@ struct CacheSensorRow {
 // col 10 = description (command_name)
 // --------------------------------------------------------------------
 struct CacheSataErrorCmdRow {
-    uint32_t    device_index;
+    uint32_t    device_index { 0 };
     uint32_t    error_entry_index { 0 };   // smartmonSataErrorIndex
     uint32_t    cmd_index         { 0 };   // smartmonSataErrorCmdIndex (1-based)
     uint32_t    reg_command       { 0 };
@@ -452,7 +452,7 @@ struct CacheSataErrorCmdRow {
 // SAS background scan row (smartmonSasBackgroundScanTable)
 // --------------------------------------------------------------------
 struct CacheSasBgScanRow {
-    uint32_t    device_index;
+    uint32_t    device_index { 0 };
     int         status_value     { 0 };
     std::string status_string;
     uint32_t    progress_percent { 0 };
@@ -513,8 +513,14 @@ struct AgentxCache {
     time_t  ts_sas_bgscan         { 0 };
     time_t  ts_sensor             { 0 };
 
-    // Remove all rows belonging to a device index
+    // Remove device row and all sub-table rows for device_index
     void remove_device(uint32_t device_index);
+
+    // Remove only sub-table rows (keeps the device row — used on file re-parse)
+    void clear_device_data(uint32_t device_index);
+
+    // Remove everything — used on SIGHUP before full re-scan
+    void clear();
 
     // Find or create a device row, return its index
     uint32_t upsert_device(const std::string &path, DeviceProto proto);

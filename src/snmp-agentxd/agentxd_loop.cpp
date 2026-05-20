@@ -74,11 +74,8 @@ void agentxd_loop_run(volatile sig_atomic_t *exit_flag,
         if (*reload_flag) {
             *reload_flag = 0;
             syslog(LOG_INFO, "SIGHUP — rescanning %s", cfg.state_dir.c_str());
-            // Re-scan: existing devices stay; new/updated files are re-parsed.
-            // agentxd_datasrc_handle_events picks up inotify, but on SIGHUP we
-            // do a full directory sweep to catch any files written while we were
-            // not watching.
             agentxd_datasrc_shutdown();
+            g_cache.clear();   // discard stale device rows from before the rescan
             agentxd_datasrc_init(cfg.state_dir);
         }
 

@@ -371,8 +371,8 @@ nvme_ctrl_handler(netsnmp_mib_handler *,
                      (u_char*)row->pci_vendor_id_text.c_str(),
                      row->pci_vendor_id_text.size()); break;
         case 18: snmp_set_var_typed_value(req->requestvb, ASN_OCTET_STR,
-                     (u_char*)row->pci_subsystem_id_text.c_str(),
-                     row->pci_subsystem_id_text.size()); break;
+                     (u_char*)row->pci_subsystem_vendor_text.c_str(),
+                     row->pci_subsystem_vendor_text.size()); break;
         default: netsnmp_set_request_error(reqinfo, req, SNMP_NOSUCHOBJECT);
         }
     }

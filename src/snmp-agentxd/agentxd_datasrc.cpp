@@ -233,19 +233,11 @@ static void populate_device_uris(CacheDeviceRow &row, DeviceProto proto) {
     row.uris = std::move(uris);
 }
 
-// Extract the device path encoded in a smartd state filename.
-// Filename format: <prefix><encoded-device>.<type>.json
-// The prefix is the directory prefix supplied via --jsonstate.
-// We receive just the basename here.
-// Examples:
-//   "smartd-json.dev_sda.ata.json"  → "/dev/sda",  "ATA"
-//   "smartd-json.dev_nvme0.nvme.json" → "/dev/nvme0", "NVMe"
-//
-// smartd encodes '/' as '_' (and other specials similarly) in the base name.
-// We reverse only the leading '/dev/' segment here, which is all we need for
-// the display path stored in CacheDeviceRow.
-static bool decode_state_filename(const std::string &basename,
-                                  DeviceProto &proto) {
+// Identify whether basename is a recognized smartd JSON state file and, if so,
+// set proto to the matching DeviceProto.  Device path is not decoded here — it
+// is read directly from the JSON content by process_json_file.
+static bool identify_state_file_proto(const std::string &basename,
+                                      DeviceProto &proto) {
     // Determine type suffix and strip it
     struct { const char *suffix; DeviceProto proto; } types[] = {
         { ".ata.json",  PROTO_ATA  },
@@ -332,52 +324,7 @@ static int health_status_from_passed(const JVal &root) {
 }
 
 static void parse_nvme(uint32_t dev_idx, const JVal &root) {
-    // Remove stale rows
-    g_cache.sensors.erase(
-        std::remove_if(g_cache.sensors.begin(), g_cache.sensors.end(),
-                       [dev_idx](const CacheSensorRow &r) {
-                           return r.device_index == dev_idx; }),
-        g_cache.sensors.end());
-    g_cache.nvme_health.erase(
-        std::remove_if(g_cache.nvme_health.begin(), g_cache.nvme_health.end(),
-                       [dev_idx](const CacheNvmeHealthRow &r) {
-                           return r.device_index == dev_idx; }),
-        g_cache.nvme_health.end());
-    g_cache.nvme_selftests.erase(
-        std::remove_if(g_cache.nvme_selftests.begin(), g_cache.nvme_selftests.end(),
-                       [dev_idx](const CacheNvmeSelfTestRow &r) {
-                           return r.device_index == dev_idx; }),
-        g_cache.nvme_selftests.end());
-    g_cache.nvme_controllers.erase(
-        std::remove_if(g_cache.nvme_controllers.begin(), g_cache.nvme_controllers.end(),
-                       [dev_idx](const CacheNvmeControllerRow &r) {
-                           return r.device_index == dev_idx; }),
-        g_cache.nvme_controllers.end());
-    g_cache.nvme_namespaces.erase(
-        std::remove_if(g_cache.nvme_namespaces.begin(), g_cache.nvme_namespaces.end(),
-                       [dev_idx](const CacheNvmeNamespaceRow &r) {
-                           return r.device_index == dev_idx; }),
-        g_cache.nvme_namespaces.end());
-    g_cache.nvme_error_log.erase(
-        std::remove_if(g_cache.nvme_error_log.begin(), g_cache.nvme_error_log.end(),
-                       [dev_idx](const CacheNvmeErrorLogRow &r) {
-                           return r.device_index == dev_idx; }),
-        g_cache.nvme_error_log.end());
-    g_cache.nvme_capabilities.erase(
-        std::remove_if(g_cache.nvme_capabilities.begin(), g_cache.nvme_capabilities.end(),
-                       [dev_idx](const CacheNvmeCapabilityRow &r) {
-                           return r.device_index == dev_idx; }),
-        g_cache.nvme_capabilities.end());
-    g_cache.nvme_power_states.erase(
-        std::remove_if(g_cache.nvme_power_states.begin(), g_cache.nvme_power_states.end(),
-                       [dev_idx](const CacheNvmePowerStateRow &r) {
-                           return r.device_index == dev_idx; }),
-        g_cache.nvme_power_states.end());
-    g_cache.nvme_lba_formats.erase(
-        std::remove_if(g_cache.nvme_lba_formats.begin(), g_cache.nvme_lba_formats.end(),
-                       [dev_idx](const CacheNvmeLbaFormatRow &r) {
-                           return r.device_index == dev_idx; }),
-        g_cache.nvme_lba_formats.end());
+    g_cache.clear_device_data(dev_idx);
 
     const JVal &log = root["nvme_smart_health_information_log"];
     if (log.is_null()) {
@@ -567,7 +514,7 @@ static void parse_nvme(uint32_t dev_idx, const JVal &root) {
         ctrl.pci_vendor_id     = pci.is_null() ? 0 : static_cast<uint32_t>(pci["id"].as_uint64());
         ctrl.pci_subsystem_id  = pci.is_null() ? 0 : static_cast<uint32_t>(pci["subsystem_id"].as_uint64());
         ctrl.pci_vendor_id_text       = pci_vendor_name(ctrl.pci_vendor_id);
-        ctrl.pci_subsystem_id_text    = pci_vendor_name(ctrl.pci_subsystem_id);
+        ctrl.pci_subsystem_vendor_text    = pci_vendor_name(ctrl.pci_subsystem_id);
         ctrl.ieee_oui          = static_cast<uint32_t>(root["nvme_ieee_oui_identifier"].as_uint64());
         ctrl.total_capacity    = root["nvme_total_capacity"].as_uint64();
         ctrl.unallocated_capacity = root["nvme_unallocated_capacity"].as_uint64();
@@ -596,7 +543,7 @@ static void parse_nvme(uint32_t dev_idx, const JVal &root) {
             cap.firmware_update_raw     = static_cast<uint32_t>(fw["value"].as_uint64());
             cap.firmware_slot_count     = static_cast<uint32_t>(fw["slots"].as_uint64());
             // activiation_without_reset=true means NO reset required
-            cap.firmware_reset_required = !fw["activiation_without_reset"].as_bool();
+            cap.firmware_reset_required = !fw["activation_without_reset"].as_bool();
         }
         if (!adm.is_null()) {
             cap.optional_admin_cmd_raw  = static_cast<uint32_t>(adm["value"].as_uint64());
@@ -814,41 +761,7 @@ static void parse_nvme(uint32_t dev_idx, const JVal &root) {
 }
 
 static void parse_ata(uint32_t dev_idx, const JVal &root) {
-    g_cache.sensors.erase(
-        std::remove_if(g_cache.sensors.begin(), g_cache.sensors.end(),
-                       [dev_idx](const CacheSensorRow &r) {
-                           return r.device_index == dev_idx; }),
-        g_cache.sensors.end());
-    g_cache.sata_attrs.erase(
-        std::remove_if(g_cache.sata_attrs.begin(), g_cache.sata_attrs.end(),
-                       [dev_idx](const CacheSataAttrRow &r) {
-                           return r.device_index == dev_idx; }),
-        g_cache.sata_attrs.end());
-    g_cache.sata_selftests.erase(
-        std::remove_if(g_cache.sata_selftests.begin(), g_cache.sata_selftests.end(),
-                       [dev_idx](const CacheSataSelfTestRow &r) {
-                           return r.device_index == dev_idx; }),
-        g_cache.sata_selftests.end());
-    g_cache.sata_info.erase(
-        std::remove_if(g_cache.sata_info.begin(), g_cache.sata_info.end(),
-                       [dev_idx](const CacheSataInfoRow &r) {
-                           return r.device_index == dev_idx; }),
-        g_cache.sata_info.end());
-    g_cache.sata_health.erase(
-        std::remove_if(g_cache.sata_health.begin(), g_cache.sata_health.end(),
-                       [dev_idx](const CacheSataHealthRow &r) {
-                           return r.device_index == dev_idx; }),
-        g_cache.sata_health.end());
-    g_cache.sata_error_log.erase(
-        std::remove_if(g_cache.sata_error_log.begin(), g_cache.sata_error_log.end(),
-                       [dev_idx](const CacheSataErrorLogRow &r) {
-                           return r.device_index == dev_idx; }),
-        g_cache.sata_error_log.end());
-    g_cache.sata_error_cmds.erase(
-        std::remove_if(g_cache.sata_error_cmds.begin(), g_cache.sata_error_cmds.end(),
-                       [dev_idx](const CacheSataErrorCmdRow &r) {
-                           return r.device_index == dev_idx; }),
-        g_cache.sata_error_cmds.end());
+    g_cache.clear_device_data(dev_idx);
 
     const JVal &attrs = root["ata_smart_attributes"]["table"];
     if (!attrs.is_array() && g_verbosity >= 1)
@@ -933,7 +846,11 @@ static void parse_ata(uint32_t dev_idx, const JVal &root) {
             {
                 uint32_t rrate = static_cast<uint32_t>(root["rotation_rate"].as_uint64());
                 if (rrate > 1) {
-                    // Rotating HDD: rotation_rate >1 means actual RPM (ATA spec: 1 = SSD/non-rotating)
+                    // Rotating HDD: rotation_rate >1 means actual RPM (ATA spec: 1 = SSD/non-rotating).
+                    // Thresholds are conservative defaults; HDDs do not expose manufacturer limits via
+                    // the ATA temperature object used for SSDs below.  A future improvement would be
+                    // to pull limits from the smartctl drive database, a per-device local config, or
+                    // expose them as writable MIB objects so operators can tune them.
                     sr.has_high_warning  = true;  sr.high_warning  = 45;
                     sr.has_high_critical = true;  sr.high_critical = 60;
                     sr.has_low_warning   = true;  sr.low_warning   = 5;
@@ -1144,36 +1061,7 @@ static void parse_ata(uint32_t dev_idx, const JVal &root) {
 }
 
 static void parse_scsi(uint32_t dev_idx, const JVal &root) {
-    g_cache.sensors.erase(
-        std::remove_if(g_cache.sensors.begin(), g_cache.sensors.end(),
-                       [dev_idx](const CacheSensorRow &r) {
-                           return r.device_index == dev_idx; }),
-        g_cache.sensors.end());
-    g_cache.sas_health.erase(
-        std::remove_if(g_cache.sas_health.begin(), g_cache.sas_health.end(),
-                       [dev_idx](const CacheSasHealthRow &r) {
-                           return r.device_index == dev_idx; }),
-        g_cache.sas_health.end());
-    g_cache.sas_error_counters.erase(
-        std::remove_if(g_cache.sas_error_counters.begin(), g_cache.sas_error_counters.end(),
-                       [dev_idx](const CacheSasErrorCounterRow &r) {
-                           return r.device_index == dev_idx; }),
-        g_cache.sas_error_counters.end());
-    g_cache.sas_selftests.erase(
-        std::remove_if(g_cache.sas_selftests.begin(), g_cache.sas_selftests.end(),
-                       [dev_idx](const CacheSasSelfTestRow &r) {
-                           return r.device_index == dev_idx; }),
-        g_cache.sas_selftests.end());
-    g_cache.sas_info.erase(
-        std::remove_if(g_cache.sas_info.begin(), g_cache.sas_info.end(),
-                       [dev_idx](const CacheSasInfoRow &r) {
-                           return r.device_index == dev_idx; }),
-        g_cache.sas_info.end());
-    g_cache.sas_bgscan.erase(
-        std::remove_if(g_cache.sas_bgscan.begin(), g_cache.sas_bgscan.end(),
-                       [dev_idx](const CacheSasBgScanRow &r) {
-                           return r.device_index == dev_idx; }),
-        g_cache.sas_bgscan.end());
+    g_cache.clear_device_data(dev_idx);
 
     if (g_verbosity >= 2)
         syslog(LOG_DEBUG, "datasrc: SCSI/SAS dev_idx=%u: no sensor rows emitted (protocol has no temp attr mapping)", dev_idx);
@@ -1473,15 +1361,15 @@ static void scan_state_dir() {
         if (name == "." || name == "..") continue;
         ++n_total;
         DeviceProto proto;
-        if (!decode_state_filename(name, proto)) continue;
+        if (!identify_state_file_proto(name, proto)) continue;
         ++n_accepted;
         process_json_file(s_state_dir + "/" + name);
     }
     closedir(d);
     if (g_verbosity >= 1)
-        syslog(LOG_DEBUG, "datasrc: scan done: %d file(s) found, %d accepted — cache=%p sensors.size=%zu ts_sensor=%ld elapsed=%ldms",
+        syslog(LOG_DEBUG, "datasrc: scan done: %d file(s) found, %d accepted — sensors=%zu ts_sensor=%ld elapsed=%ldms",
                n_total, n_accepted,
-               (void*)&g_cache, g_cache.sensors.size(), (long)g_cache.ts_sensor,
+               g_cache.sensors.size(), (long)g_cache.ts_sensor,
                elapsed_ms(t0));
 }
 
@@ -1554,7 +1442,7 @@ void agentxd_datasrc_handle_events() {
             std::string name = ev->name;
 
             DeviceProto proto;
-            if (!decode_state_filename(name, proto)) continue;
+            if (!identify_state_file_proto(name, proto)) continue;
 
             process_json_file(s_state_dir + "/" + name);
         }

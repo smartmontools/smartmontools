@@ -8,6 +8,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <sstream>
+#include <sys/stat.h>
 
 // ---------------------------------------------------------------------------
 // Parser state
@@ -58,18 +59,40 @@ struct Parser {
                 case 'r':  result += '\r'; break;
                 case 't':  result += '\t'; break;
                 case 'u': {
-                    // decode \uXXXX — only handle BMP as UTF-8
+                    // decode \uXXXX, including surrogate pairs, as UTF-8
                     if (end - p < 5) { error = "short \\u escape"; return {}; }
                     char hex[5] = { p[1], p[2], p[3], p[4], '\0' };
                     unsigned long cp = strtoul(hex, nullptr, 16);
                     p += 4;
+                    if (cp >= 0xD800 && cp <= 0xDBFF) {
+                        // High surrogate — must be followed by \uDCxx–\uDFxx
+                        if (end - p >= 7 && p[1] == '\\' && p[2] == 'u') {
+                            char hex2[5] = { p[3], p[4], p[5], p[6], '\0' };
+                            unsigned long lo = strtoul(hex2, nullptr, 16);
+                            if (lo >= 0xDC00 && lo <= 0xDFFF) {
+                                p += 6;
+                                cp = 0x10000 + ((cp - 0xD800) << 10) + (lo - 0xDC00);
+                            } else {
+                                error = "invalid low surrogate in \\u pair"; return {};
+                            }
+                        } else {
+                            error = "high surrogate not followed by \\uXXXX"; return {};
+                        }
+                    } else if (cp >= 0xDC00 && cp <= 0xDFFF) {
+                        error = "unexpected lone low surrogate"; return {};
+                    }
                     if (cp < 0x80) {
                         result += static_cast<char>(cp);
                     } else if (cp < 0x800) {
                         result += static_cast<char>(0xC0 | (cp >> 6));
                         result += static_cast<char>(0x80 | (cp & 0x3F));
-                    } else {
+                    } else if (cp < 0x10000) {
                         result += static_cast<char>(0xE0 | (cp >> 12));
+                        result += static_cast<char>(0x80 | ((cp >> 6) & 0x3F));
+                        result += static_cast<char>(0x80 | (cp & 0x3F));
+                    } else {
+                        result += static_cast<char>(0xF0 | (cp >> 18));
+                        result += static_cast<char>(0x80 | ((cp >> 12) & 0x3F));
                         result += static_cast<char>(0x80 | ((cp >> 6) & 0x3F));
                         result += static_cast<char>(0x80 | (cp & 0x3F));
                     }
@@ -232,16 +255,20 @@ JVal json_load_file(const std::string &path, std::string &error) {
         error = path + ": " + strerror(errno);
         return {};
     }
-    fseek(f, 0, SEEK_END);
-    long sz = ftell(f);
-    rewind(f);
-    if (sz <= 0) {
+    struct stat st;
+    if (fstat(fileno(f), &st) != 0) {
+        fclose(f);
+        error = path + ": fstat error";
+        return {};
+    }
+    if (st.st_size <= 0) {
         fclose(f);
         error = path + ": empty file";
         return {};
     }
-    std::string buf(static_cast<std::size_t>(sz), '\0');
-    if (fread(&buf[0], 1, static_cast<std::size_t>(sz), f) != static_cast<std::size_t>(sz)) {
+    std::size_t sz = static_cast<std::size_t>(st.st_size);
+    std::string buf(sz, '\0');
+    if (fread(&buf[0], 1, sz, f) != sz) {
         fclose(f);
         error = path + ": read error";
         return {};

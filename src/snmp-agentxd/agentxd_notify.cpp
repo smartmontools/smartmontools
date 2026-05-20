@@ -4,6 +4,9 @@
 #include "agentxd_cache.h"
 #include "snmp_oids.h"
 
+#include <cstring>
+#include <vector>
+
 #include <net-snmp/net-snmp-config.h>
 #include <net-snmp/net-snmp-includes.h>
 #include <net-snmp/agent/net-snmp-agent-includes.h>
@@ -31,12 +34,10 @@ static void append_uint32(netsnmp_variable_list **vars,
                           const oid *col_oid, size_t col_len,
                           uint32_t instance_idx,
                           u_char asn_type, u_long value) {
-    // Build instance OID: col_oid + .instance_idx
-    size_t inst_len = col_len + 1;
-    oid *inst = (oid*)alloca(inst_len * sizeof(oid));
-    memcpy(inst, col_oid, col_len * sizeof(oid));
+    std::vector<oid> inst(col_len + 1);
+    memcpy(inst.data(), col_oid, col_len * sizeof(oid));
     inst[col_len] = (oid)instance_idx;
-    snmp_varlist_add_variable(vars, inst, inst_len,
+    snmp_varlist_add_variable(vars, inst.data(), inst.size(),
                               asn_type, (u_char*)&value, sizeof(value));
 }
 
@@ -44,11 +45,10 @@ static void append_string(netsnmp_variable_list **vars,
                           const oid *col_oid, size_t col_len,
                           uint32_t instance_idx,
                           const char *str) {
-    size_t inst_len = col_len + 1;
-    oid *inst = (oid*)alloca(inst_len * sizeof(oid));
-    memcpy(inst, col_oid, col_len * sizeof(oid));
+    std::vector<oid> inst(col_len + 1);
+    memcpy(inst.data(), col_oid, col_len * sizeof(oid));
     inst[col_len] = (oid)instance_idx;
-    snmp_varlist_add_variable(vars, inst, inst_len,
+    snmp_varlist_add_variable(vars, inst.data(), inst.size(),
                               ASN_OCTET_STR,
                               (u_char*)str, strlen(str));
 }
@@ -58,9 +58,20 @@ static void append_string(netsnmp_variable_list **vars,
 // ---------------------------------------------------------------------------
 
 void notify_device_health_changed(uint32_t dev_idx, int new_status) {
-    netsnmp_variable_list *vars =
-        make_trap_header(oid_notif_nvme_health_changed,
-                         OID_LEN(oid_notif_nvme_health_changed));
+    const oid *notif_oid = oid_notif_nvme_health_changed;
+    size_t notif_len     = OID_LEN(oid_notif_nvme_health_changed);
+    for (const auto &d : g_cache.devices) {
+        if (d.index != dev_idx) continue;
+        if (d.proto == PROTO_ATA || d.proto == PROTO_SAT) {
+            notif_oid = oid_notif_sata_health_degraded;
+            notif_len = OID_LEN(oid_notif_sata_health_degraded);
+        } else if (d.proto == PROTO_SCSI || d.proto == PROTO_SAS) {
+            notif_oid = oid_notif_sas_health_changed;
+            notif_len = OID_LEN(oid_notif_sas_health_changed);
+        }
+        break;
+    }
+    netsnmp_variable_list *vars = make_trap_header(notif_oid, notif_len);
 
     // smartmonDevicePath.dev_idx
     const CacheDeviceRow *dev = nullptr;

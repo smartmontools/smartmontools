@@ -2,12 +2,12 @@
 
 #include "agentxd_config.h"
 
-int g_verbosity = 0;
-
 #include <cerrno>
 #include <cstdio>
 #include <cstring>
 #include <syslog.h>
+
+int g_verbosity = 0;
 
 bool agentxd_config_load(const char *path, AgentxConfig &out)
 {

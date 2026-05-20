@@ -9,14 +9,14 @@ Wants=smartmon-collect.timer
 
 [Service]
 Type=exec
-ExecStart=@sbindir@/smartmon-snmp-agentxd -f -c @sysconfdir@/smartmontools/snmp-agentxd.conf 
+ExecStart=@sbindir@/smartmon-snmp-agentxd -f -c @sysconfdir@/smartmontools/snmp-agentxd.conf
 Restart=on-failure
 RestartSec=10
 
 # ------------------------------------------------------------------ #
-# Security hardening                                                   #
-# The agent only reads JSON state files and connects to the AgentX    #
-# Unix socket.  No special privileges are needed at any point.        #
+# Security hardening                                                 #
+# The agent only reads JSON state files and connects to the AgentX   #
+# Unix socket.  No special privileges are needed at any point.       #
 # ------------------------------------------------------------------ #
 
 # Run as a dedicated unprivileged system account created on install
