@@ -30,7 +30,7 @@ smartmonNvmeMIB MODULE-IDENTITY
          capability, power-state, self-test, and error-log information
          corresponding to smartctl -x output.
 
-         Temperature readings, per-sensor readings, and temperature
+         Temperature readings, spare_available, percentage_used, per-sensor readings, and temperature
          thresholds are intentionally absent from this MIB.  All physical
          sensor data, including temperature, is provided by
          SMARTMON-SENSOR-MIB, which presents a unified sensor table
@@ -620,9 +620,9 @@ SmartmonNvmeHealthEntry ::= SEQUENCE {
     smartmonNvmeHealthIndex                      Unsigned32,
     smartmonNvmeHealthOverallStatus             SmartmonHealthStatus,
     smartmonNvmeCriticalWarning                 BITS,
-    smartmonNvmeAvailableSparePercent           SmartmonPercentage,
-    smartmonNvmeAvailableSpareThresholdPercent  SmartmonPercentage,
-    smartmonNvmePercentageUsed                  SmartmonPercentage,
+    -- smartmonNvmeAvailableSparePercent           SmartmonPercentage,
+    -- smartmonNvmeAvailableSpareThresholdPercent  SmartmonPercentage,
+    -- smartmonNvmePercentageUsed                  SmartmonPercentage,
     smartmonNvmeDataUnitsRead                   CounterBasedGauge64,
     smartmonNvmeDataUnitsWritten                CounterBasedGauge64,
     smartmonNvmeDataBytesRead                   CounterBasedGauge64,
@@ -669,29 +669,29 @@ smartmonNvmeCriticalWarning OBJECT-TYPE
          pmrUnreliable(5)       -- Persistent Memory Region read-only or unreliable"
     ::= { smartmonNvmeHealthEntry 2 }
 
-smartmonNvmeAvailableSparePercent OBJECT-TYPE
-    SYNTAX      SmartmonPercentage
-    UNITS       "percent"
-    MAX-ACCESS  read-only
-    STATUS      current
-    DESCRIPTION "Available spare percentage."
-    ::= { smartmonNvmeHealthEntry 4 }
+-- smartmonNvmeAvailableSparePercent OBJECT-TYPE
+--     SYNTAX      SmartmonPercentage
+--     UNITS       "percent"
+--     MAX-ACCESS  read-only
+--     STATUS      current
+--     DESCRIPTION "Available spare percentage."
+--     ::= { smartmonNvmeHealthEntry 4 }
 
-smartmonNvmeAvailableSpareThresholdPercent OBJECT-TYPE
-    SYNTAX      SmartmonPercentage
-    UNITS       "percent"
-    MAX-ACCESS  read-only
-    STATUS      current
-    DESCRIPTION "Available spare threshold percentage."
-    ::= { smartmonNvmeHealthEntry 5 }
+-- smartmonNvmeAvailableSpareThresholdPercent OBJECT-TYPE
+--     SYNTAX      SmartmonPercentage
+--     UNITS       "percent"
+--     MAX-ACCESS  read-only
+--     STATUS      current
+--     DESCRIPTION "Available spare threshold percentage."
+--     ::= { smartmonNvmeHealthEntry 5 }
 
-smartmonNvmePercentageUsed OBJECT-TYPE
-    SYNTAX      SmartmonPercentage
-    UNITS       "percent"
-    MAX-ACCESS  read-only
-    STATUS      current
-    DESCRIPTION "Estimated percentage of device lifetime used."
-    ::= { smartmonNvmeHealthEntry 6 }
+-- smartmonNvmePercentageUsed OBJECT-TYPE
+--     SYNTAX      SmartmonPercentage
+--     UNITS       "percent"
+--     MAX-ACCESS  read-only
+--     STATUS      current
+--     DESCRIPTION "Estimated percentage of device lifetime used."
+--     ::= { smartmonNvmeHealthEntry 6 }
 
 smartmonNvmeDataUnitsRead OBJECT-TYPE
     SYNTAX      CounterBasedGauge64
@@ -1092,8 +1092,11 @@ smartmonNvmeErrorStatusCodeType OBJECT-TYPE
     STATUS      current
     DESCRIPTION
         "Status Code Type from the NVMe completion queue entry status field
-         (status_field.status_code_type): 0=Generic, 1=Command Specific,
-         2=Media/Data Integrity, 3=Path Related."
+         (status_field.status_code_type): 
+         0=Generic, 
+         1=Command Specific,
+         2=Media/Data Integrity, 
+         3=Path Related."
     ::= { smartmonNvmeErrorLogEntry 11 }
 
 smartmonNvmeErrorDoNotRetry OBJECT-TYPE
