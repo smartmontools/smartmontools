@@ -1,11 +1,7 @@
 // snmp_nvme_mib.cpp — NVMe health and self-test table handlers
 
 #include "snmp_nvme_mib.h"
-#include "agentxd_cache.h"
-#include "snmp_oids.h"
-
-#include <cstring>
-#include <ctime>
+#include "snmp_mib_helpers.h"
 
 #include <net-snmp/net-snmp-config.h>
 #include <net-snmp/net-snmp-includes.h>
@@ -15,58 +11,29 @@
 // NVMe table metadata scalar handlers
 // ---------------------------------------------------------------------------
 
-#define NVME_ROW_COUNT_HANDLER(name, cache_field) \
-static int name(netsnmp_mib_handler *, netsnmp_handler_registration *, \
-                netsnmp_agent_request_info *reqinfo, netsnmp_request_info *requests) { \
-    if (reqinfo->mode != MODE_GET) return SNMP_ERR_NOERROR; \
-    u_long v = (u_long)g_cache.cache_field.size(); \
-    snmp_set_var_typed_value(requests->requestvb, ASN_GAUGE, (u_char*)&v, sizeof(v)); \
-    return SNMP_ERR_NOERROR; \
-}
+TABLE_ROW_COUNT_HANDLER(nvme_ctrl_row_count_handler,    nvme_controllers)
+TABLE_LAST_CHANGE_HANDLER(nvme_ctrl_last_change_handler, ts_nvme_controller)
 
-#define NVME_LAST_CHANGE_HANDLER(name, ts_field) \
-static int name(netsnmp_mib_handler *, netsnmp_handler_registration *, \
-                netsnmp_agent_request_info *reqinfo, netsnmp_request_info *requests) { \
-    if (reqinfo->mode != MODE_GET) return SNMP_ERR_NOERROR; \
-    uint8_t dt[8]; snmp_encode_date_time(g_cache.ts_field, dt); \
-    snmp_set_var_typed_value(requests->requestvb, ASN_OCTET_STR, dt, sizeof(dt)); \
-    return SNMP_ERR_NOERROR; \
-}
+TABLE_ROW_COUNT_HANDLER(nvme_ns_row_count_handler,      nvme_namespaces)
+TABLE_LAST_CHANGE_HANDLER(nvme_ns_last_change_handler,   ts_nvme_namespace)
 
-NVME_ROW_COUNT_HANDLER(nvme_ctrl_row_count_handler,    nvme_controllers)
-NVME_LAST_CHANGE_HANDLER(nvme_ctrl_last_change_handler, ts_nvme_controller)
+TABLE_ROW_COUNT_HANDLER(nvme_health_row_count_handler,   nvme_health)
+TABLE_LAST_CHANGE_HANDLER(nvme_health_last_change_handler, ts_nvme_health)
 
-NVME_ROW_COUNT_HANDLER(nvme_ns_row_count_handler,      nvme_namespaces)
-NVME_LAST_CHANGE_HANDLER(nvme_ns_last_change_handler,   ts_nvme_namespace)
+TABLE_ROW_COUNT_HANDLER(nvme_st_row_count_handler,       nvme_selftests)
+TABLE_LAST_CHANGE_HANDLER(nvme_st_last_change_handler,    ts_nvme_selftest)
 
-NVME_ROW_COUNT_HANDLER(nvme_health_row_count_handler,   nvme_health)
-NVME_LAST_CHANGE_HANDLER(nvme_health_last_change_handler, ts_nvme_health)
+TABLE_ROW_COUNT_HANDLER(nvme_el_row_count_handler,       nvme_error_log)
+TABLE_LAST_CHANGE_HANDLER(nvme_el_last_change_handler,   ts_nvme_error_log)
 
-NVME_ROW_COUNT_HANDLER(nvme_st_row_count_handler,       nvme_selftests)
-NVME_LAST_CHANGE_HANDLER(nvme_st_last_change_handler,    ts_nvme_selftest)
+TABLE_ROW_COUNT_HANDLER(nvme_cap_row_count_handler,      nvme_capabilities)
+TABLE_LAST_CHANGE_HANDLER(nvme_cap_last_change_handler,  ts_nvme_capability)
 
-NVME_ROW_COUNT_HANDLER(nvme_el_row_count_handler,        nvme_error_log)
-NVME_LAST_CHANGE_HANDLER(nvme_el_last_change_handler,    ts_nvme_error_log)
+TABLE_ROW_COUNT_HANDLER(nvme_ps_row_count_handler,       nvme_power_states)
+TABLE_LAST_CHANGE_HANDLER(nvme_ps_last_change_handler,   ts_nvme_power_state)
 
-NVME_ROW_COUNT_HANDLER(nvme_cap_row_count_handler,       nvme_capabilities)
-NVME_LAST_CHANGE_HANDLER(nvme_cap_last_change_handler,   ts_nvme_capability)
-
-NVME_ROW_COUNT_HANDLER(nvme_ps_row_count_handler,        nvme_power_states)
-NVME_LAST_CHANGE_HANDLER(nvme_ps_last_change_handler,    ts_nvme_power_state)
-
-NVME_ROW_COUNT_HANDLER(nvme_lba_row_count_handler,       nvme_lba_formats)
-NVME_LAST_CHANGE_HANDLER(nvme_lba_last_change_handler,   ts_nvme_lba_format)
-
-// ---------------------------------------------------------------------------
-// Utility: set a Counter64 response value
-// ---------------------------------------------------------------------------
-static void set_counter64(netsnmp_request_info *req, uint64_t val) {
-    struct counter64 c64;
-    c64.high = (u_long)(val >> 32);
-    c64.low  = (u_long)(val & 0xffffffffUL);
-    snmp_set_var_typed_value(req->requestvb, ASN_COUNTER64,
-                             (u_char*)&c64, sizeof(c64));
-}
+TABLE_ROW_COUNT_HANDLER(nvme_lba_row_count_handler,      nvme_lba_formats)
+TABLE_LAST_CHANGE_HANDLER(nvme_lba_last_change_handler,  ts_nvme_lba_format)
 
 static void set_bits1(netsnmp_request_info *req, uint8_t raw_bits) {
     // ASN.1 BITS: bit 0 of the named bits → MSB of first octet
@@ -120,14 +87,6 @@ nvme_health_get_next(void **loop_ctx, void **data_ctx,
     snmp_set_var_typed_value(put_idx->next_variable, ASN_UNSIGNED,
                              (u_char*)&v, sizeof(v));
     return put_idx;
-}
-
-static netsnmp_variable_list *
-nvme_health_get_first(void **loop_ctx, void **data_ctx,
-                      netsnmp_variable_list *put_idx,
-                      netsnmp_iterator_info *ii) {
-    *loop_ctx = 0;
-    return nvme_health_get_next(loop_ctx, data_ctx, put_idx, ii);
 }
 
 static int
@@ -216,14 +175,6 @@ nvme_st_get_next(void **loop_ctx, void **data_ctx,
     return put_idx;
 }
 
-static netsnmp_variable_list *
-nvme_st_get_first(void **loop_ctx, void **data_ctx,
-                  netsnmp_variable_list *put_idx,
-                  netsnmp_iterator_info *ii) {
-    *loop_ctx = 0;
-    return nvme_st_get_next(loop_ctx, data_ctx, put_idx, ii);
-}
-
 static int
 nvme_st_handler(netsnmp_mib_handler *,
                 netsnmp_handler_registration *,
@@ -305,14 +256,6 @@ nvme_ctrl_get_next(void **loop_ctx, void **data_ctx,
     snmp_set_var_typed_value(put_idx->next_variable, ASN_UNSIGNED,
                              (u_char*)&v, sizeof(v));
     return put_idx;
-}
-
-static netsnmp_variable_list *
-nvme_ctrl_get_first(void **loop_ctx, void **data_ctx,
-                    netsnmp_variable_list *put_idx,
-                    netsnmp_iterator_info *ii) {
-    *loop_ctx = 0;
-    return nvme_ctrl_get_next(loop_ctx, data_ctx, put_idx, ii);
 }
 
 static int
@@ -411,14 +354,6 @@ nvme_ns_get_next(void **loop_ctx, void **data_ctx,
     return put_idx;
 }
 
-static netsnmp_variable_list *
-nvme_ns_get_first(void **loop_ctx, void **data_ctx,
-                  netsnmp_variable_list *put_idx,
-                  netsnmp_iterator_info *ii) {
-    *loop_ctx = 0;
-    return nvme_ns_get_next(loop_ctx, data_ctx, put_idx, ii);
-}
-
 static int
 nvme_ns_handler(netsnmp_mib_handler *,
                 netsnmp_handler_registration *,
@@ -489,14 +424,6 @@ nvme_el_get_next(void **loop_ctx, void **data_ctx,
     snmp_set_var_typed_value(put_idx->next_variable, ASN_UNSIGNED,
                              (u_char*)&v, sizeof(v));
     return put_idx;
-}
-
-static netsnmp_variable_list *
-nvme_el_get_first(void **loop_ctx, void **data_ctx,
-                  netsnmp_variable_list *put_idx,
-                  netsnmp_iterator_info *ii) {
-    *loop_ctx = 0;
-    return nvme_el_get_next(loop_ctx, data_ctx, put_idx, ii);
 }
 
 static int
@@ -589,14 +516,6 @@ nvme_cap_get_next(void **loop_ctx, void **data_ctx,
     return put_idx;
 }
 
-static netsnmp_variable_list *
-nvme_cap_get_first(void **loop_ctx, void **data_ctx,
-                   netsnmp_variable_list *put_idx,
-                   netsnmp_iterator_info *ii) {
-    *loop_ctx = 0;
-    return nvme_cap_get_next(loop_ctx, data_ctx, put_idx, ii);
-}
-
 static int
 nvme_cap_handler(netsnmp_mib_handler *,
                  netsnmp_handler_registration *,
@@ -675,14 +594,6 @@ nvme_ps_get_next(void **loop_ctx, void **data_ctx,
     snmp_set_var_typed_value(put_idx->next_variable, ASN_UNSIGNED,
                              (u_char*)&v, sizeof(v));
     return put_idx;
-}
-
-static netsnmp_variable_list *
-nvme_ps_get_first(void **loop_ctx, void **data_ctx,
-                  netsnmp_variable_list *put_idx,
-                  netsnmp_iterator_info *ii) {
-    *loop_ctx = 0;
-    return nvme_ps_get_next(loop_ctx, data_ctx, put_idx, ii);
 }
 
 static int
@@ -773,14 +684,6 @@ nvme_lba_get_next(void **loop_ctx, void **data_ctx,
     return put_idx;
 }
 
-static netsnmp_variable_list *
-nvme_lba_get_first(void **loop_ctx, void **data_ctx,
-                   netsnmp_variable_list *put_idx,
-                   netsnmp_iterator_info *ii) {
-    *loop_ctx = 0;
-    return nvme_lba_get_next(loop_ctx, data_ctx, put_idx, ii);
-}
-
 static int
 nvme_lba_handler(netsnmp_mib_handler *,
                  netsnmp_handler_registration *,
@@ -850,97 +753,11 @@ void register_nvme_mib() {
         "nvmeErrorLogTableLastChange",   nvme_el_last_change_handler,
         oid_nvme_error_log_last_change,  OID_LEN(oid_nvme_error_log_last_change),  HANDLER_CAN_RONLY));
 
-    // NVMe health table (2 index columns: deviceIndex + healthIndex)
-    {
-        netsnmp_handler_registration *reg =
-            netsnmp_create_handler_registration(
-                "smartmonNvmeHealthTable", nvme_health_handler,
-                oid_nvme_health_table, OID_LEN(oid_nvme_health_table),
-                HANDLER_CAN_RONLY);
-
-        netsnmp_table_registration_info *tinfo =
-            SNMP_MALLOC_TYPEDEF(netsnmp_table_registration_info);
-        netsnmp_table_helper_add_indexes(tinfo, ASN_UNSIGNED, ASN_UNSIGNED, 0);
-        tinfo->min_column = 1;
-        tinfo->max_column = 23;
-
-        netsnmp_iterator_info *iinfo =
-            SNMP_MALLOC_TYPEDEF(netsnmp_iterator_info);
-        iinfo->get_first_data_point = nvme_health_get_first;
-        iinfo->get_next_data_point  = nvme_health_get_next;
-        iinfo->table_reginfo        = tinfo;
-
-        netsnmp_register_table_iterator(reg, iinfo);
-    }
-
-    // NVMe self-test table (2 index columns: deviceIndex + selfTestIndex)
-    {
-        netsnmp_handler_registration *reg =
-            netsnmp_create_handler_registration(
-                "smartmonNvmeSelfTestTable", nvme_st_handler,
-                oid_nvme_selftest_table, OID_LEN(oid_nvme_selftest_table),
-                HANDLER_CAN_RONLY);
-
-        netsnmp_table_registration_info *tinfo =
-            SNMP_MALLOC_TYPEDEF(netsnmp_table_registration_info);
-        netsnmp_table_helper_add_indexes(tinfo, ASN_UNSIGNED, ASN_UNSIGNED, 0);
-        tinfo->min_column = 2;
-        tinfo->max_column = 11;
-
-        netsnmp_iterator_info *iinfo =
-            SNMP_MALLOC_TYPEDEF(netsnmp_iterator_info);
-        iinfo->get_first_data_point = nvme_st_get_first;
-        iinfo->get_next_data_point  = nvme_st_get_next;
-        iinfo->table_reginfo        = tinfo;
-
-        netsnmp_register_table_iterator(reg, iinfo);
-    }
-
-    // NVMe controller table (2 index columns: deviceIndex + controllerIndex)
-    {
-        netsnmp_handler_registration *reg =
-            netsnmp_create_handler_registration(
-                "smartmonNvmeControllerTable", nvme_ctrl_handler,
-                oid_nvme_controller_table, OID_LEN(oid_nvme_controller_table),
-                HANDLER_CAN_RONLY);
-
-        netsnmp_table_registration_info *tinfo =
-            SNMP_MALLOC_TYPEDEF(netsnmp_table_registration_info);
-        netsnmp_table_helper_add_indexes(tinfo, ASN_UNSIGNED, ASN_UNSIGNED, 0);
-        tinfo->min_column = 1;
-        tinfo->max_column = 18;
-
-        netsnmp_iterator_info *iinfo =
-            SNMP_MALLOC_TYPEDEF(netsnmp_iterator_info);
-        iinfo->get_first_data_point = nvme_ctrl_get_first;
-        iinfo->get_next_data_point  = nvme_ctrl_get_next;
-        iinfo->table_reginfo        = tinfo;
-
-        netsnmp_register_table_iterator(reg, iinfo);
-    }
-
-    // NVMe namespace table (2 index columns: deviceIndex + namespaceId)
-    {
-        netsnmp_handler_registration *reg =
-            netsnmp_create_handler_registration(
-                "smartmonNvmeNamespaceTable", nvme_ns_handler,
-                oid_nvme_namespace_table, OID_LEN(oid_nvme_namespace_table),
-                HANDLER_CAN_RONLY);
-
-        netsnmp_table_registration_info *tinfo =
-            SNMP_MALLOC_TYPEDEF(netsnmp_table_registration_info);
-        netsnmp_table_helper_add_indexes(tinfo, ASN_UNSIGNED, ASN_UNSIGNED, 0);
-        tinfo->min_column = 1;
-        tinfo->max_column = 10;
-
-        netsnmp_iterator_info *iinfo =
-            SNMP_MALLOC_TYPEDEF(netsnmp_iterator_info);
-        iinfo->get_first_data_point = nvme_ns_get_first;
-        iinfo->get_next_data_point  = nvme_ns_get_next;
-        iinfo->table_reginfo        = tinfo;
-
-        netsnmp_register_table_iterator(reg, iinfo);
-    }
+    // NVMe table iterator registrations
+    REG_TABLE_UU("smartmonNvmeHealthTable",     nvme_health_handler, oid_nvme_health_table,       nvme_health_get_next,  1, 23);
+    REG_TABLE_UU("smartmonNvmeSelfTestTable",   nvme_st_handler,     oid_nvme_selftest_table,     nvme_st_get_next,      2, 11);
+    REG_TABLE_UU("smartmonNvmeControllerTable", nvme_ctrl_handler,   oid_nvme_controller_table,   nvme_ctrl_get_next,    1, 18);
+    REG_TABLE_UU("smartmonNvmeNamespaceTable",  nvme_ns_handler,     oid_nvme_namespace_table,    nvme_ns_get_next,      1, 10);
 
     // NVMe capability table metadata scalars
     netsnmp_register_scalar(netsnmp_create_handler_registration(
@@ -950,28 +767,7 @@ void register_nvme_mib() {
         "nvmeCapabilityTableLastChange",  nvme_cap_last_change_handler,
         oid_nvme_capability_last_change,  OID_LEN(oid_nvme_capability_last_change),  HANDLER_CAN_RONLY));
 
-    // NVMe capability table (2 index columns: deviceIndex + capabilityIndex)
-    {
-        netsnmp_handler_registration *reg =
-            netsnmp_create_handler_registration(
-                "smartmonNvmeCapabilityTable", nvme_cap_handler,
-                oid_nvme_capability_table, OID_LEN(oid_nvme_capability_table),
-                HANDLER_CAN_RONLY);
-
-        netsnmp_table_registration_info *tinfo =
-            SNMP_MALLOC_TYPEDEF(netsnmp_table_registration_info);
-        netsnmp_table_helper_add_indexes(tinfo, ASN_UNSIGNED, ASN_UNSIGNED, 0);
-        tinfo->min_column = 1;
-        tinfo->max_column = 9;
-
-        netsnmp_iterator_info *iinfo =
-            SNMP_MALLOC_TYPEDEF(netsnmp_iterator_info);
-        iinfo->get_first_data_point = nvme_cap_get_first;
-        iinfo->get_next_data_point  = nvme_cap_get_next;
-        iinfo->table_reginfo        = tinfo;
-
-        netsnmp_register_table_iterator(reg, iinfo);
-    }
+    REG_TABLE_UU("smartmonNvmeCapabilityTable", nvme_cap_handler, oid_nvme_capability_table, nvme_cap_get_next, 1, 9);
 
     // NVMe power state table metadata scalars
     netsnmp_register_scalar(netsnmp_create_handler_registration(
@@ -981,28 +777,7 @@ void register_nvme_mib() {
         "nvmePowerStateTableLastChange",  nvme_ps_last_change_handler,
         oid_nvme_powerstate_last_change,  OID_LEN(oid_nvme_powerstate_last_change),  HANDLER_CAN_RONLY));
 
-    // NVMe power state table (2 index columns: deviceIndex + powerStateIndex)
-    {
-        netsnmp_handler_registration *reg =
-            netsnmp_create_handler_registration(
-                "smartmonNvmePowerStateTable", nvme_ps_handler,
-                oid_nvme_powerstate_table, OID_LEN(oid_nvme_powerstate_table),
-                HANDLER_CAN_RONLY);
-
-        netsnmp_table_registration_info *tinfo =
-            SNMP_MALLOC_TYPEDEF(netsnmp_table_registration_info);
-        netsnmp_table_helper_add_indexes(tinfo, ASN_UNSIGNED, ASN_UNSIGNED, 0);
-        tinfo->min_column = 2;
-        tinfo->max_column = 11;
-
-        netsnmp_iterator_info *iinfo =
-            SNMP_MALLOC_TYPEDEF(netsnmp_iterator_info);
-        iinfo->get_first_data_point = nvme_ps_get_first;
-        iinfo->get_next_data_point  = nvme_ps_get_next;
-        iinfo->table_reginfo        = tinfo;
-
-        netsnmp_register_table_iterator(reg, iinfo);
-    }
+    REG_TABLE_UU("smartmonNvmePowerStateTable", nvme_ps_handler, oid_nvme_powerstate_table, nvme_ps_get_next, 2, 11);
 
     // NVMe LBA format table metadata scalars
     netsnmp_register_scalar(netsnmp_create_handler_registration(
@@ -1013,49 +788,7 @@ void register_nvme_mib() {
         oid_nvme_lbafmt_last_change,      OID_LEN(oid_nvme_lbafmt_last_change),      HANDLER_CAN_RONLY));
 
     // NVMe LBA format table (3 index columns: deviceIndex + namespaceId + formatId)
-    {
-        netsnmp_handler_registration *reg =
-            netsnmp_create_handler_registration(
-                "smartmonNvmeLbaFormatTable", nvme_lba_handler,
-                oid_nvme_lbafmt_table, OID_LEN(oid_nvme_lbafmt_table),
-                HANDLER_CAN_RONLY);
+    REG_TABLE_UUU("smartmonNvmeLbaFormatTable", nvme_lba_handler, oid_nvme_lbafmt_table, nvme_lba_get_next, 2, 5);
 
-        netsnmp_table_registration_info *tinfo =
-            SNMP_MALLOC_TYPEDEF(netsnmp_table_registration_info);
-        netsnmp_table_helper_add_indexes(tinfo,
-            ASN_UNSIGNED, ASN_UNSIGNED, ASN_UNSIGNED, 0);
-        tinfo->min_column = 2;
-        tinfo->max_column = 5;
-
-        netsnmp_iterator_info *iinfo =
-            SNMP_MALLOC_TYPEDEF(netsnmp_iterator_info);
-        iinfo->get_first_data_point = nvme_lba_get_first;
-        iinfo->get_next_data_point  = nvme_lba_get_next;
-        iinfo->table_reginfo        = tinfo;
-
-        netsnmp_register_table_iterator(reg, iinfo);
-    }
-
-    // NVMe error log table (2 index columns: deviceIndex + errorLogIndex)
-    {
-        netsnmp_handler_registration *reg =
-            netsnmp_create_handler_registration(
-                "smartmonNvmeErrorLogTable", nvme_el_handler,
-                oid_nvme_error_log_table, OID_LEN(oid_nvme_error_log_table),
-                HANDLER_CAN_RONLY);
-
-        netsnmp_table_registration_info *tinfo =
-            SNMP_MALLOC_TYPEDEF(netsnmp_table_registration_info);
-        netsnmp_table_helper_add_indexes(tinfo, ASN_UNSIGNED, ASN_UNSIGNED, 0);
-        tinfo->min_column = 1;
-        tinfo->max_column = 14;
-
-        netsnmp_iterator_info *iinfo =
-            SNMP_MALLOC_TYPEDEF(netsnmp_iterator_info);
-        iinfo->get_first_data_point = nvme_el_get_first;
-        iinfo->get_next_data_point  = nvme_el_get_next;
-        iinfo->table_reginfo        = tinfo;
-
-        netsnmp_register_table_iterator(reg, iinfo);
-    }
+    REG_TABLE_UU("smartmonNvmeErrorLogTable",   nvme_el_handler,  oid_nvme_error_log_table, nvme_el_get_next, 1, 14);
 }

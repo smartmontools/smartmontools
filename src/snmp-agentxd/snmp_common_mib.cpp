@@ -1,11 +1,7 @@
 // snmp_common_mib.cpp — smartmonDeviceTable + metadata scalar handlers
 
 #include "snmp_common_mib.h"
-#include "agentxd_cache.h"
-#include "snmp_oids.h"
-
-#include <cstring>
-#include <ctime>
+#include "snmp_mib_helpers.h"
 
 #include <net-snmp/net-snmp-config.h>
 #include <net-snmp/net-snmp-includes.h>
@@ -37,14 +33,6 @@ device_get_next(void **loop_ctx, void **data_ctx,
     snmp_set_var_typed_value(put_idx, ASN_UNSIGNED,
                              (u_char*)&uval, sizeof(uval));
     return put_idx;
-}
-
-static netsnmp_variable_list *
-device_get_first(void **loop_ctx, void **data_ctx,
-                 netsnmp_variable_list *put_idx,
-                 netsnmp_iterator_info *ii) {
-    *loop_ctx = 0;
-    return device_get_next(loop_ctx, data_ctx, put_idx, ii);
 }
 
 static int
@@ -157,108 +145,37 @@ device_count_sas_handler(netsnmp_mib_handler *,
 }
 
 // ---------------------------------------------------------------------------
-// Device table row-count scalar (smartmonDeviceTableRowCount)
+// Device table metadata scalar handlers
 // ---------------------------------------------------------------------------
 
-static int
-device_row_count_handler(netsnmp_mib_handler *,
-                         netsnmp_handler_registration *,
-                         netsnmp_agent_request_info *reqinfo,
-                         netsnmp_request_info *requests) {
-    if (reqinfo->mode != MODE_GET) return SNMP_ERR_NOERROR;
-    u_long count = (u_long)g_cache.devices.size();
-    snmp_set_var_typed_value(requests->requestvb, ASN_GAUGE,
-                             (u_char*)&count, sizeof(count));
-    return SNMP_ERR_NOERROR;
-}
-
-// ---------------------------------------------------------------------------
-// Device table last-change scalar (smartmonDeviceTableLastChange)
-// ---------------------------------------------------------------------------
-
-static int
-device_last_change_handler(netsnmp_mib_handler *,
-                            netsnmp_handler_registration *,
-                            netsnmp_agent_request_info *reqinfo,
-                            netsnmp_request_info *requests) {
-    if (reqinfo->mode != MODE_GET) return SNMP_ERR_NOERROR;
-    uint8_t dt[8];
-    snmp_encode_date_time(g_cache.ts_device_table, dt);
-    snmp_set_var_typed_value(requests->requestvb, ASN_OCTET_STR, dt, sizeof(dt));
-    return SNMP_ERR_NOERROR;
-}
+TABLE_ROW_COUNT_HANDLER(device_row_count_handler,    devices)
+TABLE_LAST_CHANGE_HANDLER(device_last_change_handler, ts_device_table)
 
 // ---------------------------------------------------------------------------
 // Registration
 // ---------------------------------------------------------------------------
 
 void register_common_mib() {
-    // Device table row-count scalar
-    {
-        netsnmp_handler_registration *reg =
-            netsnmp_create_handler_registration(
-                "smartmonDeviceTableRowCount", device_row_count_handler,
-                oid_device_row_count, OID_LEN(oid_device_row_count),
-                HANDLER_CAN_RONLY);
-        netsnmp_register_scalar(reg);
-    }
-
-    // Device table last-change scalar
-    {
-        netsnmp_handler_registration *reg =
-            netsnmp_create_handler_registration(
-                "smartmonDeviceTableLastChange", device_last_change_handler,
-                oid_device_last_change, OID_LEN(oid_device_last_change),
-                HANDLER_CAN_RONLY);
-        netsnmp_register_scalar(reg);
-    }
+    // Device table metadata scalars
+    netsnmp_register_scalar(netsnmp_create_handler_registration(
+        "smartmonDeviceTableRowCount",  device_row_count_handler,
+        oid_device_row_count,  OID_LEN(oid_device_row_count),  HANDLER_CAN_RONLY));
+    netsnmp_register_scalar(netsnmp_create_handler_registration(
+        "smartmonDeviceTableLastChange", device_last_change_handler,
+        oid_device_last_change, OID_LEN(oid_device_last_change), HANDLER_CAN_RONLY));
 
     // Per-type count scalars
-    {
-        netsnmp_handler_registration *reg =
-            netsnmp_create_handler_registration(
-                "smartmonDeviceCountNvme", device_count_nvme_handler,
-                oid_device_count_nvme, OID_LEN(oid_device_count_nvme),
-                HANDLER_CAN_RONLY);
-        netsnmp_register_scalar(reg);
-    }
-    {
-        netsnmp_handler_registration *reg =
-            netsnmp_create_handler_registration(
-                "smartmonDeviceCountAta", device_count_ata_handler,
-                oid_device_count_ata, OID_LEN(oid_device_count_ata),
-                HANDLER_CAN_RONLY);
-        netsnmp_register_scalar(reg);
-    }
-    {
-        netsnmp_handler_registration *reg =
-            netsnmp_create_handler_registration(
-                "smartmonDeviceCountSas", device_count_sas_handler,
-                oid_device_count_sas, OID_LEN(oid_device_count_sas),
-                HANDLER_CAN_RONLY);
-        netsnmp_register_scalar(reg);
-    }
+    netsnmp_register_scalar(netsnmp_create_handler_registration(
+        "smartmonDeviceCountNvme", device_count_nvme_handler,
+        oid_device_count_nvme, OID_LEN(oid_device_count_nvme), HANDLER_CAN_RONLY));
+    netsnmp_register_scalar(netsnmp_create_handler_registration(
+        "smartmonDeviceCountAta",  device_count_ata_handler,
+        oid_device_count_ata,  OID_LEN(oid_device_count_ata),  HANDLER_CAN_RONLY));
+    netsnmp_register_scalar(netsnmp_create_handler_registration(
+        "smartmonDeviceCountSas",  device_count_sas_handler,
+        oid_device_count_sas,  OID_LEN(oid_device_count_sas),  HANDLER_CAN_RONLY));
 
-    // Device table
-    {
-        netsnmp_handler_registration *reg =
-            netsnmp_create_handler_registration(
-                "smartmonDeviceTable", device_table_handler,
-                oid_device_table, OID_LEN(oid_device_table),
-                HANDLER_CAN_RONLY);
-
-        netsnmp_table_registration_info *tinfo =
-            SNMP_MALLOC_TYPEDEF(netsnmp_table_registration_info);
-        netsnmp_table_helper_add_indexes(tinfo, ASN_UNSIGNED, 0);
-        tinfo->min_column = COL_DEV_NAME;
-        tinfo->max_column = COL_DEV_URIS;
-
-        netsnmp_iterator_info *iinfo =
-            SNMP_MALLOC_TYPEDEF(netsnmp_iterator_info);
-        iinfo->get_first_data_point = device_get_first;
-        iinfo->get_next_data_point  = device_get_next;
-        iinfo->table_reginfo        = tinfo;
-
-        netsnmp_register_table_iterator(reg, iinfo);
-    }
+    // Device table (single ASN_UNSIGNED index: smartmonDeviceIndex)
+    REG_TABLE_U("smartmonDeviceTable", device_table_handler, oid_device_table,
+                device_get_next, COL_DEV_NAME, COL_DEV_URIS);
 }

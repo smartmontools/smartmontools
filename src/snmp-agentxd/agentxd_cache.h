@@ -522,6 +522,9 @@ struct AgentxCache {
     // Remove everything — used on SIGHUP before full re-scan
     void clear();
 
+    // Find a device row by index; returns nullptr if not found
+    const CacheDeviceRow *find_device(uint32_t device_index) const;
+
     // Find or create a device row, return its index
     uint32_t upsert_device(const std::string &path, DeviceProto proto);
 };

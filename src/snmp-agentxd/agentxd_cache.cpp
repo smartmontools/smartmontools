@@ -68,6 +68,12 @@ void AgentxCache::clear() {
     ts_sas_selftest = ts_sas_bgscan      = ts_sensor            = 0;
 }
 
+const CacheDeviceRow *AgentxCache::find_device(uint32_t idx) const {
+    for (const auto &d : devices)
+        if (d.index == idx) return &d;
+    return nullptr;
+}
+
 uint32_t AgentxCache::upsert_device(const std::string &path, DeviceProto proto) {
     for (auto &row : devices) {
         if (row.path == path) {

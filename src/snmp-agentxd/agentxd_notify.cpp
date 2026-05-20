@@ -60,23 +60,17 @@ static void append_string(netsnmp_variable_list **vars,
 void notify_device_health_changed(uint32_t dev_idx, int new_status) {
     const oid *notif_oid = oid_notif_nvme_health_changed;
     size_t notif_len     = OID_LEN(oid_notif_nvme_health_changed);
-    for (const auto &d : g_cache.devices) {
-        if (d.index != dev_idx) continue;
-        if (d.proto == PROTO_ATA || d.proto == PROTO_SAT) {
+    const CacheDeviceRow *dev = g_cache.find_device(dev_idx);
+    if (dev) {
+        if (dev->proto == PROTO_ATA || dev->proto == PROTO_SAT) {
             notif_oid = oid_notif_sata_health_degraded;
             notif_len = OID_LEN(oid_notif_sata_health_degraded);
-        } else if (d.proto == PROTO_SCSI || d.proto == PROTO_SAS) {
+        } else if (dev->proto == PROTO_SCSI || dev->proto == PROTO_SAS) {
             notif_oid = oid_notif_sas_health_changed;
             notif_len = OID_LEN(oid_notif_sas_health_changed);
         }
-        break;
     }
     netsnmp_variable_list *vars = make_trap_header(notif_oid, notif_len);
-
-    // smartmonDevicePath.dev_idx
-    const CacheDeviceRow *dev = nullptr;
-    for (const auto &d : g_cache.devices)
-        if (d.index == dev_idx) { dev = &d; break; }
 
     if (dev) {
         append_string(&vars, oid_device_path, OID_LEN(oid_device_path),
@@ -96,10 +90,7 @@ void notify_device_polling_failed(uint32_t dev_idx, int poll_result) {
         make_trap_header(oid_notif_device_poll_failed,
                          OID_LEN(oid_notif_device_poll_failed));
 
-    const CacheDeviceRow *dev = nullptr;
-    for (const auto &d : g_cache.devices)
-        if (d.index == dev_idx) { dev = &d; break; }
-
+    const CacheDeviceRow *dev = g_cache.find_device(dev_idx);
     if (dev) {
         append_string(&vars, oid_device_name, OID_LEN(oid_device_name),
                       dev_idx, dev->name.c_str());
@@ -135,9 +126,7 @@ void notify_selftest_failed(uint32_t dev_idx, const char *type_str,
     netsnmp_variable_list *vars = make_trap_header(notif_oid, notif_len);
 
     // Include device path and result code as varbinds
-    const CacheDeviceRow *dev = nullptr;
-    for (const auto &d : g_cache.devices)
-        if (d.index == dev_idx) { dev = &d; break; }
+    const CacheDeviceRow *dev = g_cache.find_device(dev_idx);
 
     if (dev) {
         append_string(&vars, oid_device_path, OID_LEN(oid_device_path),

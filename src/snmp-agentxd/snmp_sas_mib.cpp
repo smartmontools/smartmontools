@@ -1,11 +1,7 @@
 // snmp_sas_mib.cpp — SAS/SCSI health, error counter, self-test table handlers
 
 #include "snmp_sas_mib.h"
-#include "agentxd_cache.h"
-#include "snmp_oids.h"
-
-#include <cstring>
-#include <ctime>
+#include "snmp_mib_helpers.h"
 
 #include <net-snmp/net-snmp-config.h>
 #include <net-snmp/net-snmp-includes.h>
@@ -15,46 +11,20 @@
 // SAS table metadata scalar handlers
 // ---------------------------------------------------------------------------
 
-#define SAS_ROW_COUNT_HANDLER(name, cache_field) \
-static int name(netsnmp_mib_handler *, netsnmp_handler_registration *, \
-                netsnmp_agent_request_info *reqinfo, netsnmp_request_info *requests) { \
-    if (reqinfo->mode != MODE_GET) return SNMP_ERR_NOERROR; \
-    u_long v = (u_long)g_cache.cache_field.size(); \
-    snmp_set_var_typed_value(requests->requestvb, ASN_GAUGE, (u_char*)&v, sizeof(v)); \
-    return SNMP_ERR_NOERROR; \
-}
+TABLE_ROW_COUNT_HANDLER(sas_info_row_count_handler,     sas_info)
+TABLE_LAST_CHANGE_HANDLER(sas_info_last_change_handler, ts_sas_info)
 
-#define SAS_LAST_CHANGE_HANDLER(name, ts_field) \
-static int name(netsnmp_mib_handler *, netsnmp_handler_registration *, \
-                netsnmp_agent_request_info *reqinfo, netsnmp_request_info *requests) { \
-    if (reqinfo->mode != MODE_GET) return SNMP_ERR_NOERROR; \
-    uint8_t dt[8]; snmp_encode_date_time(g_cache.ts_field, dt); \
-    snmp_set_var_typed_value(requests->requestvb, ASN_OCTET_STR, dt, sizeof(dt)); \
-    return SNMP_ERR_NOERROR; \
-}
+TABLE_ROW_COUNT_HANDLER(sas_health_row_count_handler,     sas_health)
+TABLE_LAST_CHANGE_HANDLER(sas_health_last_change_handler, ts_sas_health)
 
-SAS_ROW_COUNT_HANDLER(sas_info_row_count_handler,      sas_info)
-SAS_LAST_CHANGE_HANDLER(sas_info_last_change_handler,   ts_sas_info)
+TABLE_ROW_COUNT_HANDLER(sas_ec_row_count_handler,     sas_error_counters)
+TABLE_LAST_CHANGE_HANDLER(sas_ec_last_change_handler, ts_sas_error_counter)
 
-SAS_ROW_COUNT_HANDLER(sas_health_row_count_handler,    sas_health)
-SAS_LAST_CHANGE_HANDLER(sas_health_last_change_handler, ts_sas_health)
+TABLE_ROW_COUNT_HANDLER(sas_st_row_count_handler,     sas_selftests)
+TABLE_LAST_CHANGE_HANDLER(sas_st_last_change_handler, ts_sas_selftest)
 
-SAS_ROW_COUNT_HANDLER(sas_ec_row_count_handler,        sas_error_counters)
-SAS_LAST_CHANGE_HANDLER(sas_ec_last_change_handler,     ts_sas_error_counter)
-
-SAS_ROW_COUNT_HANDLER(sas_st_row_count_handler,        sas_selftests)
-SAS_LAST_CHANGE_HANDLER(sas_st_last_change_handler,     ts_sas_selftest)
-
-SAS_ROW_COUNT_HANDLER(sas_bgscan_row_count_handler,    sas_bgscan)
-SAS_LAST_CHANGE_HANDLER(sas_bgscan_last_change_handler, ts_sas_bgscan)
-
-static void set_counter64(netsnmp_request_info *req, uint64_t val) {
-    struct counter64 c64;
-    c64.high = (u_long)(val >> 32);
-    c64.low  = (u_long)(val & 0xffffffffUL);
-    snmp_set_var_typed_value(req->requestvb, ASN_COUNTER64,
-                             (u_char*)&c64, sizeof(c64));
-}
+TABLE_ROW_COUNT_HANDLER(sas_bgscan_row_count_handler,     sas_bgscan)
+TABLE_LAST_CHANGE_HANDLER(sas_bgscan_last_change_handler, ts_sas_bgscan)
 
 // ---------------------------------------------------------------------------
 // SAS info table
@@ -91,14 +61,6 @@ sas_info_get_next(void **loop_ctx, void **data_ctx,
     snmp_set_var_typed_value(put_idx->next_variable, ASN_UNSIGNED,
                              (u_char*)&v, sizeof(v));
     return put_idx;
-}
-
-static netsnmp_variable_list *
-sas_info_get_first(void **loop_ctx, void **data_ctx,
-                   netsnmp_variable_list *put_idx,
-                   netsnmp_iterator_info *ii) {
-    *loop_ctx = 0;
-    return sas_info_get_next(loop_ctx, data_ctx, put_idx, ii);
 }
 
 static int
@@ -188,14 +150,6 @@ sas_bgscan_get_next(void **loop_ctx, void **data_ctx,
     return put_idx;
 }
 
-static netsnmp_variable_list *
-sas_bgscan_get_first(void **loop_ctx, void **data_ctx,
-                     netsnmp_variable_list *put_idx,
-                     netsnmp_iterator_info *ii) {
-    *loop_ctx = 0;
-    return sas_bgscan_get_next(loop_ctx, data_ctx, put_idx, ii);
-}
-
 static int
 sas_bgscan_handler(netsnmp_mib_handler *,
                    netsnmp_handler_registration *,
@@ -256,14 +210,6 @@ sas_health_get_next(void **loop_ctx, void **data_ctx,
     snmp_set_var_typed_value(put_idx->next_variable, ASN_UNSIGNED,
                              (u_char*)&v, sizeof(v));
     return put_idx;
-}
-
-static netsnmp_variable_list *
-sas_health_get_first(void **loop_ctx, void **data_ctx,
-                     netsnmp_variable_list *put_idx,
-                     netsnmp_iterator_info *ii) {
-    *loop_ctx = 0;
-    return sas_health_get_next(loop_ctx, data_ctx, put_idx, ii);
 }
 
 static int
@@ -329,14 +275,6 @@ sas_ec_get_next(void **loop_ctx, void **data_ctx,
     return put_idx;
 }
 
-static netsnmp_variable_list *
-sas_ec_get_first(void **loop_ctx, void **data_ctx,
-                 netsnmp_variable_list *put_idx,
-                 netsnmp_iterator_info *ii) {
-    *loop_ctx = 0;
-    return sas_ec_get_next(loop_ctx, data_ctx, put_idx, ii);
-}
-
 static int
 sas_ec_handler(netsnmp_mib_handler *,
                netsnmp_handler_registration *,
@@ -391,14 +329,6 @@ sas_st_get_next(void **loop_ctx, void **data_ctx,
     snmp_set_var_typed_value(put_idx->next_variable, ASN_UNSIGNED,
                              (u_char*)&v, sizeof(v));
     return put_idx;
-}
-
-static netsnmp_variable_list *
-sas_st_get_first(void **loop_ctx, void **data_ctx,
-                 netsnmp_variable_list *put_idx,
-                 netsnmp_iterator_info *ii) {
-    *loop_ctx = 0;
-    return sas_st_get_next(loop_ctx, data_ctx, put_idx, ii);
 }
 
 static int
@@ -472,118 +402,11 @@ void register_sas_mib() {
         "sasBgScanTableLastChange",       sas_bgscan_last_change_handler,
         oid_sas_bgscan_last_change,       OID_LEN(oid_sas_bgscan_last_change),       HANDLER_CAN_RONLY));
 
-    // SAS info table
-    {
-        netsnmp_handler_registration *reg =
-            netsnmp_create_handler_registration(
-                "smartmonSasInfoTable", sas_info_handler,
-                oid_sas_info_table, OID_LEN(oid_sas_info_table),
-                HANDLER_CAN_RONLY);
-
-        netsnmp_table_registration_info *tinfo =
-            SNMP_MALLOC_TYPEDEF(netsnmp_table_registration_info);
-        netsnmp_table_helper_add_indexes(tinfo, ASN_UNSIGNED, ASN_UNSIGNED, 0);
-        tinfo->min_column = 1;
-        tinfo->max_column = 15;
-
-        netsnmp_iterator_info *iinfo =
-            SNMP_MALLOC_TYPEDEF(netsnmp_iterator_info);
-        iinfo->get_first_data_point = sas_info_get_first;
-        iinfo->get_next_data_point  = sas_info_get_next;
-        iinfo->table_reginfo        = tinfo;
-
-        netsnmp_register_table_iterator(reg, iinfo);
-    }
-
-    // SAS background scan table
-    {
-        netsnmp_handler_registration *reg =
-            netsnmp_create_handler_registration(
-                "smartmonSasBackgroundScanTable", sas_bgscan_handler,
-                oid_sas_bgscan_table, OID_LEN(oid_sas_bgscan_table),
-                HANDLER_CAN_RONLY);
-
-        netsnmp_table_registration_info *tinfo =
-            SNMP_MALLOC_TYPEDEF(netsnmp_table_registration_info);
-        netsnmp_table_helper_add_indexes(tinfo, ASN_UNSIGNED, ASN_UNSIGNED, 0);
-        tinfo->min_column = 1;
-        tinfo->max_column = 6;
-
-        netsnmp_iterator_info *iinfo =
-            SNMP_MALLOC_TYPEDEF(netsnmp_iterator_info);
-        iinfo->get_first_data_point = sas_bgscan_get_first;
-        iinfo->get_next_data_point  = sas_bgscan_get_next;
-        iinfo->table_reginfo        = tinfo;
-
-        netsnmp_register_table_iterator(reg, iinfo);
-    }
-
-    // SAS health table
-    {
-        netsnmp_handler_registration *reg =
-            netsnmp_create_handler_registration(
-                "smartmonSasHealthTable", sas_health_handler,
-                oid_sas_health_table, OID_LEN(oid_sas_health_table),
-                HANDLER_CAN_RONLY);
-
-        netsnmp_table_registration_info *tinfo =
-            SNMP_MALLOC_TYPEDEF(netsnmp_table_registration_info);
-        netsnmp_table_helper_add_indexes(tinfo, ASN_UNSIGNED, ASN_UNSIGNED, 0);
-        tinfo->min_column = 1;
-        tinfo->max_column = 5;
-
-        netsnmp_iterator_info *iinfo =
-            SNMP_MALLOC_TYPEDEF(netsnmp_iterator_info);
-        iinfo->get_first_data_point = sas_health_get_first;
-        iinfo->get_next_data_point  = sas_health_get_next;
-        iinfo->table_reginfo        = tinfo;
-
-        netsnmp_register_table_iterator(reg, iinfo);
-    }
-
-    // SAS error counter table (direction is INTEGER index, second column)
-    {
-        netsnmp_handler_registration *reg =
-            netsnmp_create_handler_registration(
-                "smartmonSasErrorCounterTable", sas_ec_handler,
-                oid_sas_error_counter_table, OID_LEN(oid_sas_error_counter_table),
-                HANDLER_CAN_RONLY);
-
-        netsnmp_table_registration_info *tinfo =
-            SNMP_MALLOC_TYPEDEF(netsnmp_table_registration_info);
-        netsnmp_table_helper_add_indexes(tinfo, ASN_UNSIGNED, ASN_INTEGER, 0);
-        tinfo->min_column = 2;
-        tinfo->max_column = 8;
-
-        netsnmp_iterator_info *iinfo =
-            SNMP_MALLOC_TYPEDEF(netsnmp_iterator_info);
-        iinfo->get_first_data_point = sas_ec_get_first;
-        iinfo->get_next_data_point  = sas_ec_get_next;
-        iinfo->table_reginfo        = tinfo;
-
-        netsnmp_register_table_iterator(reg, iinfo);
-    }
-
-    // SAS self-test table
-    {
-        netsnmp_handler_registration *reg =
-            netsnmp_create_handler_registration(
-                "smartmonSasSelfTestTable", sas_st_handler,
-                oid_sas_selftest_table, OID_LEN(oid_sas_selftest_table),
-                HANDLER_CAN_RONLY);
-
-        netsnmp_table_registration_info *tinfo =
-            SNMP_MALLOC_TYPEDEF(netsnmp_table_registration_info);
-        netsnmp_table_helper_add_indexes(tinfo, ASN_UNSIGNED, ASN_UNSIGNED, 0);
-        tinfo->min_column = 2;
-        tinfo->max_column = 8;
-
-        netsnmp_iterator_info *iinfo =
-            SNMP_MALLOC_TYPEDEF(netsnmp_iterator_info);
-        iinfo->get_first_data_point = sas_st_get_first;
-        iinfo->get_next_data_point  = sas_st_get_next;
-        iinfo->table_reginfo        = tinfo;
-
-        netsnmp_register_table_iterator(reg, iinfo);
-    }
+    // SAS table iterator registrations
+    REG_TABLE_UU("smartmonSasInfoTable",             sas_info_handler,   oid_sas_info_table,          sas_info_get_next,   1, 15);
+    REG_TABLE_UU("smartmonSasBackgroundScanTable",   sas_bgscan_handler, oid_sas_bgscan_table,        sas_bgscan_get_next, 1,  6);
+    REG_TABLE_UU("smartmonSasHealthTable",           sas_health_handler, oid_sas_health_table,        sas_health_get_next, 1,  5);
+    // Error counter index 2 is INTEGER (direction), not UNSIGNED
+    REG_TABLE_UI("smartmonSasErrorCounterTable",     sas_ec_handler,     oid_sas_error_counter_table, sas_ec_get_next,     2,  8);
+    REG_TABLE_UU("smartmonSasSelfTestTable",         sas_st_handler,     oid_sas_selftest_table,      sas_st_get_next,     2,  8);
 }

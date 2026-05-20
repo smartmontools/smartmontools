@@ -25,6 +25,7 @@ smartmon_snmp_agentxd_SOURCES = \
         agentxd_notify.cpp  \
         agentxd_notify.h    \
         snmp_oids.h         \
+        snmp_mib_helpers.h  \
         snmp_common_mib.cpp \
         snmp_common_mib.h   \
         snmp_nvme_mib.cpp   \

@@ -1,11 +1,7 @@
 // snmp_sata_mib.cpp — SATA attribute and self-test table handlers
 
 #include "snmp_sata_mib.h"
-#include "agentxd_cache.h"
-#include "snmp_oids.h"
-
-#include <cstring>
-#include <ctime>
+#include "snmp_mib_helpers.h"
 
 #include <net-snmp/net-snmp-config.h>
 #include <net-snmp/net-snmp-includes.h>
@@ -15,49 +11,23 @@
 // SATA table metadata scalar handlers
 // ---------------------------------------------------------------------------
 
-#define SATA_ROW_COUNT_HANDLER(name, cache_field) \
-static int name(netsnmp_mib_handler *, netsnmp_handler_registration *, \
-                netsnmp_agent_request_info *reqinfo, netsnmp_request_info *requests) { \
-    if (reqinfo->mode != MODE_GET) return SNMP_ERR_NOERROR; \
-    u_long v = (u_long)g_cache.cache_field.size(); \
-    snmp_set_var_typed_value(requests->requestvb, ASN_GAUGE, (u_char*)&v, sizeof(v)); \
-    return SNMP_ERR_NOERROR; \
-}
+TABLE_ROW_COUNT_HANDLER(sata_info_row_count_handler,      sata_info)
+TABLE_LAST_CHANGE_HANDLER(sata_info_last_change_handler,  ts_sata_info)
 
-#define SATA_LAST_CHANGE_HANDLER(name, ts_field) \
-static int name(netsnmp_mib_handler *, netsnmp_handler_registration *, \
-                netsnmp_agent_request_info *reqinfo, netsnmp_request_info *requests) { \
-    if (reqinfo->mode != MODE_GET) return SNMP_ERR_NOERROR; \
-    uint8_t dt[8]; snmp_encode_date_time(g_cache.ts_field, dt); \
-    snmp_set_var_typed_value(requests->requestvb, ASN_OCTET_STR, dt, sizeof(dt)); \
-    return SNMP_ERR_NOERROR; \
-}
+TABLE_ROW_COUNT_HANDLER(sata_health_row_count_handler,    sata_health)
+TABLE_LAST_CHANGE_HANDLER(sata_health_last_change_handler, ts_sata_health)
 
-SATA_ROW_COUNT_HANDLER(sata_info_row_count_handler,     sata_info)
-SATA_LAST_CHANGE_HANDLER(sata_info_last_change_handler,  ts_sata_info)
+TABLE_ROW_COUNT_HANDLER(sata_attr_row_count_handler,      sata_attrs)
+TABLE_LAST_CHANGE_HANDLER(sata_attr_last_change_handler,  ts_sata_attr)
 
-SATA_ROW_COUNT_HANDLER(sata_health_row_count_handler,   sata_health)
-SATA_LAST_CHANGE_HANDLER(sata_health_last_change_handler, ts_sata_health)
+TABLE_ROW_COUNT_HANDLER(sata_el_row_count_handler,        sata_error_log)
+TABLE_LAST_CHANGE_HANDLER(sata_el_last_change_handler,    ts_sata_error_log)
 
-SATA_ROW_COUNT_HANDLER(sata_attr_row_count_handler,     sata_attrs)
-SATA_LAST_CHANGE_HANDLER(sata_attr_last_change_handler,  ts_sata_attr)
+TABLE_ROW_COUNT_HANDLER(sata_st_row_count_handler,        sata_selftests)
+TABLE_LAST_CHANGE_HANDLER(sata_st_last_change_handler,    ts_sata_selftest)
 
-SATA_ROW_COUNT_HANDLER(sata_el_row_count_handler,       sata_error_log)
-SATA_LAST_CHANGE_HANDLER(sata_el_last_change_handler,    ts_sata_error_log)
-
-SATA_ROW_COUNT_HANDLER(sata_st_row_count_handler,        sata_selftests)
-SATA_LAST_CHANGE_HANDLER(sata_st_last_change_handler,    ts_sata_selftest)
-
-SATA_ROW_COUNT_HANDLER(sata_errcmd_row_count_handler,    sata_error_cmds)
-SATA_LAST_CHANGE_HANDLER(sata_errcmd_last_change_handler, ts_sata_error_cmd)
-
-static void set_counter64(netsnmp_request_info *req, uint64_t val) {
-    struct counter64 c64;
-    c64.high = (u_long)(val >> 32);
-    c64.low  = (u_long)(val & 0xffffffffUL);
-    snmp_set_var_typed_value(req->requestvb, ASN_COUNTER64,
-                             (u_char*)&c64, sizeof(c64));
-}
+TABLE_ROW_COUNT_HANDLER(sata_errcmd_row_count_handler,    sata_error_cmds)
+TABLE_LAST_CHANGE_HANDLER(sata_errcmd_last_change_handler, ts_sata_error_cmd)
 
 // Convert raw ATA flags byte to ASN.1 BITS byte.
 // Raw bit i → ASN.1 bit i → MSBit-first octet position (7-i).
@@ -105,14 +75,6 @@ sata_info_get_next(void **loop_ctx, void **data_ctx,
     snmp_set_var_typed_value(put_idx->next_variable, ASN_UNSIGNED,
                              (u_char*)&v, sizeof(v));
     return put_idx;
-}
-
-static netsnmp_variable_list *
-sata_info_get_first(void **loop_ctx, void **data_ctx,
-                    netsnmp_variable_list *put_idx,
-                    netsnmp_iterator_info *ii) {
-    *loop_ctx = 0;
-    return sata_info_get_next(loop_ctx, data_ctx, put_idx, ii);
 }
 
 static int
@@ -226,14 +188,6 @@ sata_health_get_next(void **loop_ctx, void **data_ctx,
     snmp_set_var_typed_value(put_idx->next_variable, ASN_UNSIGNED,
                              (u_char*)&v, sizeof(v));
     return put_idx;
-}
-
-static netsnmp_variable_list *
-sata_health_get_first(void **loop_ctx, void **data_ctx,
-                      netsnmp_variable_list *put_idx,
-                      netsnmp_iterator_info *ii) {
-    *loop_ctx = 0;
-    return sata_health_get_next(loop_ctx, data_ctx, put_idx, ii);
 }
 
 static int
@@ -353,14 +307,6 @@ sata_el_get_next(void **loop_ctx, void **data_ctx,
     return put_idx;
 }
 
-static netsnmp_variable_list *
-sata_el_get_first(void **loop_ctx, void **data_ctx,
-                  netsnmp_variable_list *put_idx,
-                  netsnmp_iterator_info *ii) {
-    *loop_ctx = 0;
-    return sata_el_get_next(loop_ctx, data_ctx, put_idx, ii);
-}
-
 static int
 sata_el_handler(netsnmp_mib_handler *,
                 netsnmp_handler_registration *,
@@ -449,14 +395,6 @@ sata_attr_get_next(void **loop_ctx, void **data_ctx,
     return put_idx;
 }
 
-static netsnmp_variable_list *
-sata_attr_get_first(void **loop_ctx, void **data_ctx,
-                    netsnmp_variable_list *put_idx,
-                    netsnmp_iterator_info *ii) {
-    *loop_ctx = 0;
-    return sata_attr_get_next(loop_ctx, data_ctx, put_idx, ii);
-}
-
 static int
 sata_attr_handler(netsnmp_mib_handler *,
                   netsnmp_handler_registration *,
@@ -536,14 +474,6 @@ sata_st_get_next(void **loop_ctx, void **data_ctx,
     return put_idx;
 }
 
-static netsnmp_variable_list *
-sata_st_get_first(void **loop_ctx, void **data_ctx,
-                  netsnmp_variable_list *put_idx,
-                  netsnmp_iterator_info *ii) {
-    *loop_ctx = 0;
-    return sata_st_get_next(loop_ctx, data_ctx, put_idx, ii);
-}
-
 static int
 sata_st_handler(netsnmp_mib_handler *,
                 netsnmp_handler_registration *,
@@ -614,14 +544,6 @@ sata_errcmd_get_next(void **loop_ctx, void **data_ctx,
     snmp_set_var_typed_value(put_idx->next_variable->next_variable, ASN_UNSIGNED,
                              (u_char*)&v, sizeof(v));
     return put_idx;
-}
-
-static netsnmp_variable_list *
-sata_errcmd_get_first(void **loop_ctx, void **data_ctx,
-                      netsnmp_variable_list *put_idx,
-                      netsnmp_iterator_info *ii) {
-    *loop_ctx = 0;
-    return sata_errcmd_get_next(loop_ctx, data_ctx, put_idx, ii);
 }
 
 static int
@@ -706,97 +628,11 @@ void register_sata_mib() {
         "sataSelfTestTableLastChange",  sata_st_last_change_handler,
         oid_sata_selftest_last_change,  OID_LEN(oid_sata_selftest_last_change),  HANDLER_CAN_RONLY));
 
-    // SATA info table
-    {
-        netsnmp_handler_registration *reg =
-            netsnmp_create_handler_registration(
-                "smartmonSataInfoTable", sata_info_handler,
-                oid_sata_info_table, OID_LEN(oid_sata_info_table),
-                HANDLER_CAN_RONLY);
-
-        netsnmp_table_registration_info *tinfo =
-            SNMP_MALLOC_TYPEDEF(netsnmp_table_registration_info);
-        netsnmp_table_helper_add_indexes(tinfo, ASN_UNSIGNED, ASN_UNSIGNED, 0);
-        tinfo->min_column = 1;
-        tinfo->max_column = 17;
-
-        netsnmp_iterator_info *iinfo =
-            SNMP_MALLOC_TYPEDEF(netsnmp_iterator_info);
-        iinfo->get_first_data_point = sata_info_get_first;
-        iinfo->get_next_data_point  = sata_info_get_next;
-        iinfo->table_reginfo        = tinfo;
-
-        netsnmp_register_table_iterator(reg, iinfo);
-    }
-
-    // SATA health table
-    {
-        netsnmp_handler_registration *reg =
-            netsnmp_create_handler_registration(
-                "smartmonSataHealthTable", sata_health_handler,
-                oid_sata_health_table, OID_LEN(oid_sata_health_table),
-                HANDLER_CAN_RONLY);
-
-        netsnmp_table_registration_info *tinfo =
-            SNMP_MALLOC_TYPEDEF(netsnmp_table_registration_info);
-        netsnmp_table_helper_add_indexes(tinfo, ASN_UNSIGNED, ASN_UNSIGNED, 0);
-        tinfo->min_column = 1;
-        tinfo->max_column = 22;
-
-        netsnmp_iterator_info *iinfo =
-            SNMP_MALLOC_TYPEDEF(netsnmp_iterator_info);
-        iinfo->get_first_data_point = sata_health_get_first;
-        iinfo->get_next_data_point  = sata_health_get_next;
-        iinfo->table_reginfo        = tinfo;
-
-        netsnmp_register_table_iterator(reg, iinfo);
-    }
-
-    // SATA error log table
-    {
-        netsnmp_handler_registration *reg =
-            netsnmp_create_handler_registration(
-                "smartmonSataErrorLogTable", sata_el_handler,
-                oid_sata_error_log_table, OID_LEN(oid_sata_error_log_table),
-                HANDLER_CAN_RONLY);
-
-        netsnmp_table_registration_info *tinfo =
-            SNMP_MALLOC_TYPEDEF(netsnmp_table_registration_info);
-        netsnmp_table_helper_add_indexes(tinfo, ASN_UNSIGNED, ASN_UNSIGNED, 0);
-        tinfo->min_column = 1;
-        tinfo->max_column = 13;
-
-        netsnmp_iterator_info *iinfo =
-            SNMP_MALLOC_TYPEDEF(netsnmp_iterator_info);
-        iinfo->get_first_data_point = sata_el_get_first;
-        iinfo->get_next_data_point  = sata_el_get_next;
-        iinfo->table_reginfo        = tinfo;
-
-        netsnmp_register_table_iterator(reg, iinfo);
-    }
-
-    // SATA attribute table
-    {
-        netsnmp_handler_registration *reg =
-            netsnmp_create_handler_registration(
-                "smartmonSataAttrTable", sata_attr_handler,
-                oid_sata_attr_table, OID_LEN(oid_sata_attr_table),
-                HANDLER_CAN_RONLY);
-
-        netsnmp_table_registration_info *tinfo =
-            SNMP_MALLOC_TYPEDEF(netsnmp_table_registration_info);
-        netsnmp_table_helper_add_indexes(tinfo, ASN_UNSIGNED, ASN_UNSIGNED, 0);
-        tinfo->min_column = 2;
-        tinfo->max_column = 12;
-
-        netsnmp_iterator_info *iinfo =
-            SNMP_MALLOC_TYPEDEF(netsnmp_iterator_info);
-        iinfo->get_first_data_point = sata_attr_get_first;
-        iinfo->get_next_data_point  = sata_attr_get_next;
-        iinfo->table_reginfo        = tinfo;
-
-        netsnmp_register_table_iterator(reg, iinfo);
-    }
+    // SATA table iterator registrations
+    REG_TABLE_UU("smartmonSataInfoTable",     sata_info_handler,   oid_sata_info_table,      sata_info_get_next,    1, 17);
+    REG_TABLE_UU("smartmonSataHealthTable",   sata_health_handler, oid_sata_health_table,    sata_health_get_next,  1, 22);
+    REG_TABLE_UU("smartmonSataErrorLogTable", sata_el_handler,     oid_sata_error_log_table, sata_el_get_next,      1, 13);
+    REG_TABLE_UU("smartmonSataAttrTable",     sata_attr_handler,   oid_sata_attr_table,      sata_attr_get_next,    2, 12);
 
     // SATA error cmd table metadata scalars
     netsnmp_register_scalar(netsnmp_create_handler_registration(
@@ -807,49 +643,7 @@ void register_sata_mib() {
         oid_sata_error_cmd_last_change, OID_LEN(oid_sata_error_cmd_last_change), HANDLER_CAN_RONLY));
 
     // SATA error cmd table (3 index columns: deviceIndex + errorLogIndex + cmdIndex)
-    {
-        netsnmp_handler_registration *reg =
-            netsnmp_create_handler_registration(
-                "smartmonSataErrorCmdTable", sata_errcmd_handler,
-                oid_sata_error_cmd_table, OID_LEN(oid_sata_error_cmd_table),
-                HANDLER_CAN_RONLY);
+    REG_TABLE_UUU("smartmonSataErrorCmdTable", sata_errcmd_handler, oid_sata_error_cmd_table, sata_errcmd_get_next, 2, 10);
 
-        netsnmp_table_registration_info *tinfo =
-            SNMP_MALLOC_TYPEDEF(netsnmp_table_registration_info);
-        netsnmp_table_helper_add_indexes(tinfo,
-            ASN_UNSIGNED, ASN_UNSIGNED, ASN_UNSIGNED, 0);
-        tinfo->min_column = 2;
-        tinfo->max_column = 10;
-
-        netsnmp_iterator_info *iinfo =
-            SNMP_MALLOC_TYPEDEF(netsnmp_iterator_info);
-        iinfo->get_first_data_point = sata_errcmd_get_first;
-        iinfo->get_next_data_point  = sata_errcmd_get_next;
-        iinfo->table_reginfo        = tinfo;
-
-        netsnmp_register_table_iterator(reg, iinfo);
-    }
-
-    // SATA self-test table
-    {
-        netsnmp_handler_registration *reg =
-            netsnmp_create_handler_registration(
-                "smartmonSataSelfTestTable", sata_st_handler,
-                oid_sata_selftest_table, OID_LEN(oid_sata_selftest_table),
-                HANDLER_CAN_RONLY);
-
-        netsnmp_table_registration_info *tinfo =
-            SNMP_MALLOC_TYPEDEF(netsnmp_table_registration_info);
-        netsnmp_table_helper_add_indexes(tinfo, ASN_UNSIGNED, ASN_UNSIGNED, 0);
-        tinfo->min_column = 2;
-        tinfo->max_column = 9;
-
-        netsnmp_iterator_info *iinfo =
-            SNMP_MALLOC_TYPEDEF(netsnmp_iterator_info);
-        iinfo->get_first_data_point = sata_st_get_first;
-        iinfo->get_next_data_point  = sata_st_get_next;
-        iinfo->table_reginfo        = tinfo;
-
-        netsnmp_register_table_iterator(reg, iinfo);
-    }
+    REG_TABLE_UU("smartmonSataSelfTestTable",  sata_st_handler,    oid_sata_selftest_table,  sata_st_get_next,      2, 9);
 }

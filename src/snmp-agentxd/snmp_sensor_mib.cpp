@@ -18,14 +18,10 @@
 // col 15 = sensorLowCritical  Integer32 (optional)
 
 #include "snmp_sensor_mib.h"
-#include "agentxd_cache.h"
-#include "snmp_oids.h"
-
-#include <cstring>
-#include <ctime>
-#include <syslog.h>
-
+#include "snmp_mib_helpers.h"
 #include "agentxd_config.h"
+
+#include <syslog.h>
 
 #include <net-snmp/net-snmp-config.h>
 #include <net-snmp/net-snmp-includes.h>
@@ -198,47 +194,18 @@ void register_sensor_mib() {
     if (g_verbosity >= 1)
         syslog(LOG_DEBUG, "sensor_mib: register_sensor_mib called cache=%p sensors.size=%zu",
                (void*)&g_cache, g_cache.sensors.size());
-    // Sensor table row-count scalar
+    netsnmp_register_scalar(netsnmp_create_handler_registration(
+        "smartmonSensorTableRowCount",  sensor_row_count_handler,
+        oid_sensor_row_count,  OID_LEN(oid_sensor_row_count),  HANDLER_CAN_RONLY));
+    netsnmp_register_scalar(netsnmp_create_handler_registration(
+        "smartmonSensorTableLastChange", sensor_last_change_handler,
+        oid_sensor_last_change, OID_LEN(oid_sensor_last_change), HANDLER_CAN_RONLY));
+
+    // smartmonSensorTable — sensor_get_first kept for -vv debug logging
     {
-        netsnmp_register_scalar(
-            netsnmp_create_handler_registration(
-                "smartmonSensorTableRowCount", sensor_row_count_handler,
-                oid_sensor_row_count, OID_LEN(oid_sensor_row_count),
-                HANDLER_CAN_RONLY));
+        static const int idx[] = { ASN_UNSIGNED, ASN_UNSIGNED, 0 };
+        register_table_ronly("smartmonSensorTable", sensor_handler,
+                             oid_sensor_table, OID_LEN(oid_sensor_table),
+                             sensor_get_first, sensor_get_next, 2, 15, idx);
     }
-
-    // Sensor table last-change scalar
-    {
-        netsnmp_register_scalar(
-            netsnmp_create_handler_registration(
-                "smartmonSensorTableLastChange", sensor_last_change_handler,
-                oid_sensor_last_change, OID_LEN(oid_sensor_last_change),
-                HANDLER_CAN_RONLY));
-    }
-
-    // smartmonSensorTable — INDEX { smartmonDeviceIndex, smartmonSensorIndex }
-    netsnmp_table_registration_info *tinfo =
-        SNMP_MALLOC_TYPEDEF(netsnmp_table_registration_info);
-    netsnmp_table_helper_add_indexes(tinfo,
-        ASN_UNSIGNED,   // smartmonDeviceIndex
-        ASN_UNSIGNED,   // smartmonSensorIndex
-        0);
-    tinfo->min_column = 2;
-    tinfo->max_column = 15;
-
-    netsnmp_iterator_info *iinfo =
-        SNMP_MALLOC_TYPEDEF(netsnmp_iterator_info);
-    iinfo->get_first_data_point = sensor_get_first;
-    iinfo->get_next_data_point  = sensor_get_next;
-    iinfo->table_reginfo        = tinfo;
-
-    netsnmp_handler_registration *reg =
-        netsnmp_create_handler_registration(
-            "smartmonSensorTable",
-            sensor_handler,
-            oid_sensor_table,
-            OID_LEN(oid_sensor_table),
-            HANDLER_CAN_RONLY);
-
-    netsnmp_register_table_iterator(reg, iinfo);
 }
