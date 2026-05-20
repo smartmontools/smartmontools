@@ -50,6 +50,30 @@ jobs:
           diff -s -U0 drivedb.h drivedb-svn.h ||
           echo "::warning:: Download from svn differs"
 
+  drivedb-check-ubuntu:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Run sudo apt-get install smartmontools
+        run: |
+          sudo apt-get update && sudo apt-get -y install smartmontools
+
+      - name: Run sudo update-smart-drivedb -u github
+        run: |
+          sudo /usr/sbin/update-smart-drivedb -v -u github
+
+      - name: Run sudo update-smart-drivedb
+        run: |
+          sudo /usr/sbin/update-smart-drivedb -v /var/lib/smartmontools/drivedb/drivedb-svn.h ||
+          echo "::error:: Download from svn failed"
+
+      - name: Compare
+        run: |
+          cd /var/lib/smartmontools/drivedb
+          test -f drivedb-svn.h || exit 0
+          diff -s -U0 drivedb.h drivedb-svn.h ||
+          echo "::warning:: Download from svn differs"
+
   drivedb-check-main:
     runs-on: ubuntu-latest
 
