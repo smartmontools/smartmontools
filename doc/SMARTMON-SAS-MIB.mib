@@ -1,0 +1,769 @@
+SMARTMON-SAS-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE,
+    Unsigned32
+        FROM SNMPv2-SMI
+    DisplayString, TruthValue, DateAndTime
+        FROM SNMPv2-TC
+    CounterBasedGauge64
+        FROM HCNUM-TC
+    MODULE-COMPLIANCE, OBJECT-GROUP, NOTIFICATION-GROUP
+        FROM SNMPv2-CONF
+    SmartmonHealthStatus, SmartmonSasSelfTestType,
+    SmartmonAtaSelfTestResult, SmartmonScsiErrorDirection,
+    smartmonRoot
+        FROM SMARTMON-TC-MIB
+    smartmonDeviceIndex, smartmonDeviceName, smartmonDevicePath,
+    smartmonDeviceLastPollTime
+        FROM SMARTMON-COMMON-MIB;
+
+smartmonSasMIB MODULE-IDENTITY
+    LAST-UPDATED "202605180000Z"
+    ORGANIZATION "Unassigned"
+    CONTACT-INFO
+        "This is a draft MIB for smartmontools smartctl SAS/SCSI output.
+
+         TODO: Replace the placeholder enterprise OID before publication."
+    DESCRIPTION
+        "The SMARTMON-SAS-MIB exposes SAS/SCSI drive health, identity,
+         error counters, self-test log, and background scan information
+         corresponding to smartctl -x output.
+
+         The intended data source is smartctl -x -j.  Implementations
+         SHOULD avoid scraping human-readable smartctl text when JSON is
+         available.
+
+         This MIB requires SMARTMON-TC-MIB and SMARTMON-COMMON-MIB."
+    REVISION "202605180000Z"
+    DESCRIPTION "Initial draft."
+    ::= { smartmonRoot 5 }
+
+-- --------------------------------------------------------------------------
+-- Top-level structure
+-- --------------------------------------------------------------------------
+
+smartmonSasObjects       OBJECT IDENTIFIER ::= { smartmonSasMIB 1 }
+smartmonSasNotifications OBJECT IDENTIFIER ::= { smartmonSasMIB 2 }
+smartmonSasConformance   OBJECT IDENTIFIER ::= { smartmonSasMIB 3 }
+smartmonSasCompliances   OBJECT IDENTIFIER ::= { smartmonSasConformance 1 }
+smartmonSasGroups        OBJECT IDENTIFIER ::= { smartmonSasConformance 2 }
+
+-- --------------------------------------------------------------------------
+-- SAS device identity table  (.1 RowCount, .2 LastChange, .3 Table)
+-- --------------------------------------------------------------------------
+
+smartmonSasInfoTableRowCount OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Current number of rows in smartmonSasInfoTable."
+    ::= { smartmonSasObjects 1 }
+
+smartmonSasInfoTableLastChange OBJECT-TYPE
+    SYNTAX      DateAndTime
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Timestamp of the most recent row addition or removal in
+         smartmonSasInfoTable."
+    ::= { smartmonSasObjects 2 }
+
+smartmonSasInfoTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF SmartmonSasInfoEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "SAS/SCSI drive identity information.  One row per device."
+    ::= { smartmonSasObjects 3 }
+
+smartmonSasInfoEntry OBJECT-TYPE
+    SYNTAX      SmartmonSasInfoEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Identity and geometry information for one SAS/SCSI drive."
+    INDEX { smartmonDeviceIndex, smartmonSasInfoIndex }
+    ::= { smartmonSasInfoTable 1 }
+
+SmartmonSasInfoEntry ::= SEQUENCE {
+    smartmonSasInfoIndex           Unsigned32,
+    smartmonSasVendor              DisplayString,
+    smartmonSasProduct             DisplayString,
+    smartmonSasRevision            DisplayString,
+    smartmonSasCompliance          DisplayString,
+    smartmonSasSerialNumber        DisplayString,
+    smartmonSasWwn                 DisplayString,
+    smartmonSasScsiModelName       DisplayString,
+    smartmonSasRotationRate        Unsigned32,
+    smartmonSasFormFactor          DisplayString,
+    smartmonSasLogicalBlockSize    Unsigned32,
+    smartmonSasPhysicalBlockSize   Unsigned32,
+    smartmonSasUserCapacityBytes   CounterBasedGauge64,
+    smartmonSasPowerCycles         CounterBasedGauge64,
+    smartmonSasPowerOnHours        CounterBasedGauge64
+}
+
+smartmonSasVendor OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "SCSI/SAS vendor string from INQUIRY."
+    ::= { smartmonSasInfoEntry 1 }
+
+smartmonSasProduct OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "SCSI/SAS product string from INQUIRY."
+    ::= { smartmonSasInfoEntry 2 }
+
+smartmonSasRevision OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "SCSI/SAS product revision from INQUIRY."
+    ::= { smartmonSasInfoEntry 3 }
+
+smartmonSasCompliance OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "SCSI compliance level string, for example SPC-4."
+    ::= { smartmonSasInfoEntry 4 }
+
+smartmonSasSerialNumber OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Drive serial number."
+    ::= { smartmonSasInfoEntry 5 }
+
+smartmonSasWwn OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "World Wide Name in NAA-OUI-ID textual form, if reported."
+    ::= { smartmonSasInfoEntry 6 }
+
+smartmonSasScsiModelName OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Full SCSI model name string."
+    ::= { smartmonSasInfoEntry 7 }
+
+smartmonSasRotationRate OBJECT-TYPE
+    SYNTAX      Unsigned32
+    UNITS       "RPM"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Nominal rotation rate in RPM.  Zero indicates a solid-state
+         device or that the value is not reported."
+    ::= { smartmonSasInfoEntry 8 }
+
+smartmonSasFormFactor OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Form factor name as reported by smartctl."
+    ::= { smartmonSasInfoEntry 9 }
+
+smartmonSasLogicalBlockSize OBJECT-TYPE
+    SYNTAX      Unsigned32
+    UNITS       "bytes"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Logical block size in bytes."
+    ::= { smartmonSasInfoEntry 10 }
+
+smartmonSasPhysicalBlockSize OBJECT-TYPE
+    SYNTAX      Unsigned32
+    UNITS       "bytes"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Physical block size in bytes."
+    ::= { smartmonSasInfoEntry 11 }
+
+smartmonSasUserCapacityBytes OBJECT-TYPE
+    SYNTAX      CounterBasedGauge64
+    UNITS       "bytes"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total user-addressable capacity in bytes."
+    ::= { smartmonSasInfoEntry 12 }
+
+smartmonSasPowerCycles OBJECT-TYPE
+    SYNTAX      CounterBasedGauge64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of power cycles, if reported."
+    ::= { smartmonSasInfoEntry 13 }
+
+smartmonSasPowerOnHours OBJECT-TYPE
+    SYNTAX      CounterBasedGauge64
+    UNITS       "hours"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Power-on hours, if reported."
+    ::= { smartmonSasInfoEntry 14 }
+
+smartmonSasInfoIndex OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..4294967295)
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Local index for SAS/SCSI identity entries within a device."
+    ::= { smartmonSasInfoEntry 15 }
+
+-- --------------------------------------------------------------------------
+-- SAS health table  (.4 RowCount, .5 LastChange, .6 Table)
+-- --------------------------------------------------------------------------
+
+smartmonSasHealthTableRowCount OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Current number of rows in smartmonSasHealthTable."
+    ::= { smartmonSasObjects 4 }
+
+smartmonSasHealthTableLastChange OBJECT-TYPE
+    SYNTAX      DateAndTime
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Timestamp of the most recent row addition or removal in
+         smartmonSasHealthTable."
+    ::= { smartmonSasObjects 5 }
+
+smartmonSasHealthTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF SmartmonSasHealthEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "SAS/SCSI drive health summary.  One row per device."
+    ::= { smartmonSasObjects 6 }
+
+smartmonSasHealthEntry OBJECT-TYPE
+    SYNTAX      SmartmonSasHealthEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Health summary for one SAS/SCSI drive."
+    INDEX { smartmonDeviceIndex, smartmonSasHealthIndex }
+    ::= { smartmonSasHealthTable 1 }
+
+SmartmonSasHealthEntry ::= SEQUENCE {
+    smartmonSasHealthIndex             Unsigned32,
+    smartmonSasHealthOverallStatus     SmartmonHealthStatus,
+    smartmonSasGrownDefectCount        Unsigned32,
+    smartmonSasNonMediumErrorCount     CounterBasedGauge64,
+    smartmonSasInformationalExceptions TruthValue,
+    smartmonSasPendingDefectCount      Unsigned32
+}
+
+smartmonSasHealthOverallStatus OBJECT-TYPE
+    SYNTAX      SmartmonHealthStatus
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Overall SAS/SCSI drive health status."
+    ::= { smartmonSasHealthEntry 1 }
+
+smartmonSasGrownDefectCount OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of grown defect list entries (G-list entries)."
+    ::= { smartmonSasHealthEntry 2 }
+
+smartmonSasNonMediumErrorCount OBJECT-TYPE
+    SYNTAX      CounterBasedGauge64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Non-medium error count."
+    ::= { smartmonSasHealthEntry 3 }
+
+smartmonSasInformationalExceptions OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "True if the drive is reporting an informational exception condition
+         (ASC/ASCQ from the Informational Exceptions log page)."
+    ::= { smartmonSasHealthEntry 4 }
+
+smartmonSasPendingDefectCount OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of pending defects from the Pending Defects log page."
+    ::= { smartmonSasHealthEntry 5 }
+
+smartmonSasHealthIndex OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..4294967295)
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Local index for SAS/SCSI health entries within a device."
+    ::= { smartmonSasHealthEntry 6 }
+
+-- --------------------------------------------------------------------------
+-- SAS error counter table  (.7 RowCount, .8 LastChange, .9 Table)
+-- --------------------------------------------------------------------------
+
+smartmonSasErrorCounterTableRowCount OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Current number of rows in smartmonSasErrorCounterTable."
+    ::= { smartmonSasObjects 7 }
+
+smartmonSasErrorCounterTableLastChange OBJECT-TYPE
+    SYNTAX      DateAndTime
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Timestamp of the most recent row addition or removal in
+         smartmonSasErrorCounterTable."
+    ::= { smartmonSasObjects 8 }
+
+smartmonSasErrorCounterTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF SmartmonSasErrorCounterEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "SAS/SCSI Error Counter log.  One row per (device, I/O direction).
+         Directions are read(1), write(2), and verify(3)."
+    ::= { smartmonSasObjects 9 }
+
+smartmonSasErrorCounterEntry OBJECT-TYPE
+    SYNTAX      SmartmonSasErrorCounterEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Error counters for one I/O direction on one drive."
+    INDEX { smartmonDeviceIndex, smartmonSasErrorDirection }
+    ::= { smartmonSasErrorCounterTable 1 }
+
+SmartmonSasErrorCounterEntry ::= SEQUENCE {
+    smartmonSasErrorDirection                    SmartmonScsiErrorDirection,
+    smartmonSasErrCorrectedByEccDelayed          CounterBasedGauge64,
+    smartmonSasErrCorrectedByEccFast             CounterBasedGauge64,
+    smartmonSasErrCorrectedByRereadsRewrites     CounterBasedGauge64,
+    smartmonSasTotalErrorsCorrected              CounterBasedGauge64,
+    smartmonSasCorrectionAlgorithmInvocations    CounterBasedGauge64,
+    smartmonSasBytesProcessed                    CounterBasedGauge64,
+    smartmonSasUncorrectedErrors                 CounterBasedGauge64
+}
+
+smartmonSasErrorDirection OBJECT-TYPE
+    SYNTAX      SmartmonScsiErrorDirection
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "I/O direction for this error counter row."
+    ::= { smartmonSasErrorCounterEntry 1 }
+
+smartmonSasErrCorrectedByEccDelayed OBJECT-TYPE
+    SYNTAX      CounterBasedGauge64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Errors corrected by delayed ECC."
+    ::= { smartmonSasErrorCounterEntry 2 }
+
+smartmonSasErrCorrectedByEccFast OBJECT-TYPE
+    SYNTAX      CounterBasedGauge64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Errors corrected by fast ECC."
+    ::= { smartmonSasErrorCounterEntry 3 }
+
+smartmonSasErrCorrectedByRereadsRewrites OBJECT-TYPE
+    SYNTAX      CounterBasedGauge64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Errors corrected by re-reads or re-writes."
+    ::= { smartmonSasErrorCounterEntry 4 }
+
+smartmonSasTotalErrorsCorrected OBJECT-TYPE
+    SYNTAX      CounterBasedGauge64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total errors corrected."
+    ::= { smartmonSasErrorCounterEntry 5 }
+
+smartmonSasCorrectionAlgorithmInvocations OBJECT-TYPE
+    SYNTAX      CounterBasedGauge64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Times the correction algorithm was invoked."
+    ::= { smartmonSasErrorCounterEntry 6 }
+
+smartmonSasBytesProcessed OBJECT-TYPE
+    SYNTAX      CounterBasedGauge64
+    UNITS       "bytes"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total bytes processed for this direction."
+    ::= { smartmonSasErrorCounterEntry 7 }
+
+smartmonSasUncorrectedErrors OBJECT-TYPE
+    SYNTAX      CounterBasedGauge64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Uncorrected errors."
+    ::= { smartmonSasErrorCounterEntry 8 }
+
+-- --------------------------------------------------------------------------
+-- SAS self-test log table  (.10 RowCount, .11 LastChange, .12 Table)
+-- --------------------------------------------------------------------------
+
+smartmonSasSelfTestTableRowCount OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Current number of rows in smartmonSasSelfTestTable."
+    ::= { smartmonSasObjects 10 }
+
+smartmonSasSelfTestTableLastChange OBJECT-TYPE
+    SYNTAX      DateAndTime
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Timestamp of the most recent row addition or removal in
+         smartmonSasSelfTestTable.  Changes whenever a new self-test
+         log entry is written."
+    ::= { smartmonSasObjects 11 }
+
+smartmonSasSelfTestTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF SmartmonSasSelfTestEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "SAS/SCSI self-test log entries."
+    ::= { smartmonSasObjects 12 }
+
+smartmonSasSelfTestEntry OBJECT-TYPE
+    SYNTAX      SmartmonSasSelfTestEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "One SAS/SCSI self-test log entry."
+    INDEX { smartmonDeviceIndex, smartmonSasSelfTestIndex }
+    ::= { smartmonSasSelfTestTable 1 }
+
+SmartmonSasSelfTestEntry ::= SEQUENCE {
+    smartmonSasSelfTestIndex         Unsigned32,
+    smartmonSasSelfTestType          SmartmonSasSelfTestType,
+    smartmonSasSelfTestResult        SmartmonAtaSelfTestResult,
+    smartmonSasSelfTestResultString  DisplayString,
+    smartmonSasSelfTestResultPassed  TruthValue,
+    smartmonSasSelfTestPowerOnHours  CounterBasedGauge64,
+    smartmonSasSelfTestLbaFirstError CounterBasedGauge64
+}
+
+smartmonSasSelfTestIndex OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..4294967295)
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Local self-test table index."
+    ::= { smartmonSasSelfTestEntry 1 }
+
+smartmonSasSelfTestType OBJECT-TYPE
+    SYNTAX      SmartmonSasSelfTestType
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Normalized SAS/SCSI self-test type derived from the self-test
+         code field: backgroundShort(1), backgroundExtended(2),
+         foregroundShort(3), foregroundExtended(4).  Use
+         smartmonSasSelfTestResultString for the original text."
+    ::= { smartmonSasSelfTestEntry 2 }
+
+smartmonSasSelfTestResult OBJECT-TYPE
+    SYNTAX      SmartmonAtaSelfTestResult
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Normalized self-test result."
+    ::= { smartmonSasSelfTestEntry 4 }
+
+smartmonSasSelfTestResultString OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Self-test result string as decoded by smartctl."
+    ::= { smartmonSasSelfTestEntry 5 }
+
+smartmonSasSelfTestResultPassed OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Whether the self-test completed successfully."
+    ::= { smartmonSasSelfTestEntry 6 }
+
+smartmonSasSelfTestPowerOnHours OBJECT-TYPE
+    SYNTAX      CounterBasedGauge64
+    UNITS       "hours"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Power-on hours at the time of the self-test."
+    ::= { smartmonSasSelfTestEntry 7 }
+
+smartmonSasSelfTestLbaFirstError OBJECT-TYPE
+    SYNTAX      CounterBasedGauge64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "LBA of the first error, if reported."
+    ::= { smartmonSasSelfTestEntry 8 }
+
+-- --------------------------------------------------------------------------
+-- SAS background scan table  (.13 RowCount, .14 LastChange, .15 Table)
+-- --------------------------------------------------------------------------
+
+smartmonSasBackgroundScanTableRowCount OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Current number of rows in smartmonSasBackgroundScanTable."
+    ::= { smartmonSasObjects 13 }
+
+smartmonSasBackgroundScanTableLastChange OBJECT-TYPE
+    SYNTAX      DateAndTime
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Timestamp of the most recent row addition or removal in
+         smartmonSasBackgroundScanTable."
+    ::= { smartmonSasObjects 14 }
+
+smartmonSasBackgroundScanTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF SmartmonSasBackgroundScanEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "SAS Background Scan Results log summary.  One row per device.
+         Populated only when the drive reports background scan data."
+    ::= { smartmonSasObjects 15 }
+
+smartmonSasBackgroundScanEntry OBJECT-TYPE
+    SYNTAX      SmartmonSasBackgroundScanEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Background scan summary for one drive."
+    INDEX { smartmonDeviceIndex, smartmonSasBgScanIndex }
+    ::= { smartmonSasBackgroundScanTable 1 }
+
+SmartmonSasBackgroundScanEntry ::= SEQUENCE {
+    smartmonSasBgScanIndex                 Unsigned32,
+    smartmonSasBgScanStatus                DisplayString,
+    smartmonSasBgScanProgressPercent       Unsigned32,
+    smartmonSasBgScanScansPerformed        CounterBasedGauge64,
+    smartmonSasBgScanMediumScansPerformed  CounterBasedGauge64,
+    smartmonSasBgScanScanResults           Unsigned32
+}
+
+smartmonSasBgScanStatus OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Background scan status string as decoded by smartctl."
+    ::= { smartmonSasBackgroundScanEntry 1 }
+
+smartmonSasBgScanProgressPercent OBJECT-TYPE
+    SYNTAX      Unsigned32 (0..100)
+    UNITS       "percent"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Current background scan progress percentage."
+    ::= { smartmonSasBackgroundScanEntry 2 }
+
+smartmonSasBgScanScansPerformed OBJECT-TYPE
+    SYNTAX      CounterBasedGauge64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of background scans performed."
+    ::= { smartmonSasBackgroundScanEntry 3 }
+
+smartmonSasBgScanMediumScansPerformed OBJECT-TYPE
+    SYNTAX      CounterBasedGauge64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of background medium scans performed."
+    ::= { smartmonSasBackgroundScanEntry 4 }
+
+smartmonSasBgScanScanResults OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of background scan result log entries."
+    ::= { smartmonSasBackgroundScanEntry 5 }
+
+smartmonSasBgScanIndex OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..4294967295)
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Local index for SAS background scan entries within a device."
+    ::= { smartmonSasBackgroundScanEntry 6 }
+
+-- --------------------------------------------------------------------------
+-- Notifications
+-- --------------------------------------------------------------------------
+
+smartmonSasHealthFailed NOTIFICATION-TYPE
+    OBJECTS {
+        smartmonDeviceName,
+        smartmonDevicePath,
+        smartmonSasHealthOverallStatus,
+        smartmonDeviceLastPollTime
+    }
+    STATUS      current
+    DESCRIPTION
+        "Generated when SAS/SCSI drive health changes to a failed state."
+    ::= { smartmonSasNotifications 1 }
+
+smartmonSasSelfTestFailed NOTIFICATION-TYPE
+    OBJECTS {
+        smartmonDeviceName,
+        smartmonDevicePath,
+        smartmonSasSelfTestType,
+        smartmonSasSelfTestResult,
+        smartmonSasSelfTestResultString,
+        smartmonDeviceLastPollTime
+    }
+    STATUS      current
+    DESCRIPTION
+        "Generated when a new SAS self-test log entry indicates failure
+         or abnormal termination."
+    ::= { smartmonSasNotifications 2 }
+
+smartmonSasUncorrectedErrorsIncreased NOTIFICATION-TYPE
+    OBJECTS {
+        smartmonDeviceName,
+        smartmonDevicePath,
+        smartmonSasErrorDirection,
+        smartmonSasUncorrectedErrors,
+        smartmonDeviceLastPollTime
+    }
+    STATUS      current
+    DESCRIPTION
+        "Generated when the uncorrected error count increases for any
+         I/O direction."
+    ::= { smartmonSasNotifications 3 }
+
+-- --------------------------------------------------------------------------
+-- Conformance
+-- --------------------------------------------------------------------------
+
+smartmonSasMibCompliance MODULE-COMPLIANCE
+    STATUS      current
+    DESCRIPTION "Compliance statement for implementations of SMARTMON-SAS-MIB."
+    MODULE
+        MANDATORY-GROUPS {
+            smartmonSasInfoGroup,
+            smartmonSasHealthGroup
+        }
+        GROUP smartmonSasErrorCounterGroup
+        DESCRIPTION
+            "Required when SAS error counter log data is available."
+        GROUP smartmonSasSelfTestGroup
+        DESCRIPTION
+            "Required when SAS self-test log entries are available."
+        GROUP smartmonSasBackgroundScanGroup
+        DESCRIPTION
+            "Required when SAS background scan data is available."
+        GROUP smartmonSasTableMetaGroup
+        DESCRIPTION
+            "Required when per-table row counts and last-change timestamps
+             are maintained by the agent."
+        GROUP smartmonSasNotificationGroup
+        DESCRIPTION
+            "Required for implementations that emit notifications."
+    ::= { smartmonSasCompliances 1 }
+
+smartmonSasInfoGroup OBJECT-GROUP
+    OBJECTS {
+        smartmonSasVendor,
+        smartmonSasProduct,
+        smartmonSasRevision,
+        smartmonSasCompliance,
+        smartmonSasSerialNumber,
+        smartmonSasWwn,
+        smartmonSasScsiModelName,
+        smartmonSasRotationRate,
+        smartmonSasFormFactor,
+        smartmonSasLogicalBlockSize,
+        smartmonSasPhysicalBlockSize,
+        smartmonSasUserCapacityBytes,
+        smartmonSasPowerCycles,
+        smartmonSasPowerOnHours
+    }
+    STATUS current
+    DESCRIPTION "SAS/SCSI device identity objects."
+    ::= { smartmonSasGroups 1 }
+
+smartmonSasHealthGroup OBJECT-GROUP
+    OBJECTS {
+        smartmonSasHealthOverallStatus,
+        smartmonSasGrownDefectCount,
+        smartmonSasNonMediumErrorCount,
+        smartmonSasInformationalExceptions,
+        smartmonSasPendingDefectCount
+    }
+    STATUS current
+    DESCRIPTION "SAS/SCSI health objects."
+    ::= { smartmonSasGroups 2 }
+
+smartmonSasErrorCounterGroup OBJECT-GROUP
+    OBJECTS {
+        smartmonSasErrCorrectedByEccDelayed,
+        smartmonSasErrCorrectedByEccFast,
+        smartmonSasErrCorrectedByRereadsRewrites,
+        smartmonSasTotalErrorsCorrected,
+        smartmonSasCorrectionAlgorithmInvocations,
+        smartmonSasBytesProcessed,
+        smartmonSasUncorrectedErrors
+    }
+    STATUS current
+    DESCRIPTION "SAS/SCSI error counter log objects."
+    ::= { smartmonSasGroups 3 }
+
+smartmonSasSelfTestGroup OBJECT-GROUP
+    OBJECTS {
+        smartmonSasSelfTestType,
+        smartmonSasSelfTestResult,
+        smartmonSasSelfTestResultString,
+        smartmonSasSelfTestResultPassed,
+        smartmonSasSelfTestPowerOnHours,
+        smartmonSasSelfTestLbaFirstError
+    }
+    STATUS current
+    DESCRIPTION "SAS/SCSI self-test log objects."
+    ::= { smartmonSasGroups 4 }
+
+smartmonSasBackgroundScanGroup OBJECT-GROUP
+    OBJECTS {
+        smartmonSasBgScanStatus,
+        smartmonSasBgScanProgressPercent,
+        smartmonSasBgScanScansPerformed,
+        smartmonSasBgScanMediumScansPerformed,
+        smartmonSasBgScanScanResults
+    }
+    STATUS current
+    DESCRIPTION "SAS background scan objects."
+    ::= { smartmonSasGroups 5 }
+
+smartmonSasTableMetaGroup OBJECT-GROUP
+    OBJECTS {
+        smartmonSasInfoTableRowCount,              smartmonSasInfoTableLastChange,
+        smartmonSasHealthTableRowCount,            smartmonSasHealthTableLastChange,
+        smartmonSasErrorCounterTableRowCount,      smartmonSasErrorCounterTableLastChange,
+        smartmonSasSelfTestTableRowCount,          smartmonSasSelfTestTableLastChange,
+        smartmonSasBackgroundScanTableRowCount,    smartmonSasBackgroundScanTableLastChange
+    }
+    STATUS current
+    DESCRIPTION "SAS/SCSI table row-count and last-change scalars."
+    ::= { smartmonSasGroups 7 }
+
+smartmonSasNotificationGroup NOTIFICATION-GROUP
+    NOTIFICATIONS {
+        smartmonSasHealthFailed,
+        smartmonSasSelfTestFailed,
+        smartmonSasUncorrectedErrorsIncreased
+    }
+    STATUS current
+    DESCRIPTION "SAS/SCSI notifications."
+    ::= { smartmonSasGroups 6 }
+
+END

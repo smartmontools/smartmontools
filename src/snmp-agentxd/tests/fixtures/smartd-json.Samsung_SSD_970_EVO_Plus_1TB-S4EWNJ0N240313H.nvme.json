@@ -1,0 +1,48 @@
+{
+  "json_format_version": [
+    1,
+    0
+  ],
+  "device": {
+    "name": "/dev/nvme0",
+    "info_name": "/dev/nvme0",
+    "protocol": "NVMe"
+  },
+  "device_info": "Samsung SSD 970 EVO Plus 1TB, S/N:S4EWNJ0N240313H, FW:2B2QEXM7, 1.00 TB",
+  "local_time": {
+    "time_t": 1779134581,
+    "asctime": "Mon May 18 22:03:01 2026 CEST"
+  },
+  "smart_status": {
+    "passed": true
+  },
+  "temperature": {
+    "current": 51,
+    "lifetime_min": 42,
+    "lifetime_max": 70
+  },
+  "nvme_smart_health_information_log": {
+    "nsid": -1,
+    "critical_warning": 0,
+    "temperature": 51,
+    "available_spare": 100,
+    "available_spare_threshold": 10,
+    "percentage_used": 46,
+    "data_units_read": 490064722,
+    "data_units_written": 939511460,
+    "host_reads": 5008972374,
+    "host_writes": 8114376195,
+    "controller_busy_time": 23736,
+    "power_cycles": 76,
+    "power_on_hours": 11099,
+    "unsafe_shutdowns": 28,
+    "media_errors": 0,
+    "num_err_log_entries": 165,
+    "warning_temp_time": 0,
+    "critical_comp_time": 0,
+    "temperature_sensors": [
+      51,
+      47
+    ]
+  }
+}

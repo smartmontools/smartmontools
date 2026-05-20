@@ -959,6 +959,40 @@ AC_SUBST([examples_ldflags])
 examples_libs="${os_libs}${os_libs:+ }${LIBS}"
 AC_SUBST([examples_libs])
 
+dnl -------------------------------------------------------------------------
+dnl Optional: SNMP AgentX subagent (smartmon-snmp-agentxd)
+dnl -------------------------------------------------------------------------
+AC_ARG_WITH([snmp-agentx],
+  [AS_HELP_STRING([--with-snmp-agentx],
+    [build smartmon-snmp-agentxd, a standalone SNMP AgentX subagent @<:@auto@:>@])],
+  [], [with_snmp_agentx=check])
+
+have_snmp_agentx=no
+AS_IF([test "x$with_snmp_agentx" != xno], [
+  AC_CHECK_HEADER([net-snmp/net-snmp-config.h], [
+    AC_PATH_PROG([NET_SNMP_CONFIG], [net-snmp-config], [no])
+    AS_IF([test "x$NET_SNMP_CONFIG" != xno], [
+      snmp_agent_libs="$($NET_SNMP_CONFIG --agent-libs)"
+      save_LIBS="$LIBS"
+      LIBS="$snmp_agent_libs $LIBS"
+      AC_CHECK_FUNC([init_agent],
+        [have_snmp_agentx=yes
+         SNMP_LIBS="$snmp_agent_libs"],
+        [AS_IF([test "x$with_snmp_agentx" = xyes],
+          [AC_MSG_ERROR([--with-snmp-agentx: init_agent not found in net-snmp agent libs])])])
+      LIBS="$save_LIBS"
+    ], [
+      AS_IF([test "x$with_snmp_agentx" = xyes],
+        [AC_MSG_ERROR([--with-snmp-agentx: net-snmp-config not found])])
+    ])
+  ], [
+    AS_IF([test "x$with_snmp_agentx" = xyes],
+      [AC_MSG_ERROR([--with-snmp-agentx: net-snmp headers not found])])
+  ])
+])
+AC_SUBST([SNMP_LIBS])
+AM_CONDITIONAL([HAVE_SNMP_AGENTX], [test "x$have_snmp_agentx" = xyes])
+
 AC_CONFIG_FILES([
   Makefile
   include/Makefile
@@ -966,6 +1000,9 @@ AC_CONFIG_FILES([
   lib/examples/Makefile
   src/Makefile
 ])
+
+AS_IF([test "x$have_snmp_agentx" = xyes],
+  [AC_CONFIG_FILES([src/snmp-agentxd/Makefile])])
 AC_OUTPUT
 AC_PROG_MAKE_SET
 

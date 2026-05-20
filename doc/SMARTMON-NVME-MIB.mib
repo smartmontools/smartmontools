@@ -1,0 +1,1495 @@
+SMARTMON-NVME-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE,
+    Unsigned32
+        FROM SNMPv2-SMI
+    DisplayString, TruthValue, DateAndTime
+        FROM SNMPv2-TC
+    CounterBasedGauge64
+        FROM HCNUM-TC
+    MODULE-COMPLIANCE, OBJECT-GROUP, NOTIFICATION-GROUP
+        FROM SNMPv2-CONF
+    SmartmonHealthStatus, SmartmonNvmeSelfTestType,
+    SmartmonPercentage, SmartmonNvmeSelfTestResult,
+    smartmonRoot
+        FROM SMARTMON-TC-MIB
+    smartmonDeviceIndex, smartmonDeviceName, smartmonDevicePath,
+    smartmonDeviceLastPollTime
+        FROM SMARTMON-COMMON-MIB;
+
+smartmonNvmeMIB MODULE-IDENTITY
+    LAST-UPDATED "202605180000Z"
+    ORGANIZATION "Unassigned"
+    CONTACT-INFO
+        "This is a draft MIB for smartmontools smartctl NVMe output.
+
+         TODO: Replace the placeholder enterprise OID before publication."
+    DESCRIPTION
+        "The SMARTMON-NVME-MIB exposes NVMe health, identity, namespace,
+         capability, power-state, self-test, and error-log information
+         corresponding to smartctl -x output.
+
+         Temperature readings, per-sensor readings, and temperature
+         thresholds are intentionally absent from this MIB.  All physical
+         sensor data, including temperature, is provided by
+         SMARTMON-SENSOR-MIB, which presents a unified sensor table
+         modelled after RFC 3433 (ENTITY-SENSOR-MIB).  Managers requiring
+         NVMe temperature information MUST consult SMARTMON-SENSOR-MIB.
+
+         The intended data source is smartctl -x -j.  Implementations
+         SHOULD avoid scraping human-readable smartctl text when JSON is
+         available.
+
+         This MIB requires SMARTMON-TC-MIB and SMARTMON-COMMON-MIB."
+    REVISION "202605180000Z"
+    DESCRIPTION "Initial NVMe-focused draft."
+    ::= { smartmonRoot 3 }
+
+-- --------------------------------------------------------------------------
+-- Top-level structure
+-- --------------------------------------------------------------------------
+
+smartmonNvmeObjects       OBJECT IDENTIFIER ::= { smartmonNvmeMIB 1 }
+smartmonNvmeNotifications OBJECT IDENTIFIER ::= { smartmonNvmeMIB 2 }
+smartmonNvmeConformance   OBJECT IDENTIFIER ::= { smartmonNvmeMIB 3 }
+smartmonNvmeCompliances   OBJECT IDENTIFIER ::= { smartmonNvmeConformance 1 }
+smartmonNvmeGroups        OBJECT IDENTIFIER ::= { smartmonNvmeConformance 2 }
+
+-- --------------------------------------------------------------------------
+-- Table metadata scalars (RowCount, LastChange precede each table)
+-- --------------------------------------------------------------------------
+
+smartmonNvmeControllerTableRowCount OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Current number of rows in smartmonNvmeControllerTable."
+    ::= { smartmonNvmeObjects 1 }
+
+smartmonNvmeControllerTableLastChange OBJECT-TYPE
+    SYNTAX      DateAndTime
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Timestamp of the most recent row addition or removal in
+         smartmonNvmeControllerTable."
+    ::= { smartmonNvmeObjects 2 }
+
+-- --------------------------------------------------------------------------
+-- NVMe controller table
+-- --------------------------------------------------------------------------
+
+smartmonNvmeControllerTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF SmartmonNvmeControllerEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "NVMe controller identity and controller-level information."
+    ::= { smartmonNvmeObjects 3 }
+
+smartmonNvmeControllerEntry OBJECT-TYPE
+    SYNTAX      SmartmonNvmeControllerEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "Identity and controller-level information for one NVMe controller."
+    INDEX { smartmonDeviceIndex, smartmonNvmeControllerIndex }
+    ::= { smartmonNvmeControllerTable 1 }
+
+SmartmonNvmeControllerEntry ::= SEQUENCE {
+    smartmonNvmeControllerIndex                      Unsigned32,
+    smartmonNvmeModelNumber                          DisplayString,
+    smartmonNvmeSerialNumber                         DisplayString,
+    smartmonNvmeFirmwareVersion                      DisplayString,
+    smartmonNvmePciVendorId                          Unsigned32,
+    smartmonNvmeIeeeOuiIdentifier                    Unsigned32,
+    smartmonNvmeTotalNvmCapacityBytes                CounterBasedGauge64,
+    smartmonNvmeUnallocatedNvmCapacityBytes          CounterBasedGauge64,
+    smartmonNvmeControllerId                         Unsigned32,
+    smartmonNvmeVersion                              DisplayString,
+    smartmonNvmeNamespaceCount                       Unsigned32,
+    smartmonNvmeMaximumDataTransferPages             Unsigned32,
+    smartmonNvmePciVendorSubsystemId                 Unsigned32,
+    smartmonNvmeVersionValue                         Unsigned32,
+    smartmonNvmePciVendorIdText                      DisplayString,
+    smartmonNvmePciVendorSubsystemIdText             DisplayString
+}
+
+smartmonNvmeModelNumber OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "NVMe model number."
+    ::= { smartmonNvmeControllerEntry 1 }
+
+smartmonNvmeSerialNumber OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "NVMe serial number."
+    ::= { smartmonNvmeControllerEntry 2 }
+
+smartmonNvmeFirmwareVersion OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "NVMe firmware version."
+    ::= { smartmonNvmeControllerEntry 3 }
+
+smartmonNvmePciVendorId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "PCI vendor identifier (nvme_pci_vendor.id)."
+    ::= { smartmonNvmeControllerEntry 4 }
+
+smartmonNvmeIeeeOuiIdentifier OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "IEEE OUI identifier as a numeric value."
+    ::= { smartmonNvmeControllerEntry 5 }
+
+smartmonNvmeTotalNvmCapacityBytes OBJECT-TYPE
+    SYNTAX      CounterBasedGauge64
+    UNITS       "bytes"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total NVM capacity in bytes."
+    ::= { smartmonNvmeControllerEntry 6 }
+
+smartmonNvmeUnallocatedNvmCapacityBytes OBJECT-TYPE
+    SYNTAX      CounterBasedGauge64
+    UNITS       "bytes"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Unallocated NVM capacity in bytes."
+    ::= { smartmonNvmeControllerEntry 7 }
+
+smartmonNvmeControllerId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "NVMe controller identifier."
+    ::= { smartmonNvmeControllerEntry 8 }
+
+smartmonNvmeVersion OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "NVMe specification version reported by the controller."
+    ::= { smartmonNvmeControllerEntry 9 }
+
+smartmonNvmeNamespaceCount OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of namespaces reported for this controller."
+    ::= { smartmonNvmeControllerEntry 10 }
+
+smartmonNvmeMaximumDataTransferPages OBJECT-TYPE
+    SYNTAX      Unsigned32
+    UNITS       "memory pages"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Maximum data transfer size expressed in memory pages."
+    ::= { smartmonNvmeControllerEntry 11 }
+
+smartmonNvmeControllerIndex OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..4294967295)
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Local index for NVMe controllers within a device."
+    ::= { smartmonNvmeControllerEntry 14 }
+
+smartmonNvmePciVendorSubsystemId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "PCI subsystem vendor identifier (nvme_pci_vendor.subsystem_id)."
+    ::= { smartmonNvmeControllerEntry 15 }
+
+smartmonNvmeVersionValue OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "NVMe specification version as a numeric value (nvme_version.value),
+         encoding Major.Minor.Tertiary in bits 31:16, 15:8, 7:0.  For
+         example version 1.3 is encoded as 66304 (0x00010300)."
+    ::= { smartmonNvmeControllerEntry 16 }
+
+smartmonNvmePciVendorIdText OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "PCI vendor identifier formatted as a four-digit hexadecimal string
+         with 0x prefix, for example 0x144D for Samsung Electronics.
+         Derived from nvme_pci_vendor.id."
+    ::= { smartmonNvmeControllerEntry 17 }
+
+smartmonNvmePciVendorSubsystemIdText OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "PCI subsystem vendor identifier formatted as a four-digit
+         hexadecimal string with 0x prefix, for example 0x144D.
+         Derived from nvme_pci_vendor.subsystem_id."
+    ::= { smartmonNvmeControllerEntry 18 }
+
+smartmonNvmeNamespaceTableRowCount OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Current number of rows in smartmonNvmeNamespaceTable."
+    ::= { smartmonNvmeObjects 4 }
+
+smartmonNvmeNamespaceTableLastChange OBJECT-TYPE
+    SYNTAX      DateAndTime
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Timestamp of the most recent row addition or removal in
+         smartmonNvmeNamespaceTable."
+    ::= { smartmonNvmeObjects 5 }
+
+-- --------------------------------------------------------------------------
+-- NVMe namespace table
+-- --------------------------------------------------------------------------
+
+smartmonNvmeNamespaceTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF SmartmonNvmeNamespaceEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "NVMe namespace information."
+    ::= { smartmonNvmeObjects 6 }
+
+smartmonNvmeNamespaceEntry OBJECT-TYPE
+    SYNTAX      SmartmonNvmeNamespaceEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "One NVMe namespace."
+    INDEX { smartmonDeviceIndex, smartmonNvmeNamespaceId }
+    ::= { smartmonNvmeNamespaceTable 1 }
+
+SmartmonNvmeNamespaceEntry ::= SEQUENCE {
+    smartmonNvmeNamespaceId                    Unsigned32,
+    smartmonNvmeNamespaceSizeBytes             CounterBasedGauge64,
+    smartmonNvmeNamespaceCapacityBytes         CounterBasedGauge64,
+    smartmonNvmeNamespaceUtilizationBytes      CounterBasedGauge64,
+    smartmonNvmeNamespaceFormattedLbaSizeBytes Unsigned32,
+    smartmonNvmeNamespaceEui64                 DisplayString,
+    smartmonNvmeNamespaceNguid                 DisplayString,
+    smartmonNvmeNamespaceSizeBlocks            CounterBasedGauge64,
+    smartmonNvmeNamespaceCapacityBlocks        CounterBasedGauge64,
+    smartmonNvmeNamespaceUtilizationBlocks     CounterBasedGauge64
+}
+
+smartmonNvmeNamespaceId OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..4294967295)
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "NVMe namespace identifier."
+    ::= { smartmonNvmeNamespaceEntry 1 }
+
+smartmonNvmeNamespaceSizeBytes OBJECT-TYPE
+    SYNTAX      CounterBasedGauge64
+    UNITS       "bytes"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Namespace size in bytes."
+    ::= { smartmonNvmeNamespaceEntry 2 }
+
+smartmonNvmeNamespaceCapacityBytes OBJECT-TYPE
+    SYNTAX      CounterBasedGauge64
+    UNITS       "bytes"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Namespace capacity in bytes."
+    ::= { smartmonNvmeNamespaceEntry 3 }
+
+smartmonNvmeNamespaceUtilizationBytes OBJECT-TYPE
+    SYNTAX      CounterBasedGauge64
+    UNITS       "bytes"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Namespace utilization in bytes."
+    ::= { smartmonNvmeNamespaceEntry 4 }
+
+smartmonNvmeNamespaceFormattedLbaSizeBytes OBJECT-TYPE
+    SYNTAX      Unsigned32
+    UNITS       "bytes"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Formatted LBA size in bytes."
+    ::= { smartmonNvmeNamespaceEntry 5 }
+
+smartmonNvmeNamespaceEui64 OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Namespace EUI-64 identifier as text."
+    ::= { smartmonNvmeNamespaceEntry 6 }
+
+smartmonNvmeNamespaceNguid OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Namespace NGUID identifier as text, if reported."
+    ::= { smartmonNvmeNamespaceEntry 7 }
+
+smartmonNvmeNamespaceSizeBlocks OBJECT-TYPE
+    SYNTAX      CounterBasedGauge64
+    UNITS       "blocks"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Namespace size in logical blocks (size.blocks)."
+    ::= { smartmonNvmeNamespaceEntry 8 }
+
+smartmonNvmeNamespaceCapacityBlocks OBJECT-TYPE
+    SYNTAX      CounterBasedGauge64
+    UNITS       "blocks"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Namespace capacity in logical blocks (capacity.blocks)."
+    ::= { smartmonNvmeNamespaceEntry 9 }
+
+smartmonNvmeNamespaceUtilizationBlocks OBJECT-TYPE
+    SYNTAX      CounterBasedGauge64
+    UNITS       "blocks"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Namespace utilization in logical blocks (utilization.blocks)."
+    ::= { smartmonNvmeNamespaceEntry 10 }
+
+smartmonNvmePowerStateTableRowCount OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Current number of rows in smartmonNvmePowerStateTable."
+    ::= { smartmonNvmeObjects 7 }
+
+smartmonNvmePowerStateTableLastChange OBJECT-TYPE
+    SYNTAX      DateAndTime
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Timestamp of the most recent row addition or removal in
+         smartmonNvmePowerStateTable."
+    ::= { smartmonNvmeObjects 8 }
+
+-- --------------------------------------------------------------------------
+-- NVMe power states
+-- --------------------------------------------------------------------------
+
+smartmonNvmePowerStateTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF SmartmonNvmePowerStateEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Supported NVMe power states."
+    ::= { smartmonNvmeObjects 9 }
+
+smartmonNvmePowerStateEntry OBJECT-TYPE
+    SYNTAX      SmartmonNvmePowerStateEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "One supported NVMe power state."
+    INDEX { smartmonDeviceIndex, smartmonNvmePowerStateIndex }
+    ::= { smartmonNvmePowerStateTable 1 }
+
+SmartmonNvmePowerStateEntry ::= SEQUENCE {
+    smartmonNvmePowerStateIndex                 Unsigned32,
+    smartmonNvmePowerStateOperational           TruthValue,
+    smartmonNvmePowerStateMaxPowerMilliWatts    Unsigned32,
+    smartmonNvmePowerStateActivePowerMilliWatts Unsigned32,
+    smartmonNvmePowerStateIdlePowerMilliWatts   Unsigned32,
+    smartmonNvmePowerStateReadLatencyRank       Unsigned32,
+    smartmonNvmePowerStateReadThroughputRank    Unsigned32,
+    smartmonNvmePowerStateWriteLatencyRank      Unsigned32,
+    smartmonNvmePowerStateWriteThroughputRank   Unsigned32,
+    smartmonNvmePowerStateEntryLatencyUsec      Unsigned32,
+    smartmonNvmePowerStateExitLatencyUsec       Unsigned32
+}
+
+smartmonNvmePowerStateIndex OBJECT-TYPE
+    SYNTAX      Unsigned32 (0..4294967295)
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "NVMe power state identifier."
+    ::= { smartmonNvmePowerStateEntry 1 }
+
+smartmonNvmePowerStateOperational OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Whether the power state is operational."
+    ::= { smartmonNvmePowerStateEntry 2 }
+
+smartmonNvmePowerStateMaxPowerMilliWatts OBJECT-TYPE
+    SYNTAX      Unsigned32
+    UNITS       "milliwatts"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Maximum power for the state in milliwatts."
+    ::= { smartmonNvmePowerStateEntry 3 }
+
+smartmonNvmePowerStateActivePowerMilliWatts OBJECT-TYPE
+    SYNTAX      Unsigned32
+    UNITS       "milliwatts"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Active power in milliwatts, if reported.  If not reported,
+         implementations SHOULD omit the value or return noSuchInstance."
+    ::= { smartmonNvmePowerStateEntry 4 }
+
+smartmonNvmePowerStateIdlePowerMilliWatts OBJECT-TYPE
+    SYNTAX      Unsigned32
+    UNITS       "milliwatts"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Idle power in milliwatts, if reported.  If not reported,
+         implementations SHOULD omit the value or return noSuchInstance."
+    ::= { smartmonNvmePowerStateEntry 5 }
+
+smartmonNvmePowerStateReadLatencyRank OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Read latency rank."
+    ::= { smartmonNvmePowerStateEntry 6 }
+
+smartmonNvmePowerStateReadThroughputRank OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Read throughput rank."
+    ::= { smartmonNvmePowerStateEntry 7 }
+
+smartmonNvmePowerStateWriteLatencyRank OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Write latency rank."
+    ::= { smartmonNvmePowerStateEntry 8 }
+
+smartmonNvmePowerStateWriteThroughputRank OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Write throughput rank."
+    ::= { smartmonNvmePowerStateEntry 9 }
+
+smartmonNvmePowerStateEntryLatencyUsec OBJECT-TYPE
+    SYNTAX      Unsigned32
+    UNITS       "microseconds"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Entry latency for the power state."
+    ::= { smartmonNvmePowerStateEntry 10 }
+
+smartmonNvmePowerStateExitLatencyUsec OBJECT-TYPE
+    SYNTAX      Unsigned32
+    UNITS       "microseconds"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Exit latency for the power state."
+    ::= { smartmonNvmePowerStateEntry 11 }
+
+smartmonNvmeLbaFormatTableRowCount OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Current number of rows in smartmonNvmeLbaFormatTable."
+    ::= { smartmonNvmeObjects 10 }
+
+smartmonNvmeLbaFormatTableLastChange OBJECT-TYPE
+    SYNTAX      DateAndTime
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Timestamp of the most recent row addition or removal in
+         smartmonNvmeLbaFormatTable."
+    ::= { smartmonNvmeObjects 11 }
+
+-- --------------------------------------------------------------------------
+-- NVMe LBA formats
+-- --------------------------------------------------------------------------
+
+smartmonNvmeLbaFormatTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF SmartmonNvmeLbaFormatEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Supported LBA formats for each NVMe namespace."
+    ::= { smartmonNvmeObjects 12 }
+
+smartmonNvmeLbaFormatEntry OBJECT-TYPE
+    SYNTAX      SmartmonNvmeLbaFormatEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "One supported LBA format for one NVMe namespace."
+    INDEX { smartmonDeviceIndex, smartmonNvmeNamespaceId, smartmonNvmeLbaFormatId }
+    ::= { smartmonNvmeLbaFormatTable 1 }
+
+SmartmonNvmeLbaFormatEntry ::= SEQUENCE {
+    smartmonNvmeLbaFormatId                  Unsigned32,
+    smartmonNvmeLbaFormatCurrent             TruthValue,
+    smartmonNvmeLbaFormatDataSizeBytes       Unsigned32,
+    smartmonNvmeLbaFormatMetadataSizeBytes   Unsigned32,
+    smartmonNvmeLbaFormatRelativePerformance Unsigned32
+}
+
+smartmonNvmeLbaFormatId OBJECT-TYPE
+    SYNTAX      Unsigned32 (0..4294967295)
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "NVMe LBA format identifier."
+    ::= { smartmonNvmeLbaFormatEntry 1 }
+
+smartmonNvmeLbaFormatCurrent OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Whether this is the currently selected LBA format."
+    ::= { smartmonNvmeLbaFormatEntry 2 }
+
+smartmonNvmeLbaFormatDataSizeBytes OBJECT-TYPE
+    SYNTAX      Unsigned32
+    UNITS       "bytes"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Data size for this LBA format."
+    ::= { smartmonNvmeLbaFormatEntry 3 }
+
+smartmonNvmeLbaFormatMetadataSizeBytes OBJECT-TYPE
+    SYNTAX      Unsigned32
+    UNITS       "bytes"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Metadata size for this LBA format."
+    ::= { smartmonNvmeLbaFormatEntry 4 }
+
+smartmonNvmeLbaFormatRelativePerformance OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Relative performance value for this LBA format."
+    ::= { smartmonNvmeLbaFormatEntry 5 }
+
+smartmonNvmeHealthTableRowCount OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Current number of rows in smartmonNvmeHealthTable."
+    ::= { smartmonNvmeObjects 13 }
+
+smartmonNvmeHealthTableLastChange OBJECT-TYPE
+    SYNTAX      DateAndTime
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Timestamp of the most recent row addition or removal in
+         smartmonNvmeHealthTable."
+    ::= { smartmonNvmeObjects 14 }
+
+-- --------------------------------------------------------------------------
+-- NVMe health information
+-- --------------------------------------------------------------------------
+
+smartmonNvmeHealthTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF SmartmonNvmeHealthEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "NVMe SMART/Health Information log, commonly NVMe log page 0x02."
+    ::= { smartmonNvmeObjects 15 }
+
+smartmonNvmeHealthEntry OBJECT-TYPE
+    SYNTAX      SmartmonNvmeHealthEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "NVMe controller health information."
+    INDEX { smartmonDeviceIndex, smartmonNvmeHealthIndex }
+    ::= { smartmonNvmeHealthTable 1 }
+
+SmartmonNvmeHealthEntry ::= SEQUENCE {
+    smartmonNvmeHealthIndex                      Unsigned32,
+    smartmonNvmeHealthOverallStatus             SmartmonHealthStatus,
+    smartmonNvmeCriticalWarning                 BITS,
+    smartmonNvmeAvailableSparePercent           SmartmonPercentage,
+    smartmonNvmeAvailableSpareThresholdPercent  SmartmonPercentage,
+    smartmonNvmePercentageUsed                  SmartmonPercentage,
+    smartmonNvmeDataUnitsRead                   CounterBasedGauge64,
+    smartmonNvmeDataUnitsWritten                CounterBasedGauge64,
+    smartmonNvmeDataBytesRead                   CounterBasedGauge64,
+    smartmonNvmeDataBytesWritten                CounterBasedGauge64,
+    smartmonNvmeHostReadCommands                CounterBasedGauge64,
+    smartmonNvmeHostWriteCommands               CounterBasedGauge64,
+    smartmonNvmeControllerBusyTimeMinutes       CounterBasedGauge64,
+    smartmonNvmePowerCycles                     CounterBasedGauge64,
+    smartmonNvmePowerOnHours                    CounterBasedGauge64,
+    smartmonNvmeUnsafeShutdowns                 CounterBasedGauge64,
+    smartmonNvmeMediaDataIntegrityErrors        CounterBasedGauge64,
+    smartmonNvmeErrorInformationLogEntries      CounterBasedGauge64,
+    smartmonNvmeWarningTemperatureTimeMinutes   CounterBasedGauge64,
+    smartmonNvmeCriticalTemperatureTimeMinutes  CounterBasedGauge64,
+    smartmonNvmeCurrentSelfTestOperationValue   Unsigned32,
+    smartmonNvmeCurrentSelfTestOperationString  DisplayString
+}
+
+smartmonNvmeHealthOverallStatus OBJECT-TYPE
+    SYNTAX      SmartmonHealthStatus
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Overall NVMe health status as reported by smartctl."
+    ::= { smartmonNvmeHealthEntry 1 }
+
+smartmonNvmeCriticalWarning OBJECT-TYPE
+    SYNTAX      BITS {
+                    spareLow(0),
+                    tempCritical(1),
+                    degradedReliability(2),
+                    readOnly(3),
+                    backupDeviceFailed(4),
+                    pmrUnreliable(5)
+                }
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "NVMe Critical Warning bitmap (NVMe spec §5.14.1.2).
+         spareLow(0)            -- available spare fell below threshold
+         tempCritical(1)        -- temperature at or above critical threshold
+         degradedReliability(2) -- NVM subsystem reliability degraded
+         readOnly(3)            -- media placed in read-only mode
+         backupDeviceFailed(4)  -- volatile memory backup device failed
+         pmrUnreliable(5)       -- Persistent Memory Region read-only or unreliable"
+    ::= { smartmonNvmeHealthEntry 2 }
+
+smartmonNvmeAvailableSparePercent OBJECT-TYPE
+    SYNTAX      SmartmonPercentage
+    UNITS       "percent"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Available spare percentage."
+    ::= { smartmonNvmeHealthEntry 4 }
+
+smartmonNvmeAvailableSpareThresholdPercent OBJECT-TYPE
+    SYNTAX      SmartmonPercentage
+    UNITS       "percent"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Available spare threshold percentage."
+    ::= { smartmonNvmeHealthEntry 5 }
+
+smartmonNvmePercentageUsed OBJECT-TYPE
+    SYNTAX      SmartmonPercentage
+    UNITS       "percent"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Estimated percentage of device lifetime used."
+    ::= { smartmonNvmeHealthEntry 6 }
+
+smartmonNvmeDataUnitsRead OBJECT-TYPE
+    SYNTAX      CounterBasedGauge64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Raw NVMe data units read."
+    ::= { smartmonNvmeHealthEntry 7 }
+
+smartmonNvmeDataUnitsWritten OBJECT-TYPE
+    SYNTAX      CounterBasedGauge64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Raw NVMe data units written."
+    ::= { smartmonNvmeHealthEntry 8 }
+
+smartmonNvmeDataBytesRead OBJECT-TYPE
+    SYNTAX      CounterBasedGauge64
+    UNITS       "bytes"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Calculated bytes read.  For the standard NVMe SMART/Health log,
+         one data unit is 512000 bytes."
+    ::= { smartmonNvmeHealthEntry 9 }
+
+smartmonNvmeDataBytesWritten OBJECT-TYPE
+    SYNTAX      CounterBasedGauge64
+    UNITS       "bytes"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Calculated bytes written.  For the standard NVMe SMART/Health log,
+         one data unit is 512000 bytes."
+    ::= { smartmonNvmeHealthEntry 10 }
+
+smartmonNvmeHostReadCommands OBJECT-TYPE
+    SYNTAX      CounterBasedGauge64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of host read commands."
+    ::= { smartmonNvmeHealthEntry 11 }
+
+smartmonNvmeHostWriteCommands OBJECT-TYPE
+    SYNTAX      CounterBasedGauge64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of host write commands."
+    ::= { smartmonNvmeHealthEntry 12 }
+
+smartmonNvmeControllerBusyTimeMinutes OBJECT-TYPE
+    SYNTAX      CounterBasedGauge64
+    UNITS       "minutes"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Controller busy time in minutes."
+    ::= { smartmonNvmeHealthEntry 13 }
+
+smartmonNvmePowerCycles OBJECT-TYPE
+    SYNTAX      CounterBasedGauge64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of power cycles."
+    ::= { smartmonNvmeHealthEntry 14 }
+
+smartmonNvmePowerOnHours OBJECT-TYPE
+    SYNTAX      CounterBasedGauge64
+    UNITS       "hours"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Power-on hours."
+    ::= { smartmonNvmeHealthEntry 15 }
+
+smartmonNvmeUnsafeShutdowns OBJECT-TYPE
+    SYNTAX      CounterBasedGauge64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of unsafe shutdowns."
+    ::= { smartmonNvmeHealthEntry 16 }
+
+smartmonNvmeMediaDataIntegrityErrors OBJECT-TYPE
+    SYNTAX      CounterBasedGauge64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Media and data integrity errors."
+    ::= { smartmonNvmeHealthEntry 17 }
+
+smartmonNvmeErrorInformationLogEntries OBJECT-TYPE
+    SYNTAX      CounterBasedGauge64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of Error Information log entries."
+    ::= { smartmonNvmeHealthEntry 18 }
+
+smartmonNvmeWarningTemperatureTimeMinutes OBJECT-TYPE
+    SYNTAX      CounterBasedGauge64
+    UNITS       "minutes"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Time above warning composite temperature threshold."
+    ::= { smartmonNvmeHealthEntry 19 }
+
+smartmonNvmeCriticalTemperatureTimeMinutes OBJECT-TYPE
+    SYNTAX      CounterBasedGauge64
+    UNITS       "minutes"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Time above critical composite temperature threshold."
+    ::= { smartmonNvmeHealthEntry 20 }
+
+smartmonNvmeHealthIndex OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..4294967295)
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Local index for NVMe health log entries within a device."
+    ::= { smartmonNvmeHealthEntry 21 }
+
+smartmonNvmeCurrentSelfTestOperationValue OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Numeric value of the current self-test operation status
+         (nvme_self_test_log.current_self_test_operation.value).
+         Zero indicates no self-test is in progress."
+    ::= { smartmonNvmeHealthEntry 22 }
+
+smartmonNvmeCurrentSelfTestOperationString OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Human-readable current self-test operation status
+         (nvme_self_test_log.current_self_test_operation.string),
+         for example No self-test in progress or Short device self-test
+         in progress."
+    ::= { smartmonNvmeHealthEntry 23 }
+
+smartmonNvmeSelfTestTableRowCount OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Current number of rows in smartmonNvmeSelfTestTable."
+    ::= { smartmonNvmeObjects 16 }
+
+smartmonNvmeSelfTestTableLastChange OBJECT-TYPE
+    SYNTAX      DateAndTime
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Timestamp of the most recent row addition or removal in
+         smartmonNvmeSelfTestTable.  For self-test logs this changes
+         whenever a new test completes."
+    ::= { smartmonNvmeObjects 17 }
+
+-- --------------------------------------------------------------------------
+-- NVMe self-test table
+-- --------------------------------------------------------------------------
+
+smartmonNvmeSelfTestTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF SmartmonNvmeSelfTestEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "NVMe self-test log entries, commonly NVMe log page 0x06."
+    ::= { smartmonNvmeObjects 18 }
+
+smartmonNvmeSelfTestEntry OBJECT-TYPE
+    SYNTAX      SmartmonNvmeSelfTestEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "One NVMe self-test log entry."
+    INDEX { smartmonDeviceIndex, smartmonNvmeSelfTestIndex }
+    ::= { smartmonNvmeSelfTestTable 1 }
+
+SmartmonNvmeSelfTestEntry ::= SEQUENCE {
+    smartmonNvmeSelfTestIndex          Unsigned32,
+    smartmonNvmeSelfTestNumber         Unsigned32,
+    smartmonNvmeSelfTestType           SmartmonNvmeSelfTestType,
+    smartmonNvmeSelfTestResult         SmartmonNvmeSelfTestResult,
+    smartmonNvmeSelfTestResultText     DisplayString,
+    smartmonNvmeSelfTestPowerOnHours   CounterBasedGauge64,
+    smartmonNvmeSelfTestFailingLba     CounterBasedGauge64,
+    smartmonNvmeSelfTestNamespaceId    Unsigned32,
+    smartmonNvmeSelfTestSegmentNumber  Unsigned32,
+    smartmonNvmeSelfTestStatusCodeType Unsigned32,
+    smartmonNvmeSelfTestStatusCode     Unsigned32
+}
+
+smartmonNvmeSelfTestIndex OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..4294967295)
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Local self-test table index."
+    ::= { smartmonNvmeSelfTestEntry 1 }
+
+smartmonNvmeSelfTestNumber OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Self-test number as reported by smartctl."
+    ::= { smartmonNvmeSelfTestEntry 2 }
+
+smartmonNvmeSelfTestType OBJECT-TYPE
+    SYNTAX      SmartmonNvmeSelfTestType
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Normalized NVMe self-test type derived from the Self-test
+         Action field: short(1), extended(2), or vendorSpecific(255)."
+    ::= { smartmonNvmeSelfTestEntry 3 }
+
+smartmonNvmeSelfTestResult OBJECT-TYPE
+    SYNTAX      SmartmonNvmeSelfTestResult
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Normalized self-test result."
+    ::= { smartmonNvmeSelfTestEntry 4 }
+
+smartmonNvmeSelfTestResultText OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Original or near-original self-test result text."
+    ::= { smartmonNvmeSelfTestEntry 5 }
+
+smartmonNvmeSelfTestPowerOnHours OBJECT-TYPE
+    SYNTAX      CounterBasedGauge64
+    UNITS       "hours"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Power-on hours at the time of the self-test entry."
+    ::= { smartmonNvmeSelfTestEntry 6 }
+
+smartmonNvmeSelfTestFailingLba OBJECT-TYPE
+    SYNTAX      CounterBasedGauge64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Failing LBA, if reported."
+    ::= { smartmonNvmeSelfTestEntry 7 }
+
+smartmonNvmeSelfTestNamespaceId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Namespace identifier associated with the self-test entry."
+    ::= { smartmonNvmeSelfTestEntry 8 }
+
+smartmonNvmeSelfTestSegmentNumber OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Segment number associated with the self-test entry."
+    ::= { smartmonNvmeSelfTestEntry 9 }
+
+smartmonNvmeSelfTestStatusCodeType OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "NVMe self-test Status Code Type value, if reported."
+    ::= { smartmonNvmeSelfTestEntry 10 }
+
+smartmonNvmeSelfTestStatusCode OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "NVMe self-test Status Code value, if reported."
+    ::= { smartmonNvmeSelfTestEntry 11 }
+
+smartmonNvmeErrorLogTableRowCount OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Current number of rows in smartmonNvmeErrorLogTable."
+    ::= { smartmonNvmeObjects 19 }
+
+smartmonNvmeErrorLogTableLastChange OBJECT-TYPE
+    SYNTAX      DateAndTime
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Timestamp of the most recent row addition or removal in
+         smartmonNvmeErrorLogTable."
+    ::= { smartmonNvmeObjects 20 }
+
+-- --------------------------------------------------------------------------
+-- NVMe error information log
+-- --------------------------------------------------------------------------
+
+smartmonNvmeErrorLogTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF SmartmonNvmeErrorLogEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "NVMe Error Information log entries, commonly NVMe log page 0x01.
+         If no errors are logged, this table has no rows."
+    ::= { smartmonNvmeObjects 21 }
+
+smartmonNvmeErrorLogEntry OBJECT-TYPE
+    SYNTAX      SmartmonNvmeErrorLogEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "One NVMe Error Information log entry."
+    INDEX { smartmonDeviceIndex, smartmonNvmeErrorLogIndex }
+    ::= { smartmonNvmeErrorLogTable 1 }
+
+SmartmonNvmeErrorLogEntry ::= SEQUENCE {
+    smartmonNvmeErrorLogIndex               Unsigned32,
+    smartmonNvmeErrorCount                  CounterBasedGauge64,
+    smartmonNvmeErrorSubmissionQueueId      Unsigned32,
+    smartmonNvmeErrorCommandId              Unsigned32,
+    smartmonNvmeErrorStatusField            Unsigned32,
+    smartmonNvmeErrorParameterErrorLocation Unsigned32,
+    smartmonNvmeErrorLba                    CounterBasedGauge64,
+    smartmonNvmeErrorNamespaceId            Unsigned32,
+    smartmonNvmeErrorVendorSpecificInfo     Unsigned32,
+    smartmonNvmeErrorStatusCode             Unsigned32,
+    smartmonNvmeErrorStatusCodeType         Unsigned32,
+    smartmonNvmeErrorDoNotRetry             TruthValue,
+    smartmonNvmeErrorStatusString           DisplayString,
+    smartmonNvmeErrorPhaseTag               TruthValue
+}
+
+smartmonNvmeErrorLogIndex OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..4294967295)
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Local error-log table index."
+    ::= { smartmonNvmeErrorLogEntry 1 }
+
+smartmonNvmeErrorCount OBJECT-TYPE
+    SYNTAX      CounterBasedGauge64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Error count."
+    ::= { smartmonNvmeErrorLogEntry 2 }
+
+smartmonNvmeErrorSubmissionQueueId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Submission Queue Identifier associated with the error."
+    ::= { smartmonNvmeErrorLogEntry 3 }
+
+smartmonNvmeErrorCommandId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Command Identifier associated with the error."
+    ::= { smartmonNvmeErrorLogEntry 4 }
+
+smartmonNvmeErrorStatusField OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "NVMe status field associated with the error."
+    ::= { smartmonNvmeErrorLogEntry 5 }
+
+smartmonNvmeErrorParameterErrorLocation OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Parameter error location, if reported."
+    ::= { smartmonNvmeErrorLogEntry 6 }
+
+smartmonNvmeErrorLba OBJECT-TYPE
+    SYNTAX      CounterBasedGauge64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "LBA associated with the error, if reported."
+    ::= { smartmonNvmeErrorLogEntry 7 }
+
+smartmonNvmeErrorNamespaceId OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Namespace identifier associated with the error, if reported."
+    ::= { smartmonNvmeErrorLogEntry 8 }
+
+smartmonNvmeErrorVendorSpecificInfo OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Vendor-specific error information, if reported."
+    ::= { smartmonNvmeErrorLogEntry 9 }
+
+smartmonNvmeErrorStatusCode OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Status Code from the NVMe completion queue entry status field
+         (status_field.status_code)."
+    ::= { smartmonNvmeErrorLogEntry 10 }
+
+smartmonNvmeErrorStatusCodeType OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Status Code Type from the NVMe completion queue entry status field
+         (status_field.status_code_type): 0=Generic, 1=Command Specific,
+         2=Media/Data Integrity, 3=Path Related."
+    ::= { smartmonNvmeErrorLogEntry 11 }
+
+smartmonNvmeErrorDoNotRetry OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Do Not Retry bit from the NVMe status field
+         (status_field.do_not_retry).  True means the command should not
+         be retried."
+    ::= { smartmonNvmeErrorLogEntry 12 }
+
+smartmonNvmeErrorStatusString OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Human-readable status description decoded by smartctl
+         (status_field.string), for example Invalid Field in Command."
+    ::= { smartmonNvmeErrorLogEntry 13 }
+
+smartmonNvmeErrorPhaseTag OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Phase Tag bit from the NVMe completion queue entry
+         (phase_tag)."
+    ::= { smartmonNvmeErrorLogEntry 14 }
+
+smartmonNvmeCapabilityTableRowCount OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Current number of rows in smartmonNvmeCapabilityTable."
+    ::= { smartmonNvmeObjects 22 }
+
+smartmonNvmeCapabilityTableLastChange OBJECT-TYPE
+    SYNTAX      DateAndTime
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Timestamp of the most recent row addition or removal in
+         smartmonNvmeCapabilityTable."
+    ::= { smartmonNvmeObjects 23 }
+
+-- --------------------------------------------------------------------------
+-- NVMe capability table
+-- --------------------------------------------------------------------------
+
+smartmonNvmeCapabilityTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF SmartmonNvmeCapabilityEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "NVMe capability masks and decoded text as reported by smartctl."
+    ::= { smartmonNvmeObjects 24 }
+
+smartmonNvmeCapabilityEntry OBJECT-TYPE
+    SYNTAX      SmartmonNvmeCapabilityEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "NVMe capability information for one controller."
+    INDEX { smartmonDeviceIndex, smartmonNvmeCapabilityIndex }
+    ::= { smartmonNvmeCapabilityTable 1 }
+
+SmartmonNvmeCapabilityEntry ::= SEQUENCE {
+    smartmonNvmeCapabilityIndex          Unsigned32,
+    smartmonNvmeFirmwareUpdateRaw        Unsigned32,
+    smartmonNvmeFirmwareSlotCount        Unsigned32,
+    smartmonNvmeFirmwareResetRequired    TruthValue,
+    smartmonNvmeOptionalAdminCommandRaw  Unsigned32,
+    smartmonNvmeOptionalNvmCommandRaw    Unsigned32,
+    smartmonNvmeLogPageAttributesRaw     Unsigned32,
+    smartmonNvmeOptionalAdminCommandText DisplayString,
+    smartmonNvmeOptionalNvmCommandText   DisplayString,
+    smartmonNvmeLogPageAttributesText    DisplayString
+}
+
+smartmonNvmeFirmwareUpdateRaw OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Raw Firmware Updates capability value."
+    ::= { smartmonNvmeCapabilityEntry 1 }
+
+smartmonNvmeFirmwareSlotCount OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of firmware slots."
+    ::= { smartmonNvmeCapabilityEntry 2 }
+
+smartmonNvmeFirmwareResetRequired OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Whether a reset is required for firmware activation."
+    ::= { smartmonNvmeCapabilityEntry 3 }
+
+smartmonNvmeOptionalAdminCommandRaw OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Raw Optional Admin Commands bit mask."
+    ::= { smartmonNvmeCapabilityEntry 4 }
+
+smartmonNvmeOptionalNvmCommandRaw OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Raw Optional NVM Commands bit mask."
+    ::= { smartmonNvmeCapabilityEntry 5 }
+
+smartmonNvmeLogPageAttributesRaw OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Raw Log Page Attributes bit mask."
+    ::= { smartmonNvmeCapabilityEntry 6 }
+
+smartmonNvmeOptionalAdminCommandText OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Decoded Optional Admin Commands text from smartctl."
+    ::= { smartmonNvmeCapabilityEntry 7 }
+
+smartmonNvmeOptionalNvmCommandText OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Decoded Optional NVM Commands text from smartctl."
+    ::= { smartmonNvmeCapabilityEntry 8 }
+
+smartmonNvmeLogPageAttributesText OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Decoded Log Page Attributes text from smartctl."
+    ::= { smartmonNvmeCapabilityEntry 9 }
+
+smartmonNvmeCapabilityIndex OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..4294967295)
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Local index for NVMe capability entries within a device."
+    ::= { smartmonNvmeCapabilityEntry 10 }
+
+-- --------------------------------------------------------------------------
+-- Notifications
+-- --------------------------------------------------------------------------
+
+smartmonNvmeHealthFailed NOTIFICATION-TYPE
+    OBJECTS {
+        smartmonDeviceName,
+        smartmonDevicePath,
+        smartmonNvmeHealthOverallStatus,
+        smartmonNvmeCriticalWarning,
+        smartmonDeviceLastPollTime
+    }
+    STATUS      current
+    DESCRIPTION
+        "Generated when NVMe health changes to a failed or warning state."
+    ::= { smartmonNvmeNotifications 1 }
+
+smartmonNvmeSelfTestFailed NOTIFICATION-TYPE
+    OBJECTS {
+        smartmonDeviceName,
+        smartmonDevicePath,
+        smartmonNvmeSelfTestNumber,
+        smartmonNvmeSelfTestResult,
+        smartmonNvmeSelfTestResultText,
+        smartmonDeviceLastPollTime
+    }
+    STATUS      current
+    DESCRIPTION
+        "Generated when a new NVMe self-test log entry indicates failure
+         or abnormal termination."
+    ::= { smartmonNvmeNotifications 2 }
+
+-- --------------------------------------------------------------------------
+-- Conformance
+-- --------------------------------------------------------------------------
+
+smartmonNvmeCompliance MODULE-COMPLIANCE
+    STATUS      current
+    DESCRIPTION
+        "Compliance statement for implementations of SMARTMON-NVME-MIB."
+    MODULE
+        MANDATORY-GROUPS {
+            smartmonNvmeControllerGroup,
+            smartmonNvmeNamespaceGroup,
+            smartmonNvmeHealthGroup
+        }
+        GROUP smartmonNvmePowerStateGroup
+        DESCRIPTION
+            "Required when supported power-state information is available."
+        GROUP smartmonNvmeLbaFormatGroup
+        DESCRIPTION
+            "Required when supported LBA format information is available."
+        GROUP smartmonNvmeSelfTestGroup
+        DESCRIPTION
+            "Required when NVMe self-test log information is available."
+        GROUP smartmonNvmeErrorLogGroup
+        DESCRIPTION
+            "Required when NVMe Error Information log entries are available."
+        GROUP smartmonNvmeCapabilityGroup
+        DESCRIPTION
+            "Required when NVMe capability information is available."
+        GROUP smartmonNvmeTableMetaGroup
+        DESCRIPTION
+            "Required when per-table row counts and last-change timestamps
+             are maintained by the agent."
+        GROUP smartmonNvmeNotificationGroup
+        DESCRIPTION
+            "Required for implementations that emit notifications."
+    ::= { smartmonNvmeCompliances 1 }
+
+smartmonNvmeControllerGroup OBJECT-GROUP
+    OBJECTS {
+        smartmonNvmeModelNumber,
+        smartmonNvmeSerialNumber,
+        smartmonNvmeFirmwareVersion,
+        smartmonNvmePciVendorId,
+        smartmonNvmePciVendorIdText,
+        smartmonNvmePciVendorSubsystemId,
+        smartmonNvmePciVendorSubsystemIdText,
+        smartmonNvmeIeeeOuiIdentifier,
+        smartmonNvmeTotalNvmCapacityBytes,
+        smartmonNvmeUnallocatedNvmCapacityBytes,
+        smartmonNvmeControllerId,
+        smartmonNvmeVersion,
+        smartmonNvmeVersionValue,
+        smartmonNvmeNamespaceCount,
+        smartmonNvmeMaximumDataTransferPages
+    }
+    STATUS current
+    DESCRIPTION "NVMe controller objects."
+    ::= { smartmonNvmeGroups 1 }
+
+smartmonNvmeNamespaceGroup OBJECT-GROUP
+    OBJECTS {
+        smartmonNvmeNamespaceSizeBytes,
+        smartmonNvmeNamespaceCapacityBytes,
+        smartmonNvmeNamespaceUtilizationBytes,
+        smartmonNvmeNamespaceFormattedLbaSizeBytes,
+        smartmonNvmeNamespaceEui64,
+        smartmonNvmeNamespaceNguid,
+        smartmonNvmeNamespaceSizeBlocks,
+        smartmonNvmeNamespaceCapacityBlocks,
+        smartmonNvmeNamespaceUtilizationBlocks
+    }
+    STATUS current
+    DESCRIPTION "NVMe namespace objects."
+    ::= { smartmonNvmeGroups 2 }
+
+smartmonNvmePowerStateGroup OBJECT-GROUP
+    OBJECTS {
+        smartmonNvmePowerStateOperational,
+        smartmonNvmePowerStateMaxPowerMilliWatts,
+        smartmonNvmePowerStateActivePowerMilliWatts,
+        smartmonNvmePowerStateIdlePowerMilliWatts,
+        smartmonNvmePowerStateReadLatencyRank,
+        smartmonNvmePowerStateReadThroughputRank,
+        smartmonNvmePowerStateWriteLatencyRank,
+        smartmonNvmePowerStateWriteThroughputRank,
+        smartmonNvmePowerStateEntryLatencyUsec,
+        smartmonNvmePowerStateExitLatencyUsec
+    }
+    STATUS current
+    DESCRIPTION "NVMe power-state objects."
+    ::= { smartmonNvmeGroups 3 }
+
+smartmonNvmeLbaFormatGroup OBJECT-GROUP
+    OBJECTS {
+        smartmonNvmeLbaFormatCurrent,
+        smartmonNvmeLbaFormatDataSizeBytes,
+        smartmonNvmeLbaFormatMetadataSizeBytes,
+        smartmonNvmeLbaFormatRelativePerformance
+    }
+    STATUS current
+    DESCRIPTION "NVMe LBA format objects."
+    ::= { smartmonNvmeGroups 4 }
+
+smartmonNvmeHealthGroup OBJECT-GROUP
+    OBJECTS {
+        smartmonNvmeHealthOverallStatus,
+        smartmonNvmeCriticalWarning,
+        smartmonNvmeAvailableSparePercent,
+        smartmonNvmeAvailableSpareThresholdPercent,
+        smartmonNvmePercentageUsed,
+        smartmonNvmeDataUnitsRead,
+        smartmonNvmeDataUnitsWritten,
+        smartmonNvmeDataBytesRead,
+        smartmonNvmeDataBytesWritten,
+        smartmonNvmeHostReadCommands,
+        smartmonNvmeHostWriteCommands,
+        smartmonNvmeControllerBusyTimeMinutes,
+        smartmonNvmePowerCycles,
+        smartmonNvmePowerOnHours,
+        smartmonNvmeUnsafeShutdowns,
+        smartmonNvmeMediaDataIntegrityErrors,
+        smartmonNvmeErrorInformationLogEntries,
+        smartmonNvmeWarningTemperatureTimeMinutes,
+        smartmonNvmeCriticalTemperatureTimeMinutes,
+        smartmonNvmeCurrentSelfTestOperationValue,
+        smartmonNvmeCurrentSelfTestOperationString
+    }
+    STATUS current
+    DESCRIPTION "NVMe SMART/Health objects."
+    ::= { smartmonNvmeGroups 5 }
+
+smartmonNvmeSelfTestGroup OBJECT-GROUP
+    OBJECTS {
+        smartmonNvmeSelfTestNumber,
+        smartmonNvmeSelfTestType,
+        smartmonNvmeSelfTestResult,
+        smartmonNvmeSelfTestResultText,
+        smartmonNvmeSelfTestPowerOnHours,
+        smartmonNvmeSelfTestFailingLba,
+        smartmonNvmeSelfTestNamespaceId,
+        smartmonNvmeSelfTestSegmentNumber,
+        smartmonNvmeSelfTestStatusCodeType,
+        smartmonNvmeSelfTestStatusCode
+    }
+    STATUS current
+    DESCRIPTION "NVMe self-test objects."
+    ::= { smartmonNvmeGroups 7 }
+
+smartmonNvmeErrorLogGroup OBJECT-GROUP
+    OBJECTS {
+        smartmonNvmeErrorCount,
+        smartmonNvmeErrorSubmissionQueueId,
+        smartmonNvmeErrorCommandId,
+        smartmonNvmeErrorStatusField,
+        smartmonNvmeErrorParameterErrorLocation,
+        smartmonNvmeErrorLba,
+        smartmonNvmeErrorNamespaceId,
+        smartmonNvmeErrorVendorSpecificInfo,
+        smartmonNvmeErrorStatusCode,
+        smartmonNvmeErrorStatusCodeType,
+        smartmonNvmeErrorDoNotRetry,
+        smartmonNvmeErrorStatusString,
+        smartmonNvmeErrorPhaseTag
+    }
+    STATUS current
+    DESCRIPTION "NVMe Error Information log objects."
+    ::= { smartmonNvmeGroups 8 }
+
+smartmonNvmeCapabilityGroup OBJECT-GROUP
+    OBJECTS {
+        smartmonNvmeFirmwareUpdateRaw,
+        smartmonNvmeFirmwareSlotCount,
+        smartmonNvmeFirmwareResetRequired,
+        smartmonNvmeOptionalAdminCommandRaw,
+        smartmonNvmeOptionalNvmCommandRaw,
+        smartmonNvmeLogPageAttributesRaw,
+        smartmonNvmeOptionalAdminCommandText,
+        smartmonNvmeOptionalNvmCommandText,
+        smartmonNvmeLogPageAttributesText
+    }
+    STATUS current
+    DESCRIPTION "NVMe capability objects."
+    ::= { smartmonNvmeGroups 9 }
+
+smartmonNvmeTableMetaGroup OBJECT-GROUP
+    OBJECTS {
+        smartmonNvmeControllerTableRowCount,
+        smartmonNvmeControllerTableLastChange,
+        smartmonNvmeNamespaceTableRowCount,
+        smartmonNvmeNamespaceTableLastChange,
+        smartmonNvmePowerStateTableRowCount,
+        smartmonNvmePowerStateTableLastChange,
+        smartmonNvmeLbaFormatTableRowCount,
+        smartmonNvmeLbaFormatTableLastChange,
+        smartmonNvmeHealthTableRowCount,
+        smartmonNvmeHealthTableLastChange,
+        smartmonNvmeSelfTestTableRowCount,
+        smartmonNvmeSelfTestTableLastChange,
+        smartmonNvmeErrorLogTableRowCount,
+        smartmonNvmeErrorLogTableLastChange,
+        smartmonNvmeCapabilityTableRowCount,
+        smartmonNvmeCapabilityTableLastChange
+    }
+    STATUS current
+    DESCRIPTION "NVMe table row-count and last-change scalars."
+    ::= { smartmonNvmeGroups 11 }
+
+smartmonNvmeNotificationGroup NOTIFICATION-GROUP
+    NOTIFICATIONS {
+        smartmonNvmeHealthFailed,
+        smartmonNvmeSelfTestFailed
+    }
+    STATUS current
+    DESCRIPTION "NVMe notifications."
+    ::= { smartmonNvmeGroups 10 }
+
+END

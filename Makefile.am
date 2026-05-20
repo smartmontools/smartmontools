@@ -68,6 +68,10 @@ MAINTAINERCLEANFILES = \
 
 SUBDIRS = include lib src
 
+if HAVE_SNMP_AGENTX
+SUBDIRS += src/snmp-agentxd
+endif
+
 #
 # Additional targets in '*/Makefile.am'
 #

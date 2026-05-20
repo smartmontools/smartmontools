@@ -1,0 +1,148 @@
+{
+  "device": {
+    "info_name": "/dev/nvme0",
+    "name": "/dev/nvme0",
+    "protocol": "NVMe",
+    "type": "nvme"
+  },
+  "firmware_version": "2B2QEXM7",
+  "json_format_version": [
+    1,
+    0
+  ],
+  "local_time": {
+    "asctime": "Sun Apr 12 20:45:18 2026 CEST",
+    "time_t": 1776019518
+  },
+  "logical_block_size": 512,
+  "model_name": "Samsung SSD 970 EVO Plus 1TB",
+  "nvme_controller_id": 4,
+  "nvme_error_information_log": {
+    "read": 16,
+    "size": 64,
+    "table": [
+      {
+        "command_id": 12315,
+        "error_count": 159,
+        "lba": {
+          "value": 0
+        },
+        "nsid": 0,
+        "phase_tag": false,
+        "status_field": {
+          "do_not_retry": false,
+          "status_code": 2,
+          "status_code_type": 0,
+          "string": "Invalid Field in Command",
+          "value": 8194
+        },
+        "submission_queue_id": 0
+      }
+    ],
+    "unread": 0
+  },
+  "nvme_ieee_oui_identifier": 9528,
+  "nvme_namespaces": [
+    {
+      "capacity": {
+        "blocks": 1953525168,
+        "bytes": 1000204886016
+      },
+      "eui64": {
+        "ext_id": 352208423676,
+        "oui": 9528
+      },
+      "formatted_lba_size": 512,
+      "id": 1,
+      "size": {
+        "blocks": 1953525168,
+        "bytes": 1000204886016
+      },
+      "utilization": {
+        "blocks": 652537856,
+        "bytes": 334099382272
+      }
+    }
+  ],
+  "nvme_number_of_namespaces": 1,
+  "nvme_pci_vendor": {
+    "id": 5197,
+    "subsystem_id": 5197
+  },
+  "nvme_self_test_log": {
+    "current_self_test_operation": {
+      "string": "No self-test in progress",
+      "value": 0
+    }
+  },
+  "nvme_smart_health_information_log": {
+    "available_spare": 100,
+    "available_spare_threshold": 10,
+    "controller_busy_time": 23736,
+    "critical_comp_time": 0,
+    "critical_warning": 0,
+    "data_units_read": 490051610,
+    "data_units_written": 939511456,
+    "host_reads": 5008680305,
+    "host_writes": 8114376171,
+    "media_errors": 0,
+    "num_err_log_entries": 159,
+    "percentage_used": 46,
+    "power_cycles": 74,
+    "power_on_hours": 11097,
+    "temperature": 51,
+    "temperature_sensors": [
+      51,
+      48
+    ],
+    "unsafe_shutdowns": 28,
+    "warning_temp_time": 0
+  },
+  "nvme_total_capacity": 1000204886016,
+  "nvme_unallocated_capacity": 0,
+  "nvme_version": {
+    "string": "1.3",
+    "value": 66304
+  },
+  "power_cycle_count": 74,
+  "power_on_time": {
+    "hours": 11097
+  },
+  "serial_number": "S4EWNJ0N240313H",
+  "smart_status": {
+    "nvme": {
+      "value": 0
+    },
+    "passed": true
+  },
+  "smart_support": {
+    "available": true,
+    "enabled": true
+  },
+  "smartctl": {
+    "argv": [
+      "smartctl",
+      "-x",
+      "-d",
+      "nvme",
+      "/dev/nvme0",
+      "--json"
+    ],
+    "build_info": "(local build)",
+    "exit_status": 0,
+    "platform_info": "x86_64-linux-6.17.13-2-pve",
+    "pre_release": false,
+    "svn_revision": "5620",
+    "version": [
+      7,
+      4
+    ]
+  },
+  "temperature": {
+    "current": 51
+  },
+  "user_capacity": {
+    "blocks": 1953525168,
+    "bytes": 1000204886016
+  }
+}

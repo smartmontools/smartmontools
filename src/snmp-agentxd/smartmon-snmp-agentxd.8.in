@@ -1,0 +1,143 @@
+.TH SMARTMON-SNMP-AGENTXD 8 "2026-05-18" "smartmontools-@PACKAGE_VERSION@" "System Manager's Manual"
+.SH NAME
+smartmon-snmp-agentxd \- SNMP AgentX subagent for smartmontools SMART data
+.SH SYNOPSIS
+.B smartmon-snmp-agentxd
+.RB [ \-c
+.IR config ]
+.RB [ \-f ]
+.SH DESCRIPTION
+.B smartmon-snmp-agentxd
+is a net-snmp AgentX subagent (RFC 2741) that exposes SMART drive data
+collected by
+.BR smartd (8)
+via the SMARTMON-* SNMP MIBs.
+.PP
+It connects to a running
+.BR snmpd (8)
+master agent over a Unix domain socket, registers the SMARTMON-* OID subtrees,
+and responds to SNMP GET/GETNEXT/GETBULK requests.
+Trap notifications are sent through the master agent when drive health changes.
+.PP
+.B smartmon-snmp-agentxd
+reads SMART data exclusively from JSON state files written by
+.BR smartd (8)
+when configured with
+.BR \-\-jsonstate .
+It does not invoke
+.BR smartctl (8)
+directly and will not start unless
+.B state_dir
+is set and smartd has written at least one JSON state file into it.
+.SH OPTIONS
+.TP
+.BI \-c " config"
+Path to configuration file.
+Default:
+.IR @sysconfdir@/smartmontools/snmp-agentxd.conf .
+.TP
+.B \-f
+Run in the foreground; do not daemonise.
+Useful for debugging.
+.TP
+.B \-h
+Print usage and exit.
+.SH CONFIGURATION
+Configuration is read from
+.I @sysconfdir@/smartmontools/snmp-agentxd.conf
+(or the file specified with
+.BR \-c ).
+.TP
+.BI state_dir " path"
+.RB ( Required )
+Directory where
+.BR smartd (8)
+writes JSON state files.
+Must match the prefix given to smartd's
+.B \-\-jsonstate
+option.
+.TP
+.BI agentx_socket " path"
+Path to the AgentX master socket.
+Must match
+.B agentXSocket
+in
+.IR snmpd.conf (5).
+Default:
+.IR /var/agentx/master .
+.TP
+.BI cache_timeout " seconds"
+Maximum age of cached SNMP data.
+Files not updated for more than
+.RI 2\(mu cache_timeout
+seconds cause a
+.B LOG_WARNING
+syslog message.
+Default: 300.
+.SH SMARTD CONFIGURATION
+.BR smartd (8)
+must be configured to write JSON state files using the
+.B \-x
+(extended) flag so that all data required by the MIBs is present,
+including NVMe self-test logs and SAS error counter logs.
+Add the following to
+.IR @sysconfdir@/smartmontools/smartd.conf :
+.PP
+.RS
+.nf
+DEVICESCAN -x --jsonstate /run/smartmontools/json/
+.fi
+.RE
+.PP
+Using
+.B \-a
+instead of
+.B \-x
+omits NVMe self-test log entries and SAS error counters;
+those MIB tables will be empty.
+.PP
+Create the directory beforehand:
+.PP
+.RS
+.nf
+mkdir -p /run/smartmontools/json
+.fi
+.RE
+.PP
+Restart
+.BR smartd (8)
+after changing its configuration.
+.SH SNMPD CONFIGURATION
+Add the following to
+.IR /etc/snmp/snmpd.conf :
+.PP
+.RS
+.nf
+master agentx
+agentXSocket /var/agentx/master
+agentXPerms 0660 0660 root netsnmp
+mibs +SMARTMON-TC-MIB:SMARTMON-COMMON-MIB:SMARTMON-NVME-MIB:SMARTMON-SATA-MIB:SMARTMON-SAS-MIB
+rocommunity public default .1.3.6.1.4.1.99999
+.fi
+.RE
+.SH FILES
+.TP
+.I @sysconfdir@/smartmontools/snmp-agentxd.conf
+Default configuration file.
+.TP
+.I /run/smartmontools/json/
+Recommended location for smartd JSON state files.
+.TP
+.I /var/agentx/master
+Default AgentX master socket.
+.SH SEE ALSO
+.BR smartd (8),
+.BR smartd.conf (5),
+.BR smartctl (8),
+.BR snmpd (8),
+.BR snmpd.conf (5)
+.SH AUTHORS
+smartmontools development team.
+See
+.I https://www.smartmontools.org/
+for details.

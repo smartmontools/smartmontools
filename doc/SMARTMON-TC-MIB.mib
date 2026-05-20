@@ -1,0 +1,302 @@
+SMARTMON-TC-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY, Integer32, Unsigned32, OBJECT-TYPE, enterprises
+        FROM SNMPv2-SMI
+    TEXTUAL-CONVENTION
+        FROM SNMPv2-TC;
+
+-- Root OID for all SMARTMON-*-MIB modules
+smartmonRoot OBJECT IDENTIFIER ::= { enterprises 9999 1 1 }
+
+smartmonTcMIB MODULE-IDENTITY
+    LAST-UPDATED "202605180000Z"
+    ORGANIZATION "Unassigned"
+    CONTACT-INFO
+        "This is a draft MIB for smartmontools smartctl output.
+
+         TODO: Replace the placeholder enterprise OID before publication."
+    DESCRIPTION
+        "Textual conventions shared across all SMARTMON-*-MIB modules."
+    REVISION "202605180000Z"
+    DESCRIPTION "Initial draft."
+    ::= { smartmonRoot 1 }
+
+-- --------------------------------------------------------------------------
+-- Textual conventions
+-- --------------------------------------------------------------------------
+
+SmartmonDeviceType ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION
+        "Device or transport family as reported or selected for smartctl."
+    SYNTAX INTEGER {
+        unknown(0),
+        ata(1),
+        sat(2),
+        scsi(3),
+        sas(4),
+        nvme(5),
+        usbBridge(6),
+        megaraid(7),
+        cciss(8),
+        areca(9),
+        other(255)
+    }
+
+SmartmonHealthStatus ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION
+        "Normalized health status derived from smartctl output."
+    SYNTAX INTEGER {
+        unknown(0),
+        passed(1),
+        failed(2),
+        warning(3),
+        unavailable(4)
+    }
+
+SmartmonPollResult ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION
+        "Result of the last smartctl collection attempt."
+    SYNTAX INTEGER {
+        unknown(0),
+        ok(1),
+        failed(2),
+        timeout(3),
+        permissionDenied(4),
+        unsupported(5),
+        parseError(6)
+    }
+
+SmartmonPercentage ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "d"
+    STATUS      current
+    DESCRIPTION
+        "Percentage value.  NVMe Percentage Used can exceed 100 per the
+         NVMe specification, so the range is intentionally wider than
+         0..100."
+    SYNTAX Unsigned32 (0..4294967295)
+
+SmartmonNvmeSelfTestResult ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION
+        "Normalized NVMe self-test result code."
+    SYNTAX INTEGER {
+        unknown(0),
+        completedWithoutError(1),
+        abortedByHost(2),
+        interruptedByControllerReset(3),
+        failedUnknownSegment(4),
+        failedKnownSegment(5),
+        abortedUnknownReason(6),
+        abortedSanitizeOperation(7),
+        noSelfTestInProgress(8),
+        inProgress(9),
+        vendorSpecific(255)
+    }
+
+SmartmonAtaSelfTestResult ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION
+        "Normalized ATA/SATA self-test result derived from the status
+         nibble of the Self-test execution status byte."
+    SYNTAX INTEGER {
+        unknown(0),
+        completedWithoutError(1),
+        abortedByHost(2),
+        interruptedByReset(3),
+        fatalOrUnknownFailure(4),
+        completedUnknownFailure(5),
+        completedElectricalFailure(6),
+        completedServomechanismFailure(7),
+        completedReadFailure(8),
+        completedHandlingDamageSuspect(9),
+        inProgress(15),
+        neverRun(255)
+    }
+
+SmartmonAtaSelfTestType ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION
+        "The type of self-test recorded in an ATA/SATA self-test log
+         entry, derived from the self-test routine field."
+    SYNTAX INTEGER {
+        unknown(0),
+        short(1),
+        extended(2),
+        conveyance(3),
+        selective(4),
+        abort(9)
+    }
+
+SmartmonNvmeSelfTestType ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION
+        "The type of self-test recorded in an NVMe self-test log
+         entry, derived from the Self-test Action field."
+    SYNTAX INTEGER {
+        unknown(0),
+        short(1),
+        extended(2),
+        vendorSpecific(255)
+    }
+
+SmartmonSasSelfTestType ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION
+        "The type of self-test recorded in a SAS/SCSI self-test log
+         entry, derived from the self-test code field."
+    SYNTAX INTEGER {
+        unknown(0),
+        backgroundShort(1),
+        backgroundExtended(2),
+        foregroundShort(3),
+        foregroundExtended(4)
+    }
+
+SmartmonAtaSmartAttrType ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION
+        "ATA SMART attribute type derived from the prefailure flag."
+    SYNTAX INTEGER {
+        unknown(0),
+        prefailure(1),
+        oldAge(2)
+    }
+
+SmartmonAtaSmartAttrUpdated ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION
+        "Whether an ATA SMART attribute is updated continuously (always)
+         or only during offline data collection (offline)."
+    SYNTAX INTEGER {
+        unknown(0),
+        always(1),
+        offline(2)
+    }
+
+SmartmonAtaSmartAttrStatus ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION
+        "Failure status of an ATA SMART attribute derived from its
+         normalized value, worst value, and failure threshold.
+         notRelevant(-1) -- threshold is 0; no failure threshold defined
+         unknown(0)      -- status cannot be determined
+         ok(1)           -- value is above the failure threshold
+         failingNow(2)   -- value is at or below the threshold (prefailure)
+         failedInPast(3) -- worst value was ever at or below the threshold"
+    SYNTAX INTEGER {
+        notRelevant(-1),
+        unknown(0),
+        ok(1),
+        failingNow(2),
+        failedInPast(3)
+    }
+
+SmartmonScsiErrorDirection ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION
+        "I/O direction for SAS/SCSI error counter log rows."
+    SYNTAX INTEGER {
+        read(1),
+        write(2),
+        verify(3)
+    }
+
+-- --------------------------------------------------------------------------
+-- Sensor textual conventions  (mirroring ENTITY-SENSOR-MIB RFC 3433)
+-- --------------------------------------------------------------------------
+
+SmartmonSensorDataType ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION
+        "The physical quantity measured by a sensor row in
+         smartmonSensorTable.  Together with SmartmonSensorDataScale and
+         SmartmonSensorPrecision it fully determines the unit of the
+         associated SmartmonSensorValue."
+    REFERENCE "RFC 3433, EntitySensorDataType"
+    SYNTAX INTEGER {
+        other(1),
+        unknown(2),
+        celsius(3),
+        watts(4),
+        amperes(5),
+        voltsDC(6),
+        voltsAC(7),
+        vibration(8),
+        rpm(9),
+        percent(10)
+    }
+
+SmartmonSensorDataScale ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION
+        "SI prefix scaling factor for a sensor value.  An object of this
+         type SHOULD be examined together with the associated
+         SmartmonSensorPrecision and SmartmonSensorValue objects to
+         determine the true measurement.
+
+         Example: milliwatts uses scale milli(8), precision 0."
+    REFERENCE "RFC 3433, EntitySensorDataScale"
+    SYNTAX INTEGER {
+        yocto(1),    -- 10^-24
+        zepto(2),    -- 10^-21
+        atto(3),     -- 10^-18
+        femto(4),    -- 10^-15
+        pico(5),     -- 10^-12
+        nano(6),     -- 10^-9
+        micro(7),    -- 10^-6
+        milli(8),    -- 10^-3
+        units(9),    -- 10^0
+        kilo(10),    -- 10^3
+        mega(11),    -- 10^6
+        giga(12),    -- 10^9
+        tera(13),    -- 10^12
+        peta(14),    -- 10^15
+        exa(15),     -- 10^18
+        zetta(16),   -- 10^21
+        yotta(17)    -- 10^24
+    }
+
+SmartmonSensorPrecision ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION
+        "Number of decimal places in the fractional part of the
+         associated SmartmonSensorValue fixed-point number.
+         Positive values (1..9) indicate fractional digits.
+         Negative values (-8..-1) indicate the number of accurate
+         integer digits.  Zero means the value is not fixed-point.
+
+         Example: temperature reported as whole degrees Celsius uses
+         scale units(9) and precision 0.  A sensor reporting tenths of
+         a degree uses precision 1 and a value ten times larger."
+    REFERENCE "RFC 3433, EntitySensorPrecision"
+    SYNTAX Integer32 (-8..9)
+
+SmartmonSensorValue ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION
+        "A sensor reading.  The true value is:
+             reading * 10^(scale_exponent - precision)
+         The value -1000000000 indicates underflow; +1000000000
+         indicates overflow."
+    REFERENCE "RFC 3433, EntitySensorValue"
+    SYNTAX Integer32 (-1000000000..1000000000)
+
+SmartmonSensorStatus ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION
+        "Operational status of a sensor.
+         ok(1)             -- agent can read the sensor value
+         unavailable(2)    -- value temporarily unavailable
+         nonoperational(3) -- sensor is believed to be broken"
+    REFERENCE "RFC 3433, EntitySensorStatus"
+    SYNTAX INTEGER {
+        ok(1),
+        unavailable(2),
+        nonoperational(3)
+    }
+
+END

@@ -1,0 +1,74 @@
+[Unit]
+Description=SNMP AgentX subagent for smartmontools SMART data
+Documentation=man:smartmon-snmp-agentxd(8)
+After=network.target snmpd.service smartmon-collect.timer
+# snmpd must be running (AgentX master); the collect timer is optional
+# (users may use smartd --jsonstate instead of smartmon-collect)
+Requires=snmpd.service
+Wants=smartmon-collect.timer
+
+[Service]
+Type=exec
+ExecStart=@sbindir@/smartmon-snmp-agentxd -f -c @sysconfdir@/smartmontools/snmp-agentxd.conf
+Restart=on-failure
+RestartSec=10
+
+# ------------------------------------------------------------------ #
+# Security hardening                                                   #
+# The agent only reads JSON state files and connects to the AgentX    #
+# Unix socket.  No special privileges are needed at any point.        #
+# ------------------------------------------------------------------ #
+
+# Run as a dedicated unprivileged system account created on install
+User=smartmon
+Group=smartmon
+
+# Prevent any privilege escalation via setuid/setgid
+NoNewPrivileges=yes
+
+# Drop all capabilities — the agent needs none
+CapabilityBoundingSet=
+AmbientCapabilities=
+
+# Filesystem isolation
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectHome=yes
+# ProtectSystem=strict makes the entire filesystem read-only except for
+# the paths listed in ReadWritePaths/ReadOnlyPaths below
+ProtectSystem=strict
+# Read JSON state files written by smartmon-collect or smartd
+ReadOnlyPaths=-/run/smartmontools/json
+# AgentX socket directory (snmpd creates the socket here)
+ReadWritePaths=/var/agentx /run/agentx
+
+# Network: AgentX uses Unix sockets by default; also allow TCP/UDP in
+# case snmpd uses an agentxsocket tcp: address
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+
+# Kernel and process hardening
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectKernelLogs=yes
+ProtectControlGroups=yes
+ProtectClock=yes
+ProtectHostname=yes
+
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+RestrictNamespaces=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+
+# System call filtering — @system-service covers all calls a standard
+# daemon legitimately makes; anything else returns EPERM
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+SystemCallErrorNumber=EPERM
+
+# Resource limits
+LimitNOFILE=256
+LimitCORE=0
+
+[Install]
+WantedBy=multi-user.target

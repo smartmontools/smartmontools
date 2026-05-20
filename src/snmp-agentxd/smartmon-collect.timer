@@ -1,0 +1,20 @@
+[Unit]
+Description=Periodic SMART data collection for SNMP monitoring
+Documentation=man:smartmon-snmp-agentxd(8)
+
+[Timer]
+# First run 2 minutes after boot to let drives spin up and settle
+OnBootSec=2min
+
+# Then every 5 minutes.  Adjust to match your monitoring requirements.
+# Lower values give fresher data; higher values reduce disk wake cycles.
+OnUnitActiveSec=5min
+
+# Re-trigger any missed runs after a suspend/resume cycle
+Persistent=yes
+
+# Prevent concurrent runs if smartctl is slow (e.g. on many drives)
+Unit=smartmon-collect.service
+
+[Install]
+WantedBy=timers.target

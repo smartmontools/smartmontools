@@ -1,0 +1,468 @@
+SMARTMON-SENSOR-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE,
+    Unsigned32
+        FROM SNMPv2-SMI
+    DisplayString, DateAndTime
+        FROM SNMPv2-TC
+    MODULE-COMPLIANCE, OBJECT-GROUP, NOTIFICATION-GROUP
+        FROM SNMPv2-CONF
+    SmartmonSensorDataType, SmartmonSensorDataScale,
+    SmartmonSensorPrecision, SmartmonSensorValue, SmartmonSensorStatus,
+    smartmonRoot
+        FROM SMARTMON-TC-MIB
+    smartmonDeviceIndex, smartmonDeviceName, smartmonDevicePath,
+    smartmonDeviceLastPollTime
+        FROM SMARTMON-COMMON-MIB;
+
+smartmonSensorMIB MODULE-IDENTITY
+    LAST-UPDATED "202605180000Z"
+    ORGANIZATION "Unassigned"
+    CONTACT-INFO
+        "This is a draft MIB for smartmontools smartctl output.
+
+         TODO: Replace the placeholder enterprise OID before publication."
+    DESCRIPTION
+        "The SMARTMON-SENSOR-MIB provides a single unified sensor table
+         covering all physical quantities (temperature, power, current,
+         voltage, vibration, RPM, etc.) across all device types and
+         protocols.
+
+         The design mirrors RFC 3433 (ENTITY-SENSOR-MIB): each reading
+         is expressed as a fixed-point integer together with an SI-prefix
+         scale and a decimal-precision field.  The sensor type
+         discriminator (smartmonSensorType) replaces the need for
+         separate per-quantity tables.
+
+         Four threshold columns (HighCritical, HighWarning, LowWarning,
+         LowCritical) use the same encoding as the value column.  If a
+         threshold is not configured or not applicable, implementations
+         SHOULD return noSuchInstance for that column.
+
+         A free-text smartmonSensorSource column records the JSON path
+         from which the value was obtained, aiding implementors and
+         operators.
+
+         This MIB requires SMARTMON-TC-MIB and SMARTMON-COMMON-MIB."
+    REVISION "202605180000Z"
+    DESCRIPTION "Initial draft."
+    ::= { smartmonRoot 6 }
+
+-- --------------------------------------------------------------------------
+-- Top-level structure
+-- --------------------------------------------------------------------------
+
+smartmonSensorObjects       OBJECT IDENTIFIER ::= { smartmonSensorMIB 1 }
+smartmonSensorNotifications OBJECT IDENTIFIER ::= { smartmonSensorMIB 2 }
+smartmonSensorConformance   OBJECT IDENTIFIER ::= { smartmonSensorMIB 3 }
+smartmonSensorCompliances   OBJECT IDENTIFIER ::= { smartmonSensorConformance 1 }
+smartmonSensorGroups        OBJECT IDENTIFIER ::= { smartmonSensorConformance 2 }
+
+-- --------------------------------------------------------------------------
+-- Unified sensor table  (.1 RowCount, .2 LastChange, .3 Table)
+-- --------------------------------------------------------------------------
+--
+-- INDEX { smartmonDeviceIndex, smartmonSensorIndex }
+--
+-- Sensor index assignment (recommended, not mandatory):
+--   Implementations SHOULD assign indices stably across polls.
+--   Suggested convention by sensor type and source:
+--
+--   NVMe temperature sensors:
+--     index 1  nvme_smart_health_information_log.composite_temperature
+--     index 2+ nvme_smart_health_information_log.temperature_sensors[]
+--
+--   NVMe power (from power-state table, current power state):
+--     index 101+ nvme_power_states[current].max_power etc.
+--
+--   SATA temperature:
+--     index 1  ata_sct_status.temperature.celsius
+--     index 2  SMART attribute id=194 raw value (if SCT not available)
+--
+--   SAS temperature:
+--     index 1  temperature.current
+--
+-- Value encoding:
+--   true_value = sensorValue * 10^(scale_exponent - sensorPrecision)
+--
+--   Example: 35 degrees Celsius as whole degrees:
+--     sensorType      celsius(3)
+--     sensorScale     units(9)       (10^0)
+--     sensorPrecision 0
+--     sensorValue     35
+--     sensorUnitsDisplay "Celsius"
+--
+--   Example: 3525 milliwatts:
+--     sensorType      watts(4)
+--     sensorScale     milli(8)       (10^-3)
+--     sensorPrecision 0
+--     sensorValue     3525
+--     sensorUnitsDisplay "milliwatts"
+-- --------------------------------------------------------------------------
+
+smartmonSensorTableRowCount OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Current number of rows in smartmonSensorTable."
+    ::= { smartmonSensorObjects 1 }
+
+smartmonSensorTableLastChange OBJECT-TYPE
+    SYNTAX      DateAndTime
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Timestamp of the most recent row addition or removal in
+         smartmonSensorTable."
+    ::= { smartmonSensorObjects 2 }
+
+smartmonSensorTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF SmartmonSensorEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "Unified physical sensor table.  One row per (device, sensor).
+         Rows exist for every sensor reported by smartctl for the
+         associated device, regardless of physical quantity type."
+    ::= { smartmonSensorObjects 3 }
+
+smartmonSensorEntry OBJECT-TYPE
+    SYNTAX      SmartmonSensorEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "One physical sensor reading with thresholds.
+
+         Threshold columns (HighCritical, HighWarning, LowWarning,
+         LowCritical) use the same scale and precision as sensorValue.
+         If a threshold is not configured, implementations SHOULD return
+         noSuchInstance for that column."
+    INDEX { smartmonDeviceIndex, smartmonSensorIndex }
+    ::= { smartmonSensorTable 1 }
+
+SmartmonSensorEntry ::= SEQUENCE {
+    smartmonSensorIndex         Unsigned32,
+    smartmonSensorType          SmartmonSensorDataType,
+    smartmonSensorName          DisplayString,
+    smartmonSensorSource        DisplayString,
+    smartmonSensorScale         SmartmonSensorDataScale,
+    smartmonSensorPrecision     SmartmonSensorPrecision,
+    smartmonSensorValue         SmartmonSensorValue,
+    smartmonSensorOperStatus    SmartmonSensorStatus,
+    smartmonSensorUnitsDisplay  DisplayString,
+    smartmonSensorValueTimestamp DateAndTime,
+    smartmonSensorUpdateRate    Unsigned32,
+    smartmonSensorHighCritical  SmartmonSensorValue,
+    smartmonSensorHighWarning   SmartmonSensorValue,
+    smartmonSensorLowWarning    SmartmonSensorValue,
+    smartmonSensorLowCritical   SmartmonSensorValue
+}
+
+smartmonSensorIndex OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..4294967295)
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Stable local index for a sensor within a device."
+    ::= { smartmonSensorEntry 1 }
+
+smartmonSensorType OBJECT-TYPE
+    SYNTAX      SmartmonSensorDataType
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The physical quantity measured by this sensor.  Together with
+         smartmonSensorScale and smartmonSensorPrecision it identifies
+         the unit of smartmonSensorValue."
+    ::= { smartmonSensorEntry 2 }
+
+smartmonSensorName OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Descriptive sensor name, for example Composite, Sensor 1,
+         Drive Trip, PS0 Max Power, or Linear Vibration."
+    ::= { smartmonSensorEntry 3 }
+
+smartmonSensorSource OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "JSON path or smartctl field from which this reading is taken,
+         for example
+         nvme_smart_health_information_log.composite_temperature or
+         ata_sct_status.temperature.celsius.  Aids implementors and
+         operators in tracing a value back to the raw smartctl output."
+    ::= { smartmonSensorEntry 4 }
+
+smartmonSensorScale OBJECT-TYPE
+    SYNTAX      SmartmonSensorDataScale
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "SI prefix applied to smartmonSensorValue.  Combine with
+         smartmonSensorPrecision to recover the true physical value."
+    ::= { smartmonSensorEntry 5 }
+
+smartmonSensorPrecision OBJECT-TYPE
+    SYNTAX      SmartmonSensorPrecision
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Number of decimal places in smartmonSensorValue.  See
+         SmartmonSensorPrecision in SMARTMON-TC-MIB for encoding rules."
+    ::= { smartmonSensorEntry 6 }
+
+smartmonSensorValue OBJECT-TYPE
+    SYNTAX      SmartmonSensorValue
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Most recent sensor reading as a fixed-point integer.  The true
+         physical value is:
+           reading * 10^(scale_exponent - smartmonSensorPrecision)
+         The value -1000000000 indicates underflow; +1000000000
+         indicates overflow."
+    ::= { smartmonSensorEntry 7 }
+
+smartmonSensorOperStatus OBJECT-TYPE
+    SYNTAX      SmartmonSensorStatus
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Operational status of this sensor."
+    ::= { smartmonSensorEntry 8 }
+
+smartmonSensorUnitsDisplay OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Human-readable unit string for display, for example Celsius,
+         milliwatts, milliamperes, or volts."
+    ::= { smartmonSensorEntry 9 }
+
+smartmonSensorValueTimestamp OBJECT-TYPE
+    SYNTAX      DateAndTime
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Wall-clock time at which smartmonSensorValue was last obtained."
+    ::= { smartmonSensorEntry 10 }
+
+smartmonSensorUpdateRate OBJECT-TYPE
+    SYNTAX      Unsigned32
+    UNITS       "milliseconds"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Frequency at which the agent updates smartmonSensorValue, in
+         milliseconds.  The value zero indicates the sensor is updated
+         on demand, event-driven, or that the rate is unknown."
+    ::= { smartmonSensorEntry 11 }
+
+smartmonSensorHighCritical OBJECT-TYPE
+    SYNTAX      SmartmonSensorValue
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Upper critical threshold in the same scale and precision as
+         smartmonSensorValue.  A reading at or above this value
+         indicates a critical condition.  Implementations SHOULD return
+         noSuchInstance when this threshold is not configured."
+    ::= { smartmonSensorEntry 12 }
+
+smartmonSensorHighWarning OBJECT-TYPE
+    SYNTAX      SmartmonSensorValue
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Upper warning threshold in the same scale and precision as
+         smartmonSensorValue.  A reading at or above this value, but
+         below HighCritical, indicates a warning condition.
+         Implementations SHOULD return noSuchInstance when not
+         configured."
+    ::= { smartmonSensorEntry 13 }
+
+smartmonSensorLowWarning OBJECT-TYPE
+    SYNTAX      SmartmonSensorValue
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Lower warning threshold in the same scale and precision as
+         smartmonSensorValue.  A reading at or below this value, but
+         above LowCritical, indicates a warning condition.
+         Implementations SHOULD return noSuchInstance when not
+         configured."
+    ::= { smartmonSensorEntry 14 }
+
+smartmonSensorLowCritical OBJECT-TYPE
+    SYNTAX      SmartmonSensorValue
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Lower critical threshold in the same scale and precision as
+         smartmonSensorValue.  A reading at or below this value
+         indicates a critical condition.  Implementations SHOULD return
+         noSuchInstance when this threshold is not configured."
+    ::= { smartmonSensorEntry 15 }
+
+-- --------------------------------------------------------------------------
+-- Notifications
+-- --------------------------------------------------------------------------
+
+smartmonSensorHighCriticalExceeded NOTIFICATION-TYPE
+    OBJECTS {
+        smartmonDeviceName,
+        smartmonDevicePath,
+        smartmonSensorName,
+        smartmonSensorType,
+        smartmonSensorValue,
+        smartmonSensorHighCritical,
+        smartmonSensorUnitsDisplay,
+        smartmonDeviceLastPollTime
+    }
+    STATUS      current
+    DESCRIPTION
+        "Generated when a sensor reading reaches or exceeds the
+         HighCritical threshold."
+    ::= { smartmonSensorNotifications 1 }
+
+smartmonSensorHighWarningExceeded NOTIFICATION-TYPE
+    OBJECTS {
+        smartmonDeviceName,
+        smartmonDevicePath,
+        smartmonSensorName,
+        smartmonSensorType,
+        smartmonSensorValue,
+        smartmonSensorHighWarning,
+        smartmonSensorUnitsDisplay,
+        smartmonDeviceLastPollTime
+    }
+    STATUS      current
+    DESCRIPTION
+        "Generated when a sensor reading reaches or exceeds the
+         HighWarning threshold but remains below HighCritical."
+    ::= { smartmonSensorNotifications 2 }
+
+smartmonSensorLowWarningExceeded NOTIFICATION-TYPE
+    OBJECTS {
+        smartmonDeviceName,
+        smartmonDevicePath,
+        smartmonSensorName,
+        smartmonSensorType,
+        smartmonSensorValue,
+        smartmonSensorLowWarning,
+        smartmonSensorUnitsDisplay,
+        smartmonDeviceLastPollTime
+    }
+    STATUS      current
+    DESCRIPTION
+        "Generated when a sensor reading drops to or below the
+         LowWarning threshold but remains above LowCritical."
+    ::= { smartmonSensorNotifications 3 }
+
+smartmonSensorLowCriticalExceeded NOTIFICATION-TYPE
+    OBJECTS {
+        smartmonDeviceName,
+        smartmonDevicePath,
+        smartmonSensorName,
+        smartmonSensorType,
+        smartmonSensorValue,
+        smartmonSensorLowCritical,
+        smartmonSensorUnitsDisplay,
+        smartmonDeviceLastPollTime
+    }
+    STATUS      current
+    DESCRIPTION
+        "Generated when a sensor reading drops to or below the
+         LowCritical threshold."
+    ::= { smartmonSensorNotifications 4 }
+
+smartmonSensorNonOperational NOTIFICATION-TYPE
+    OBJECTS {
+        smartmonDeviceName,
+        smartmonDevicePath,
+        smartmonSensorName,
+        smartmonSensorType,
+        smartmonSensorOperStatus,
+        smartmonDeviceLastPollTime
+    }
+    STATUS      current
+    DESCRIPTION
+        "Generated when a sensor transitions to the nonoperational
+         state."
+    ::= { smartmonSensorNotifications 5 }
+
+-- --------------------------------------------------------------------------
+-- Conformance
+-- --------------------------------------------------------------------------
+
+smartmonSensorCompliance MODULE-COMPLIANCE
+    STATUS      current
+    DESCRIPTION "Compliance statement for SMARTMON-SENSOR-MIB."
+    MODULE
+        MANDATORY-GROUPS {
+            smartmonSensorGroup,
+            smartmonSensorTableMetaGroup
+        }
+        GROUP smartmonSensorThresholdGroup
+        DESCRIPTION
+            "Required when threshold information is available for any
+             sensor."
+        GROUP smartmonSensorNotificationGroup
+        DESCRIPTION
+            "Required for implementations that emit sensor notifications."
+    ::= { smartmonSensorCompliances 1 }
+
+smartmonSensorTableMetaGroup OBJECT-GROUP
+    OBJECTS {
+        smartmonSensorTableRowCount,
+        smartmonSensorTableLastChange
+    }
+    STATUS current
+    DESCRIPTION "Sensor table row-count and last-change scalars."
+    ::= { smartmonSensorGroups 1 }
+
+smartmonSensorGroup OBJECT-GROUP
+    OBJECTS {
+        smartmonSensorType,
+        smartmonSensorName,
+        smartmonSensorSource,
+        smartmonSensorScale,
+        smartmonSensorPrecision,
+        smartmonSensorValue,
+        smartmonSensorOperStatus,
+        smartmonSensorUnitsDisplay,
+        smartmonSensorValueTimestamp,
+        smartmonSensorUpdateRate
+    }
+    STATUS current
+    DESCRIPTION "Core sensor objects."
+    ::= { smartmonSensorGroups 2 }
+
+smartmonSensorThresholdGroup OBJECT-GROUP
+    OBJECTS {
+        smartmonSensorHighCritical,
+        smartmonSensorHighWarning,
+        smartmonSensorLowWarning,
+        smartmonSensorLowCritical
+    }
+    STATUS current
+    DESCRIPTION "Sensor threshold objects."
+    ::= { smartmonSensorGroups 3 }
+
+smartmonSensorNotificationGroup NOTIFICATION-GROUP
+    NOTIFICATIONS {
+        smartmonSensorHighCriticalExceeded,
+        smartmonSensorHighWarningExceeded,
+        smartmonSensorLowWarningExceeded,
+        smartmonSensorLowCriticalExceeded,
+        smartmonSensorNonOperational
+    }
+    STATUS current
+    DESCRIPTION "Sensor threshold and status notifications."
+    ::= { smartmonSensorGroups 4 }
+
+END

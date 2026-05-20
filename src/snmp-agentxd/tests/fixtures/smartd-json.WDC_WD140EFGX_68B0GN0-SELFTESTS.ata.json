@@ -1,0 +1,258 @@
+{
+    "json_format_version": [
+        1,
+        0
+    ],
+    "device": {
+        "name": "/dev/sdh",
+        "info_name": "/dev/sdg [SAT]",
+        "protocol": "ATA"
+    },
+    "device_info": "WDC WD140EFGX-68B0GN0, S/N:SELFTESTS, WWN:5-000cca-27c3d1234, FW:MGNTN10, 14.0 TB",
+    "local_time": {
+        "time_t": 1779133976,
+        "asctime": "Mon May 18 21:52:56 2026 CEST"
+    },
+    "smart_status": {
+        "passed": true
+    },
+    "temperature": {
+        "current": 28,
+        "lifetime_min": 19,
+        "lifetime_max": 38
+    },
+    "ata_smart_attributes": {
+        "table": [
+            {
+                "id": 1,
+                "name": "Raw_Read_Error_Rate",
+                "value": 200,
+                "worst": 200,
+                "thresh": 51,
+                "when_failed": "",
+                "flags": {
+                    "value": 47,
+                    "prefailure": true,
+                    "updated_online": true,
+                    "performance": true,
+                    "error_rate": true,
+                    "event_count": false,
+                    "auto_keep": true
+                },
+                "raw": {
+                    "value": 0,
+                    "string": "0"
+                }
+            },
+            {
+                "id": 9,
+                "name": "Power_On_Hours",
+                "value": 100,
+                "worst": 100,
+                "thresh": 0,
+                "when_failed": "",
+                "flags": {
+                    "value": 50,
+                    "prefailure": false,
+                    "updated_online": true,
+                    "performance": false,
+                    "error_rate": false,
+                    "event_count": true,
+                    "auto_keep": true
+                },
+                "raw": {
+                    "value": 4321,
+                    "string": "4321"
+                }
+            },
+            {
+                "id": 197,
+                "name": "Current_Pending_Sector",
+                "value": 200,
+                "worst": 200,
+                "thresh": 0,
+                "when_failed": "",
+                "flags": {
+                    "value": 18,
+                    "prefailure": false,
+                    "updated_online": true,
+                    "performance": false,
+                    "error_rate": false,
+                    "event_count": true,
+                    "auto_keep": false
+                },
+                "raw": {
+                    "value": 0,
+                    "string": "0"
+                }
+            },
+            {
+                "id": 198,
+                "name": "Offline_Uncorrectable",
+                "value": 100,
+                "worst": 100,
+                "thresh": 0,
+                "when_failed": "",
+                "flags": {
+                    "value": 16,
+                    "prefailure": false,
+                    "updated_online": false,
+                    "performance": false,
+                    "error_rate": false,
+                    "event_count": true,
+                    "auto_keep": false
+                },
+                "raw": {
+                    "value": 0,
+                    "string": "0"
+                }
+            }
+        ]
+    },
+    "model_family": "Western Digital Red",
+    "model_name": "WDC WD140EFGX-68B0GN0",
+    "serial_number": "WD140SELFTESTS",
+    "firmware_version": "MGNTN10",
+    "wwn": {
+        "naa": 5,
+        "oui": 3273,
+        "id": 4073476124
+    },
+    "ata_version": {
+        "string": "ACS-3 T13/2161-D revision 5",
+        "value": 13
+    },
+    "sata_version": {
+        "string": "SATA 3.1, 6.0 Gb/s (current: 6.0 Gb/s)",
+        "value": 7
+    },
+    "rotation_rate": 5400,
+    "form_factor": {
+        "name": "3.5 inches"
+    },
+    "logical_block_size": 4096,
+    "physical_block_size": 4096,
+    "user_capacity": {
+        "blocks": 3418218848,
+        "bytes": 14000519643136
+    },
+    "in_smartctl_database": true,
+    "smart_support": {
+        "available": true,
+        "enabled": true
+    },
+    "trim": {
+        "supported": false
+    },
+    "power_cycle_count": 42,
+    "power_on_time": {
+        "hours": 4321
+    },
+    "ata_smart_data": {
+        "offline_data_collection": {
+            "status": {
+                "value": 2,
+                "string": "was completed without error"
+            },
+            "completion_seconds": 0
+        },
+        "self_test": {
+            "status": {
+                "value": 0,
+                "string": "No self-test has been run"
+            },
+            "polling_minutes": {
+                "short": 2,
+                "extended": 255,
+                "conveyance": 5
+            }
+        },
+        "capabilities": {
+            "attribute_autosave_enabled": false,
+            "self_tests_supported": true,
+            "conveyance_self_test_supported": true,
+            "selective_self_test_supported": true,
+            "error_logging_supported": true,
+            "gp_logging_supported": true
+        }
+    },
+    "ata_sct_capabilities": {
+        "error_recovery_control_supported": false,
+        "feature_control_supported": true,
+        "data_table_supported": true
+    },
+    "ata_smart_error_log": {
+        "extended": {
+            "count": 1,
+            "table": [
+                {
+                    "error_number": 1,
+                    "lifetime_hours": 4100,
+                    "description": "Error: ICRC, ABRT at LBA = 0x0000abcd",
+                    "completion_register_error": 4,
+                    "completion_register_status": 0,
+                    "lba": 43981,
+                    "register_command": 37,
+                    "register_count": 8,
+                    "register_device": 0,
+                    "register_feature": 0,
+                    "state": {
+                        "value": 15,
+                        "string": "standby"
+                    }
+                }
+            ]
+        }
+    },
+    "ata_smart_self_test_log": {
+        "standard": {
+            "table": [
+                {
+                    "type": {
+                        "value": 1,
+                        "string": "Short offline"
+                    },
+                    "status": {
+                        "value": 0,
+                        "string": "Completed without error",
+                        "passed": true,
+                        "remaining_percent": 0
+                    },
+                    "lifetime_hours": 4300,
+                    "lba_of_first_error": null
+                },
+                {
+                    "type": {
+                        "value": 2,
+                        "string": "Extended offline"
+                    },
+                    "status": {
+                        "value": 0,
+                        "string": "Completed without error",
+                        "passed": true,
+                        "remaining_percent": 0
+                    },
+                    "lifetime_hours": 4100,
+                    "lba_of_first_error": null
+                },
+                {
+                    "type": {
+                        "value": 1,
+                        "string": "Short offline"
+                    },
+                    "status": {
+                        "value": 119,
+                        "string": "Completed: read failure",
+                        "passed": false,
+                        "remaining_percent": 0
+                    },
+                    "lifetime_hours": 3800,
+                    "lba_of_first_error": 123456789
+                }
+            ],
+            "count": 3,
+            "error_count_total": 1,
+            "error_count_outdated": 0
+        }
+    }
+}

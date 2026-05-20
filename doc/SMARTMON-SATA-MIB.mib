@@ -1,0 +1,1218 @@
+SMARTMON-SATA-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE,
+    Unsigned32
+        FROM SNMPv2-SMI
+    DisplayString, TruthValue, DateAndTime
+        FROM SNMPv2-TC
+    CounterBasedGauge64
+        FROM HCNUM-TC
+    MODULE-COMPLIANCE, OBJECT-GROUP, NOTIFICATION-GROUP
+        FROM SNMPv2-CONF
+    SmartmonHealthStatus, SmartmonAtaSelfTestType,
+    SmartmonAtaSelfTestResult, SmartmonAtaSmartAttrType,
+    SmartmonAtaSmartAttrUpdated, SmartmonAtaSmartAttrStatus,
+    smartmonRoot
+        FROM SMARTMON-TC-MIB
+    smartmonDeviceIndex, smartmonDeviceName, smartmonDevicePath,
+    smartmonDeviceLastPollTime
+        FROM SMARTMON-COMMON-MIB;
+
+smartmonSataMIB MODULE-IDENTITY
+    LAST-UPDATED "202605180000Z"
+    ORGANIZATION "Unassigned"
+    CONTACT-INFO
+        "This is a draft MIB for smartmontools smartctl ATA/SATA output.
+
+         TODO: Replace the placeholder enterprise OID before publication."
+    DESCRIPTION
+        "The SMARTMON-SATA-MIB exposes ATA/SATA drive health, identity,
+         SMART attributes, error log, and self-test log information
+         corresponding to smartctl -x output.
+
+         The intended data source is smartctl -x -j.  Implementations
+         SHOULD avoid scraping human-readable smartctl text when JSON is
+         available.
+
+         This MIB requires SMARTMON-TC-MIB and SMARTMON-COMMON-MIB."
+    REVISION "202605180000Z"
+    DESCRIPTION "Initial draft."
+    ::= { smartmonRoot 4 }
+
+-- --------------------------------------------------------------------------
+-- Top-level structure
+-- --------------------------------------------------------------------------
+
+smartmonSataObjects       OBJECT IDENTIFIER ::= { smartmonSataMIB 1 }
+smartmonSataNotifications OBJECT IDENTIFIER ::= { smartmonSataMIB 2 }
+smartmonSataConformance   OBJECT IDENTIFIER ::= { smartmonSataMIB 3 }
+smartmonSataCompliances   OBJECT IDENTIFIER ::= { smartmonSataConformance 1 }
+smartmonSataGroups        OBJECT IDENTIFIER ::= { smartmonSataConformance 2 }
+
+-- --------------------------------------------------------------------------
+-- SATA device identity table  (.1 RowCount, .2 LastChange, .3 Table)
+-- --------------------------------------------------------------------------
+
+smartmonSataInfoTableRowCount OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Current number of rows in smartmonSataInfoTable."
+    ::= { smartmonSataObjects 1 }
+
+smartmonSataInfoTableLastChange OBJECT-TYPE
+    SYNTAX      DateAndTime
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Timestamp of the most recent row addition or removal in
+         smartmonSataInfoTable."
+    ::= { smartmonSataObjects 2 }
+
+smartmonSataInfoTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF SmartmonSataInfoEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "ATA/SATA drive identity information.  One row per device."
+    ::= { smartmonSataObjects 3 }
+
+smartmonSataInfoEntry OBJECT-TYPE
+    SYNTAX      SmartmonSataInfoEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Identity and geometry information for one ATA/SATA drive."
+    INDEX { smartmonDeviceIndex, smartmonSataInfoIndex }
+    ::= { smartmonSataInfoTable 1 }
+
+SmartmonSataInfoEntry ::= SEQUENCE {
+    smartmonSataInfoIndex           Unsigned32,
+    smartmonSataModelFamily         DisplayString,
+    smartmonSataModelName           DisplayString,
+    smartmonSataSerialNumber        DisplayString,
+    smartmonSataFirmwareVersion     DisplayString,
+    smartmonSataWwn                 DisplayString,
+    smartmonSataAtaVersionString    DisplayString,
+    smartmonSataVersionString       DisplayString,
+    smartmonSataRotationRate        Unsigned32,
+    smartmonSataFormFactor          DisplayString,
+    smartmonSataLogicalBlockSize    Unsigned32,
+    smartmonSataPhysicalBlockSize   Unsigned32,
+    smartmonSataUserCapacityBytes   CounterBasedGauge64,
+    smartmonSataInSmartctlDatabase  TruthValue,
+    smartmonSataSmartAvailable      TruthValue,
+    smartmonSataSmartEnabled        TruthValue,
+    smartmonSataTrimSupported       TruthValue
+}
+
+smartmonSataModelFamily OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Drive model family as identified in the smartctl database."
+    ::= { smartmonSataInfoEntry 1 }
+
+smartmonSataModelName OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Drive model name from ATA IDENTIFY DEVICE."
+    ::= { smartmonSataInfoEntry 2 }
+
+smartmonSataSerialNumber OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Drive serial number from ATA IDENTIFY DEVICE."
+    ::= { smartmonSataInfoEntry 3 }
+
+smartmonSataFirmwareVersion OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Drive firmware version from ATA IDENTIFY DEVICE."
+    ::= { smartmonSataInfoEntry 4 }
+
+smartmonSataWwn OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "World Wide Name in NAA-OUI-ID textual form, if reported."
+    ::= { smartmonSataInfoEntry 5 }
+
+smartmonSataAtaVersionString OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "ATA standard version string, for example ACS-3."
+    ::= { smartmonSataInfoEntry 6 }
+
+smartmonSataVersionString OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "SATA version and link speed string, for example SATA 3.1 6.0 Gb/s."
+    ::= { smartmonSataInfoEntry 7 }
+
+smartmonSataRotationRate OBJECT-TYPE
+    SYNTAX      Unsigned32
+    UNITS       "RPM"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Nominal rotation rate in RPM.  Zero indicates a solid-state
+         device or that the value is not reported."
+    ::= { smartmonSataInfoEntry 8 }
+
+smartmonSataFormFactor OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Form factor name as reported by smartctl, e.g. 2.5 inches."
+    ::= { smartmonSataInfoEntry 9 }
+
+smartmonSataLogicalBlockSize OBJECT-TYPE
+    SYNTAX      Unsigned32
+    UNITS       "bytes"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Logical block size in bytes."
+    ::= { smartmonSataInfoEntry 10 }
+
+smartmonSataPhysicalBlockSize OBJECT-TYPE
+    SYNTAX      Unsigned32
+    UNITS       "bytes"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Physical block size in bytes."
+    ::= { smartmonSataInfoEntry 11 }
+
+smartmonSataUserCapacityBytes OBJECT-TYPE
+    SYNTAX      CounterBasedGauge64
+    UNITS       "bytes"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total user-addressable capacity in bytes."
+    ::= { smartmonSataInfoEntry 12 }
+
+smartmonSataInSmartctlDatabase OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Whether the drive model is in the smartctl drive database."
+    ::= { smartmonSataInfoEntry 13 }
+
+smartmonSataSmartAvailable OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Whether SMART is available on this drive."
+    ::= { smartmonSataInfoEntry 14 }
+
+smartmonSataSmartEnabled OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Whether SMART is currently enabled on this drive."
+    ::= { smartmonSataInfoEntry 15 }
+
+smartmonSataTrimSupported OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Whether the TRIM command is supported, if reported."
+    ::= { smartmonSataInfoEntry 16 }
+
+smartmonSataInfoIndex OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..4294967295)
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Local index for ATA/SATA identity entries within a device."
+    ::= { smartmonSataInfoEntry 17 }
+
+-- --------------------------------------------------------------------------
+-- SATA SMART health table  (.4 RowCount, .5 LastChange, .6 Table)
+-- --------------------------------------------------------------------------
+
+smartmonSataHealthTableRowCount OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Current number of rows in smartmonSataHealthTable."
+    ::= { smartmonSataObjects 4 }
+
+smartmonSataHealthTableLastChange OBJECT-TYPE
+    SYNTAX      DateAndTime
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Timestamp of the most recent row addition or removal in
+         smartmonSataHealthTable."
+    ::= { smartmonSataObjects 5 }
+
+smartmonSataHealthTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF SmartmonSataHealthEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "ATA/SATA SMART health and capabilities.  One row per device."
+    ::= { smartmonSataObjects 6 }
+
+smartmonSataHealthEntry OBJECT-TYPE
+    SYNTAX      SmartmonSataHealthEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "SMART health, capabilities, and power counters for one drive."
+    INDEX { smartmonDeviceIndex, smartmonSataHealthIndex }
+    ::= { smartmonSataHealthTable 1 }
+
+SmartmonSataHealthEntry ::= SEQUENCE {
+    smartmonSataHealthIndex                      Unsigned32,
+    smartmonSataHealthOverallStatus              SmartmonHealthStatus,
+    smartmonSataOfflineCollectionStatusValue     Unsigned32,
+    smartmonSataOfflineCollectionStatusString    DisplayString,
+    smartmonSataOfflineCollectionCompletionSecs  Unsigned32,
+    smartmonSataSelfTestExecutionStatusValue     Unsigned32,
+    smartmonSataSelfTestExecutionStatusString    DisplayString,
+    smartmonSataSelfTestPollingShortMinutes      Unsigned32,
+    smartmonSataSelfTestPollingExtendedMinutes   Unsigned32,
+    smartmonSataSelfTestPollingConveyanceMinutes Unsigned32,
+    smartmonSataCapabilityAutoOfflineEnabled     TruthValue,
+    smartmonSataCapabilitySelfTestsSupported     TruthValue,
+    smartmonSataCapabilityConveyanceSupported    TruthValue,
+    smartmonSataCapabilitySelectiveSupported     TruthValue,
+    smartmonSataCapabilityErrorLoggingSupported  TruthValue,
+    smartmonSataCapabilityGpLoggingSupported     TruthValue,
+    smartmonSataSctErrorRecoverySupported        TruthValue,
+    smartmonSataSctFeatureControlSupported       TruthValue,
+    smartmonSataSctDataTableSupported            TruthValue,
+    smartmonSataPowerCycles                      CounterBasedGauge64,
+    smartmonSataPowerOnHours                     CounterBasedGauge64,
+    smartmonSataErrorLogCount                    Unsigned32
+}
+
+smartmonSataHealthOverallStatus OBJECT-TYPE
+    SYNTAX      SmartmonHealthStatus
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Overall SMART health status as reported by smartctl."
+    ::= { smartmonSataHealthEntry 1 }
+
+smartmonSataOfflineCollectionStatusValue OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Raw Offline data collection status byte value from SMART data."
+    ::= { smartmonSataHealthEntry 2 }
+
+smartmonSataOfflineCollectionStatusString OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Human-readable offline data collection status string."
+    ::= { smartmonSataHealthEntry 3 }
+
+smartmonSataOfflineCollectionCompletionSecs OBJECT-TYPE
+    SYNTAX      Unsigned32
+    UNITS       "seconds"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total time to complete offline data collection."
+    ::= { smartmonSataHealthEntry 4 }
+
+smartmonSataSelfTestExecutionStatusValue OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Raw Self-test execution status byte value."
+    ::= { smartmonSataHealthEntry 5 }
+
+smartmonSataSelfTestExecutionStatusString OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Human-readable self-test execution status string."
+    ::= { smartmonSataHealthEntry 6 }
+
+smartmonSataSelfTestPollingShortMinutes OBJECT-TYPE
+    SYNTAX      Unsigned32
+    UNITS       "minutes"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Estimated time for short self-test."
+    ::= { smartmonSataHealthEntry 7 }
+
+smartmonSataSelfTestPollingExtendedMinutes OBJECT-TYPE
+    SYNTAX      Unsigned32
+    UNITS       "minutes"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Estimated time for extended self-test."
+    ::= { smartmonSataHealthEntry 8 }
+
+smartmonSataSelfTestPollingConveyanceMinutes OBJECT-TYPE
+    SYNTAX      Unsigned32
+    UNITS       "minutes"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Estimated time for conveyance self-test, if supported."
+    ::= { smartmonSataHealthEntry 9 }
+
+smartmonSataCapabilityAutoOfflineEnabled OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Whether automatic offline data collection is enabled."
+    ::= { smartmonSataHealthEntry 10 }
+
+smartmonSataCapabilitySelfTestsSupported OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Whether self-tests are supported."
+    ::= { smartmonSataHealthEntry 11 }
+
+smartmonSataCapabilityConveyanceSupported OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Whether conveyance self-test is supported."
+    ::= { smartmonSataHealthEntry 12 }
+
+smartmonSataCapabilitySelectiveSupported OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Whether selective self-test is supported."
+    ::= { smartmonSataHealthEntry 13 }
+
+smartmonSataCapabilityErrorLoggingSupported OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Whether error logging is supported."
+    ::= { smartmonSataHealthEntry 14 }
+
+smartmonSataCapabilityGpLoggingSupported OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Whether General Purpose logging is supported."
+    ::= { smartmonSataHealthEntry 15 }
+
+smartmonSataSctErrorRecoverySupported OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Whether SCT Error Recovery Control is supported."
+    ::= { smartmonSataHealthEntry 16 }
+
+smartmonSataSctFeatureControlSupported OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Whether SCT Feature Control is supported."
+    ::= { smartmonSataHealthEntry 17 }
+
+smartmonSataSctDataTableSupported OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Whether SCT Data Table is supported."
+    ::= { smartmonSataHealthEntry 18 }
+
+smartmonSataPowerCycles OBJECT-TYPE
+    SYNTAX      CounterBasedGauge64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Number of power cycles."
+    ::= { smartmonSataHealthEntry 19 }
+
+smartmonSataPowerOnHours OBJECT-TYPE
+    SYNTAX      CounterBasedGauge64
+    UNITS       "hours"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Power-on hours."
+    ::= { smartmonSataHealthEntry 20 }
+
+smartmonSataErrorLogCount OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Total error count from the ATA SMART error log summary."
+    ::= { smartmonSataHealthEntry 21 }
+
+smartmonSataHealthIndex OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..4294967295)
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Local index for ATA/SATA health entries within a device."
+    ::= { smartmonSataHealthEntry 22 }
+
+-- --------------------------------------------------------------------------
+-- SATA SMART attributes table  (.7 RowCount, .8 LastChange, .9 Table)
+-- --------------------------------------------------------------------------
+
+smartmonSataAttrTableRowCount OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Current number of rows in smartmonSataAttrTable."
+    ::= { smartmonSataObjects 7 }
+
+smartmonSataAttrTableLastChange OBJECT-TYPE
+    SYNTAX      DateAndTime
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Timestamp of the most recent row addition or removal in
+         smartmonSataAttrTable."
+    ::= { smartmonSataObjects 8 }
+
+smartmonSataAttrTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF SmartmonSataAttrEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "ATA SMART attribute table.  One row per (device, attribute ID).
+         The attribute ID is the ATA vendor attribute number (1..255)."
+    ::= { smartmonSataObjects 9 }
+
+smartmonSataAttrEntry OBJECT-TYPE
+    SYNTAX      SmartmonSataAttrEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "One ATA SMART attribute for one drive."
+    INDEX { smartmonDeviceIndex, smartmonSataAttrId }
+    ::= { smartmonSataAttrTable 1 }
+
+SmartmonSataAttrEntry ::= SEQUENCE {
+    smartmonSataAttrId          Unsigned32,
+    smartmonSataAttrName        DisplayString,
+    smartmonSataAttrFlags       BITS,
+    smartmonSataAttrType        SmartmonAtaSmartAttrType,
+    smartmonSataAttrUpdated     SmartmonAtaSmartAttrUpdated,
+    smartmonSataAttrValue       Unsigned32,
+    smartmonSataAttrWorst       Unsigned32,
+    smartmonSataAttrThreshold   Unsigned32,
+    smartmonSataAttrRawValue    CounterBasedGauge64,
+    smartmonSataAttrRawString   DisplayString,
+    smartmonSataAttrWhenFailed  DisplayString,
+    smartmonSataAttrStatus      SmartmonAtaSmartAttrStatus
+}
+
+smartmonSataAttrId OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..255)
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "ATA SMART attribute ID."
+    ::= { smartmonSataAttrEntry 1 }
+
+smartmonSataAttrName OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Attribute name, for example Raw_Read_Error_Rate."
+    ::= { smartmonSataAttrEntry 2 }
+
+smartmonSataAttrFlags OBJECT-TYPE
+    SYNTAX      BITS {
+                    prefailure(0),
+                    onlineCollection(1),
+                    performance(2),
+                    errorRate(3),
+                    eventCount(4),
+                    autoKeep(5)
+                }
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "ATA SMART attribute flags bitmap.  Bit positions correspond to
+         the standard flags field: prefailure (bit 0), updated during
+         online data collection (bit 1), performance attribute (bit 2),
+         error-rate attribute (bit 3), event-count attribute (bit 4),
+         auto-keep on power cycle (bit 5)."
+    ::= { smartmonSataAttrEntry 3 }
+
+smartmonSataAttrType OBJECT-TYPE
+    SYNTAX      SmartmonAtaSmartAttrType
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Attribute type: prefailure or old-age."
+    ::= { smartmonSataAttrEntry 4 }
+
+smartmonSataAttrUpdated OBJECT-TYPE
+    SYNTAX      SmartmonAtaSmartAttrUpdated
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Whether the attribute is updated continuously or offline only."
+    ::= { smartmonSataAttrEntry 5 }
+
+smartmonSataAttrValue OBJECT-TYPE
+    SYNTAX      Unsigned32 (0..255)
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Normalized attribute value (higher is typically better)."
+    ::= { smartmonSataAttrEntry 6 }
+
+smartmonSataAttrWorst OBJECT-TYPE
+    SYNTAX      Unsigned32 (0..255)
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Worst normalized value ever recorded."
+    ::= { smartmonSataAttrEntry 7 }
+
+smartmonSataAttrThreshold OBJECT-TYPE
+    SYNTAX      Unsigned32 (0..255)
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Failure threshold; value below threshold indicates prefailure."
+    ::= { smartmonSataAttrEntry 8 }
+
+smartmonSataAttrRawValue OBJECT-TYPE
+    SYNTAX      CounterBasedGauge64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Raw attribute value as a 64-bit integer."
+    ::= { smartmonSataAttrEntry 9 }
+
+smartmonSataAttrRawString OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Raw attribute value as interpreted text from smartctl.  May
+         include additional fields such as hours or counts."
+    ::= { smartmonSataAttrEntry 10 }
+
+smartmonSataAttrWhenFailed OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Indicates when the attribute failed: empty string if never,
+         FAILING_NOW if currently below threshold, or In_the_past if
+         the worst value fell below threshold at some point."
+    ::= { smartmonSataAttrEntry 11 }
+
+smartmonSataAttrStatus OBJECT-TYPE
+    SYNTAX      SmartmonAtaSmartAttrStatus
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Enumerated failure status derived from value, worst, and
+         threshold.  Provides a machine-readable alternative to
+         smartmonSataAttrWhenFailed."
+    ::= { smartmonSataAttrEntry 12 }
+
+-- --------------------------------------------------------------------------
+-- SATA ATA error log table  (.10 RowCount, .11 LastChange, .12 Table)
+-- --------------------------------------------------------------------------
+
+smartmonSataErrorLogTableRowCount OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Current number of rows in smartmonSataErrorLogTable."
+    ::= { smartmonSataObjects 10 }
+
+smartmonSataErrorLogTableLastChange OBJECT-TYPE
+    SYNTAX      DateAndTime
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Timestamp of the most recent row addition or removal in
+         smartmonSataErrorLogTable."
+    ::= { smartmonSataObjects 11 }
+
+smartmonSataErrorLogTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF SmartmonSataErrorLogEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "ATA SMART error log entries.  If no errors are logged, this
+         table has no rows."
+    ::= { smartmonSataObjects 12 }
+
+smartmonSataErrorLogEntry OBJECT-TYPE
+    SYNTAX      SmartmonSataErrorLogEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "One ATA SMART error log entry."
+    INDEX { smartmonDeviceIndex, smartmonSataErrorIndex }
+    ::= { smartmonSataErrorLogTable 1 }
+
+SmartmonSataErrorLogEntry ::= SEQUENCE {
+    smartmonSataErrorIndex          Unsigned32,
+    smartmonSataErrorNumber         Unsigned32,
+    smartmonSataErrorLifetimeHours  CounterBasedGauge64,
+    smartmonSataErrorDescription    DisplayString,
+    smartmonSataErrorCompRegError   Unsigned32,
+    smartmonSataErrorCompRegStatus  Unsigned32,
+    smartmonSataErrorLba            CounterBasedGauge64,
+    smartmonSataErrorRegCommand     Unsigned32,
+    smartmonSataErrorRegCount       Unsigned32,
+    smartmonSataErrorRegDevice      Unsigned32,
+    smartmonSataErrorRegFeature     Unsigned32,
+    smartmonSataErrorStateValue     Unsigned32,
+    smartmonSataErrorStateString    DisplayString
+}
+
+smartmonSataErrorIndex OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..4294967295)
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Local error log table index."
+    ::= { smartmonSataErrorLogEntry 1 }
+
+smartmonSataErrorNumber OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Error number as reported by smartctl."
+    ::= { smartmonSataErrorLogEntry 2 }
+
+smartmonSataErrorLifetimeHours OBJECT-TYPE
+    SYNTAX      CounterBasedGauge64
+    UNITS       "hours"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Power-on lifetime hours at the time of the error."
+    ::= { smartmonSataErrorLogEntry 3 }
+
+smartmonSataErrorDescription OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "High-level error description as decoded by smartctl."
+    ::= { smartmonSataErrorLogEntry 4 }
+
+smartmonSataErrorCompRegError OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Completion Error register value."
+    ::= { smartmonSataErrorLogEntry 5 }
+
+smartmonSataErrorCompRegStatus OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Completion Status register value."
+    ::= { smartmonSataErrorLogEntry 6 }
+
+smartmonSataErrorLba OBJECT-TYPE
+    SYNTAX      CounterBasedGauge64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "LBA associated with the error, if reported."
+    ::= { smartmonSataErrorLogEntry 7 }
+
+smartmonSataErrorRegCommand OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Completion Command register value (registers.command)."
+    ::= { smartmonSataErrorLogEntry 8 }
+
+smartmonSataErrorRegCount OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Completion Count register value (registers.count)."
+    ::= { smartmonSataErrorLogEntry 9 }
+
+smartmonSataErrorRegDevice OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Completion Device register value (registers.device)."
+    ::= { smartmonSataErrorLogEntry 10 }
+
+smartmonSataErrorRegFeature OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Completion Feature register value (registers.feature)."
+    ::= { smartmonSataErrorLogEntry 11 }
+
+smartmonSataErrorStateValue OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Device state numeric value at the time of the error (state.value)."
+    ::= { smartmonSataErrorLogEntry 12 }
+
+smartmonSataErrorStateString OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Device state description at the time of the error (state.string),
+         for example Active or Idle."
+    ::= { smartmonSataErrorLogEntry 13 }
+
+-- --------------------------------------------------------------------------
+-- SATA error log previous-commands table  (.13 RowCount, .14 LastChange, .15 Table)
+-- --------------------------------------------------------------------------
+
+smartmonSataErrorCmdTableRowCount OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Current number of rows in smartmonSataErrorCmdTable."
+    ::= { smartmonSataObjects 13 }
+
+smartmonSataErrorCmdTableLastChange OBJECT-TYPE
+    SYNTAX      DateAndTime
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Timestamp of the most recent row addition or removal in
+         smartmonSataErrorCmdTable."
+    ::= { smartmonSataObjects 14 }
+
+smartmonSataErrorCmdTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF SmartmonSataErrorCmdEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "ATA extended error log previous-command entries.  One row per
+         (device, error entry, command slot).  Sourced from
+         ata_smart_error_log.extended.table[].previous_commands[]."
+    ::= { smartmonSataObjects 15 }
+
+smartmonSataErrorCmdEntry OBJECT-TYPE
+    SYNTAX      SmartmonSataErrorCmdEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "One previous command associated with an ATA error log entry."
+    INDEX { smartmonDeviceIndex, smartmonSataErrorIndex, smartmonSataErrorCmdIndex }
+    ::= { smartmonSataErrorCmdTable 1 }
+
+SmartmonSataErrorCmdEntry ::= SEQUENCE {
+    smartmonSataErrorCmdIndex       Unsigned32,
+    smartmonSataErrorCmdRegCommand  Unsigned32,
+    smartmonSataErrorCmdRegCount    Unsigned32,
+    smartmonSataErrorCmdRegDevice   Unsigned32,
+    smartmonSataErrorCmdRegError    Unsigned32,
+    smartmonSataErrorCmdRegFeature  Unsigned32,
+    smartmonSataErrorCmdRegLba      CounterBasedGauge64,
+    smartmonSataErrorCmdRegStatus   Unsigned32,
+    smartmonSataErrorCmdTimestamp   Unsigned32,
+    smartmonSataErrorCmdDescription DisplayString
+}
+
+smartmonSataErrorCmdIndex OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..4294967295)
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Slot position of this command within the error log entry."
+    ::= { smartmonSataErrorCmdEntry 1 }
+
+smartmonSataErrorCmdRegCommand OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Command register value for this previous command."
+    ::= { smartmonSataErrorCmdEntry 2 }
+
+smartmonSataErrorCmdRegCount OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Count register value for this previous command."
+    ::= { smartmonSataErrorCmdEntry 3 }
+
+smartmonSataErrorCmdRegDevice OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Device register value for this previous command."
+    ::= { smartmonSataErrorCmdEntry 4 }
+
+smartmonSataErrorCmdRegError OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Error register value for this previous command."
+    ::= { smartmonSataErrorCmdEntry 5 }
+
+smartmonSataErrorCmdRegFeature OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Feature register value for this previous command."
+    ::= { smartmonSataErrorCmdEntry 6 }
+
+smartmonSataErrorCmdRegLba OBJECT-TYPE
+    SYNTAX      CounterBasedGauge64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "LBA register value for this previous command."
+    ::= { smartmonSataErrorCmdEntry 7 }
+
+smartmonSataErrorCmdRegStatus OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Status register value for this previous command."
+    ::= { smartmonSataErrorCmdEntry 8 }
+
+smartmonSataErrorCmdTimestamp OBJECT-TYPE
+    SYNTAX      Unsigned32
+    UNITS       "milliseconds"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Timestamp in milliseconds at which this command was issued,
+         relative to power-on (previous_commands[].timestamp)."
+    ::= { smartmonSataErrorCmdEntry 9 }
+
+smartmonSataErrorCmdDescription OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Human-readable command description as decoded by smartctl,
+         for example WRITE FPDMA QUEUED or READ DMA EXT."
+    ::= { smartmonSataErrorCmdEntry 10 }
+
+-- --------------------------------------------------------------------------
+-- SATA self-test log table  (.16 RowCount, .17 LastChange, .18 Table)
+-- --------------------------------------------------------------------------
+
+smartmonSataSelfTestTableRowCount OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Current number of rows in smartmonSataSelfTestTable."
+    ::= { smartmonSataObjects 16 }
+
+smartmonSataSelfTestTableLastChange OBJECT-TYPE
+    SYNTAX      DateAndTime
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Timestamp of the most recent row addition or removal in
+         smartmonSataSelfTestTable.  Changes whenever a new self-test
+         log entry is written."
+    ::= { smartmonSataObjects 17 }
+
+smartmonSataSelfTestTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF SmartmonSataSelfTestEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "ATA SMART self-test log entries."
+    ::= { smartmonSataObjects 18 }
+
+smartmonSataSelfTestEntry OBJECT-TYPE
+    SYNTAX      SmartmonSataSelfTestEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "One ATA SMART self-test log entry."
+    INDEX { smartmonDeviceIndex, smartmonSataSelfTestIndex }
+    ::= { smartmonSataSelfTestTable 1 }
+
+SmartmonSataSelfTestEntry ::= SEQUENCE {
+    smartmonSataSelfTestIndex         Unsigned32,
+    smartmonSataSelfTestType          SmartmonAtaSelfTestType,
+    smartmonSataSelfTestResult        SmartmonAtaSelfTestResult,
+    smartmonSataSelfTestResultString  DisplayString,
+    smartmonSataSelfTestResultPassed  TruthValue,
+    smartmonSataSelfTestRemainingPct  Unsigned32,
+    smartmonSataSelfTestLifetimeHours CounterBasedGauge64,
+    smartmonSataSelfTestLbaFirstError CounterBasedGauge64
+}
+
+smartmonSataSelfTestIndex OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..4294967295)
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Local self-test table index."
+    ::= { smartmonSataSelfTestEntry 1 }
+
+smartmonSataSelfTestType OBJECT-TYPE
+    SYNTAX      SmartmonAtaSelfTestType
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Normalized type of self-test, derived from the self-test
+         routine field in the ATA SMART self-test log entry: short(1),
+         extended(2), conveyance(3), selective(4), or abort(9)."
+    ::= { smartmonSataSelfTestEntry 2 }
+
+smartmonSataSelfTestResult OBJECT-TYPE
+    SYNTAX      SmartmonAtaSelfTestResult
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Normalized self-test result."
+    ::= { smartmonSataSelfTestEntry 4 }
+
+smartmonSataSelfTestResultString OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Self-test result string as reported by smartctl."
+    ::= { smartmonSataSelfTestEntry 5 }
+
+smartmonSataSelfTestResultPassed OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Whether the self-test completed successfully."
+    ::= { smartmonSataSelfTestEntry 6 }
+
+smartmonSataSelfTestRemainingPct OBJECT-TYPE
+    SYNTAX      Unsigned32 (0..100)
+    UNITS       "percent"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Percentage of test remaining at the time the entry was written."
+    ::= { smartmonSataSelfTestEntry 7 }
+
+smartmonSataSelfTestLifetimeHours OBJECT-TYPE
+    SYNTAX      CounterBasedGauge64
+    UNITS       "hours"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Power-on lifetime hours at the time of the self-test."
+    ::= { smartmonSataSelfTestEntry 8 }
+
+smartmonSataSelfTestLbaFirstError OBJECT-TYPE
+    SYNTAX      CounterBasedGauge64
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "LBA of the first error, if reported."
+    ::= { smartmonSataSelfTestEntry 9 }
+
+-- --------------------------------------------------------------------------
+-- Notifications
+-- --------------------------------------------------------------------------
+
+smartmonSataHealthFailed NOTIFICATION-TYPE
+    OBJECTS {
+        smartmonDeviceName,
+        smartmonDevicePath,
+        smartmonSataHealthOverallStatus,
+        smartmonDeviceLastPollTime
+    }
+    STATUS      current
+    DESCRIPTION
+        "Generated when ATA/SATA SMART health changes to a failed state."
+    ::= { smartmonSataNotifications 1 }
+
+smartmonSataAttrFailing NOTIFICATION-TYPE
+    OBJECTS {
+        smartmonDeviceName,
+        smartmonDevicePath,
+        smartmonSataAttrId,
+        smartmonSataAttrName,
+        smartmonSataAttrValue,
+        smartmonSataAttrThreshold,
+        smartmonDeviceLastPollTime
+    }
+    STATUS      current
+    DESCRIPTION
+        "Generated when an ATA SMART prefailure attribute value drops at
+         or below the failure threshold."
+    ::= { smartmonSataNotifications 2 }
+
+smartmonSataSelfTestFailed NOTIFICATION-TYPE
+    OBJECTS {
+        smartmonDeviceName,
+        smartmonDevicePath,
+        smartmonSataSelfTestType,
+        smartmonSataSelfTestResult,
+        smartmonSataSelfTestResultString,
+        smartmonDeviceLastPollTime
+    }
+    STATUS      current
+    DESCRIPTION
+        "Generated when a new ATA SMART self-test log entry indicates
+         failure or abnormal termination."
+    ::= { smartmonSataNotifications 3 }
+
+-- --------------------------------------------------------------------------
+-- Conformance
+-- --------------------------------------------------------------------------
+
+smartmonSataCompliance MODULE-COMPLIANCE
+    STATUS      current
+    DESCRIPTION "Compliance statement for implementations of SMARTMON-SATA-MIB."
+    MODULE
+        MANDATORY-GROUPS {
+            smartmonSataInfoGroup,
+            smartmonSataHealthGroup,
+            smartmonSataAttrGroup
+        }
+        GROUP smartmonSataErrorLogGroup
+        DESCRIPTION
+            "Required when ATA SMART error log entries are available."
+        GROUP smartmonSataErrorCmdGroup
+        DESCRIPTION
+            "Required when previous-command data is present in error log entries."
+        GROUP smartmonSataSelfTestGroup
+        DESCRIPTION
+            "Required when ATA SMART self-test log entries are available."
+        GROUP smartmonSataTableMetaGroup
+        DESCRIPTION
+            "Required when per-table row counts and last-change timestamps
+             are maintained by the agent."
+        GROUP smartmonSataNotificationGroup
+        DESCRIPTION
+            "Required for implementations that emit notifications."
+    ::= { smartmonSataCompliances 1 }
+
+smartmonSataInfoGroup OBJECT-GROUP
+    OBJECTS {
+        smartmonSataModelFamily,
+        smartmonSataModelName,
+        smartmonSataSerialNumber,
+        smartmonSataFirmwareVersion,
+        smartmonSataWwn,
+        smartmonSataAtaVersionString,
+        smartmonSataVersionString,
+        smartmonSataRotationRate,
+        smartmonSataFormFactor,
+        smartmonSataLogicalBlockSize,
+        smartmonSataPhysicalBlockSize,
+        smartmonSataUserCapacityBytes,
+        smartmonSataInSmartctlDatabase,
+        smartmonSataSmartAvailable,
+        smartmonSataSmartEnabled,
+        smartmonSataTrimSupported
+    }
+    STATUS current
+    DESCRIPTION "ATA/SATA device identity objects."
+    ::= { smartmonSataGroups 1 }
+
+smartmonSataHealthGroup OBJECT-GROUP
+    OBJECTS {
+        smartmonSataHealthOverallStatus,
+        smartmonSataOfflineCollectionStatusValue,
+        smartmonSataOfflineCollectionStatusString,
+        smartmonSataOfflineCollectionCompletionSecs,
+        smartmonSataSelfTestExecutionStatusValue,
+        smartmonSataSelfTestExecutionStatusString,
+        smartmonSataSelfTestPollingShortMinutes,
+        smartmonSataSelfTestPollingExtendedMinutes,
+        smartmonSataSelfTestPollingConveyanceMinutes,
+        smartmonSataCapabilityAutoOfflineEnabled,
+        smartmonSataCapabilitySelfTestsSupported,
+        smartmonSataCapabilityConveyanceSupported,
+        smartmonSataCapabilitySelectiveSupported,
+        smartmonSataCapabilityErrorLoggingSupported,
+        smartmonSataCapabilityGpLoggingSupported,
+        smartmonSataSctErrorRecoverySupported,
+        smartmonSataSctFeatureControlSupported,
+        smartmonSataSctDataTableSupported,
+        smartmonSataPowerCycles,
+        smartmonSataPowerOnHours,
+        smartmonSataErrorLogCount
+    }
+    STATUS current
+    DESCRIPTION "ATA/SATA SMART health and capability objects."
+    ::= { smartmonSataGroups 2 }
+
+smartmonSataAttrGroup OBJECT-GROUP
+    OBJECTS {
+        smartmonSataAttrName,
+        smartmonSataAttrFlags,
+        smartmonSataAttrType,
+        smartmonSataAttrUpdated,
+        smartmonSataAttrValue,
+        smartmonSataAttrWorst,
+        smartmonSataAttrThreshold,
+        smartmonSataAttrRawValue,
+        smartmonSataAttrRawString,
+        smartmonSataAttrWhenFailed,
+        smartmonSataAttrStatus
+    }
+    STATUS current
+    DESCRIPTION "ATA SMART attribute objects."
+    ::= { smartmonSataGroups 3 }
+
+smartmonSataErrorLogGroup OBJECT-GROUP
+    OBJECTS {
+        smartmonSataErrorNumber,
+        smartmonSataErrorLifetimeHours,
+        smartmonSataErrorDescription,
+        smartmonSataErrorCompRegError,
+        smartmonSataErrorCompRegStatus,
+        smartmonSataErrorLba,
+        smartmonSataErrorRegCommand,
+        smartmonSataErrorRegCount,
+        smartmonSataErrorRegDevice,
+        smartmonSataErrorRegFeature,
+        smartmonSataErrorStateValue,
+        smartmonSataErrorStateString
+    }
+    STATUS current
+    DESCRIPTION "ATA SMART error log objects."
+    ::= { smartmonSataGroups 4 }
+
+smartmonSataErrorCmdGroup OBJECT-GROUP
+    OBJECTS {
+        smartmonSataErrorCmdRegCommand,
+        smartmonSataErrorCmdRegCount,
+        smartmonSataErrorCmdRegDevice,
+        smartmonSataErrorCmdRegError,
+        smartmonSataErrorCmdRegFeature,
+        smartmonSataErrorCmdRegLba,
+        smartmonSataErrorCmdRegStatus,
+        smartmonSataErrorCmdTimestamp,
+        smartmonSataErrorCmdDescription
+    }
+    STATUS current
+    DESCRIPTION "ATA SMART error log previous-command objects."
+    ::= { smartmonSataGroups 7 }
+
+smartmonSataSelfTestGroup OBJECT-GROUP
+    OBJECTS {
+        smartmonSataSelfTestType,
+        smartmonSataSelfTestResult,
+        smartmonSataSelfTestResultString,
+        smartmonSataSelfTestResultPassed,
+        smartmonSataSelfTestRemainingPct,
+        smartmonSataSelfTestLifetimeHours,
+        smartmonSataSelfTestLbaFirstError
+    }
+    STATUS current
+    DESCRIPTION "ATA SMART self-test log objects."
+    ::= { smartmonSataGroups 5 }
+
+smartmonSataTableMetaGroup OBJECT-GROUP
+    OBJECTS {
+        smartmonSataInfoTableRowCount,      smartmonSataInfoTableLastChange,
+        smartmonSataHealthTableRowCount,    smartmonSataHealthTableLastChange,
+        smartmonSataAttrTableRowCount,      smartmonSataAttrTableLastChange,
+        smartmonSataErrorLogTableRowCount,  smartmonSataErrorLogTableLastChange,
+        smartmonSataErrorCmdTableRowCount,  smartmonSataErrorCmdTableLastChange,
+        smartmonSataSelfTestTableRowCount,  smartmonSataSelfTestTableLastChange
+    }
+    STATUS current
+    DESCRIPTION "ATA/SATA table row-count and last-change scalars."
+    ::= { smartmonSataGroups 8 }
+
+smartmonSataNotificationGroup NOTIFICATION-GROUP
+    NOTIFICATIONS {
+        smartmonSataHealthFailed,
+        smartmonSataAttrFailing,
+        smartmonSataSelfTestFailed
+    }
+    STATUS current
+    DESCRIPTION "ATA/SATA notifications."
+    ::= { smartmonSataGroups 6 }
+
+END

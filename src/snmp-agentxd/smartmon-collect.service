@@ -1,0 +1,72 @@
+[Unit]
+Description=SMART data collection (one-shot poll of all drives)
+Documentation=man:smartmon-snmp-agentxd(8)
+After=local-fs.target
+# Do not fail boot if a drive is temporarily unreadable
+DefaultDependencies=no
+IgnoreOnIsolate=yes
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/smartmon-collect /run/smartmontools/json
+
+# ------------------------------------------------------------------ #
+# Security hardening                                                   #
+# smartctl needs root (or CAP_SYS_RAWIO) to read disk health data.   #
+# All other attack surface is locked down.                            #
+# ------------------------------------------------------------------ #
+User=root
+Group=smartmon
+
+# No new privileges can be gained via setuid/setgid binaries
+NoNewPrivileges=yes
+
+# Restrict capabilities to only what smartctl needs:
+#   CAP_SYS_RAWIO       — ATA pass-through commands
+#   CAP_DAC_READ_SEARCH — read devices even if not world-readable
+#   CAP_SYS_ADMIN       — NVMe admin commands (NVME_IOCTL_ADMIN_CMD)
+CapabilityBoundingSet=CAP_SYS_RAWIO CAP_DAC_READ_SEARCH CAP_SYS_ADMIN
+AmbientCapabilities=CAP_SYS_RAWIO CAP_DAC_READ_SEARCH CAP_SYS_ADMIN
+
+# Filesystem isolation
+PrivateTmp=yes
+ProtectHome=yes
+# ProtectSystem=strict would block writing /var; use partial protection
+ProtectSystem=yes
+# Only the state directory needs to be writable
+RuntimeDirectory=smartmontools/json
+RuntimeDirectoryMode=0750
+RuntimeDirectoryPreserve=yes
+ReadWritePaths=/run/smartmontools
+# Block writes everywhere else under /
+
+# Real /dev is required to read disk drives
+PrivateDevices=no
+
+# No network access needed
+PrivateNetwork=yes
+RestrictAddressFamilies=none
+
+# Kernel tunable and module protection
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectKernelLogs=yes
+ProtectControlGroups=yes
+ProtectClock=yes
+ProtectHostname=yes
+
+# Process hardening
+LockPersonality=yes
+RestrictNamespaces=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+
+# System call filtering
+# @privileged is needed for raw disk I/O; @file-system for normal I/O
+SystemCallArchitectures=native
+SystemCallFilter=@system-service @file-system @privileged
+SystemCallErrorNumber=EPERM
+
+# Limit resource usage
+LimitNOFILE=256
+LimitCORE=0

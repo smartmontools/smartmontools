@@ -1,0 +1,368 @@
+SMARTMON-COMMON-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE,
+    Unsigned32
+        FROM SNMPv2-SMI
+    DisplayString, DateAndTime
+        FROM SNMPv2-TC
+    PhysicalIndexOrZero
+        FROM ENTITY-MIB
+    MODULE-COMPLIANCE, OBJECT-GROUP, NOTIFICATION-GROUP
+        FROM SNMPv2-CONF
+    SmartmonDeviceType, SmartmonPollResult,
+    smartmonRoot
+        FROM SMARTMON-TC-MIB;
+
+smartmonCommonMIB MODULE-IDENTITY
+    LAST-UPDATED "202605180000Z"
+    ORGANIZATION "Unassigned"
+    CONTACT-INFO
+        "This is a draft MIB for smartmontools smartctl output.
+
+         TODO: Replace the placeholder enterprise OID before publication."
+    DESCRIPTION
+        "The SMARTMON-COMMON-MIB defines the central device inventory
+         shared by all SMARTMON protocol MIBs (NVMe, SATA, SAS).
+
+         Every monitored device appears as one row in smartmonDeviceTable,
+         identified by a local smartmonDeviceIndex.  All protocol-specific
+         tables use smartmonDeviceIndex as their first index component,
+         so a manager can join any protocol table to this table on that
+         index to obtain device identity and poll-status context.
+
+         The scalar smartmonDeviceTableRowCount reflects the current number
+         of rows in smartmonDeviceTable, and smartmonDeviceTableLastChange
+         records when the table last changed.  A smartmonDeviceDiscovered
+         notification is emitted whenever a new row is added, allowing
+         managers to detect hot-plug or auto-discovered devices without
+         polling the table continuously.
+
+         This MIB requires SMARTMON-TC-MIB."
+    REVISION "202605180000Z"
+    DESCRIPTION "Initial draft."
+    ::= { smartmonRoot 2 }
+
+-- --------------------------------------------------------------------------
+-- Top-level structure
+-- --------------------------------------------------------------------------
+
+smartmonCommonObjects       OBJECT IDENTIFIER ::= { smartmonCommonMIB 1 }
+smartmonCommonConformance   OBJECT IDENTIFIER ::= { smartmonCommonMIB 2 }
+smartmonCommonNotifications OBJECT IDENTIFIER ::= { smartmonCommonMIB 3 }
+smartmonCommonCompliances   OBJECT IDENTIFIER ::= { smartmonCommonConformance 1 }
+smartmonCommonGroups        OBJECT IDENTIFIER ::= { smartmonCommonConformance 2 }
+
+-- --------------------------------------------------------------------------
+-- Table metadata scalars
+-- --------------------------------------------------------------------------
+
+smartmonDeviceTableRowCount OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Total number of devices currently present in smartmonDeviceTable.
+         This value increases when a new device is discovered and decreases
+         when a device is removed from monitoring.  Managers MAY poll this
+         object to detect table changes without walking the full table."
+    ::= { smartmonCommonObjects 1 }
+
+smartmonDeviceTableLastChange OBJECT-TYPE
+    SYNTAX      DateAndTime
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Timestamp of the most recent row addition or removal in
+         smartmonDeviceTable.  Managers may poll this object to detect
+         device inventory changes without walking the full table."
+    ::= { smartmonCommonObjects 2 }
+
+-- --------------------------------------------------------------------------
+-- Device table
+-- --------------------------------------------------------------------------
+
+smartmonDeviceTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF SmartmonDeviceEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "Central inventory of all storage devices currently monitored by
+         the smartctl agent.  One row per device.
+
+         The index smartmonDeviceIndex is a locally assigned table index.
+         It is only required to remain unique within smartmonDeviceTable
+         while the agent is running.  Implementations MAY reuse index
+         values after agent restart, rediscovery, or configuration changes.
+         Managers MUST NOT use smartmonDeviceIndex as persistent device
+         identity.
+
+         If the monitored smartctl target can be correlated with an
+         ENTITY-MIB physical entity, smartmonDevicePhysicalIndex SHOULD
+         contain the corresponding entPhysicalIndex value.  Managers should
+         prefer smartmonDevicePhysicalIndex for cross-MIB correlation when
+         it is non-zero.
+
+         Protocol-specific MIBs (SMARTMON-NVME-MIB, SMARTMON-SATA-MIB,
+         SMARTMON-SAS-MIB) extend this table by using smartmonDeviceIndex
+         as the first component of their own table indices."
+    ::= { smartmonCommonObjects 3 }
+
+smartmonDeviceEntry OBJECT-TYPE
+    SYNTAX      SmartmonDeviceEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "One row in the device inventory.  A row is created when the agent
+         first discovers or is configured with a device, and removed when
+         the device is no longer monitored.
+
+         smartmonDeviceLastPollResult and smartmonDeviceLastPollExitStatus
+         together describe the outcome of the most recent smartctl
+         invocation.  A result of ok(1) with exit status 0 indicates a
+         fully successful poll.  Non-zero exit status values follow the
+         smartctl exit-status bit-mask convention (bit 0 = command-line
+         parse error, bit 1 = device open failure, etc.)."
+    INDEX { smartmonDeviceIndex }
+    ::= { smartmonDeviceTable 1 }
+
+SmartmonDeviceEntry ::= SEQUENCE {
+    smartmonDeviceIndex              Unsigned32,
+    smartmonDeviceName               DisplayString,
+    smartmonDevicePath               DisplayString,
+    smartmonDeviceType               SmartmonDeviceType,
+    smartmonDeviceLastPollTime       DateAndTime,
+    smartmonDeviceLastPollResult     SmartmonPollResult,
+    smartmonDeviceLastPollExitStatus Unsigned32,
+    smartmonDevicePhysicalIndex      PhysicalIndexOrZero
+}
+
+smartmonDeviceIndex OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..4294967295)
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "A local index for a monitored smartctl target.
+
+         The value is only required to be unique within the
+         smartmonDeviceTable while the agent is running. The same index
+         value may be reused for a different device after the agent is
+         restarted, after device rediscovery, or after configuration
+         changes.
+
+         Managers MUST NOT treat this value as a persistent device
+         identity. Stable identification should instead use properties
+         such as device path, serial number, WWN, NAA, EUI-64, NGUID, or
+         namespace identifier where available.
+
+         If the monitored device can be associated with an ENTITY-MIB
+         physical entity, the agent should expose the corresponding
+         entPhysicalIndex in the device table. Managers should prefer
+         entPhysicalIndex for cross-MIB correlation when it is available."
+    ::= { smartmonDeviceEntry 1 }
+
+    
+smartmonDeviceName OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Short human-readable device label used in notifications and
+         log messages, for example nvme0 or sda.  Typically derived
+         from the last component of smartmonDevicePath, but may be
+         overridden by agent configuration."
+    ::= { smartmonDeviceEntry 2 }
+
+smartmonDevicePath OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Device node or smartctl target string passed to smartctl,
+         for example /dev/sda or /dev/nvme0.  For RAID pass-through
+         targets this may include a controller suffix such as
+         /dev/sda -d megaraid,2."
+    ::= { smartmonDeviceEntry 3 }
+
+smartmonDeviceType OBJECT-TYPE
+    SYNTAX      SmartmonDeviceType
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Transport family used to communicate with this device, as
+         determined or overridden by smartctl.  The value drives which
+         protocol-specific MIB table (NVMe, SATA, SAS) contains data
+         for this device index."
+    ::= { smartmonDeviceEntry 4 }
+
+smartmonDeviceLastPollTime OBJECT-TYPE
+    SYNTAX      DateAndTime
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Wall-clock timestamp of the most recent smartctl poll attempt
+         for this device, successful or not.  The value is updated even
+         when the poll fails, so managers can detect stale data by
+         comparing this against the expected polling interval."
+    ::= { smartmonDeviceEntry 5 }
+
+smartmonDeviceLastPollResult OBJECT-TYPE
+    SYNTAX      SmartmonPollResult
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Outcome of the most recent smartctl poll, expressed as a
+         normalized enumeration.  See SmartmonPollResult in
+         SMARTMON-TC-MIB for the full value set.  For detailed
+         diagnosis, consult smartmonDeviceLastPollExitStatus."
+    ::= { smartmonDeviceEntry 6 }
+
+smartmonDeviceLastPollExitStatus OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Raw exit status returned by smartctl for the last poll, encoded
+         as a bit mask per the smartctl(8) manual:
+           bit 0  -- command-line parse error or invalid usage
+           bit 1  -- device open failure
+           bit 2  -- SMART or ATA command failed
+           bit 3  -- disk failing according to SMART
+           bit 4  -- some prefail attributes below threshold
+           bit 5  -- some prefail attributes below threshold in the past
+           bit 6  -- error log contains records
+           bit 7  -- self-test log contains errors
+         A value of 0 indicates a fully successful poll."
+    ::= { smartmonDeviceEntry 7 }
+
+smartmonDevicePhysicalIndex OBJECT-TYPE
+    SYNTAX      PhysicalIndexOrZero
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The entPhysicalIndex value of the ENTITY-MIB physical entity
+         associated with this monitored smartctl target.
+
+         A value of zero indicates that the agent could not associate the
+         smartctl target with an ENTITY-MIB physical entity.
+
+         When non-zero, this object is intended for cross-MIB correlation
+         between SMART monitoring data and ENTITY-MIB inventory data.  It
+         is more suitable for long-term correlation than
+         smartmonDeviceIndex, because smartmonDeviceIndex is only a local
+         table index and may be reused after restart or rediscovery."
+    ::= { smartmonDeviceEntry 8 }
+
+-- --------------------------------------------------------------------------
+-- Notifications
+-- --------------------------------------------------------------------------
+
+smartmonDeviceDiscovered NOTIFICATION-TYPE
+    OBJECTS {
+        smartmonDeviceName,
+        smartmonDevicePath,
+        smartmonDeviceType,
+        smartmonDeviceLastPollTime,
+        smartmonDeviceTableRowCount
+    }
+    STATUS      current
+    DESCRIPTION
+        "Generated when a new device row is added to smartmonDeviceTable,
+         for example when a device is hot-plugged or when the agent is
+         reconfigured to monitor an additional target.
+         smartmonDeviceTableRowCount reflects the updated total after the addition."
+    ::= { smartmonCommonNotifications 1 }
+
+smartmonDeviceRemoved NOTIFICATION-TYPE
+    OBJECTS {
+        smartmonDeviceName,
+        smartmonDevicePath,
+        smartmonDeviceType,
+        smartmonDeviceLastPollTime,
+        smartmonDeviceTableRowCount
+    }
+    STATUS      current
+    DESCRIPTION
+        "Generated when a device row is removed from smartmonDeviceTable,
+         for example when a device is unplugged or removed from the
+         agent's monitored set.
+         smartmonDeviceTableRowCount reflects the updated total after the removal."
+    ::= { smartmonCommonNotifications 2 }
+
+smartmonDevicePollFailed NOTIFICATION-TYPE
+    OBJECTS {
+        smartmonDeviceName,
+        smartmonDevicePath,
+        smartmonDeviceLastPollResult,
+        smartmonDeviceLastPollExitStatus,
+        smartmonDeviceLastPollTime
+    }
+    STATUS      current
+    DESCRIPTION
+        "Generated when a smartctl poll attempt returns a non-ok result.
+         Repeated poll failures may indicate a device or driver problem.
+         Implementations SHOULD apply hysteresis to avoid notification
+         storms when a device is intermittently unreachable."
+    ::= { smartmonCommonNotifications 3 }
+
+-- --------------------------------------------------------------------------
+-- Conformance
+-- --------------------------------------------------------------------------
+
+smartmonCommonCompliance MODULE-COMPLIANCE
+    STATUS      current
+    DESCRIPTION
+        "Compliance statement for SMARTMON-COMMON-MIB.  All implementations
+         MUST support the device table and device metadata scalars.
+         Notification support is optional but RECOMMENDED."
+    MODULE
+        MANDATORY-GROUPS {
+            smartmonDeviceGroup,
+            smartmonDeviceScalarGroup
+        }
+        GROUP smartmonCommonNotificationGroup
+        DESCRIPTION
+            "Required for implementations that emit device lifecycle
+             or poll-failure notifications."
+    ::= { smartmonCommonCompliances 1 }
+
+smartmonDeviceScalarGroup OBJECT-GROUP
+    OBJECTS {
+        smartmonDeviceTableRowCount,
+        smartmonDeviceTableLastChange
+    }
+    STATUS current
+    DESCRIPTION
+        "Scalar objects providing aggregate device inventory information
+         including row count and last-change timestamp."
+    ::= { smartmonCommonGroups 1 }
+
+smartmonDeviceGroup OBJECT-GROUP
+    OBJECTS {
+        smartmonDeviceName,
+        smartmonDevicePath,
+        smartmonDeviceType,
+        smartmonDeviceLastPollTime,
+        smartmonDeviceLastPollResult,
+        smartmonDeviceLastPollExitStatus,
+        smartmonDevicePhysicalIndex
+    }
+    STATUS current
+    DESCRIPTION
+        "Per-device inventory and poll-status objects from
+         smartmonDeviceTable."
+    ::= { smartmonCommonGroups 2 }
+
+smartmonCommonNotificationGroup NOTIFICATION-GROUP
+    NOTIFICATIONS {
+        smartmonDeviceDiscovered,
+        smartmonDeviceRemoved,
+        smartmonDevicePollFailed
+    }
+    STATUS current
+    DESCRIPTION
+        "Notifications for device lifecycle events (discovered, removed)
+         and poll failures."
+    ::= { smartmonCommonGroups 3 }
+
+END

@@ -1,0 +1,89 @@
+# ci/Dockerfile.agentxd — build and integration-test smartmon-snmp-agentxd
+#
+# Base image: ghcr.io/smartmontools/docker-build:master
+# Source:     https://github.com/smartmontools/docker-build
+#
+# Usage (from repo root):
+#   ci/run_docker.sh
+#   -- or manually:
+#   docker build -f ci/Dockerfile.agentxd -t smartmon-agentxd-test .
+#   docker run --rm \
+#     -v "$PWD/.tmp/source:/fixtures:ro" \
+#     -v "$PWD/.tmp/test:/output"       \
+#     smartmon-agentxd-test
+#
+# The image:
+#   1. Adds net-snmp build + runtime deps on top of the docker-build base
+#   2. Copies MIB files into /usr/share/snmp/mibs/ for human-readable snmpwalk
+#   3. Builds the full smartmontools tree with --with-snmp-agentx
+#   4. Runs the agentxd unit + integration tests against fixture JSON files
+#   5. Verifies the binary responds to -h
+#   6. On docker run: executes the live server+client integration test
+
+FROM ghcr.io/smartmontools/docker-build:master
+
+ARG DEBIAN_FRONTEND=noninteractive
+
+# ---------------------------------------------------------------------------
+# Net-SNMP build + runtime dependencies
+# (docker-build base already has autoconf, automake, g++, make, pkg-config)
+# ---------------------------------------------------------------------------
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        libsnmp-dev \
+        snmpd \
+        snmp \
+        procps \
+    && rm -rf /var/lib/apt/lists/*
+
+# ---------------------------------------------------------------------------
+# Copy source tree
+# ---------------------------------------------------------------------------
+WORKDIR /src
+COPY . /src
+
+# ---------------------------------------------------------------------------
+# Install MIB files for human-readable snmpwalk output
+# ---------------------------------------------------------------------------
+RUN cp /src/doc/SMARTMON-*.mib /usr/share/snmp/mibs/
+
+# ---------------------------------------------------------------------------
+# Build
+# ---------------------------------------------------------------------------
+RUN ./autogen.sh --force
+
+RUN mkdir -p /build && cd /build && \
+    SMARTMONTOOLS_TEST_BUILD=1 \
+    /src/configure \
+        --with-snmp-agentx \
+        --disable-static \
+        CXXFLAGS="-O2 -Wall" \
+    && SMARTMONTOOLS_TEST_BUILD=1 make -j"$(nproc)"
+
+# ---------------------------------------------------------------------------
+# Unit + integration tests (no net-snmp runtime needed)
+# Fixtures are committed at src/snmp-agentxd/tests/fixtures/
+# ---------------------------------------------------------------------------
+RUN cd /src/src/snmp-agentxd/tests && \
+    make test FIXTURES=/src/src/snmp-agentxd/tests/fixtures CXX=g++
+
+# ---------------------------------------------------------------------------
+# Smoke-test: binary must exist and respond to -h
+# ---------------------------------------------------------------------------
+RUN /build/src/snmp-agentxd/smartmon-snmp-agentxd -h 2>&1 | grep -q "usage\|Usage\|Options\|-c\|config" \
+    && echo "Binary smoke-test PASSED"
+
+# ---------------------------------------------------------------------------
+# Install integration test script
+# Default FIXTURES points to the committed test fixtures baked into the image.
+# Override at runtime: docker run -v /your/data:/fixtures:ro ...
+# ---------------------------------------------------------------------------
+RUN cp /src/ci/run_integration_test.sh /usr/local/bin/run_integration_test.sh \
+    && chmod +x /usr/local/bin/run_integration_test.sh
+
+ENV AGENTXD_BIN=/build/src/snmp-agentxd/smartmon-snmp-agentxd
+ENV FIXTURES=/src/src/snmp-agentxd/tests/fixtures
+ENV OUTPUT=/output
+
+RUN mkdir -p /output
+
+CMD ["/usr/local/bin/run_integration_test.sh"]

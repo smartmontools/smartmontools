@@ -1,0 +1,105 @@
+{
+    "json_format_version": [
+        1,
+        0
+    ],
+    "device": {
+        "name": "/dev/sdi",
+        "info_name": "/dev/sdf",
+        "protocol": "SCSI"
+    },
+    "device_info": "SEAGATE ST4000NM0023, S/N:Z1Z0ABCD, FW:0004, 4.00 TB",
+    "local_time": {
+        "time_t": 1779133976,
+        "asctime": "Mon May 18 21:52:56 2026 CEST"
+    },
+    "smart_status": {
+        "passed": true
+    },
+    "temperature": {
+        "current": 30,
+        "drive_trip": 65
+    },
+    "scsi_vendor": "SEAGATE",
+    "scsi_product": "ST4000NM0023",
+    "scsi_revision": "0004",
+    "scsi_version": "SPC-4",
+    "serial_number": "Z1Z0ABCD",
+    "rotation_rate": 7200,
+    "form_factor": {
+        "name": "3.5 inches"
+    },
+    "logical_block_size": 512,
+    "physical_block_size": 4096,
+    "user_capacity": {
+        "blocks": 7814037168,
+        "bytes": 4000787030016
+    },
+    "power_cycle_count": 15,
+    "power_on_time": {
+        "hours": 8741
+    },
+    "scsi_background_scan": {
+        "status": {
+            "value": 4,
+            "string": "Idle"
+        },
+        "scan_progress": 0,
+        "number_of_background_medium_scans_performed": 12,
+        "number_of_background_pre_scan_scans_performed": 3
+    },
+    "scsi_grown_defect_list": 3,
+    "scsi_error_counter_log": {
+        "read": {
+            "errors_corrected_by_eccfast": 0,
+            "errors_corrected_by_eccdelayed": 0,
+            "errors_corrected_by_rereads_rewrites": 0,
+            "total_errors_corrected": 0,
+            "correction_algorithm_invocations": 18432971,
+            "gigabytes_processed": "47221.194",
+            "total_uncorrected_errors": 0
+        },
+        "write": {
+            "errors_corrected_by_eccfast": 0,
+            "errors_corrected_by_eccdelayed": 0,
+            "errors_corrected_by_rereads_rewrites": 0,
+            "total_errors_corrected": 0,
+            "correction_algorithm_invocations": 0,
+            "gigabytes_processed": "6214.377",
+            "total_uncorrected_errors": 0
+        }
+    },
+    "scsi_self_test_log": {
+        "extended": {
+            "table": [
+                {
+                    "type": {
+                        "value": 1,
+                        "string": "Background short"
+                    },
+                    "status": {
+                        "value": 0,
+                        "string": "Completed",
+                        "passed": true
+                    },
+                    "lifetime_hours": 8741,
+                    "lba_of_first_error": null
+                },
+                {
+                    "type": {
+                        "value": 2,
+                        "string": "Background long"
+                    },
+                    "status": {
+                        "value": 0,
+                        "string": "Completed",
+                        "passed": true
+                    },
+                    "lifetime_hours": 8568,
+                    "lba_of_first_error": null
+                }
+            ],
+            "count": 2
+        }
+    }
+}

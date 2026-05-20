@@ -1,0 +1,180 @@
+#!/bin/bash
+# smartmon-collect — poll all drives with smartctl, write JSON state files
+#
+# Usage: smartmon-collect [STATE_DIR]
+#
+#   STATE_DIR  Directory for JSON output (default: /run/smartmontools/json)
+#
+# This is a self-contained alternative to configuring smartd with
+# --jsonstate + DEVICESCAN -x.  Many installed versions of smartd do not
+# support the -x flag in DEVICESCAN, and this script avoids that dependency
+# entirely by calling smartctl directly on a timer.
+#
+# Each invocation:
+#   1. Discovers drives via `smartctl --scan-open`
+#   2. Runs `smartctl -x -j` for each discovered drive
+#   3. Writes JSON to STATE_DIR/poll.<device>.<type>.json atomically
+#   4. Removes files for drives that are no longer present
+#
+# smartmon-snmp-agentxd reads the resulting files from STATE_DIR.
+
+set -euo pipefail
+
+STATE_DIR="${1:-/run/smartmontools/json}"
+SMARTCTL="${SMARTCTL:-smartctl}"
+VERBOSE_LOG="${VERBOSE_LOG:-0}"
+
+# =========> Logging functions <=========
+if [ -n "${INVOCATION_ID:-}" ]; then
+    LOG_LEVEL_ALERT="<2>"
+    LOG_LEVEL_ERROR="<3>"
+    LOG_LEVEL_WARNING="<4>"
+    LOG_LEVEL_NOTICE="<5>"
+    LOG_LEVEL_INFO="<6>"
+    LOG_LEVEL_DEBUG="<7>"
+    log_verbose() { [ "${VERBOSE_LOG}" -eq 1 ] || return 0; echo "${LOG_LEVEL_DEBUG} $*"; }
+    log_info()    { echo "${LOG_LEVEL_INFO} $*"; }
+    log_notice()  { echo "${LOG_LEVEL_NOTICE} $*"; }
+    log_warn()    { echo "${LOG_LEVEL_WARNING} $*"; }
+    log_error()   { echo "${LOG_LEVEL_ERROR} $*"; }
+    log_alert()   { echo "${LOG_LEVEL_ALERT} $*"; }
+    trap 'echo "Collect interrupted" >&2; exit 2' INT TERM
+else
+    _date() { date "+%Y-%m-%dT%H:%M:%S"; }
+    log_verbose() { [ "${VERBOSE_LOG}" -eq 1 ] || return 0; echo -e "\033[94m VERBOSE $(_date): $*\033[0m"; }
+    log_info()    { echo "$(_date): $*"; }
+    log_notice()  { echo -e "\033[92m$(_date): $*\033[0m"; }
+    log_warn()    { echo -e "\033[93m$(_date): $*\033[0m"; }
+    log_error()   { echo -e "\033[91m$(_date): $*\033[0m"; }
+    log_alert()   { echo -e "\033[91m$(_date): $*\033[0m"; }
+    trap 'echo -e "\033[91m$(_date): Collect interrupted\033[0m" >&2; exit 2' INT TERM
+fi
+# =========================================
+
+mkdir -p "$STATE_DIR"
+
+# Temp dir tracks which poll.* files are valid this run; cleaned up on exit
+TRACK_DIR=$(mktemp -d)
+trap 'rm -rf "$TRACK_DIR"' EXIT
+
+# ------------------------------------------------------------------ #
+# Discover drives.  --scan-open opens each device briefly to confirm  #
+# it is accessible; fall back to --scan if the flag is unsupported.   #
+# ------------------------------------------------------------------ #
+discover_drives() {
+    "$SMARTCTL" --scan-open 2>/dev/null \
+    || "$SMARTCTL" --scan 2>/dev/null \
+    || { log_warn "smartctl --scan failed"; return 0; }
+}
+
+# ------------------------------------------------------------------ #
+# Discover and log drives                                              #
+# ------------------------------------------------------------------ #
+DISCOVERED=$(discover_drives)
+drive_count=$(echo "$DISCOVERED" | grep -c '^\s*/dev/' 2>/dev/null || true)
+log_info "discovered ${drive_count} drive(s)"
+log_verbose "discovery output: $(echo "$DISCOVERED" | tr '\n' '|')"
+
+# ------------------------------------------------------------------ #
+# Process each discovered drive                                        #
+# ------------------------------------------------------------------ #
+while IFS= read -r line; do
+    # Line format: /dev/DEVICE -d TYPE # comment
+    dev=$(awk '{print $1}' <<< "$line")
+    dflag=$(awk '{print $2}' <<< "$line")
+    dtype=$(awk '{print $3}' <<< "$line")
+
+    [ -n "$dev" ] || continue
+    # NVMe controllers are char devices (/dev/nvme0); SATA/SAS are block devices.
+    [ -b "$dev" ] || [ -c "$dev" ] || continue
+
+    # Build -d flag for smartctl invocation
+    if [ "$dflag" = "-d" ] && [ -n "${dtype:-}" ]; then
+        dev_args=(-d "$dtype")
+    else
+        dtype="auto"
+        dev_args=()
+    fi
+
+    # Map smartctl device type to JSON filename suffix.
+    # For 'auto', derive the type from the device node name: nvme* → nvme.
+    case "$dtype" in
+        nvme*)  suffix="nvme" ;;
+        sat)    suffix="sat"  ;;
+        scsi|sas) suffix="scsi" ;;
+        ata)    suffix="ata"  ;;
+        auto|*) case "$dev" in
+                    */nvme*) suffix="nvme" ;;
+                    *)       suffix="ata"  ;;
+                esac ;;
+    esac
+
+    # Prefer a stable /dev/disk/by-id/ name for the output filename.
+    # by-id symlinks point to block devices (nvme0n1), but smartctl reports the
+    # NVMe controller char device (nvme0), so also check the first namespace.
+    devname=""
+    real_dev=$(realpath "$dev" 2>/dev/null || echo "$dev")
+    # For NVMe controller nodes (/dev/nvmeN), by-id symlinks target /dev/nvmeNn1
+    real_dev_alt=""
+    [[ "$real_dev" =~ /dev/nvme([0-9]+)$ ]] && real_dev_alt="/dev/nvme${BASH_REMATCH[1]}n1"
+    if [ -d /dev/disk/by-id ]; then
+        while IFS= read -r -d '' link; do
+            target=$(realpath "$link" 2>/dev/null) || continue
+            [ "$target" = "$real_dev" ] || [ "$target" = "$real_dev_alt" ] || continue
+            base=$(basename "$link")
+            # Skip partition symlinks
+            [[ "$base" == *-part* ]] && continue
+            # Prefer nvme-* / ata-* / scsi-* over eui.* / wwn-* / dm-*
+            priority=1
+            [[ "$base" == nvme-* || "$base" == ata-* || "$base" == scsi-* ]] && priority=0
+            if [ -z "$devname" ]; then
+                devname="$base"
+            elif [ "$priority" -lt 1 ] && [[ "$devname" != nvme-* && "$devname" != ata-* && "$devname" != scsi-* ]]; then
+                devname="$base"
+            elif [ "$priority" -eq 0 ] && [[ "$base" == nvme-* || "$base" == ata-* || "$base" == scsi-* ]]; then
+                # Among same-priority entries, keep shortest
+                [ "${#base}" -lt "${#devname}" ] && devname="$base"
+            fi
+        done < <(find /dev/disk/by-id -maxdepth 1 -type l -print0 2>/dev/null)
+    fi
+    # Fall back to encoded kernel device path if no by-id entry found
+    if [ -z "$devname" ]; then
+        devname="${dev#/}"
+        devname="${devname//\//_}"
+    fi
+
+    outfile="$STATE_DIR/poll.${devname}.${suffix}.json"
+    tmpfile="$STATE_DIR/.poll.${devname}.${suffix}.$$.tmp"
+
+    # Run smartctl -x for extended data; -j for JSON output.
+    # Exit codes 0 or 64/128 (status bits) are acceptable — the JSON
+    # is still valid even when SMART self-check reports warnings.
+    if "$SMARTCTL" -x -j "${dev_args[@]}" "$dev" > "$tmpfile" 2>/dev/null; then
+        mv -f "$tmpfile" "$outfile"
+        touch "$TRACK_DIR/$(basename "$outfile")"
+        log_verbose "wrote $outfile"
+    elif [ -s "$tmpfile" ] \
+         && grep -q '"json_format_version"' "$tmpfile" 2>/dev/null; then
+        # Non-zero exit but valid JSON (SMART error bits set) — still useful
+        mv -f "$tmpfile" "$outfile"
+        touch "$TRACK_DIR/$(basename "$outfile")"
+        log_verbose "wrote $outfile (smartctl non-zero exit)"
+    else
+        rm -f "$tmpfile"
+        log_warn "smartctl failed for $dev (type=$dtype) — skipped"
+    fi
+
+done <<< "$DISCOVERED"
+
+# ------------------------------------------------------------------ #
+# Remove stale files for drives no longer present.                     #
+# Only files matching poll.*.*.json are managed here; smartd-json.*   #
+# files produced by smartd --jsonstate are left untouched.            #
+# ------------------------------------------------------------------ #
+while IFS= read -r -d '' stale; do
+    base=$(basename "$stale")
+    if [ ! -f "$TRACK_DIR/$base" ]; then
+        rm -f "$stale"
+        log_verbose "removed stale $stale"
+    fi
+done < <(find "$STATE_DIR" -maxdepth 1 -name 'poll.*.*.json' -print0 2>/dev/null)
