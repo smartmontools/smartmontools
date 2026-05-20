@@ -1,9 +1,9 @@
 #!/bin/bash
 # scripts/install-remote.sh — Deploy smartmon-snmp-agentxd to a remote host via SSH
 #
-# Copies the built binary, support scripts, systemd units, MIB files,
-# and the local installer to a remote machine, then runs the installer
-# there via SSH.
+# Copies the built binary, support scripts, systemd units, and MIB files
+# to a remote machine, then performs all setup (user creation, service
+# installation, snmpd config) directly via SSH.
 #
 # Usage:
 #   scripts/install-remote.sh [OPTIONS] user@host
@@ -136,9 +136,11 @@ copy_to_remote() {
     tmp=$(run_ssh "mktemp -d /tmp/smartmon-deploy.XXXXXX")
 
     if command -v rsync &>/dev/null; then
-        rsync -az -e "ssh ${SSH_OPTS[*]}" "${files[@]}" "$REMOTE:$tmp/"
+        rsync -az -e "ssh ${SSH_OPTS[*]}" "${files[@]}" "$REMOTE:$tmp/" \
+            || { run_ssh "rm -rf '$tmp'" 2>/dev/null || true; return 1; }
     else
-        scp "${SSH_OPTS[@]/#-p/-P}" "${files[@]}" "$REMOTE:$tmp/"
+        scp "${SSH_OPTS[@]/#-p/-P}" "${files[@]}" "$REMOTE:$tmp/" \
+            || { run_ssh "rm -rf '$tmp'" 2>/dev/null || true; return 1; }
     fi
 
     # Move from the writable temp dir into the final destination as root
@@ -181,8 +183,6 @@ SERVICE_FILES=("$AGENTXD_SRC/smartmon-snmp-agentxd.service.in")
 )
 
 MIB_FILES=("$REPO_ROOT"/doc/SMARTMON-*.mib)
-
-CONF_TEMPLATE="$REPO_ROOT/src/snmp-agentxd/smartmon-snmp-agentxd.conf.example"
 
 echo "=== Remote deployment: smartmon-snmp-agentxd ==="
 echo "  target       : $REMOTE"

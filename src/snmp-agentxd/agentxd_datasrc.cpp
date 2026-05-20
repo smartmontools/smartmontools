@@ -1469,6 +1469,10 @@ void agentxd_datasrc_check_staleness(unsigned cache_timeout) {
     }
 }
 
+void agentxd_datasrc_load_file(const std::string &filepath) {
+    process_json_file(filepath);
+}
+
 void agentxd_datasrc_shutdown() {
     if (s_watch_wd >= 0 && s_inotify_fd >= 0)
         inotify_rm_watch(s_inotify_fd, s_watch_wd);

@@ -18,3 +18,7 @@ int agentxd_datasrc_fd();
 void agentxd_datasrc_check_staleness(unsigned cache_timeout);
 
 void agentxd_datasrc_shutdown();
+
+// Load a single JSON state file directly into the cache.
+// Does not require agentxd_datasrc_init (no inotify). Useful for testing.
+void agentxd_datasrc_load_file(const std::string &filepath);

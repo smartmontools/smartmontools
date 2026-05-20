@@ -60,7 +60,9 @@ SNMPD_PID=""
 
 ENT="1.3.6.1.4.1.99999"
 COMMUNITY="public"
-HOST="127.0.0.1:10161"
+# Use a per-process port offset so parallel CI runs on the same host don't collide.
+SNMP_PORT=$((10161 + ($$ % 1000)))
+HOST="127.0.0.1:${SNMP_PORT}"
 WALK="snmpwalk -v2c -c $COMMUNITY -On $HOST"
 GET="snmpget -v2c -c $COMMUNITY -On $HOST"
 
@@ -172,7 +174,7 @@ cat > "$SNMPD_CONF" <<EOF
 master agentx
 agentxsocket $AGENTX_SOCKET
 rocommunity public 127.0.0.1
-agentAddress udp:127.0.0.1:10161
+agentAddress udp:127.0.0.1:${SNMP_PORT}
 EOF
 
 # ---------------------------------------------------------------------------
@@ -305,8 +307,8 @@ echo "--- value checks ---"
 echo ""
 echo "  [Common MIB]"
 
-# deviceCount scalar
-check_oid_exact \
+# deviceCount scalar — use check_oid_val so the value pattern is treated as ERE
+check_oid_val \
     "common: deviceCount >= 3 (scalar)" \
     "$COM_OUT" \
     ".2.1.2.0" \
