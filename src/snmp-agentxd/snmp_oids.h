@@ -162,6 +162,33 @@ static const oid oid_sata_selftest_row_count[]     = { SMARTMON_ENT, 4, 1, 16 };
 static const oid oid_sata_selftest_last_change[]   = { SMARTMON_ENT, 4, 1, 17 };
 static const oid oid_sata_selftest_table[]         = { SMARTMON_ENT, 4, 1, 18 };
 
+static const oid oid_sata_erc_row_count[]          = { SMARTMON_ENT, 4, 1, 19 };
+static const oid oid_sata_erc_last_change[]        = { SMARTMON_ENT, 4, 1, 20 };
+static const oid oid_sata_erc_table[]              = { SMARTMON_ENT, 4, 1, 21 };
+
+static const oid oid_sata_phy_event_row_count[]    = { SMARTMON_ENT, 4, 1, 22 };
+static const oid oid_sata_phy_event_last_change[]  = { SMARTMON_ENT, 4, 1, 23 };
+static const oid oid_sata_phy_event_table[]        = { SMARTMON_ENT, 4, 1, 24 };
+
+static const oid oid_sata_selective_row_count[]    = { SMARTMON_ENT, 4, 1, 25 };
+static const oid oid_sata_selective_last_change[]  = { SMARTMON_ENT, 4, 1, 26 };
+static const oid oid_sata_selective_table[]        = { SMARTMON_ENT, 4, 1, 27 };
+static const oid oid_sata_selective_revision[]     = { SMARTMON_ENT, 4, 1, 28 };
+static const oid oid_sata_selective_flags[]        = { SMARTMON_ENT, 4, 1, 29 };
+static const oid oid_sata_selective_remainder_scan[]={ SMARTMON_ENT, 4, 1, 30 };
+static const oid oid_sata_selective_powerup_resume[]={ SMARTMON_ENT, 4, 1, 31 };
+
+static const oid oid_sata_logdir_row_count[]       = { SMARTMON_ENT, 4, 1, 32 };
+static const oid oid_sata_logdir_last_change[]     = { SMARTMON_ENT, 4, 1, 33 };
+static const oid oid_sata_logdir_table[]           = { SMARTMON_ENT, 4, 1, 34 };
+static const oid oid_sata_logdir_gp_version[]      = { SMARTMON_ENT, 4, 1, 35 };
+static const oid oid_sata_logdir_smart_version[]   = { SMARTMON_ENT, 4, 1, 36 };
+static const oid oid_sata_logdir_smart_multisector[]={ SMARTMON_ENT, 4, 1, 37 };
+
+static const oid oid_sata_devstat_row_count[]      = { SMARTMON_ENT, 4, 1, 38 };
+static const oid oid_sata_devstat_last_change[]    = { SMARTMON_ENT, 4, 1, 39 };
+static const oid oid_sata_devstat_table[]          = { SMARTMON_ENT, 4, 1, 40 };
+
 // SATA notifications
 static const oid oid_notif_sata_selftest_failed[]    = { SMARTMON_ENT, 4, 2, 1 };
 static const oid oid_notif_sata_health_degraded[]    = { SMARTMON_ENT, 4, 2, 2 };

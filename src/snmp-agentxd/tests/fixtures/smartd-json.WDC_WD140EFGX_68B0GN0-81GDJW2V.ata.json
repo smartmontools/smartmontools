@@ -19,10 +19,17 @@
   "temperature": {
     "current": 48,
     "lifetime_min": 39,
-    "lifetime_max": 53
+    "lifetime_max": 53,
+    "op_limit_min": 0,
+    "op_limit_max": 65
   },
   "ata_smart_error_log": {
     "summary": {
+      "count": 1
+    },
+    "extended": {
+      "revision": 1,
+      "sectors": 1,
       "count": 1
     }
   },
@@ -407,5 +414,348 @@
         }
       }
     ]
+  },
+  "ata_smart_data": {
+    "offline_data_collection": {
+      "status": {
+        "value": 132,
+        "string": "Interrupted (device reset?) in offline data collection activity"
+      },
+      "completion_seconds": 17700
+    },
+    "self_test": {
+      "status": {
+        "value": 0,
+        "string": "No self-test has been run"
+      },
+      "polling_minutes": {
+        "short": 2,
+        "extended": 255,
+        "conveyance": 0
+      }
+    },
+    "capabilities": {
+      "exec_offline_immediate_supported": true,
+      "offline_is_aborted_upon_new_cmd": false,
+      "offline_surface_scan_supported": true,
+      "self_tests_supported": true,
+      "conveyance_self_test_supported": false,
+      "selective_self_test_supported": true,
+      "attribute_autosave_enabled": true,
+      "error_logging_supported": true,
+      "gp_logging_supported": true
+    }
+  },
+  "ata_sct_capabilities": {
+    "error_recovery_control_supported": true,
+    "feature_control_supported": true,
+    "data_table_supported": true
+  },
+  "power_on_time": {
+    "hours": 43450
+  },
+  "power_cycle_count": 57,
+  "spare_available": {
+    "current_percent": 100,
+    "threshold_percent": 1
+  },
+  "ata_pending_defects_log": {
+    "size": 176031,
+    "count": 0
+  },
+  "ata_smart_self_test_log": {
+    "extended": {
+      "revision": 1,
+      "sectors": 1,
+      "count": 19,
+      "error_count_total": 0,
+      "error_count_outdated": 0,
+      "table": []
+    }
+  },
+  "ata_sct_erc": {
+    "read": {
+      "enabled": true,
+      "deciseconds": 70
+    },
+    "write": {
+      "enabled": true,
+      "deciseconds": 70
+    }
+  },
+  "sata_phy_event_counters": {
+    "table": [
+      {
+        "id": 1,
+        "name": "Command failed due to ICRC error",
+        "size": 2,
+        "value": 0,
+        "overflow": false
+      },
+      {
+        "id": 2,
+        "name": "R_ERR response for data FIS",
+        "size": 2,
+        "value": 0,
+        "overflow": false
+      },
+      {
+        "id": 3,
+        "name": "R_ERR response for device-to-host data FIS",
+        "size": 2,
+        "value": 0,
+        "overflow": false
+      },
+      {
+        "id": 4,
+        "name": "R_ERR response for host-to-device data FIS",
+        "size": 2,
+        "value": 0,
+        "overflow": false
+      },
+      {
+        "id": 5,
+        "name": "R_ERR response for non-data FIS",
+        "size": 2,
+        "value": 0,
+        "overflow": false
+      },
+      {
+        "id": 6,
+        "name": "R_ERR response for device-to-host non-data FIS",
+        "size": 2,
+        "value": 0,
+        "overflow": false
+      },
+      {
+        "id": 7,
+        "name": "R_ERR response for host-to-device non-data FIS",
+        "size": 2,
+        "value": 0,
+        "overflow": false
+      },
+      {
+        "id": 8,
+        "name": "Device-to-host non-data FIS retries",
+        "size": 2,
+        "value": 0,
+        "overflow": false
+      },
+      {
+        "id": 9,
+        "name": "Transitions from drive PhyRdy to drive PhyNRdy",
+        "size": 2,
+        "value": 0,
+        "overflow": false
+      },
+      {
+        "id": 10,
+        "name": "Device-to-host register FISes sent due to a COMRESET",
+        "size": 2,
+        "value": 0,
+        "overflow": false
+      },
+      {
+        "id": 11,
+        "name": "CRC errors within host-to-device FIS",
+        "size": 2,
+        "value": 0,
+        "overflow": false
+      },
+      {
+        "id": 13,
+        "name": "Host-to-device non-data FIS retries",
+        "size": 2,
+        "value": 0,
+        "overflow": false
+      }
+    ]
+  },
+  "ata_smart_selective_self_test_log": {
+    "revision": 1,
+    "table": [
+      {
+        "lba_min": 0,
+        "lba_max": 0,
+        "status": {
+          "value": 0,
+          "string": "Not_testing"
+        }
+      },
+      {
+        "lba_min": 0,
+        "lba_max": 0,
+        "status": {
+          "value": 0,
+          "string": "Not_testing"
+        }
+      },
+      {
+        "lba_min": 0,
+        "lba_max": 0,
+        "status": {
+          "value": 0,
+          "string": "Not_testing"
+        }
+      },
+      {
+        "lba_min": 0,
+        "lba_max": 0,
+        "status": {
+          "value": 0,
+          "string": "Not_testing"
+        }
+      },
+      {
+        "lba_min": 0,
+        "lba_max": 0,
+        "status": {
+          "value": 0,
+          "string": "Not_testing"
+        }
+      }
+    ],
+    "flags": {
+      "value": 0,
+      "remainder_scan_enabled": false
+    },
+    "power_up_scan_resume_minutes": 0
+  },
+  "ata_log_directory": {
+    "gp_dir_version": 1,
+    "smart_dir_version": 1,
+    "smart_dir_multi_sector": false,
+    "table": [
+      {
+        "address": 0,
+        "name": "Log Directory",
+        "read": true,
+        "write": false,
+        "gp_sectors": 1,
+        "smart_sectors": 1
+      },
+      {
+        "address": 1,
+        "name": "Summary SMART error log",
+        "read": true,
+        "write": false,
+        "smart_sectors": 1
+      },
+      {
+        "address": 4,
+        "name": "Device Statistics log",
+        "read": true,
+        "write": false,
+        "gp_sectors": 1
+      },
+      {
+        "address": 17,
+        "name": "Selective self-test log",
+        "read": true,
+        "write": true,
+        "smart_sectors": 1
+      }
+    ]
+  },
+  "ata_device_statistics": {
+    "pages": [
+      {
+        "number": 1,
+        "name": "General Statistics",
+        "table": [
+          {
+            "offset": 8,
+            "name": "Lifetime Power-On Resets",
+            "size": 4,
+            "value": 57,
+            "flags": {
+              "value": 192,
+              "valid": true,
+              "normalized": false
+            }
+          },
+          {
+            "offset": 16,
+            "name": "Power-on Hours",
+            "size": 4,
+            "value": 43450,
+            "flags": {
+              "value": 192,
+              "valid": true,
+              "normalized": false
+            }
+          },
+          {
+            "offset": 24,
+            "name": "Logical Sectors Written",
+            "size": 4,
+            "value": 12345678,
+            "flags": {
+              "value": 192,
+              "valid": true,
+              "normalized": false
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "ata_apm": {
+    "enabled": true,
+    "level": 254,
+    "string": "maximum performance"
+  },
+  "ata_version": {
+    "string": "ACS-2",
+    "major_value": 1020,
+    "minor_value": 41
+  },
+  "interface_speed": {
+    "max": {
+      "sata_value": 14,
+      "string": "6.0 Gb/s",
+      "units_per_second": 60,
+      "bits_per_unit": 100000000
+    },
+    "current": {
+      "sata_value": 3,
+      "string": "6.0 Gb/s",
+      "units_per_second": 60,
+      "bits_per_unit": 100000000
+    }
+  },
+  "read_lookahead": {
+    "enabled": true
+  },
+  "ata_security": {
+    "state": 1,
+    "string": "Disabled, NOT FROZEN [SEC1]",
+    "enabled": false,
+    "frozen": false
+  },
+  "write_cache": {
+    "enabled": true
+  },
+  "user_capacity": {
+    "blocks": 27344764928,
+    "bytes": 14000519643136
+  },
+  "model_name": "WDC WD140EFGX-68B0GN0",
+  "model_family": "Western Digital Gold",
+  "serial_number": "81GDJW2V",
+  "firmware_version": "85.00A85",
+  "logical_block_size": 512,
+  "physical_block_size": 4096,
+  "rotation_rate": 7200,
+  "form_factor": {
+    "name": "3.5 inches"
+  },
+  "in_smartctl_database": true,
+  "smart_support": {
+    "available": true,
+    "enabled": true
+  },
+  "trim": {
+    "supported": false
   }
 }

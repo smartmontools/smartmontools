@@ -320,6 +320,20 @@ struct CacheSataInfoRow {
     bool        smart_available  { false };
     bool        smart_enabled    { false };
     bool        trim_supported   { false };
+    uint64_t    user_capacity_blocks { 0 };   // col 30
+    bool        apm_enabled      { false };   // col 18
+    uint32_t    apm_level        { 0 };       // col 19
+    std::string apm_string;                   // col 20
+    uint32_t    ata_version_major { 0 };      // col 21
+    uint32_t    ata_version_minor { 0 };      // col 22
+    uint32_t    if_speed_current_mbps { 0 };  // col 23
+    uint32_t    if_speed_max_mbps     { 0 };  // col 24
+    bool        read_lookahead_enabled { false }; // col 25
+    bool        security_enabled { false };   // col 26
+    bool        security_frozen  { false };   // col 27
+    uint32_t    security_state   { 0 };       // col 28
+    std::string security_string;              // col 29
+    bool        write_cache_enabled { false }; // col 31
 };
 
 // --------------------------------------------------------------------
@@ -348,6 +362,32 @@ struct CacheSataHealthRow {
     uint64_t    power_cycles      { 0 };
     uint64_t    power_on_hours    { 0 };
     uint32_t    error_log_count   { 0 };
+    // sub-OIDs 23–26 (previously missing)
+    bool        cap_exec_offline_immediate { false };
+    bool        cap_offline_aborted_on_cmd { false };
+    bool        cap_offline_surface_scan   { false };
+    bool        cap_attr_autosave          { false };
+    // sub-OIDs 27–37
+    uint32_t    pending_defects_size       { 0 };
+    uint32_t    pending_defects_count      { 0 };
+    uint32_t    spare_available_pct        { 0 };
+    uint32_t    spare_available_thresh_pct { 0 };
+    uint32_t    error_log_revision         { 0 };
+    uint32_t    error_log_sectors          { 0 };
+    uint32_t    selftest_log_revision      { 0 };
+    uint32_t    selftest_log_sectors       { 0 };
+    uint32_t    selftest_log_count         { 0 };
+    uint32_t    selftest_log_err_total     { 0 };
+    uint32_t    selftest_log_err_outdated  { 0 };
+    // selective self-test log scalars (for OIDs 28–31)
+    uint32_t    selective_log_revision     { 0 };
+    uint32_t    selective_flags_value      { 0 };
+    bool        selective_remainder_scan   { false };
+    uint32_t    selective_powerup_resume_min { 0 };
+    // log directory scalars (for OIDs 35–37)
+    uint32_t    logdir_gp_version          { 0 };
+    uint32_t    logdir_smart_version       { 0 };
+    bool        logdir_smart_multisector   { false };
 };
 
 // --------------------------------------------------------------------
@@ -368,6 +408,102 @@ struct CacheSataErrorLogRow {
     uint32_t    reg_feature     { 0 };
     uint32_t    state_value     { 0 };
     std::string state_string;
+};
+
+// --------------------------------------------------------------------
+// SATA SCT ERC row (smartmonSataErcTable)
+// INDEX { smartmonDeviceIndex, smartmonSataErcIndex }
+// col 1  = ercIndex (NOT-ACCESSIBLE)
+// col 2  = direction ("read" / "write")
+// col 3  = enabled (TruthValue)
+// col 4  = deciseconds
+// --------------------------------------------------------------------
+struct CacheSataErcRow {
+    uint32_t    device_index { 0 };
+    uint32_t    erc_index    { 0 };  // 1=read, 2=write
+    std::string direction;
+    bool        enabled      { false };
+    uint32_t    deciseconds  { 0 };
+};
+
+// --------------------------------------------------------------------
+// SATA PHY event counter row (smartmonSataPhyEventTable)
+// INDEX { smartmonDeviceIndex, smartmonSataPhyEventId }
+// col 1  = phyEventId (NOT-ACCESSIBLE)
+// col 2  = phyEventName
+// col 3  = phyEventSize
+// col 4  = phyEventValue (Counter64)
+// col 5  = phyEventOverflow (TruthValue)
+// --------------------------------------------------------------------
+struct CacheSataPhyEventRow {
+    uint32_t    device_index { 0 };
+    uint32_t    id           { 0 };
+    std::string name;
+    uint32_t    size         { 0 };
+    uint64_t    value        { 0 };
+    bool        overflow     { false };
+};
+
+// --------------------------------------------------------------------
+// SATA selective self-test row (smartmonSataSelectiveTable)
+// INDEX { smartmonDeviceIndex, smartmonSataSelectiveSlot }
+// col 1  = slot (NOT-ACCESSIBLE)
+// col 2  = lbaMin (Counter64)
+// col 3  = lbaMax (Counter64)
+// col 4  = statusValue
+// col 5  = statusString
+// --------------------------------------------------------------------
+struct CacheSataSelectiveTestRow {
+    uint32_t    device_index { 0 };
+    uint32_t    slot         { 0 };  // 1..5
+    uint64_t    lba_min      { 0 };
+    uint64_t    lba_max      { 0 };
+    uint32_t    status_value { 0 };
+    std::string status_string;
+};
+
+// --------------------------------------------------------------------
+// SATA log directory row (smartmonSataLogDirTable)
+// INDEX { smartmonDeviceIndex, smartmonSataLogDirAddress }
+// col 1  = address (NOT-ACCESSIBLE)
+// col 2  = name
+// col 3  = readable (TruthValue)
+// col 4  = writable (TruthValue)
+// col 5  = gpSectors
+// col 6  = smartSectors
+// --------------------------------------------------------------------
+struct CacheSataLogDirRow {
+    uint32_t    device_index  { 0 };
+    uint32_t    address       { 0 };
+    std::string name;
+    bool        readable      { false };
+    bool        writable      { false };
+    uint32_t    gp_sectors    { 0 };
+    uint32_t    smart_sectors { 0 };
+};
+
+// --------------------------------------------------------------------
+// SATA device statistics row (smartmonSataDevStatTable)
+// INDEX { smartmonDeviceIndex, smartmonSataDevStatPageNum, smartmonSataDevStatOffset }
+// col 1  = pageNum (NOT-ACCESSIBLE)
+// col 2  = offset  (NOT-ACCESSIBLE)
+// col 3  = pageName
+// col 4  = name
+// col 5  = value (Counter64)
+// col 6  = flagsValue
+// col 7  = valid (TruthValue)
+// col 8  = normalized (TruthValue)
+// --------------------------------------------------------------------
+struct CacheSataDevStatRow {
+    uint32_t    device_index { 0 };
+    uint32_t    page_num     { 0 };
+    uint32_t    offset       { 0 };
+    std::string page_name;
+    std::string name;
+    uint64_t    value        { 0 };
+    uint32_t    flags_value  { 0 };
+    bool        valid        { false };
+    bool        normalized   { false };
 };
 
 // --------------------------------------------------------------------
@@ -483,6 +619,11 @@ struct AgentxCache {
     std::vector<CacheSataHealthRow>      sata_health;
     std::vector<CacheSataErrorLogRow>    sata_error_log;
     std::vector<CacheSataErrorCmdRow>    sata_error_cmds;
+    std::vector<CacheSataErcRow>         sata_erc;
+    std::vector<CacheSataPhyEventRow>    sata_phy_events;
+    std::vector<CacheSataSelectiveTestRow> sata_selective_tests;
+    std::vector<CacheSataLogDirRow>      sata_log_dir;
+    std::vector<CacheSataDevStatRow>     sata_dev_stats;
     std::vector<CacheSasHealthRow>       sas_health;
     std::vector<CacheSasErrorCounterRow> sas_error_counters;
     std::vector<CacheSasSelfTestRow>     sas_selftests;
@@ -506,6 +647,11 @@ struct AgentxCache {
     time_t  ts_sata_error_log     { 0 };
     time_t  ts_sata_error_cmd     { 0 };
     time_t  ts_sata_selftest      { 0 };
+    time_t  ts_sata_erc           { 0 };
+    time_t  ts_sata_phy_event     { 0 };
+    time_t  ts_sata_selective_test{ 0 };
+    time_t  ts_sata_log_dir       { 0 };
+    time_t  ts_sata_dev_stat      { 0 };
     time_t  ts_sas_info           { 0 };
     time_t  ts_sas_health         { 0 };
     time_t  ts_sas_error_counter  { 0 };

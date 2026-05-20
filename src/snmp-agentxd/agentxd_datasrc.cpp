@@ -845,58 +845,107 @@ static void parse_ata(uint32_t dev_idx, const JVal &root) {
             sr.timestamp     = time(nullptr);
             {
                 uint32_t rrate = static_cast<uint32_t>(root["rotation_rate"].as_uint64());
-                if (rrate > 1) {
-                    // Rotating HDD: rotation_rate >1 means actual RPM (ATA spec: 1 = SSD/non-rotating).
-                    // Thresholds are conservative defaults; HDDs do not expose manufacturer limits via
-                    // the ATA temperature object used for SSDs below.  A future improvement would be
-                    // to pull limits from the smartctl drive database, a per-device local config, or
-                    // expose them as writable MIB objects so operators can tune them.
+                bool is_hdd = (rrate > 1); // rotation_rate >1 means actual RPM; 0/1 = SSD/non-rotating.
+                if (is_hdd) {
+                    // Harddisk drive
                     sr.has_high_warning  = true;  sr.high_warning  = 45;
                     sr.has_high_critical = true;  sr.high_critical = 60;
                     sr.has_low_warning   = true;  sr.low_warning   = 5;
                     sr.has_low_critical  = true;  sr.low_critical  = 1;
-                    if (g_verbosity >= 2)
-                        syslog(LOG_DEBUG, "datasrc: ATA dev_idx=%u: HDD thresholds applied (rrate=%u)", dev_idx, rrate);
                 } else {
-                    // SSD: use manufacturer thresholds from JSON temperature object
-                    const JVal &tmp = root["temperature"];
-                    if (tmp.is_null()) {
-                        if (g_verbosity >= 2)
-                            syslog(LOG_DEBUG, "datasrc: ATA dev_idx=%u: SSD, temperature object absent — no thresholds", dev_idx);
-                    } else {
-                        const JVal &op_max = tmp["op_limit_max"];
-                        if (!op_max.is_null()) {
-                            sr.has_high_warning = true;
-                            sr.high_warning     = static_cast<int32_t>(op_max.as_int64());
-                        }
-                        const JVal &lim_max = tmp["limit_max"];
-                        if (!lim_max.is_null()) {
-                            sr.has_high_critical = true;
-                            sr.high_critical     = static_cast<int32_t>(lim_max.as_int64());
-                        }
-                        const JVal &op_min = tmp["op_limit_min"];
-                        if (!op_min.is_null()) {
-                            sr.has_low_warning = true;
-                            sr.low_warning     = static_cast<int32_t>(op_min.as_int64());
-                        }
-                        const JVal &lim_min = tmp["limit_min"];
-                        if (!lim_min.is_null()) {
-                            sr.has_low_critical = true;
-                            sr.low_critical     = static_cast<int32_t>(lim_min.as_int64());
-                        }
-                        if (g_verbosity >= 2)
-                            syslog(LOG_DEBUG, "datasrc: ATA dev_idx=%u: SSD thresholds: hi_warn=%s(%d) hi_crit=%s(%d) lo_warn=%s(%d) lo_crit=%s(%d)",
-                                   dev_idx,
-                                   sr.has_high_warning  ? "yes" : "no", sr.high_warning,
-                                   sr.has_high_critical ? "yes" : "no", sr.high_critical,
-                                   sr.has_low_warning   ? "yes" : "no", sr.low_warning,
-                                   sr.has_low_critical  ? "yes" : "no", sr.low_critical);
+                    // Solidstate drive
+                    sr.has_high_warning  = true;  sr.high_warning  = 60;
+                    sr.has_high_critical = true;  sr.high_critical = 70;
+                    sr.has_low_warning   = true;  sr.low_warning   = 5;
+                    sr.has_low_critical  = true;  sr.low_critical  = 1;
+                }
+
+                const JVal &tmp = root["temperature"];
+                bool got_max = false, got_min = false;
+                if (!tmp.is_null()) {
+                    const JVal &op_max = tmp["op_limit_max"];
+                    if (!op_max.is_null()) {
+                        sr.has_high_critical = true;
+                        sr.high_critical     = static_cast<int32_t>(op_max.as_int64());
+                        got_max = true;
+                    }
+                    const JVal &op_min = tmp["op_limit_min"];
+                    if (!op_min.is_null()) {
+                        sr.has_low_critical = true;
+                        sr.low_critical     = static_cast<int32_t>(op_min.as_int64());
+                        got_min = true;
                     }
                 }
+
+                if (g_verbosity >= 2)
+                    syslog(LOG_DEBUG, "datasrc: ATA dev_idx=%u: %s thresholds hi_warn=%d hi_crit=%d low_warn=%d low_crit=%d (op_limit_max=%s op_limit_min=%s)",
+                           dev_idx, is_hdd ? "HDD" : "SSD", sr.high_warning, sr.high_critical,
+                           sr.low_warning, sr.low_critical, got_max ? "yes" : "no", got_min ? "yes" : "no");
             }
             if (g_verbosity >= 2)
                 syslog(LOG_DEBUG, "datasrc: ATA dev_idx=%u: sensor[1] Temperature value=%d°C → pushed to cache (total sensors=%zu)",
                        dev_idx, sr.value, g_cache.sensors.size() + 1);
+            g_cache.sensors.push_back(sr);
+        }
+    }
+
+    // Sensor 2 (redundant — attr 194/190 already covers temperature.current; kept for sensor MIB reference):
+    // source: temperature.current, high_critical=op_limit_max, low_critical=op_limit_min
+    // (fallback to current if a limit is absent)
+    //
+    // {
+    //     const JVal &tmp = root["temperature"];
+    //     if (!tmp.is_null() && !tmp["current"].is_null()) {
+    //         time_t now = time(nullptr);
+    //         CacheSensorRow sr;
+    //         sr.device_index  = dev_idx;
+    //         sr.sensor_index  = 2;
+    //         sr.type          = 3;   // celsius
+    //         sr.name          = "Temperature";
+    //         sr.source        = "temperature.current";
+    //         sr.scale         = 9;
+    //         sr.precision     = 0;
+    //         sr.value         = static_cast<int32_t>(tmp["current"].as_int64());
+    //         sr.oper_status   = 1;
+    //         sr.units_display = "Celsius";
+    //         sr.timestamp     = now;
+    //         int32_t cur = sr.value;
+    //         const JVal &hi = tmp["op_limit_max"];
+    //         sr.has_high_critical = true;
+    //         sr.high_critical     = hi.is_null() ? cur : static_cast<int32_t>(hi.as_int64());
+    //         const JVal &lo = tmp["op_limit_min"];
+    //         sr.has_low_critical  = true;
+    //         sr.low_critical      = lo.is_null() ? cur : static_cast<int32_t>(lo.as_int64());
+    //         g_cache.sensors.push_back(sr);
+    //     }
+    // }
+
+    // Sensor 2 (renumbered from 3): spare_available.current_percent (low_critical = threshold_percent)
+    {
+        const JVal &spare = root["spare_available"];
+        if (!spare.is_null() && !spare["current_percent"].is_null()) {
+            time_t now = time(nullptr);
+            CacheSensorRow sr;
+            sr.device_index    = dev_idx;
+            sr.sensor_index    = 2;
+            sr.type            = 10;  // percent
+            sr.name            = "Spare Available";
+            sr.source          = "spare_available.current_percent";
+            sr.scale           = 9;
+            sr.precision       = 0;
+            sr.value           = static_cast<int32_t>(spare["current_percent"].as_uint64());
+            sr.oper_status     = 1;
+            sr.units_display   = "percent";
+            sr.timestamp       = now;
+            const JVal &thresh = spare["threshold_percent"];
+            if (!thresh.is_null()) {
+                sr.has_low_critical = true;
+                sr.low_critical     = static_cast<int32_t>(thresh.as_uint64());
+            }
+            if (g_verbosity >= 2)
+                syslog(LOG_DEBUG, "datasrc: ATA dev_idx=%u: sensor[2] SpareAvailable value=%d%% lo_crit=%s(%d)",
+                       dev_idx, sr.value,
+                       sr.has_low_critical ? "yes" : "no", sr.low_critical);
             g_cache.sensors.push_back(sr);
         }
     }
@@ -954,6 +1003,44 @@ static void parse_ata(uint32_t dev_idx, const JVal &root) {
         info.smart_available     = ss["available"].as_bool();
         info.smart_enabled       = ss["enabled"].as_bool();
         info.trim_supported      = root["trim"]["supported"].as_bool();
+        info.user_capacity_blocks = root["user_capacity"]["blocks"].as_uint64();
+        {
+            const JVal &apm = root["ata_apm"];
+            if (!apm.is_null()) {
+                info.apm_enabled = apm["enabled"].as_bool();
+                info.apm_level   = static_cast<uint32_t>(apm["level"].as_uint64());
+                info.apm_string  = apm["string"].as_string();
+            }
+        }
+        {
+            const JVal &av = root["ata_version"];
+            info.ata_version_major = static_cast<uint32_t>(av["major_value"].as_uint64());
+            info.ata_version_minor = static_cast<uint32_t>(av["minor_value"].as_uint64());
+        }
+        {
+            const JVal &spd = root["interface_speed"];
+            if (!spd.is_null()) {
+                const JVal &cur = spd["current"];
+                if (!cur.is_null())
+                    info.if_speed_current_mbps = static_cast<uint32_t>(
+                        cur["bits_per_unit"].as_uint64() * cur["units_per_second"].as_uint64() / 1000000ULL);
+                const JVal &mx = spd["max"];
+                if (!mx.is_null())
+                    info.if_speed_max_mbps = static_cast<uint32_t>(
+                        mx["bits_per_unit"].as_uint64() * mx["units_per_second"].as_uint64() / 1000000ULL);
+            }
+        }
+        info.read_lookahead_enabled = root["read_lookahead"]["enabled"].as_bool();
+        {
+            const JVal &sec = root["ata_security"];
+            if (!sec.is_null()) {
+                info.security_enabled = sec["enabled"].as_bool();
+                info.security_frozen  = sec["frozen"].as_bool();
+                info.security_state   = static_cast<uint32_t>(sec["state"].as_uint64());
+                info.security_string  = sec["string"].as_string();
+            }
+        }
+        info.write_cache_enabled = root["write_cache"]["enabled"].as_bool();
         if (!info.model_name.empty() || info.logical_block_size > 0)
             g_cache.sata_info.push_back(info);
     }
@@ -976,12 +1063,16 @@ static void parse_ata(uint32_t dev_idx, const JVal &root) {
             h.polling_ext_min           = static_cast<uint32_t>(st["polling_minutes"]["extended"].as_uint64());
             h.polling_conv_min          = static_cast<uint32_t>(st["polling_minutes"]["conveyance"].as_uint64());
             const JVal &cap = smart["capabilities"];
-            h.cap_auto_offline          = cap["attribute_autosave_enabled"].as_bool();
+            h.cap_auto_offline          = (odc["status"]["value"].as_uint64() & 0x80) != 0;
             h.cap_selftests             = cap["self_tests_supported"].as_bool();
             h.cap_conveyance            = cap["conveyance_self_test_supported"].as_bool();
             h.cap_selective             = cap["selective_self_test_supported"].as_bool();
             h.cap_error_logging         = cap["error_logging_supported"].as_bool();
             h.cap_gp_logging            = cap["gp_logging_supported"].as_bool();
+            h.cap_exec_offline_immediate = cap["exec_offline_immediate_supported"].as_bool();
+            h.cap_offline_aborted_on_cmd = cap["offline_is_aborted_upon_new_cmd"].as_bool();
+            h.cap_offline_surface_scan   = cap["offline_surface_scan_supported"].as_bool();
+            h.cap_attr_autosave          = cap["attribute_autosave_enabled"].as_bool();
             const JVal &sct = root["ata_sct_capabilities"];
             h.sct_error_recovery        = sct["error_recovery_control_supported"].as_bool();
             h.sct_feature_control       = sct["feature_control_supported"].as_bool();
@@ -990,7 +1081,140 @@ static void parse_ata(uint32_t dev_idx, const JVal &root) {
             h.power_on_hours            = root["power_on_time"]["hours"].as_uint64();
             h.error_log_count           = static_cast<uint32_t>(
                 root["ata_smart_error_log"]["extended"]["count"].as_uint64());
+
+            // sub-OIDs 27–37: new health fields
+            h.pending_defects_size  = static_cast<uint32_t>(root["ata_pending_defects_log"]["size"].as_uint64());
+            h.pending_defects_count = static_cast<uint32_t>(root["ata_pending_defects_log"]["count"].as_uint64());
+            h.spare_available_pct        = static_cast<uint32_t>(root["spare_available"]["current_percent"].as_uint64());
+            h.spare_available_thresh_pct = static_cast<uint32_t>(root["spare_available"]["threshold_percent"].as_uint64());
+            h.error_log_revision = static_cast<uint32_t>(root["ata_smart_error_log"]["extended"]["revision"].as_uint64());
+            h.error_log_sectors  = static_cast<uint32_t>(root["ata_smart_error_log"]["extended"]["sectors"].as_uint64());
+            {
+                const JVal &stl = root["ata_smart_self_test_log"]["extended"];
+                h.selftest_log_revision    = static_cast<uint32_t>(stl["revision"].as_uint64());
+                h.selftest_log_sectors     = static_cast<uint32_t>(stl["sectors"].as_uint64());
+                h.selftest_log_count       = static_cast<uint32_t>(stl["count"].as_uint64());
+                h.selftest_log_err_total   = static_cast<uint32_t>(stl["error_count_total"].as_uint64());
+                h.selftest_log_err_outdated= static_cast<uint32_t>(stl["error_count_outdated"].as_uint64());
+            }
+
+            // selective self-test log scalars
+            {
+                const JVal &ssl = root["ata_smart_selective_self_test_log"];
+                h.selective_log_revision       = static_cast<uint32_t>(ssl["revision"].as_uint64());
+                h.selective_flags_value        = static_cast<uint32_t>(ssl["flags"]["value"].as_uint64());
+                h.selective_remainder_scan     = ssl["flags"]["remainder_scan_enabled"].as_bool();
+                h.selective_powerup_resume_min = static_cast<uint32_t>(ssl["power_up_scan_resume_minutes"].as_uint64());
+            }
+
+            // log directory scalars
+            {
+                const JVal &ld = root["ata_log_directory"];
+                h.logdir_gp_version        = static_cast<uint32_t>(ld["gp_dir_version"].as_uint64());
+                h.logdir_smart_version     = static_cast<uint32_t>(ld["smart_dir_version"].as_uint64());
+                h.logdir_smart_multisector = ld["smart_dir_multi_sector"].as_bool();
+            }
+
             g_cache.sata_health.push_back(h);
+        }
+    }
+
+    // SATA SCT ERC table
+    {
+        struct { const char *key; uint32_t erc_idx; } erc_dirs[] = {{"read", 1u}, {"write", 2u}};
+        for (auto &d : erc_dirs) {
+            const JVal &e = root["ata_sct_erc"][d.key];
+            if (e.is_null()) continue;
+            CacheSataErcRow r;
+            r.device_index = dev_idx;
+            r.erc_index    = d.erc_idx;
+            r.direction    = d.key;
+            r.enabled      = e["enabled"].as_bool();
+            r.deciseconds  = static_cast<uint32_t>(e["deciseconds"].as_uint64());
+            g_cache.sata_erc.push_back(r);
+        }
+    }
+
+    // SATA PHY event counter table
+    {
+        const JVal &pec = root["sata_phy_event_counters"]["table"];
+        if (pec.is_array()) {
+            for (std::size_t i = 0; i < pec.size(); ++i) {
+                const JVal &entry = pec[i];
+                CacheSataPhyEventRow r;
+                r.device_index = dev_idx;
+                r.id           = static_cast<uint32_t>(entry["id"].as_uint64());
+                r.name         = entry["name"].as_string();
+                r.size         = static_cast<uint32_t>(entry["size"].as_uint64());
+                r.value        = entry["value"].as_uint64();
+                r.overflow     = entry["overflow"].as_bool();
+                g_cache.sata_phy_events.push_back(r);
+            }
+        }
+    }
+
+    // SATA selective self-test table
+    {
+        const JVal &ssl = root["ata_smart_selective_self_test_log"]["table"];
+        if (ssl.is_array()) {
+            for (std::size_t i = 0; i < ssl.size(); ++i) {
+                const JVal &entry = ssl[i];
+                CacheSataSelectiveTestRow r;
+                r.device_index  = dev_idx;
+                r.slot          = static_cast<uint32_t>(i + 1);
+                r.lba_min       = entry["lba_min"].as_uint64();
+                r.lba_max       = entry["lba_max"].as_uint64();
+                r.status_value  = static_cast<uint32_t>(entry["status"]["value"].as_uint64());
+                r.status_string = entry["status"]["string"].as_string();
+                g_cache.sata_selective_tests.push_back(r);
+            }
+        }
+    }
+
+    // SATA log directory table
+    {
+        const JVal &ld = root["ata_log_directory"]["table"];
+        if (ld.is_array()) {
+            for (std::size_t i = 0; i < ld.size(); ++i) {
+                const JVal &entry = ld[i];
+                CacheSataLogDirRow r;
+                r.device_index  = dev_idx;
+                r.address       = static_cast<uint32_t>(entry["address"].as_uint64());
+                r.name          = entry["name"].as_string();
+                r.readable      = entry["read"].as_bool();
+                r.writable      = entry["write"].as_bool();
+                r.gp_sectors    = static_cast<uint32_t>(entry["gp_sectors"].as_uint64());
+                r.smart_sectors = static_cast<uint32_t>(entry["smart_sectors"].as_uint64());
+                g_cache.sata_log_dir.push_back(r);
+            }
+        }
+    }
+
+    // SATA device statistics table
+    {
+        const JVal &pages = root["ata_device_statistics"]["pages"];
+        if (pages.is_array()) {
+            for (std::size_t i = 0; i < pages.size(); ++i) {
+                const JVal &page = pages[i];
+                std::string page_name = page["name"].as_string();
+                uint32_t    page_num  = static_cast<uint32_t>(page["number"].as_uint64());
+                const JVal &tbl = page["table"];
+                if (!tbl.is_array()) continue;
+                for (std::size_t j = 0; j < tbl.size(); ++j) {
+                    const JVal &entry = tbl[j];
+                    CacheSataDevStatRow r;
+                    r.device_index = dev_idx;
+                    r.page_num     = page_num;
+                    r.offset       = static_cast<uint32_t>(entry["offset"].as_uint64());
+                    r.page_name    = page_name;
+                    r.name         = entry["name"].as_string();
+                    r.value        = entry["value"].as_uint64();
+                    r.flags_value  = static_cast<uint32_t>(entry["flags"]["value"].as_uint64());
+                    r.valid        = entry["flags"]["valid"].as_bool();
+                    r.normalized   = entry["flags"]["normalized"].as_bool();
+                    g_cache.sata_dev_stats.push_back(r);
+                }
+            }
         }
     }
 
@@ -1049,14 +1273,19 @@ static void parse_ata(uint32_t dev_idx, const JVal &root) {
     // Update last-change timestamps
     {
         time_t now_ts = time(nullptr);
-        g_cache.ts_device_table   = now_ts;
-        g_cache.ts_sata_info      = now_ts;
-        g_cache.ts_sata_health    = now_ts;
-        g_cache.ts_sata_attr      = now_ts;
-        g_cache.ts_sata_error_log = now_ts;
-        g_cache.ts_sata_error_cmd = now_ts;
-        g_cache.ts_sata_selftest  = now_ts;
-        g_cache.ts_sensor         = now_ts;
+        g_cache.ts_device_table        = now_ts;
+        g_cache.ts_sata_info           = now_ts;
+        g_cache.ts_sata_health         = now_ts;
+        g_cache.ts_sata_attr           = now_ts;
+        g_cache.ts_sata_error_log      = now_ts;
+        g_cache.ts_sata_error_cmd      = now_ts;
+        g_cache.ts_sata_selftest       = now_ts;
+        g_cache.ts_sata_erc            = now_ts;
+        g_cache.ts_sata_phy_event      = now_ts;
+        g_cache.ts_sata_selective_test = now_ts;
+        g_cache.ts_sata_log_dir        = now_ts;
+        g_cache.ts_sata_dev_stat       = now_ts;
+        g_cache.ts_sensor              = now_ts;
     }
 }
 
