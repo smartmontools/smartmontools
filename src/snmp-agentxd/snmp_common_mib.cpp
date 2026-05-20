@@ -39,6 +39,7 @@ static void encode_date_time(time_t t, uint8_t out[8]) {
 #define COL_DEV_POLL_RESULT 6
 #define COL_DEV_EXIT_STATUS 7
 #define COL_DEV_PHYS_INDEX  8
+#define COL_DEV_URIS        9
 
 static netsnmp_variable_list *
 device_get_next(void **loop_ctx, void **data_ctx,
@@ -115,10 +116,60 @@ device_table_handler(netsnmp_mib_handler *,
                                      (u_char*)&v, sizeof(v));
             break;
         }
+        case COL_DEV_URIS:
+            snmp_set_var_typed_value(req->requestvb, ASN_OCTET_STR,
+                (u_char*)row->uris.c_str(), row->uris.size());
+            break;
         default:
             netsnmp_set_request_error(reqinfo, req, SNMP_NOSUCHOBJECT);
         }
     }
+    return SNMP_ERR_NOERROR;
+}
+
+// ---------------------------------------------------------------------------
+// Per-type count scalars
+// ---------------------------------------------------------------------------
+
+static int
+device_count_nvme_handler(netsnmp_mib_handler *,
+                           netsnmp_handler_registration *,
+                           netsnmp_agent_request_info *reqinfo,
+                           netsnmp_request_info *requests) {
+    if (reqinfo->mode != MODE_GET) return SNMP_ERR_NOERROR;
+    u_long count = 0;
+    for (const auto &d : g_cache.devices)
+        if (d.proto == PROTO_NVME) ++count;
+    snmp_set_var_typed_value(requests->requestvb, ASN_GAUGE,
+                             (u_char*)&count, sizeof(count));
+    return SNMP_ERR_NOERROR;
+}
+
+static int
+device_count_ata_handler(netsnmp_mib_handler *,
+                          netsnmp_handler_registration *,
+                          netsnmp_agent_request_info *reqinfo,
+                          netsnmp_request_info *requests) {
+    if (reqinfo->mode != MODE_GET) return SNMP_ERR_NOERROR;
+    u_long count = 0;
+    for (const auto &d : g_cache.devices)
+        if (d.proto == PROTO_ATA || d.proto == PROTO_SAT) ++count;
+    snmp_set_var_typed_value(requests->requestvb, ASN_GAUGE,
+                             (u_char*)&count, sizeof(count));
+    return SNMP_ERR_NOERROR;
+}
+
+static int
+device_count_sas_handler(netsnmp_mib_handler *,
+                          netsnmp_handler_registration *,
+                          netsnmp_agent_request_info *reqinfo,
+                          netsnmp_request_info *requests) {
+    if (reqinfo->mode != MODE_GET) return SNMP_ERR_NOERROR;
+    u_long count = 0;
+    for (const auto &d : g_cache.devices)
+        if (d.proto == PROTO_SCSI || d.proto == PROTO_SAS) ++count;
+    snmp_set_var_typed_value(requests->requestvb, ASN_GAUGE,
+                             (u_char*)&count, sizeof(count));
     return SNMP_ERR_NOERROR;
 }
 
@@ -179,6 +230,32 @@ void register_common_mib() {
         netsnmp_register_scalar(reg);
     }
 
+    // Per-type count scalars
+    {
+        netsnmp_handler_registration *reg =
+            netsnmp_create_handler_registration(
+                "smartmonDeviceCountNvme", device_count_nvme_handler,
+                oid_device_count_nvme, OID_LEN(oid_device_count_nvme),
+                HANDLER_CAN_RONLY);
+        netsnmp_register_scalar(reg);
+    }
+    {
+        netsnmp_handler_registration *reg =
+            netsnmp_create_handler_registration(
+                "smartmonDeviceCountAta", device_count_ata_handler,
+                oid_device_count_ata, OID_LEN(oid_device_count_ata),
+                HANDLER_CAN_RONLY);
+        netsnmp_register_scalar(reg);
+    }
+    {
+        netsnmp_handler_registration *reg =
+            netsnmp_create_handler_registration(
+                "smartmonDeviceCountSas", device_count_sas_handler,
+                oid_device_count_sas, OID_LEN(oid_device_count_sas),
+                HANDLER_CAN_RONLY);
+        netsnmp_register_scalar(reg);
+    }
+
     // Device table
     {
         netsnmp_handler_registration *reg =
@@ -191,7 +268,7 @@ void register_common_mib() {
             SNMP_MALLOC_TYPEDEF(netsnmp_table_registration_info);
         netsnmp_table_helper_add_indexes(tinfo, ASN_UNSIGNED, 0);
         tinfo->min_column = COL_DEV_NAME;
-        tinfo->max_column = COL_DEV_PHYS_INDEX;
+        tinfo->max_column = COL_DEV_URIS;
 
         netsnmp_iterator_info *iinfo =
             SNMP_MALLOC_TYPEDEF(netsnmp_iterator_info);

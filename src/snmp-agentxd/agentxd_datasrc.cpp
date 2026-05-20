@@ -6,7 +6,9 @@
 #include "agentxd_json.h"
 
 #include <algorithm>
+#include <cctype>
 #include <cerrno>
+#include <climits>
 #include <cstdio>
 #include <cstring>
 #include <ctime>
@@ -70,6 +72,159 @@ static std::string s_state_dir;
 static bool ends_with(const std::string &s, const std::string &suffix) {
     return s.size() >= suffix.size() &&
            s.compare(s.size() - suffix.size(), suffix.size(), suffix) == 0;
+}
+
+// ---------------------------------------------------------------------------
+// URI helpers for smartmonDeviceUris
+// ---------------------------------------------------------------------------
+
+// Return the resolved sysfs path for a device, or empty on failure.
+// NVMe controllers live under /sys/class/nvme/<name>;
+// block devices (ATA, SAS) have a /sys/block/<name>/device symlink.
+static std::string resolve_sysfs_device_path(const std::string &dev_name,
+                                              DeviceProto proto) {
+    std::string try_path = (proto == PROTO_NVME)
+        ? "/sys/class/nvme/" + dev_name
+        : "/sys/block/"      + dev_name + "/device";
+    char resolved[PATH_MAX];
+    if (realpath(try_path.c_str(), resolved) != nullptr)
+        return resolved;
+    return {};
+}
+
+// Resolve one level of symlink and normalise the path without requiring the
+// target to exist.  This is intentional: the agent runs with PrivateDevices=yes
+// so block device nodes (/dev/sda, /dev/nvme0n1, …) are absent from its /dev,
+// but the by-* symlink directories are bind-mounted read-only.  We only need
+// the path string to compare against dev_path — not the device itself.
+static std::string readlink_normalized(const std::string &link_path) {
+    char buf[PATH_MAX];
+    ssize_t len = readlink(link_path.c_str(), buf, sizeof(buf) - 1);
+    if (len < 0) return {};
+    buf[len] = '\0';
+
+    std::string target(buf);
+    if (target[0] != '/') {
+        // Relative — resolve against the directory containing the symlink
+        size_t slash = link_path.rfind('/');
+        std::string dir = (slash != std::string::npos)
+                          ? link_path.substr(0, slash) : ".";
+        target = dir + "/" + target;
+    }
+
+    // Collapse . and .. components
+    std::vector<std::string> parts;
+    size_t pos = 0;
+    while (pos < target.size()) {
+        size_t end = target.find('/', pos);
+        if (end == std::string::npos) end = target.size();
+        std::string seg = target.substr(pos, end - pos);
+        if (seg == "..") {
+            if (!parts.empty()) parts.pop_back();
+        } else if (!seg.empty() && seg != ".") {
+            parts.push_back(seg);
+        }
+        pos = end + 1;
+    }
+    std::string out = "/";
+    for (size_t i = 0; i < parts.size(); ++i) {
+        if (i) out += '/';
+        out += parts[i];
+    }
+    return out;
+}
+
+// Scan /dev/disk/by-id and /dev/disk/by-path; return space-separated
+// file:// URIs for every symlink whose resolved target matches dev_path.
+// For NVMe controllers (/dev/nvme0) also match namespace block devices
+// (/dev/nvme0n<N>) because disk/by-* links point to the namespace.
+static std::string collect_by_disk_uris(const std::string &dev_path,
+                                         const std::string &dev_name,
+                                         DeviceProto proto) {
+    static const char *by_dirs[] = {
+        "/dev/disk/by-id",
+        "/dev/disk/by-path",
+        nullptr
+    };
+    std::string result;
+    for (int i = 0; by_dirs[i]; ++i) {
+        DIR *d = opendir(by_dirs[i]);
+        if (!d) {
+            if (g_verbosity >= 2)
+                syslog(LOG_DEBUG, "uris: opendir(%s): %s",
+                       by_dirs[i], strerror(errno));
+            continue;
+        }
+        struct dirent *ent;
+        while ((ent = readdir(d)) != nullptr) {
+            if (ent->d_name[0] == '.') continue;
+            std::string link = std::string(by_dirs[i]) + "/" + ent->d_name;
+            std::string t = readlink_normalized(link);
+            if (t.empty()) continue;
+            bool match = (t == dev_path);
+            if (!match && proto == PROTO_NVME) {
+                // Match namespace block devices (nvme0n1, nvme0n2, …) but
+                // NOT partitions (nvme0n1p1, nvme0n1p2, …).
+                // Expected tail after dev_path: 'n' followed by one or more
+                // digits and nothing else.
+                if (t.size() > dev_path.size() &&
+                    t.compare(0, dev_path.size(), dev_path) == 0) {
+                    const char *tail = t.c_str() + dev_path.size();
+                    if (*tail == 'n') {
+                        ++tail;
+                        while (std::isdigit((unsigned char)*tail)) ++tail;
+                        if (*tail == '\0') match = true;
+                    }
+                }
+            }
+            if (g_verbosity >= 2)
+                syslog(LOG_DEBUG, "uris: %s: %s -> %s",
+                       match ? "match" : "skip", link.c_str(), t.c_str());
+            if (match) {
+                if (!result.empty()) result += ' ';
+                result += "file://" + link;
+            }
+        }
+        closedir(d);
+    }
+    (void)dev_name;
+    return result;
+}
+
+static void append_uri(std::string &uris, const std::string &path) {
+    if (!uris.empty()) uris += ' ';
+    uris += "file://" + path;
+}
+
+static void populate_device_uris(CacheDeviceRow &row, DeviceProto proto) {
+    std::string uris;
+    struct stat st;
+
+    // Device node (e.g. /dev/sda, /dev/nvme0).  Always present by definition
+    // even though it may not exist in the agent's private /dev namespace.
+    append_uri(uris, row.path);
+
+    // Stable sysfs block-device aliases — exist for block devices (ATA, SAS)
+    // but not for NVMe character devices (/dev/nvme0).
+    for (const char *prefix : { "/sys/block/", "/sys/class/block/" }) {
+        std::string p = std::string(prefix) + row.name;
+        if (lstat(p.c_str(), &st) == 0)
+            append_uri(uris, p);
+    }
+
+    // Canonical sysfs hardware path (resolves controller/port symlinks)
+    std::string sysfs = resolve_sysfs_device_path(row.name, proto);
+    if (!sysfs.empty())
+        append_uri(uris, sysfs);
+
+    // /dev/disk/by-id and /dev/disk/by-path stable symlinks
+    std::string by_uris = collect_by_disk_uris(row.path, row.name, proto);
+    if (!by_uris.empty()) {
+        if (!uris.empty()) uris += ' ';
+        uris += by_uris;
+    }
+
+    row.uris = std::move(uris);
 }
 
 // Extract the device path encoded in a smartd state filename.
@@ -1264,7 +1419,13 @@ static void process_json_file(const std::string &filepath) {
     // Update device row metadata
     for (auto &row : g_cache.devices) {
         if (row.index != dev_idx) continue;
-        row.name           = root["device_info"].as_string();
+        // Derive short name from last path component (e.g. "sda" from "/dev/sda")
+        {
+            const std::string &p = dev_path;
+            size_t slash = p.rfind('/');
+            row.name = (slash != std::string::npos) ? p.substr(slash + 1) : p;
+        }
+        populate_device_uris(row, proto);
         row.last_poll_time = root["local_time"]["time_t"].as_int64();
         row.last_json_mtime= mtime;
         row.poll_result    = POLL_OK;

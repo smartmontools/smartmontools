@@ -29,11 +29,17 @@ static const oid oid_smartmon_enterprise[] = { SMARTMON_ENT };
 // .2.1.1 = smartmonDeviceTableRowCount
 // .2.1.2 = smartmonDeviceTableLastChange
 // .2.1.3 = smartmonDeviceTable
+// .2.1.4 = smartmonDeviceCountNvme
+// .2.1.5 = smartmonDeviceCountAta
+// .2.1.6 = smartmonDeviceCountSas
 // .2.3.X = notifications
 
 static const oid oid_device_row_count[]      = { SMARTMON_ENT, 2, 1, 1 };
 static const oid oid_device_last_change[]    = { SMARTMON_ENT, 2, 1, 2 };
 static const oid oid_device_table[]          = { SMARTMON_ENT, 2, 1, 3 };
+static const oid oid_device_count_nvme[]     = { SMARTMON_ENT, 2, 1, 4 };
+static const oid oid_device_count_ata[]      = { SMARTMON_ENT, 2, 1, 5 };
+static const oid oid_device_count_sas[]      = { SMARTMON_ENT, 2, 1, 6 };
 
 // Notifications
 static const oid oid_notif_device_discovered[]      = { SMARTMON_ENT, 2, 3, 1 };
@@ -48,6 +54,7 @@ static const oid oid_device_type[]            = { SMARTMON_ENT, 2, 1, 3, 1, 4 };
 static const oid oid_device_last_poll_time[]  = { SMARTMON_ENT, 2, 1, 3, 1, 5 };
 static const oid oid_device_last_poll_result[]= { SMARTMON_ENT, 2, 1, 3, 1, 6 };
 static const oid oid_device_poll_exit_status[]= { SMARTMON_ENT, 2, 1, 3, 1, 7 };
+static const oid oid_device_uris[]            = { SMARTMON_ENT, 2, 1, 3, 1, 9 };
 
 // ---------------------------------------------------------------------------
 // NVMe MIB (.3.1.X)

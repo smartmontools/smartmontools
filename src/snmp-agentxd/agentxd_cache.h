@@ -39,6 +39,7 @@ struct CacheDeviceRow {
     time_t      last_poll_time  { 0 };
     PollResult  poll_result     { POLL_UNKNOWN };
     uint32_t    poll_exit_status { 0 };
+    std::string uris;             // space-separated URIs (empty if none)
     time_t      last_json_mtime { 0 };  // mtime of the JSON state file
 };
 

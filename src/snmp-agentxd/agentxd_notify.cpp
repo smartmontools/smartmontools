@@ -90,6 +90,8 @@ void notify_device_polling_failed(uint32_t dev_idx, int poll_result) {
         if (d.index == dev_idx) { dev = &d; break; }
 
     if (dev) {
+        append_string(&vars, oid_device_name, OID_LEN(oid_device_name),
+                      dev_idx, dev->name.c_str());
         append_string(&vars, oid_device_path, OID_LEN(oid_device_path),
                       dev_idx, dev->path.c_str());
     }

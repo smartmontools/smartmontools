@@ -9,7 +9,7 @@ Wants=smartmon-collect.timer
 
 [Service]
 Type=exec
-ExecStart=@sbindir@/smartmon-snmp-agentxd -f -c @sysconfdir@/smartmontools/snmp-agentxd.conf
+ExecStart=@sbindir@/smartmon-snmp-agentxd -f -c @sysconfdir@/smartmontools/snmp-agentxd.conf 
 Restart=on-failure
 RestartSec=10
 
@@ -41,6 +41,12 @@ ProtectSystem=strict
 ReadOnlyPaths=-/run/smartmontools/json
 # AgentX socket directory (snmpd creates the socket here)
 ReadWritePaths=/var/agentx /run/agentx
+# /dev/disk/by-id and /dev/disk/by-path are needed to populate
+# smartmonDeviceUris.  PrivateDevices=yes hides the real /dev, so we
+# bind-mount the by-* tree read-only into the private namespace.
+# The symlink targets (/dev/sda, /dev/nvme0n1, …) need not exist
+# inside the private /dev — we only read the symlinks, not the devices.
+BindReadOnlyPaths=-/dev/disk
 
 # Network: AgentX uses Unix sockets by default; also allow TCP/UDP in
 # case snmpd uses an agentxsocket tcp: address
