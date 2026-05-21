@@ -238,8 +238,8 @@ smartmonSataWwn OBJECT-TYPE
     MAX-ACCESS  read-only
     STATUS      current
     DESCRIPTION
-        "World Wide Name in NAA-OUI-ID textual form, if reported
-         (wwn.naa, wwn.oui, wwn.id)."
+        "World Wide Name as a 64-bit hex string (e.g. 0x5000c500a7f9a768),
+         matching the Linux /dev/disk/by-id/wwn-0x... symlink format."
     ::= { smartmonSataInfoEntry 5 }
 
 smartmonSataAtaVersion OBJECT-TYPE

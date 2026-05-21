@@ -306,11 +306,12 @@ static bool state_dir_has_json(const std::string &dir) {
 // ---------------------------------------------------------------------------
 
 static std::string format_wwn(const JVal &wwn) {
-    char buf[64];
-    snprintf(buf, sizeof(buf), "%llu %07llX %010llX",
-        (unsigned long long)wwn["naa"].as_uint64(),
-        (unsigned long long)wwn["oui"].as_uint64(),
-        (unsigned long long)wwn["id"].as_uint64());
+    char buf[32];
+    uint64_t naa = wwn["naa"].as_uint64();
+    uint64_t oui = wwn["oui"].as_uint64();
+    uint64_t id  = wwn["id"].as_uint64();
+    snprintf(buf, sizeof(buf), "0x%016llx",
+        (unsigned long long)((naa << 60) | (oui << 36) | id));
     return buf;
 }
 

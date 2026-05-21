@@ -141,7 +141,8 @@ smartmonSasWwn OBJECT-TYPE
     SYNTAX      DisplayString
     MAX-ACCESS  read-only
     STATUS      current
-    DESCRIPTION "World Wide Name in NAA-OUI-ID textual form, if reported."
+    DESCRIPTION "World Wide Name as a 64-bit hex string (e.g. 0x5000c500a7f9a768),
+                 matching the Linux /dev/disk/by-id/wwn-0x... symlink format."
     ::= { smartmonSasInfoEntry 6 }
 
 smartmonSasScsiModelName OBJECT-TYPE
