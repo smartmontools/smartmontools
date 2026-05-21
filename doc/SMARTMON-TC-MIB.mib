@@ -1,7 +1,7 @@
 SMARTMON-TC-MIB DEFINITIONS ::= BEGIN
 
 IMPORTS
-    MODULE-IDENTITY, Integer32, Unsigned32, OBJECT-TYPE, enterprises
+    MODULE-IDENTITY, Integer32, Unsigned32, Counter64, OBJECT-TYPE, enterprises
         FROM SNMPv2-SMI
     TEXTUAL-CONVENTION
         FROM SNMPv2-TC;
@@ -10,7 +10,7 @@ IMPORTS
 smartmonRoot OBJECT IDENTIFIER ::= { enterprises 9999 1 1 }
 
 smartmonTcMIB MODULE-IDENTITY
-    LAST-UPDATED "202605180000Z"
+    LAST-UPDATED "202605210000Z"
     ORGANIZATION "Unassigned"
     CONTACT-INFO
         "This is a draft MIB for smartmontools smartctl output.
@@ -18,6 +18,8 @@ smartmonTcMIB MODULE-IDENTITY
          TODO: Replace the placeholder enterprise OID before publication."
     DESCRIPTION
         "Textual conventions shared across all SMARTMON-*-MIB modules."
+    REVISION "202605210000Z"
+    DESCRIPTION "Added SmartmonAtaApmLevel. Added SmartmonLogicalBlockAddress."
     REVISION "202605180000Z"
     DESCRIPTION "Initial draft."
     ::= { smartmonRoot 1 }
@@ -277,6 +279,34 @@ SmartmonAtaVersion ::= TEXTUAL-CONVENTION
         acsAbove6(14)
     }
 
+SmartmonAtaApmLevel ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION
+        "ATA Advanced Power Management (APM) level (ata_apm.level).
+         Named values mark the boundary points of each band; all integers
+         within a band are valid and meaningful.
+
+         From hdparm(8): A low value means aggressive power management
+         and a high value means better performance.  Possible settings
+         range from values 1 through 127 (which permit spin-down), and
+         values 128 through 254 (which do not permit spin-down).  The
+         highest degree of power management is attained with a setting
+         of 1, and the highest I/O performance with a setting of 254.
+         A value of 255 tells hdparm to disable Advanced Power Management
+         altogether on the drive (not all drives support disabling it,
+         but most do).
+
+         Value 0 indicates APM is not reported by the drive."
+    SYNTAX INTEGER {
+        notReported(0),
+        minimumPower(1),
+        intermediateSpinDownLow(2),
+        intermediateSpinDownHigh(127),
+        intermediateNoSpinDownLow(128),
+        maximumPerformance(254),
+        apmDisabled(255)
+    }
+
 SmartmonScsiErrorDirection ::= TEXTUAL-CONVENTION
     STATUS      current
     DESCRIPTION
@@ -380,5 +410,16 @@ SmartmonSensorStatus ::= TEXTUAL-CONVENTION
         unavailable(2),
         nonoperational(3)
     }
+
+SmartmonLogicalBlockAddress ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "d"
+    STATUS      current
+    DESCRIPTION
+        "A 64-bit Logical Block Address (LBA) identifying a sector on a
+         storage device.  Counter64 is used as the base type because
+         SMIv2 provides no unsigned 64-bit integer; the counter
+         semantics do not apply.  A value of 0xFFFFFFFFFFFFFFFF may
+         indicate an unknown or invalid LBA depending on context."
+    SYNTAX Counter64
 
 END

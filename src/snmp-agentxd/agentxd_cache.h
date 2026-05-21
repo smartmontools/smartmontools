@@ -324,12 +324,14 @@ struct CacheSataInfoRow {
     uint32_t    if_speed_max_mbps     { 0 };  // col 21
     uint32_t    if_speed_current_mbps { 0 };  // col 22
     bool        apm_enabled      { false };   // col 23
-    uint32_t    apm_level        { 0 };       // col 24
+    uint32_t    apm_level        { 0 };       // col 24  (SmartmonAtaApmLevel)
+    std::string apm_string;                   // ata_apm.string (human-readable, not exposed via MIB)
     bool        read_lookahead_enabled { false }; // col 26
     bool        write_cache_enabled { false }; // col 27
     uint32_t    security_state   { 0 };       // col 28
     bool        security_enabled { false };   // col 30
     bool        security_frozen  { false };   // col 31
+    uint32_t    attr_revision    { 0 };       // col 32  ata_smart_attributes.revision
 };
 
 // --------------------------------------------------------------------
@@ -449,6 +451,19 @@ struct CacheSataSelectiveTestRow {
     uint64_t    lba_min      { 0 };
     uint64_t    lba_max      { 0 };
     uint32_t    status_value { 0 };
+    std::string status_string;
+};
+
+// --------------------------------------------------------------------
+// SATA pending defect row (smartmonSataPendingDefectsTable)
+// INDEX { smartmonDeviceIndex, smartmonSataPendingDefectsIndex }
+// col 1  = pendingDefectsIndex (NOT-ACCESSIBLE)
+// col 2  = pendingDefectsLba (CounterBasedGauge64)
+// --------------------------------------------------------------------
+struct CacheSataPendingDefectRow {
+    uint32_t    device_index { 0 };
+    uint32_t    entry_index  { 0 };  // 1-based
+    uint64_t    lba          { 0 };
 };
 
 // --------------------------------------------------------------------
@@ -610,7 +625,8 @@ struct AgentxCache {
     std::vector<CacheSataErrorCmdRow>    sata_error_cmds;
     std::vector<CacheSataErcRow>         sata_erc;
     std::vector<CacheSataPhyEventRow>    sata_phy_events;
-    std::vector<CacheSataSelectiveTestRow> sata_selective_tests;
+    std::vector<CacheSataSelectiveTestRow>    sata_selective_tests;
+    std::vector<CacheSataPendingDefectRow>    sata_pending_defects;
     std::vector<CacheSataLogDirRow>      sata_log_dir;
     std::vector<CacheSataDevStatRow>     sata_dev_stats;
     std::vector<CacheSasHealthRow>       sas_health;
@@ -638,8 +654,9 @@ struct AgentxCache {
     time_t  ts_sata_selftest      { 0 };
     time_t  ts_sata_erc           { 0 };
     time_t  ts_sata_phy_event     { 0 };
-    time_t  ts_sata_selective_test{ 0 };
-    time_t  ts_sata_log_dir       { 0 };
+    time_t  ts_sata_selective_test  { 0 };
+    time_t  ts_sata_pending_defects { 0 };
+    time_t  ts_sata_log_dir         { 0 };
     time_t  ts_sata_dev_stat      { 0 };
     time_t  ts_sas_info           { 0 };
     time_t  ts_sas_health         { 0 };

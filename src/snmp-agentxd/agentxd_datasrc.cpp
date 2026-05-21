@@ -1022,6 +1022,7 @@ static void parse_ata(uint32_t dev_idx, const JVal &root) {
             if (!apm.is_null()) {
                 info.apm_enabled = apm["enabled"].as_bool();
                 info.apm_level   = static_cast<uint32_t>(apm["level"].as_uint64());
+                info.apm_string  = apm["string"].as_string();
             }
         }
         {
@@ -1058,6 +1059,8 @@ static void parse_ata(uint32_t dev_idx, const JVal &root) {
             }
         }
         info.write_cache_enabled = root["write_cache"]["enabled"].as_bool();
+        info.attr_revision = static_cast<uint32_t>(
+            root["ata_smart_attributes"]["revision"].as_uint64());
         if (!info.model_name.empty() || info.logical_block_size > 0)
             g_cache.sata_info.push_back(info);
     }
@@ -1179,7 +1182,22 @@ static void parse_ata(uint32_t dev_idx, const JVal &root) {
                 r.lba_min       = entry["lba_min"].as_uint64();
                 r.lba_max       = entry["lba_max"].as_uint64();
                 r.status_value  = static_cast<uint32_t>(entry["status"]["value"].as_uint64());
+                r.status_string = entry["status"]["string"].as_string();
                 g_cache.sata_selective_tests.push_back(r);
+            }
+        }
+    }
+
+    // Pending defects LBA table
+    {
+        const JVal &pdl = root["ata_pending_defects_log"]["table"];
+        if (pdl.is_array()) {
+            for (std::size_t i = 0; i < pdl.size(); ++i) {
+                CacheSataPendingDefectRow r;
+                r.device_index = dev_idx;
+                r.entry_index  = static_cast<uint32_t>(i + 1);
+                r.lba          = pdl[i]["lba"].as_uint64();
+                g_cache.sata_pending_defects.push_back(r);
             }
         }
     }
@@ -1294,8 +1312,9 @@ static void parse_ata(uint32_t dev_idx, const JVal &root) {
         g_cache.ts_sata_selftest       = now_ts;
         g_cache.ts_sata_erc            = now_ts;
         g_cache.ts_sata_phy_event      = now_ts;
-        g_cache.ts_sata_selective_test = now_ts;
-        g_cache.ts_sata_log_dir        = now_ts;
+        g_cache.ts_sata_selective_test  = now_ts;
+        g_cache.ts_sata_pending_defects = now_ts;
+        g_cache.ts_sata_log_dir         = now_ts;
         g_cache.ts_sata_dev_stat       = now_ts;
         g_cache.ts_sensor              = now_ts;
     }

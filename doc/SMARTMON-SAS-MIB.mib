@@ -12,7 +12,7 @@ IMPORTS
         FROM SNMPv2-CONF
     SmartmonHealthStatus, SmartmonSasSelfTestType,
     SmartmonAtaSelfTestResult, SmartmonScsiErrorDirection,
-    smartmonRoot
+    SmartmonLogicalBlockAddress, smartmonRoot
         FROM SMARTMON-TC-MIB
     smartmonDeviceIndex, smartmonDeviceName, smartmonDevicePath,
     smartmonDeviceLastPollTime
@@ -451,7 +451,7 @@ SmartmonSasSelfTestEntry ::= SEQUENCE {
     smartmonSasSelfTestResultString  DisplayString,
     smartmonSasSelfTestResultPassed  TruthValue,
     smartmonSasSelfTestPowerOnHours  CounterBasedGauge64,
-    smartmonSasSelfTestLbaFirstError CounterBasedGauge64
+    smartmonSasSelfTestLbaFirstError SmartmonLogicalBlockAddress
 }
 
 smartmonSasSelfTestIndex OBJECT-TYPE
@@ -502,7 +502,7 @@ smartmonSasSelfTestPowerOnHours OBJECT-TYPE
     ::= { smartmonSasSelfTestEntry 7 }
 
 smartmonSasSelfTestLbaFirstError OBJECT-TYPE
-    SYNTAX      CounterBasedGauge64
+    SYNTAX      SmartmonLogicalBlockAddress
     MAX-ACCESS  read-only
     STATUS      current
     DESCRIPTION "LBA of the first error, if reported."

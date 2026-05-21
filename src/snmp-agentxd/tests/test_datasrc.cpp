@@ -286,6 +286,7 @@ static void test_sata_new_tables(const char *path) {
         CHECK(info.apm_enabled);
         CHECK_EQ(info.apm_level, 254u);
         CHECK_STR(info.apm_string, "maximum performance");
+        CHECK_EQ(info.attr_revision, 1u);
         CHECK_EQ(info.ata_version_major, 1020u);
         CHECK_EQ(info.ata_version_minor, 41u);
         CHECK_EQ(info.if_speed_current_mbps, 6000u);
@@ -334,6 +335,19 @@ static void test_sata_new_tables(const char *path) {
             break;
         }
         CHECK(found);
+    }
+
+    // Pending defects LBA table: 1 row, lba = 12345678901
+    {
+        size_t pd_count = 0;
+        bool found_lba = false;
+        for (const auto &r : g_cache.sata_pending_defects) {
+            if (r.device_index != idx) continue;
+            ++pd_count;
+            if (r.entry_index == 1) { found_lba = true; CHECK_EQ(r.lba, 12345678901ULL); }
+        }
+        CHECK_EQ(pd_count, 1u);
+        CHECK(found_lba);
     }
 
     // Health row: new fields

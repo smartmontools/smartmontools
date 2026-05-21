@@ -85,6 +85,7 @@ static uint8_t ata_flags_to_bits(uint8_t raw) {
 // col 28 = securityState
 // col 30 = securityEnabled (TruthValue)
 // col 31 = securityFrozen (TruthValue)
+// col 32 = attrRevision
 // ---------------------------------------------------------------------------
 
 static netsnmp_variable_list *
@@ -183,8 +184,8 @@ sata_info_handler(netsnmp_mib_handler *,
         case 23: { long v = row->apm_enabled ? 1 : 2;
                    snmp_set_var_typed_value(req->requestvb, ASN_INTEGER,
                        (u_char*)&v, sizeof(v)); break; }
-        case 24: { u_long v = row->apm_level;
-                   snmp_set_var_typed_value(req->requestvb, ASN_UNSIGNED,
+        case 24: { long v = (long)row->apm_level;
+                   snmp_set_var_typed_value(req->requestvb, ASN_INTEGER,
                        (u_char*)&v, sizeof(v)); break; }
         case 26: { long v = row->read_lookahead_enabled ? 1 : 2;
                    snmp_set_var_typed_value(req->requestvb, ASN_INTEGER,
@@ -200,6 +201,9 @@ sata_info_handler(netsnmp_mib_handler *,
                        (u_char*)&v, sizeof(v)); break; }
         case 31: { long v = row->security_frozen ? 1 : 2;
                    snmp_set_var_typed_value(req->requestvb, ASN_INTEGER,
+                       (u_char*)&v, sizeof(v)); break; }
+        case 32: { u_long v = row->attr_revision;
+                   snmp_set_var_typed_value(req->requestvb, ASN_UNSIGNED,
                        (u_char*)&v, sizeof(v)); break; }
         default: netsnmp_set_request_error(reqinfo, req, SNMP_NOSUCHOBJECT);
         }
@@ -1000,6 +1004,52 @@ sata_devstat_handler(netsnmp_mib_handler *,
 }
 
 // ---------------------------------------------------------------------------
+// SATA pending defects LBA table
+// INDEX { smartmonDeviceIndex, smartmonSataPendingDefectsIndex(col 1, NOT-ACCESSIBLE) }
+// col 1  = pendingDefectsIndex (NOT-ACCESSIBLE)
+// col 2  = pendingDefectsLba (CounterBasedGauge64)
+// ---------------------------------------------------------------------------
+
+TABLE_ROW_COUNT_HANDLER(sata_pending_def_row_count_handler, sata_pending_defects)
+TABLE_LAST_CHANGE_HANDLER(sata_pending_def_last_change_handler, ts_sata_pending_defects)
+
+static netsnmp_variable_list *
+sata_pending_def_get_next(void **loop_ctx, void **data_ctx,
+                          netsnmp_variable_list *put_idx,
+                          netsnmp_iterator_info *) {
+    size_t idx = (size_t)(uintptr_t)*loop_ctx;
+    if (idx >= g_cache.sata_pending_defects.size()) return nullptr;
+    CacheSataPendingDefectRow &row = g_cache.sata_pending_defects[idx];
+    *loop_ctx = (void*)(uintptr_t)(idx + 1);
+    *data_ctx = &row;
+    u_long v = (u_long)row.device_index;
+    snmp_set_var_typed_value(put_idx, ASN_UNSIGNED, (u_char*)&v, sizeof(v));
+    v = (u_long)row.entry_index;
+    snmp_set_var_typed_value(put_idx->next_variable, ASN_UNSIGNED,
+                             (u_char*)&v, sizeof(v));
+    return put_idx;
+}
+
+static int
+sata_pending_def_handler(netsnmp_mib_handler *,
+                         netsnmp_handler_registration *,
+                         netsnmp_agent_request_info *reqinfo,
+                         netsnmp_request_info *requests) {
+    if (reqinfo->mode != MODE_GET) return SNMP_ERR_NOERROR;
+    for (netsnmp_request_info *req = requests; req; req = req->next) {
+        netsnmp_table_request_info *tinfo = netsnmp_extract_table_info(req);
+        CacheSataPendingDefectRow *row =
+            (CacheSataPendingDefectRow*)netsnmp_extract_iterator_context(req);
+        if (!row || !tinfo) continue;
+        switch (tinfo->colnum) {
+        case 2:  set_counter64(req, row->lba); break;
+        default: netsnmp_set_request_error(reqinfo, req, SNMP_NOSUCHOBJECT);
+        }
+    }
+    return SNMP_ERR_NOERROR;
+}
+
+// ---------------------------------------------------------------------------
 // Registration
 // ---------------------------------------------------------------------------
 
@@ -1037,7 +1087,7 @@ void register_sata_mib() {
         oid_sata_selftest_last_change,  OID_LEN(oid_sata_selftest_last_change),  HANDLER_CAN_RONLY));
 
     // SATA table iterator registrations
-    REG_TABLE_UU("smartmonSataInfoTable",     sata_info_handler,   oid_sata_info_table,      sata_info_get_next,    1, 31);
+    REG_TABLE_UU("smartmonSataInfoTable",     sata_info_handler,   oid_sata_info_table,      sata_info_get_next,    1, 32);
     REG_TABLE_UU("smartmonSataHealthTable",   sata_health_handler, oid_sata_health_table,    sata_health_get_next,  1, 37);
     REG_TABLE_UU("smartmonSataErrorLogTable", sata_el_handler,     oid_sata_error_log_table, sata_el_get_next,      1, 12);
     REG_TABLE_UU("smartmonSataAttrTable",     sata_attr_handler,   oid_sata_attr_table,      sata_attr_get_next,    2, 12);
@@ -1120,4 +1170,14 @@ void register_sata_mib() {
         "sataDevStatTableLastChange",   sata_devstat_last_change_handler,
         oid_sata_devstat_last_change,   OID_LEN(oid_sata_devstat_last_change),   HANDLER_CAN_RONLY));
     REG_TABLE_UUU("smartmonSataDevStatTable", sata_devstat_handler, oid_sata_devstat_table, sata_devstat_get_next, 3, 8);
+
+    // Pending defects LBA table
+    netsnmp_register_scalar(netsnmp_create_handler_registration(
+        "sataPendingDefTableRowCount",  sata_pending_def_row_count_handler,
+        oid_sata_pending_def_row_count, OID_LEN(oid_sata_pending_def_row_count), HANDLER_CAN_RONLY));
+    netsnmp_register_scalar(netsnmp_create_handler_registration(
+        "sataPendingDefTableLastChange",sata_pending_def_last_change_handler,
+        oid_sata_pending_def_last_change, OID_LEN(oid_sata_pending_def_last_change), HANDLER_CAN_RONLY));
+    REG_TABLE_UU("smartmonSataPendingDefectsTable", sata_pending_def_handler,
+                 oid_sata_pending_def_table, sata_pending_def_get_next, 2, 2);
 }

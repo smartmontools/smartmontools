@@ -33,8 +33,9 @@ void AgentxCache::clear_device_data(uint32_t idx) {
     erase_by_device(sata_error_cmds,    idx);
     erase_by_device(sata_erc,           idx);
     erase_by_device(sata_phy_events,    idx);
-    erase_by_device(sata_selective_tests, idx);
-    erase_by_device(sata_log_dir,       idx);
+    erase_by_device(sata_selective_tests,  idx);
+    erase_by_device(sata_pending_defects,  idx);
+    erase_by_device(sata_log_dir,          idx);
     erase_by_device(sata_dev_stats,     idx);
     erase_by_device(sas_health,         idx);
     erase_by_device(sas_error_counters, idx);
@@ -62,7 +63,8 @@ void AgentxCache::clear() {
     sata_info.clear();          sata_health.clear();
     sata_error_log.clear();     sata_error_cmds.clear();
     sata_erc.clear();           sata_phy_events.clear();
-    sata_selective_tests.clear(); sata_log_dir.clear();
+    sata_selective_tests.clear(); sata_pending_defects.clear();
+    sata_log_dir.clear();
     sata_dev_stats.clear();
     sas_health.clear();         sas_error_counters.clear();
     sas_selftests.clear();      sas_info.clear();
@@ -73,7 +75,7 @@ void AgentxCache::clear() {
     ts_sata_info    = ts_sata_health     = ts_sata_attr        = 0;
     ts_sata_error_log = ts_sata_error_cmd = ts_sata_selftest   = 0;
     ts_sata_erc = ts_sata_phy_event = ts_sata_selective_test  = 0;
-    ts_sata_log_dir = ts_sata_dev_stat                        = 0;
+    ts_sata_pending_defects = ts_sata_log_dir = ts_sata_dev_stat = 0;
     ts_sas_info     = ts_sas_health      = ts_sas_error_counter = 0;
     ts_sas_selftest = ts_sas_bgscan      = ts_sensor            = 0;
 }

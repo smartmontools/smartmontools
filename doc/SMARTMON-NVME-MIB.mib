@@ -12,7 +12,7 @@ IMPORTS
         FROM SNMPv2-CONF
     SmartmonHealthStatus, SmartmonNvmeSelfTestType,
     SmartmonPercentage, SmartmonNvmeSelfTestResult,
-    smartmonRoot
+    SmartmonLogicalBlockAddress, smartmonRoot
         FROM SMARTMON-TC-MIB
     smartmonDeviceIndex, smartmonDeviceName, smartmonDevicePath,
     smartmonDeviceLastPollTime
@@ -873,7 +873,7 @@ SmartmonNvmeSelfTestEntry ::= SEQUENCE {
     smartmonNvmeSelfTestResult         SmartmonNvmeSelfTestResult,
     smartmonNvmeSelfTestResultText     DisplayString,
     smartmonNvmeSelfTestPowerOnHours   CounterBasedGauge64,
-    smartmonNvmeSelfTestFailingLba     CounterBasedGauge64,
+    smartmonNvmeSelfTestFailingLba     SmartmonLogicalBlockAddress,
     smartmonNvmeSelfTestNamespaceId    Unsigned32,
     smartmonNvmeSelfTestSegmentNumber  Unsigned32,
     smartmonNvmeSelfTestStatusCodeType Unsigned32,
@@ -926,7 +926,7 @@ smartmonNvmeSelfTestPowerOnHours OBJECT-TYPE
     ::= { smartmonNvmeSelfTestEntry 6 }
 
 smartmonNvmeSelfTestFailingLba OBJECT-TYPE
-    SYNTAX      CounterBasedGauge64
+    SYNTAX      SmartmonLogicalBlockAddress
     MAX-ACCESS  read-only
     STATUS      current
     DESCRIPTION "Failing LBA, if reported."
@@ -1004,7 +1004,7 @@ SmartmonNvmeErrorLogEntry ::= SEQUENCE {
     smartmonNvmeErrorCommandId              Unsigned32,
     smartmonNvmeErrorStatusField            Unsigned32,
     smartmonNvmeErrorParameterErrorLocation Unsigned32,
-    smartmonNvmeErrorLba                    CounterBasedGauge64,
+    smartmonNvmeErrorLba                    SmartmonLogicalBlockAddress,
     smartmonNvmeErrorNamespaceId            Unsigned32,
     smartmonNvmeErrorVendorSpecificInfo     Unsigned32,
     smartmonNvmeErrorStatusCode             Unsigned32,
@@ -1057,7 +1057,7 @@ smartmonNvmeErrorParameterErrorLocation OBJECT-TYPE
     ::= { smartmonNvmeErrorLogEntry 6 }
 
 smartmonNvmeErrorLba OBJECT-TYPE
-    SYNTAX      CounterBasedGauge64
+    SYNTAX      SmartmonLogicalBlockAddress
     MAX-ACCESS  read-only
     STATUS      current
     DESCRIPTION "LBA associated with the error, if reported."

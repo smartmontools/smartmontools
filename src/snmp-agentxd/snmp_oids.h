@@ -189,6 +189,10 @@ static const oid oid_sata_devstat_row_count[]      = { SMARTMON_ENT, 4, 1, 38 };
 static const oid oid_sata_devstat_last_change[]    = { SMARTMON_ENT, 4, 1, 39 };
 static const oid oid_sata_devstat_table[]          = { SMARTMON_ENT, 4, 1, 40 };
 
+static const oid oid_sata_pending_def_row_count[]  = { SMARTMON_ENT, 4, 1, 41 };
+static const oid oid_sata_pending_def_last_change[]= { SMARTMON_ENT, 4, 1, 42 };
+static const oid oid_sata_pending_def_table[]      = { SMARTMON_ENT, 4, 1, 43 };
+
 // SATA notifications
 static const oid oid_notif_sata_selftest_failed[]    = { SMARTMON_ENT, 4, 2, 1 };
 static const oid oid_notif_sata_health_degraded[]    = { SMARTMON_ENT, 4, 2, 2 };

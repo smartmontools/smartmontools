@@ -14,14 +14,15 @@ IMPORTS
     SmartmonAtaSelfTestResult, SmartmonAtaSmartAttrType,
     SmartmonAtaSmartAttrUpdated, SmartmonAtaSmartAttrStatus,
     SmartmonAtaVersion, SmartmonAtaFormFactor, SmartmonSataVersion,
-    SmartmonAtaDeviceState, smartmonRoot
+    SmartmonAtaDeviceState, SmartmonAtaApmLevel,
+    SmartmonLogicalBlockAddress, smartmonRoot
         FROM SMARTMON-TC-MIB
     smartmonDeviceIndex, smartmonDeviceName, smartmonDevicePath,
     smartmonDeviceLastPollTime
         FROM SMARTMON-COMMON-MIB;
 
 smartmonSataMIB MODULE-IDENTITY
-    LAST-UPDATED "202605200100Z"
+    LAST-UPDATED "202605210000Z"
     ORGANIZATION "Unassigned"
     CONTACT-INFO
         "This is a draft MIB for smartmontools smartctl ATA/SATA output.
@@ -43,7 +44,24 @@ smartmonSataMIB MODULE-IDENTITY
          be exposed via a sensor MIB that consolidates readings across
          device types.
 
+         SCT status metadata (ata_sct_status.format_version,
+         ata_sct_status.sct_version, ata_sct_status.device_state) is
+         available through smartmonSataDevStatTable when the device
+         exposes it via the ATA Device Statistics log.
+
+         SCT temperature history (ata_sct_temperature_history) is
+         intentionally absent.  Clients that need historical temperature
+         data are expected to maintain their own log by recording
+         temperature readings over time.
+
          This MIB requires SMARTMON-TC-MIB and SMARTMON-COMMON-MIB."
+    REVISION "202605210000Z"
+    DESCRIPTION
+        "Added smartmonSataAttrRevision to SmartmonSataInfoEntry (OID 32):
+         SMART attribute table revision (ata_smart_attributes.revision).
+         Added smartmonSataPendingDefectsTable (OIDs 41-43): individual
+         pending-defect LBA entries from ata_pending_defects_log.table[].
+         Added conformance group 14 for pending defects LBA objects."
     REVISION "202605200100Z"
     DESCRIPTION
         "Added smartmonSataErcTable (OIDs 19-21): SCT Error Recovery
@@ -141,12 +159,13 @@ SmartmonSataInfoEntry ::= SEQUENCE {
     smartmonSataIfSpeedMaxValue              Unsigned32,
     smartmonSataIfSpeedCurrentValue          Unsigned32,
     smartmonSataApmEnabled                   TruthValue,
-    smartmonSataApmLevel                     Unsigned32,
+    smartmonSataApmLevel                     SmartmonAtaApmLevel,
     smartmonSataReadLookaheadEnabled         TruthValue,
     smartmonSataWriteCacheEnabled            TruthValue,
     smartmonSataSecurityState                Unsigned32,
     smartmonSataSecurityEnabled              TruthValue,
-    smartmonSataSecurityFrozen               TruthValue, 
+    smartmonSataSecurityFrozen               TruthValue,
+    smartmonSataAttrRevision                 Unsigned32
 }
 
 smartmonSataModelFamily OBJECT-TYPE
@@ -336,13 +355,10 @@ smartmonSataApmEnabled OBJECT-TYPE
     ::= { smartmonSataInfoEntry 23 }
 
 smartmonSataApmLevel OBJECT-TYPE
-    SYNTAX      Unsigned32 (0..255)
+    SYNTAX      SmartmonAtaApmLevel
     MAX-ACCESS  read-only
     STATUS      current
-    DESCRIPTION
-        "Advanced Power Management level (ata_apm.level).  1 = minimum power,
-         127 = intermediate without standby, 128..254 = intermediate with
-         standby, 254 = maximum performance."
+    DESCRIPTION "Advanced Power Management level (ata_apm.level)."
     ::= { smartmonSataInfoEntry 24 }
 
 smartmonSataReadLookaheadEnabled OBJECT-TYPE
@@ -379,6 +395,15 @@ smartmonSataSecurityFrozen OBJECT-TYPE
     STATUS      current
     DESCRIPTION "Whether the ATA security state is frozen (ata_security.frozen)."
     ::= { smartmonSataInfoEntry 31 }
+
+smartmonSataAttrRevision OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "SMART attribute table revision number
+         (ata_smart_attributes.revision)."
+    ::= { smartmonSataInfoEntry 32 }
 
 
 -- --------------------------------------------------------------------------
@@ -959,7 +984,7 @@ SmartmonSataErrorLogEntry ::= SEQUENCE {
     smartmonSataErrorDescription    DisplayString,
     smartmonSataErrorCompRegError   Unsigned32,
     smartmonSataErrorCompRegStatus  Unsigned32,
-    smartmonSataErrorLba            CounterBasedGauge64,
+    smartmonSataErrorLba            SmartmonLogicalBlockAddress,
     smartmonSataErrorRegCommand     Unsigned32,
     smartmonSataErrorRegCount       Unsigned32,
     smartmonSataErrorRegDevice      Unsigned32,
@@ -1021,7 +1046,7 @@ smartmonSataErrorCompRegStatus OBJECT-TYPE
     ::= { smartmonSataErrorLogEntry 6 }
 
 smartmonSataErrorLba OBJECT-TYPE
-    SYNTAX      CounterBasedGauge64
+    SYNTAX      SmartmonLogicalBlockAddress
     MAX-ACCESS  read-only
     STATUS      current
     DESCRIPTION
@@ -1119,7 +1144,7 @@ SmartmonSataErrorCmdEntry ::= SEQUENCE {
     smartmonSataErrorCmdRegDevice   Unsigned32,
     smartmonSataErrorCmdRegError    Unsigned32,
     smartmonSataErrorCmdRegFeature  Unsigned32,
-    smartmonSataErrorCmdRegLba      CounterBasedGauge64,
+    smartmonSataErrorCmdRegLba      SmartmonLogicalBlockAddress,
     smartmonSataErrorCmdRegStatus   Unsigned32,
     smartmonSataErrorCmdTimestamp   Unsigned32,
     smartmonSataErrorCmdDescription DisplayString
@@ -1180,7 +1205,7 @@ smartmonSataErrorCmdRegFeature OBJECT-TYPE
     ::= { smartmonSataErrorCmdEntry 6 }
 
 smartmonSataErrorCmdRegLba OBJECT-TYPE
-    SYNTAX      CounterBasedGauge64
+    SYNTAX      SmartmonLogicalBlockAddress
     MAX-ACCESS  read-only
     STATUS      current
     DESCRIPTION
@@ -1259,7 +1284,7 @@ SmartmonSataSelfTestEntry ::= SEQUENCE {
     smartmonSataSelfTestResultPassed  TruthValue,
     smartmonSataSelfTestRemainingPct  Unsigned32,
     smartmonSataSelfTestLifetimeHours CounterBasedGauge64,
-    smartmonSataSelfTestLbaFirstError CounterBasedGauge64
+    smartmonSataSelfTestLbaFirstError SmartmonLogicalBlockAddress
 }
 
 smartmonSataSelfTestIndex OBJECT-TYPE
@@ -1321,7 +1346,7 @@ smartmonSataSelfTestLifetimeHours OBJECT-TYPE
     ::= { smartmonSataSelfTestEntry 8 }
 
 smartmonSataSelfTestLbaFirstError OBJECT-TYPE
-    SYNTAX      CounterBasedGauge64
+    SYNTAX      SmartmonLogicalBlockAddress
     MAX-ACCESS  read-only
     STATUS      current
     DESCRIPTION
@@ -1527,8 +1552,8 @@ smartmonSataSelectiveTestEntry OBJECT-TYPE
 
 SmartmonSataSelectiveTestEntry ::= SEQUENCE {
     smartmonSataSelectiveTestSlot          Unsigned32,
-    smartmonSataSelectiveLbaMin            CounterBasedGauge64,
-    smartmonSataSelectiveLbaMax            CounterBasedGauge64,
+    smartmonSataSelectiveLbaMin            SmartmonLogicalBlockAddress,
+    smartmonSataSelectiveLbaMax            SmartmonLogicalBlockAddress,
     smartmonSataSelectiveStatusValue       Unsigned32
 }
 
@@ -1540,7 +1565,7 @@ smartmonSataSelectiveTestSlot OBJECT-TYPE
     ::= { smartmonSataSelectiveTestEntry 1 }
 
 smartmonSataSelectiveLbaMin OBJECT-TYPE
-    SYNTAX      CounterBasedGauge64
+    SYNTAX      SmartmonLogicalBlockAddress
     MAX-ACCESS  read-only
     STATUS      current
     DESCRIPTION
@@ -1549,7 +1574,7 @@ smartmonSataSelectiveLbaMin OBJECT-TYPE
     ::= { smartmonSataSelectiveTestEntry 2 }
 
 smartmonSataSelectiveLbaMax OBJECT-TYPE
-    SYNTAX      CounterBasedGauge64
+    SYNTAX      SmartmonLogicalBlockAddress
     MAX-ACCESS  read-only
     STATUS      current
     DESCRIPTION
@@ -1852,6 +1877,66 @@ smartmonSataDevStatNormalized OBJECT-TYPE
     ::= { smartmonSataDevStatEntry 8 }
 
 -- --------------------------------------------------------------------------
+-- Pending defects LBA table  (.41 RowCount, .42 LastChange, .43 Table)
+-- --------------------------------------------------------------------------
+
+smartmonSataPendingDefectsTableRowCount OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION "Current number of rows in smartmonSataPendingDefectsTable."
+    ::= { smartmonSataObjects 41 }
+
+smartmonSataPendingDefectsTableLastChange OBJECT-TYPE
+    SYNTAX      DateAndTime
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Timestamp of the most recent row addition or removal in
+         smartmonSataPendingDefectsTable."
+    ::= { smartmonSataObjects 42 }
+
+smartmonSataPendingDefectsTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF SmartmonSataPendingDefectsEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "Individual LBA entries from the ATA pending defects log.
+         One row per defective LBA per device.
+         Sourced from ata_pending_defects_log.table[]."
+    ::= { smartmonSataObjects 43 }
+
+smartmonSataPendingDefectsEntry OBJECT-TYPE
+    SYNTAX      SmartmonSataPendingDefectsEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "One pending defect LBA entry for one drive."
+    INDEX { smartmonDeviceIndex, smartmonSataPendingDefectsIndex }
+    ::= { smartmonSataPendingDefectsTable 1 }
+
+SmartmonSataPendingDefectsEntry ::= SEQUENCE {
+    smartmonSataPendingDefectsIndex  Unsigned32,
+    smartmonSataPendingDefectsLba    SmartmonLogicalBlockAddress
+}
+
+smartmonSataPendingDefectsIndex OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..4294967295)
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION "Sequential position of this entry in the pending defects log (1-based)."
+    ::= { smartmonSataPendingDefectsEntry 1 }
+
+smartmonSataPendingDefectsLba OBJECT-TYPE
+    SYNTAX      SmartmonLogicalBlockAddress
+    UNITS       "LBA"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Logical Block Address of a sector awaiting reallocation
+         (ata_pending_defects_log.table[].lba)."
+    ::= { smartmonSataPendingDefectsEntry 2 }
+
+-- --------------------------------------------------------------------------
 -- Notifications
 -- --------------------------------------------------------------------------
 
@@ -1938,6 +2023,9 @@ smartmonSataCompliance MODULE-COMPLIANCE
         GROUP smartmonSataDevStatGroup
         DESCRIPTION
             "Required when ATA Device Statistics log pages are available."
+        GROUP smartmonSataPendingDefectsLbaGroup
+        DESCRIPTION
+            "Required when individual pending defect LBA entries are available."
         GROUP smartmonSataNotificationGroup
         DESCRIPTION
             "Required for implementations that emit notifications."
@@ -1972,7 +2060,8 @@ smartmonSataInfoGroup OBJECT-GROUP
         smartmonSataWriteCacheEnabled,
         smartmonSataSecurityState,
         smartmonSataSecurityEnabled,
-        smartmonSataSecurityFrozen
+        smartmonSataSecurityFrozen,
+        smartmonSataAttrRevision
     }
     STATUS current
     DESCRIPTION "ATA/SATA device identity objects."
@@ -2102,7 +2191,8 @@ smartmonSataTableMetaGroup OBJECT-GROUP
         smartmonSataPhyEventTableRowCount,       smartmonSataPhyEventTableLastChange,
         smartmonSataSelectiveTestTableRowCount,  smartmonSataSelectiveTestTableLastChange,
         smartmonSataLogDirTableRowCount,         smartmonSataLogDirTableLastChange,
-        smartmonSataDevStatTableRowCount,        smartmonSataDevStatTableLastChange
+        smartmonSataDevStatTableRowCount,            smartmonSataDevStatTableLastChange,
+        smartmonSataPendingDefectsTableRowCount,     smartmonSataPendingDefectsTableLastChange
     }
     STATUS current
     DESCRIPTION "ATA/SATA table row-count and last-change scalars."
@@ -2160,6 +2250,14 @@ smartmonSataDevStatGroup OBJECT-GROUP
     STATUS current
     DESCRIPTION "ATA Device Statistics log objects."
     ::= { smartmonSataGroups 13 }
+
+smartmonSataPendingDefectsLbaGroup OBJECT-GROUP
+    OBJECTS {
+        smartmonSataPendingDefectsLba
+    }
+    STATUS current
+    DESCRIPTION "ATA pending defects LBA entry objects."
+    ::= { smartmonSataGroups 14 }
 
 smartmonSataNotificationGroup NOTIFICATION-GROUP
     NOTIFICATIONS {
