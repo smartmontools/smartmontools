@@ -416,7 +416,8 @@ static void parse_nvme(uint32_t dev_idx, const JVal &root) {
             g_cache.sensors.push_back(sr);
         }
 
-        // Sensor 2: available spare % (low_warning = spare threshold)
+        // Sensor 2: available spare % (low_critical = spare threshold,
+        // low_warning = 100% higher than critical)
         {
             CacheSensorRow sr;
             sr.device_index    = dev_idx;
@@ -430,11 +431,13 @@ static void parse_nvme(uint32_t dev_idx, const JVal &root) {
             sr.oper_status     = 1;
             sr.units_display   = "percent";
             sr.timestamp       = now;
-            sr.has_low_warning = true;
-            sr.low_warning     = static_cast<int32_t>(h.available_spare_thresh);
+            sr.has_low_critical = true;
+            sr.low_critical     = static_cast<int32_t>(h.available_spare_thresh);
+            sr.has_low_warning  = true;
+            sr.low_warning      = sr.low_critical * 2;
             if (g_verbosity >= 2)
-                syslog(LOG_DEBUG, "datasrc: NVMe dev_idx=%u: sensor[2] AvailableSpare value=%d%% low_warn=%d%%",
-                       dev_idx, sr.value, sr.low_warning);
+                syslog(LOG_DEBUG, "datasrc: NVMe dev_idx=%u: sensor[2] AvailableSpare value=%d%% low_warn=%d%% low_crit=%d%%",
+                       dev_idx, sr.value, sr.low_warning, sr.low_critical);
             g_cache.sensors.push_back(sr);
         }
 
@@ -776,7 +779,6 @@ static void parse_ata(uint32_t dev_idx, const JVal &root) {
             r.value        = static_cast<uint32_t>(a["value"].as_uint64());
             r.worst        = static_cast<uint32_t>(a["worst"].as_uint64());
             r.threshold    = static_cast<uint32_t>(a["thresh"].as_uint64());
-            r.when_failed  = a["when_failed"].as_string();
             r.raw_string   = a["raw"]["string"].as_string();
             // Parse the leading decimal from raw_string (matches smartctl display).
             // raw.value is the full 6-byte vendor-encoded integer which packs
@@ -798,16 +800,18 @@ static void parse_ata(uint32_t dev_idx, const JVal &root) {
             // attr_updated: 1=always, 2=offline
             r.attr_updated = flags["updated_online"].as_bool() ? 1 : 2;
 
-            // SmartmonAtaSmartAttrStatus: notRelevant(-1), unknown(0), ok(1),
-            // failingNow(2), failedInPast(3). Threshold 0 means no threshold.
-            if (r.threshold == 0) {
-                r.status = -1;  // notRelevant
-            } else if (r.when_failed == "FAILING_NOW") {
-                r.status = 2;   // failingNow
-            } else if (!r.when_failed.empty() && r.when_failed != "-") {
-                r.status = 3;   // failedInPast
-            } else {
-                r.status = 1;   // ok
+            // SmartmonAtaSmartAttrStatus derived from when_failed field
+            // notRelevant(-1), unknown(0), ok(1), failingNow(2), failedInPast(3)
+            {
+                std::string wf = a["when_failed"].as_string();
+                if (r.threshold == 0)
+                    r.status = -1;
+                else if (wf == "now")
+                    r.status = 2;
+                else if (wf == "past")
+                    r.status = 3;
+                else
+                    r.status = 1;
             }
 
             g_cache.sata_attrs.push_back(r);
@@ -920,7 +924,8 @@ static void parse_ata(uint32_t dev_idx, const JVal &root) {
     //     }
     // }
 
-    // Sensor 2 (renumbered from 3): spare_available.current_percent (low_critical = threshold_percent)
+    // Sensor 2 (renumbered from 3): spare_available.current_percent
+    // (low_critical = threshold_percent, low_warning = 100% higher than critical)
     {
         const JVal &spare = root["spare_available"];
         if (!spare.is_null() && !spare["current_percent"].is_null()) {
@@ -941,10 +946,13 @@ static void parse_ata(uint32_t dev_idx, const JVal &root) {
             if (!thresh.is_null()) {
                 sr.has_low_critical = true;
                 sr.low_critical     = static_cast<int32_t>(thresh.as_uint64());
+                sr.has_low_warning  = true;
+                sr.low_warning      = sr.low_critical * 2;
             }
             if (g_verbosity >= 2)
-                syslog(LOG_DEBUG, "datasrc: ATA dev_idx=%u: sensor[2] SpareAvailable value=%d%% lo_crit=%s(%d)",
+                syslog(LOG_DEBUG, "datasrc: ATA dev_idx=%u: sensor[2] SpareAvailable value=%d%% lo_warn=%s(%d) lo_crit=%s(%d)",
                        dev_idx, sr.value,
+                       sr.has_low_warning ? "yes" : "no", sr.low_warning,
                        sr.has_low_critical ? "yes" : "no", sr.low_critical);
             g_cache.sensors.push_back(sr);
         }
@@ -969,7 +977,6 @@ static void parse_ata(uint32_t dev_idx, const JVal &root) {
                 else if (raw == 15)       r.result = 15;  // inProgress
                 else                      r.result = 0;   // unknown
             }
-            r.result_str     = e["status"]["string"].as_string();
             r.passed         = e["status"]["passed"].as_bool();
             r.remaining_pct  = static_cast<uint32_t>(
                                   e["status"]["remaining_percent"].as_uint64());
@@ -991,10 +998,16 @@ static void parse_ata(uint32_t dev_idx, const JVal &root) {
         const JVal &wwn = root["wwn"];
         if (!wwn.is_null())
             info.wwn = format_wwn(wwn);
-        info.ata_version_string  = root["ata_version"]["string"].as_string();
-        info.sata_version_string = root["sata_version"]["string"].as_string();
-        info.rotation_rate       = static_cast<uint32_t>(root["rotation_rate"].as_uint64());
-        info.form_factor         = root["form_factor"]["name"].as_string();
+        {
+            uint32_t sv = static_cast<uint32_t>(root["sata_version"]["value"].as_uint64()) & 0x0fffu;
+            int msb = -1;
+            for (int b = 11; b >= 0; b--)
+                if (sv & (1u << b)) { msb = b; break; }
+            info.sata_version = (msb >= 11) ? 12u :
+                                (msb >= 0)  ? static_cast<uint32_t>(msb + 1) : 0u;
+        }
+        info.rotation_rate = static_cast<uint32_t>(root["rotation_rate"].as_uint64());
+        info.form_factor   = static_cast<uint32_t>(root["form_factor"]["ata_value"].as_uint64()) & 0xfu;
         info.logical_block_size  = static_cast<uint32_t>(root["logical_block_size"].as_uint64());
         info.physical_block_size = static_cast<uint32_t>(root["physical_block_size"].as_uint64());
         info.user_capacity_bytes = root["user_capacity"]["bytes"].as_uint64();
@@ -1009,13 +1022,18 @@ static void parse_ata(uint32_t dev_idx, const JVal &root) {
             if (!apm.is_null()) {
                 info.apm_enabled = apm["enabled"].as_bool();
                 info.apm_level   = static_cast<uint32_t>(apm["level"].as_uint64());
-                info.apm_string  = apm["string"].as_string();
             }
         }
         {
             const JVal &av = root["ata_version"];
-            info.ata_version_major = static_cast<uint32_t>(av["major_value"].as_uint64());
+            uint32_t maj = static_cast<uint32_t>(av["major_value"].as_uint64());
+            info.ata_version_major = maj;
             info.ata_version_minor = static_cast<uint32_t>(av["minor_value"].as_uint64());
+            int msb = -1;
+            for (int b = 15; b >= 1; b--)
+                if (maj & (1u << b)) { msb = b; break; }
+            info.ata_version = (msb >= 14) ? 14u :
+                               (msb >= 1)  ? static_cast<uint32_t>(msb) : 0u;
         }
         {
             const JVal &spd = root["interface_speed"];
@@ -1037,7 +1055,6 @@ static void parse_ata(uint32_t dev_idx, const JVal &root) {
                 info.security_enabled = sec["enabled"].as_bool();
                 info.security_frozen  = sec["frozen"].as_bool();
                 info.security_state   = static_cast<uint32_t>(sec["state"].as_uint64());
-                info.security_string  = sec["string"].as_string();
             }
         }
         info.write_cache_enabled = root["write_cache"]["enabled"].as_bool();
@@ -1054,11 +1071,9 @@ static void parse_ata(uint32_t dev_idx, const JVal &root) {
             h.overall_status            = health_status_from_passed(root);
             const JVal &odc = smart["offline_data_collection"];
             h.offline_status_value      = static_cast<uint32_t>(odc["status"]["value"].as_uint64());
-            h.offline_status_string     = odc["status"]["string"].as_string();
             h.offline_completion_secs   = static_cast<uint32_t>(odc["completion_seconds"].as_uint64());
             const JVal &st = smart["self_test"];
             h.selftest_status_value     = static_cast<uint32_t>(st["status"]["value"].as_uint64());
-            h.selftest_status_string    = st["status"]["string"].as_string();
             h.polling_short_min         = static_cast<uint32_t>(st["polling_minutes"]["short"].as_uint64());
             h.polling_ext_min           = static_cast<uint32_t>(st["polling_minutes"]["extended"].as_uint64());
             h.polling_conv_min          = static_cast<uint32_t>(st["polling_minutes"]["conveyance"].as_uint64());
@@ -1128,7 +1143,6 @@ static void parse_ata(uint32_t dev_idx, const JVal &root) {
             CacheSataErcRow r;
             r.device_index = dev_idx;
             r.erc_index    = d.erc_idx;
-            r.direction    = d.key;
             r.enabled      = e["enabled"].as_bool();
             r.deciseconds  = static_cast<uint32_t>(e["deciseconds"].as_uint64());
             g_cache.sata_erc.push_back(r);
@@ -1165,7 +1179,6 @@ static void parse_ata(uint32_t dev_idx, const JVal &root) {
                 r.lba_min       = entry["lba_min"].as_uint64();
                 r.lba_max       = entry["lba_max"].as_uint64();
                 r.status_value  = static_cast<uint32_t>(entry["status"]["value"].as_uint64());
-                r.status_string = entry["status"]["string"].as_string();
                 g_cache.sata_selective_tests.push_back(r);
             }
         }
@@ -1240,8 +1253,7 @@ static void parse_ata(uint32_t dev_idx, const JVal &root) {
                 r.reg_count         = static_cast<uint32_t>(cr["count"].as_uint64());
                 r.reg_device        = static_cast<uint32_t>(cr["device"].as_uint64());
                 r.reg_feature       = static_cast<uint32_t>(cr["features"].as_uint64());
-                r.state_value       = static_cast<uint32_t>(e["device_state"]["value"].as_uint64());
-                r.state_string      = e["device_state"]["string"].as_string();
+                r.state_value       = static_cast<uint32_t>(e["device_state"]["value"].as_uint64()) & 0x0fu;
                 g_cache.sata_error_log.push_back(r);
 
                 // Error cmd sub-table (previous commands leading to this error)

@@ -1386,9 +1386,9 @@ smartmonNvmeHealthGroup OBJECT-GROUP
     OBJECTS {
         smartmonNvmeHealthOverallStatus,
         smartmonNvmeCriticalWarning,
-        smartmonNvmeAvailableSparePercent,
-        smartmonNvmeAvailableSpareThresholdPercent,
-        smartmonNvmePercentageUsed,
+        -- smartmonNvmeAvailableSparePercent,
+        -- smartmonNvmeAvailableSpareThresholdPercent,
+        -- smartmonNvmePercentageUsed,
         smartmonNvmeDataUnitsRead,
         smartmonNvmeDataUnitsWritten,
         smartmonNvmeDataBytesRead,

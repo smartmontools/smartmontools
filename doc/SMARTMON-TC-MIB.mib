@@ -185,14 +185,96 @@ SmartmonAtaSmartAttrStatus ::= TEXTUAL-CONVENTION
          notRelevant(-1) -- threshold is 0; no failure threshold defined
          unknown(0)      -- status cannot be determined
          ok(1)           -- value is above the failure threshold
-         failingNow(2)   -- value is at or below the threshold (prefailure)
-         failedInPast(3) -- worst value was ever at or below the threshold"
+         failing  Now(2)   -- value is at or below the threshold (prefailure)
+         failed In Past(3) -- worst value was ever at or below the threshold"
     SYNTAX INTEGER {
         notRelevant(-1),
         unknown(0),
         ok(1),
         failingNow(2),
         failedInPast(3)
+    }
+
+SmartmonAtaFormFactor ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION
+        "ATA drive form factor derived from IDENTIFY DEVICE word 168 bits 3:0
+         (form_factor.ata_value).  unknown(0) indicates the field is not
+         reported or reserved."
+    SYNTAX INTEGER {
+        unknown(0),
+        inches525(1),
+        inches35(2),
+        inches25(3),
+        inches18(4),
+        lessThan18Inches(5),
+        mSata(6),
+        m2(7),
+        microSsd(8),
+        cFast(9)
+    }
+
+SmartmonSataVersion ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION
+        "SATA version derived from the most-significant set bit of bits
+         11:0 of IDENTIFY DEVICE word 222 (sata_version.value).
+         unknown(0) indicates the field is 0x0000 or 0xffff (not
+         reported).  Values are offset by one from the bit position so
+         that unknown(0) is unambiguous: ata8Ast(1) is bit 0, sata10a(2)
+         is bit 1, and so on."
+    SYNTAX INTEGER {
+        unknown(0),
+        ata8Ast(1),
+        sata10a(2),
+        sataIiExt(3),
+        sata25(4),
+        sata26(5),
+        sata30(6),
+        sata31(7),
+        sata32(8),
+        sata33(9),
+        sata34(10),
+        sata35(11),
+        sataAbove35(12)
+    }
+
+SmartmonAtaDeviceState ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION
+        "Device state nibble from an ATA error log entry
+         (device_state.value & 0x0f).  Values 5..10 are reserved by the
+         ATA specification; values 11..15 are vendor-specific."
+    SYNTAX INTEGER {
+        unknown(0),
+        sleeping(1),
+        standby(2),
+        activeOrIdle(3),
+        smartOfflineOrSelftest(4)
+    }
+
+SmartmonAtaVersion ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION
+        "ATA/ACS major version derived from the most-significant set bit
+         of IDENTIFY DEVICE word 80 (ata_version.major_value).
+         unknown(0) indicates the field is 0x0000 or 0xffff (not reported)."
+    SYNTAX INTEGER {
+        unknown(0),
+        ata1(1),
+        ata2(2),
+        ata3(3),
+        ataAtapi4(4),
+        ataAtapi5(5),
+        ataAtapi6(6),
+        ataAtapi7(7),
+        ata8Acs(8),
+        acs2(9),
+        acs3(10),
+        acs4(11),
+        acs5(12),
+        acs6(13),
+        acsAbove6(14)
     }
 
 SmartmonScsiErrorDirection ::= TEXTUAL-CONVENTION

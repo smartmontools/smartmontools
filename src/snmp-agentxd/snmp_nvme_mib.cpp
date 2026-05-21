@@ -107,15 +107,15 @@ nvme_health_handler(netsnmp_mib_handler *,
                   snmp_set_var_typed_value(req->requestvb, ASN_INTEGER,
                       (u_char*)&v, sizeof(v)); break; }
         case 2:  set_bits1(req, row->critical_warning); break;
-        case 4:  { u_long v = row->available_spare_pct;
-                   snmp_set_var_typed_value(req->requestvb, ASN_GAUGE,
-                       (u_char*)&v, sizeof(v)); break; }
-        case 5:  { u_long v = row->available_spare_thresh;
-                   snmp_set_var_typed_value(req->requestvb, ASN_GAUGE,
-                       (u_char*)&v, sizeof(v)); break; }
-        case 6:  { u_long v = row->percentage_used;
-                   snmp_set_var_typed_value(req->requestvb, ASN_GAUGE,
-                       (u_char*)&v, sizeof(v)); break; }
+        // case 4:  { u_long v = row->available_spare_pct;
+        //            snmp_set_var_typed_value(req->requestvb, ASN_GAUGE,
+        //                (u_char*)&v, sizeof(v)); break; }
+        // case 5:  { u_long v = row->available_spare_thresh;
+        //            snmp_set_var_typed_value(req->requestvb, ASN_GAUGE,
+        //                (u_char*)&v, sizeof(v)); break; }
+        // case 6:  { u_long v = row->percentage_used;
+        //            snmp_set_var_typed_value(req->requestvb, ASN_GAUGE,
+        //                (u_char*)&v, sizeof(v)); break; }
         case 7:  set_counter64(req, row->data_units_read); break;
         case 8:  set_counter64(req, row->data_units_written); break;
         case 9:  set_counter64(req, row->data_bytes_read); break;

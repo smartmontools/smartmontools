@@ -104,7 +104,6 @@ struct CacheSataAttrRow {
     uint32_t    threshold   { 0 };
     int64_t     raw_value   { 0 };
     std::string raw_string;
-    std::string when_failed;
     int         status      { 0 };   // SmartmonAtaSmartAttrStatus
 };
 
@@ -116,7 +115,6 @@ struct CacheSataSelfTestRow {
     uint32_t    entry_index  { 0 };
     int         type         { 0 };  // SmartmonAtaSelfTestType
     int         result       { 0 };  // SmartmonAtaSelfTestResult
-    std::string result_str;
     bool        passed       { false };
     uint32_t    remaining_pct { 0 };
     uint64_t    lifetime_hours { 0 };
@@ -309,10 +307,10 @@ struct CacheSataInfoRow {
     std::string serial_number;
     std::string firmware_version;
     std::string wwn;
-    std::string ata_version_string;
-    std::string sata_version_string;
-    uint32_t    rotation_rate    { 0 };
-    std::string form_factor;
+    uint32_t    ata_version        { 0 };     // col 6  (SmartmonAtaVersion)
+    uint32_t    sata_version       { 0 };     // col 7  (SmartmonSataVersion)
+    uint32_t    form_factor        { 0 };     // col 9  (SmartmonAtaFormFactor)
+    uint32_t    rotation_rate      { 0 };
     uint32_t    logical_block_size  { 0 };
     uint32_t    physical_block_size { 0 };
     uint64_t    user_capacity_bytes { 0 };
@@ -320,20 +318,18 @@ struct CacheSataInfoRow {
     bool        smart_available  { false };
     bool        smart_enabled    { false };
     bool        trim_supported   { false };
-    uint64_t    user_capacity_blocks { 0 };   // col 30
-    bool        apm_enabled      { false };   // col 18
-    uint32_t    apm_level        { 0 };       // col 19
-    std::string apm_string;                   // col 20
-    uint32_t    ata_version_major { 0 };      // col 21
-    uint32_t    ata_version_minor { 0 };      // col 22
-    uint32_t    if_speed_current_mbps { 0 };  // col 23
-    uint32_t    if_speed_max_mbps     { 0 };  // col 24
-    bool        read_lookahead_enabled { false }; // col 25
-    bool        security_enabled { false };   // col 26
-    bool        security_frozen  { false };   // col 27
+    uint64_t    user_capacity_blocks { 0 };   // col 18
+    uint32_t    ata_version_major { 0 };      // col 19
+    uint32_t    ata_version_minor { 0 };      // col 20
+    uint32_t    if_speed_max_mbps     { 0 };  // col 21
+    uint32_t    if_speed_current_mbps { 0 };  // col 22
+    bool        apm_enabled      { false };   // col 23
+    uint32_t    apm_level        { 0 };       // col 24
+    bool        read_lookahead_enabled { false }; // col 26
+    bool        write_cache_enabled { false }; // col 27
     uint32_t    security_state   { 0 };       // col 28
-    std::string security_string;              // col 29
-    bool        write_cache_enabled { false }; // col 31
+    bool        security_enabled { false };   // col 30
+    bool        security_frozen  { false };   // col 31
 };
 
 // --------------------------------------------------------------------
@@ -343,10 +339,8 @@ struct CacheSataHealthRow {
     uint32_t    device_index { 0 };
     int         overall_status   { 0 };
     uint32_t    offline_status_value { 0 };
-    std::string offline_status_string;
     uint32_t    offline_completion_secs { 0 };
     uint32_t    selftest_status_value { 0 };
-    std::string selftest_status_string;
     uint32_t    polling_short_min { 0 };
     uint32_t    polling_ext_min   { 0 };
     uint32_t    polling_conv_min  { 0 };
@@ -407,21 +401,18 @@ struct CacheSataErrorLogRow {
     uint32_t    reg_device      { 0 };
     uint32_t    reg_feature     { 0 };
     uint32_t    state_value     { 0 };
-    std::string state_string;
 };
 
 // --------------------------------------------------------------------
 // SATA SCT ERC row (smartmonSataErcTable)
 // INDEX { smartmonDeviceIndex, smartmonSataErcIndex }
 // col 1  = ercIndex (NOT-ACCESSIBLE)
-// col 2  = direction ("read" / "write")
 // col 3  = enabled (TruthValue)
 // col 4  = deciseconds
 // --------------------------------------------------------------------
 struct CacheSataErcRow {
     uint32_t    device_index { 0 };
     uint32_t    erc_index    { 0 };  // 1=read, 2=write
-    std::string direction;
     bool        enabled      { false };
     uint32_t    deciseconds  { 0 };
 };
@@ -451,7 +442,6 @@ struct CacheSataPhyEventRow {
 // col 2  = lbaMin (Counter64)
 // col 3  = lbaMax (Counter64)
 // col 4  = statusValue
-// col 5  = statusString
 // --------------------------------------------------------------------
 struct CacheSataSelectiveTestRow {
     uint32_t    device_index { 0 };
@@ -459,7 +449,6 @@ struct CacheSataSelectiveTestRow {
     uint64_t    lba_min      { 0 };
     uint64_t    lba_max      { 0 };
     uint32_t    status_value { 0 };
-    std::string status_string;
 };
 
 // --------------------------------------------------------------------

@@ -90,3 +90,13 @@
 
 # Build directories
 /build*/
+
+# Hidden files and directories
+.*
+!.gitignore
+!.github
+
+# snmp-agentxd compiled binaries
+/src/snmp-agentxd/smartmon-snmp-agentxd
+/src/snmp-agentxd/tests/test_datasrc
+/src/snmp-agentxd/tests/test_json

@@ -84,6 +84,23 @@ static void test_nvme_health(const char *path) {
         break;
     }
     CHECK(found_h);
+
+    // Sensor 2: available spare percentage
+    {
+        bool found = false;
+        for (const auto &s : g_cache.sensors) {
+            if (s.device_index != idx || s.sensor_index != 2) continue;
+            found = true;
+            CHECK_EQ(s.type, 10);        // percent
+            CHECK_EQ(s.value, (int32_t)100);
+            CHECK(s.has_low_critical);
+            CHECK_EQ(s.low_critical, 10); // available_spare_threshold
+            CHECK(s.has_low_warning);
+            CHECK_EQ(s.low_warning, 20);  // 100% higher than critical
+            break;
+        }
+        CHECK(found);
+    }
 }
 
 static void test_nvme_selftest(const char *path) {
@@ -137,8 +154,10 @@ static void test_ata_attrs(const char *path) {
             CHECK_EQ(s.high_warning, 60);  // SSD warning default remains unchanged
             CHECK(s.has_high_critical);
             CHECK_EQ(s.high_critical, 70); // SSD critical default
-            CHECK(!s.has_low_warning);
-            CHECK(!s.has_low_critical);
+            CHECK(s.has_low_warning);
+            CHECK_EQ(s.low_warning, 5);
+            CHECK(s.has_low_critical);
+            CHECK_EQ(s.low_critical, 1);
             break;
         }
         CHECK(found_temp);
@@ -290,6 +309,8 @@ static void test_sata_new_tables(const char *path) {
             CHECK_EQ(s.value, (int32_t)100);
             CHECK(s.has_low_critical);
             CHECK_EQ(s.low_critical, 1);  // threshold_percent
+            CHECK(s.has_low_warning);
+            CHECK_EQ(s.low_warning, 2);   // 100% higher than critical
             break;
         }
         CHECK(found);
