@@ -55,7 +55,7 @@ static uint8_t ata_flags_to_bits(uint8_t raw) {
 
 // ---------------------------------------------------------------------------
 // SATA info table
-// INDEX { smartmonDeviceIndex, smartmonSataInfoIndex(col 17, NOT-ACCESSIBLE) }
+// INDEX { smartmonDeviceIndex }
 // col 1  = modelFamily
 // col 2  = modelName
 // col 3  = serialNumber
@@ -72,7 +72,6 @@ static uint8_t ata_flags_to_bits(uint8_t raw) {
 // col 14 = smartAvailable (TruthValue)
 // col 15 = smartEnabled (TruthValue)
 // col 16 = trimSupported (TruthValue)
-// col 17 = infoIndex (NOT-ACCESSIBLE, index)
 // col 18 = userCapacityBlocks
 // col 19 = ataVersionMajor
 // col 20 = ataVersionMinor
@@ -86,6 +85,27 @@ static uint8_t ata_flags_to_bits(uint8_t raw) {
 // col 30 = securityEnabled (TruthValue)
 // col 31 = securityFrozen (TruthValue)
 // col 32 = attrRevision
+// col 33 = offlineCollectionCompletionSecs
+// col 34 = selfTestPollingShortMinutes
+// col 35 = selfTestPollingExtendedMinutes
+// col 36 = selfTestPollingConveyanceMinutes
+// col 37 = capabilitySelfTestsSupported (TruthValue)
+// col 38 = capabilityConveyanceSupported (TruthValue)
+// col 39 = capabilitySelectiveSupported (TruthValue)
+// col 40 = capabilityErrorLoggingSupported (TruthValue)
+// col 41 = capabilityGpLoggingSupported (TruthValue)
+// col 42 = sctErrorRecoverySupported (TruthValue)
+// col 43 = sctFeatureControlSupported (TruthValue)
+// col 44 = sctDataTableSupported (TruthValue)
+// col 45 = capabilityExecOfflineImmediate (TruthValue)
+// col 46 = capabilityOfflineAbortedOnCmd (TruthValue)
+// col 47 = capabilityOfflineSurfaceScan (TruthValue)
+// col 48 = errorLogRevision
+// col 49 = errorLogSectors
+// col 50 = selfTestLogRevision
+// col 51 = selfTestLogSectors
+// col 52 = pendingDefectsSize
+// col 53 = capabilityAttrAutosave (TruthValue)
 // ---------------------------------------------------------------------------
 
 static netsnmp_variable_list *
@@ -99,9 +119,6 @@ sata_info_get_next(void **loop_ctx, void **data_ctx,
     *data_ctx = &row;
     u_long v = (u_long)row.device_index;
     snmp_set_var_typed_value(put_idx, ASN_UNSIGNED, (u_char*)&v, sizeof(v));
-    v = 1;  // infoIndex = 1 per device
-    snmp_set_var_typed_value(put_idx->next_variable, ASN_UNSIGNED,
-                             (u_char*)&v, sizeof(v));
     return put_idx;
 }
 
@@ -165,9 +182,6 @@ sata_info_handler(netsnmp_mib_handler *,
         case 16: { long v = row->trim_supported ? 1 : 2;
                    snmp_set_var_typed_value(req->requestvb, ASN_INTEGER,
                        (u_char*)&v, sizeof(v)); break; }
-        case 17: { u_long v = 1;  // infoIndex
-                   snmp_set_var_typed_value(req->requestvb, ASN_GAUGE,
-                       (u_char*)&v, sizeof(v)); break; }
         case 18: set_counter64(req, row->user_capacity_blocks); break;
         case 19: { u_long v = row->ata_version_major;
                    snmp_set_var_typed_value(req->requestvb, ASN_UNSIGNED,
@@ -205,6 +219,69 @@ sata_info_handler(netsnmp_mib_handler *,
         case 32: { u_long v = row->attr_revision;
                    snmp_set_var_typed_value(req->requestvb, ASN_UNSIGNED,
                        (u_char*)&v, sizeof(v)); break; }
+        case 33: { u_long v = row->offline_completion_secs;
+                   snmp_set_var_typed_value(req->requestvb, ASN_UNSIGNED,
+                       (u_char*)&v, sizeof(v)); break; }
+        case 34: { u_long v = row->polling_short_min;
+                   snmp_set_var_typed_value(req->requestvb, ASN_UNSIGNED,
+                       (u_char*)&v, sizeof(v)); break; }
+        case 35: { u_long v = row->polling_ext_min;
+                   snmp_set_var_typed_value(req->requestvb, ASN_UNSIGNED,
+                       (u_char*)&v, sizeof(v)); break; }
+        case 36: { u_long v = row->polling_conv_min;
+                   snmp_set_var_typed_value(req->requestvb, ASN_UNSIGNED,
+                       (u_char*)&v, sizeof(v)); break; }
+        case 37: { long v = row->cap_selftests ? 1 : 2;
+                   snmp_set_var_typed_value(req->requestvb, ASN_INTEGER,
+                       (u_char*)&v, sizeof(v)); break; }
+        case 38: { long v = row->cap_conveyance ? 1 : 2;
+                   snmp_set_var_typed_value(req->requestvb, ASN_INTEGER,
+                       (u_char*)&v, sizeof(v)); break; }
+        case 39: { long v = row->cap_selective ? 1 : 2;
+                   snmp_set_var_typed_value(req->requestvb, ASN_INTEGER,
+                       (u_char*)&v, sizeof(v)); break; }
+        case 40: { long v = row->cap_error_logging ? 1 : 2;
+                   snmp_set_var_typed_value(req->requestvb, ASN_INTEGER,
+                       (u_char*)&v, sizeof(v)); break; }
+        case 41: { long v = row->cap_gp_logging ? 1 : 2;
+                   snmp_set_var_typed_value(req->requestvb, ASN_INTEGER,
+                       (u_char*)&v, sizeof(v)); break; }
+        case 42: { long v = row->sct_error_recovery ? 1 : 2;
+                   snmp_set_var_typed_value(req->requestvb, ASN_INTEGER,
+                       (u_char*)&v, sizeof(v)); break; }
+        case 43: { long v = row->sct_feature_control ? 1 : 2;
+                   snmp_set_var_typed_value(req->requestvb, ASN_INTEGER,
+                       (u_char*)&v, sizeof(v)); break; }
+        case 44: { long v = row->sct_data_table ? 1 : 2;
+                   snmp_set_var_typed_value(req->requestvb, ASN_INTEGER,
+                       (u_char*)&v, sizeof(v)); break; }
+        case 45: { long v = row->cap_exec_offline_immediate ? 1 : 2;
+                   snmp_set_var_typed_value(req->requestvb, ASN_INTEGER,
+                       (u_char*)&v, sizeof(v)); break; }
+        case 46: { long v = row->cap_offline_aborted_on_cmd ? 1 : 2;
+                   snmp_set_var_typed_value(req->requestvb, ASN_INTEGER,
+                       (u_char*)&v, sizeof(v)); break; }
+        case 47: { long v = row->cap_offline_surface_scan ? 1 : 2;
+                   snmp_set_var_typed_value(req->requestvb, ASN_INTEGER,
+                       (u_char*)&v, sizeof(v)); break; }
+        case 48: { u_long v = row->error_log_revision;
+                   snmp_set_var_typed_value(req->requestvb, ASN_UNSIGNED,
+                       (u_char*)&v, sizeof(v)); break; }
+        case 49: { u_long v = row->error_log_sectors;
+                   snmp_set_var_typed_value(req->requestvb, ASN_UNSIGNED,
+                       (u_char*)&v, sizeof(v)); break; }
+        case 50: { u_long v = row->selftest_log_revision;
+                   snmp_set_var_typed_value(req->requestvb, ASN_UNSIGNED,
+                       (u_char*)&v, sizeof(v)); break; }
+        case 51: { u_long v = row->selftest_log_sectors;
+                   snmp_set_var_typed_value(req->requestvb, ASN_UNSIGNED,
+                       (u_char*)&v, sizeof(v)); break; }
+        case 52: { u_long v = row->pending_defects_size;
+                   snmp_set_var_typed_value(req->requestvb, ASN_UNSIGNED,
+                       (u_char*)&v, sizeof(v)); break; }
+        case 53: { long v = row->cap_attr_autosave ? 1 : 2;
+                   snmp_set_var_typed_value(req->requestvb, ASN_INTEGER,
+                       (u_char*)&v, sizeof(v)); break; }
         default: netsnmp_set_request_error(reqinfo, req, SNMP_NOSUCHOBJECT);
         }
     }
@@ -212,28 +289,18 @@ sata_info_handler(netsnmp_mib_handler *,
 }
 
 // ---------------------------------------------------------------------------
-// SATA health table
-// INDEX { smartmonDeviceIndex, smartmonSataHealthIndex(col 22, NOT-ACCESSIBLE) }
+// SATA health table  (ATA/SATA SMART live-state objects, 5-minute polling)
+// INDEX { smartmonDeviceIndex }
 // col 1  = healthOverallStatus
 // col 2  = offlineCollectionStatusValue
-// col 4  = offlineCollectionCompletionSecs
 // col 5  = selfTestExecutionStatusValue
-// col 7  = selfTestPollingShortMinutes
-// col 8  = selfTestPollingExtendedMinutes
-// col 9  = selfTestPollingConveyanceMinutes
-// col 10 = capabilityAutoOfflineEnabled (TruthValue)
-// col 11 = capabilitySelfTestsSupported (TruthValue)
-// col 12 = capabilityConveyanceSupported (TruthValue)
-// col 13 = capabilitySelectiveSupported (TruthValue)
-// col 14 = capabilityErrorLoggingSupported (TruthValue)
-// col 15 = capabilityGpLoggingSupported (TruthValue)
-// col 16 = sctErrorRecoverySupported (TruthValue)
-// col 17 = sctFeatureControlSupported (TruthValue)
-// col 18 = sctDataTableSupported (TruthValue)
 // col 19 = powerCycles
 // col 20 = powerOnHours
 // col 21 = errorLogCount
-// col 22 = healthIndex (NOT-ACCESSIBLE, index)
+// col 28 = pendingDefectsCount
+// col 35 = selfTestLogCount
+// col 36 = selfTestLogErrTotal
+// col 37 = selfTestLogErrOutdated
 // ---------------------------------------------------------------------------
 
 static netsnmp_variable_list *
@@ -247,9 +314,6 @@ sata_health_get_next(void **loop_ctx, void **data_ctx,
     *data_ctx = &row;
     u_long v = (u_long)row.device_index;
     snmp_set_var_typed_value(put_idx, ASN_UNSIGNED, (u_char*)&v, sizeof(v));
-    v = 1;  // healthIndex = 1 per device
-    snmp_set_var_typed_value(put_idx->next_variable, ASN_UNSIGNED,
-                             (u_char*)&v, sizeof(v));
     return put_idx;
 }
 
@@ -273,85 +337,15 @@ sata_health_handler(netsnmp_mib_handler *,
         case 2:  { u_long v = row->offline_status_value;
                    snmp_set_var_typed_value(req->requestvb, ASN_GAUGE,
                        (u_char*)&v, sizeof(v)); break; }
-        case 4:  { u_long v = row->offline_completion_secs;
-                   snmp_set_var_typed_value(req->requestvb, ASN_GAUGE,
-                       (u_char*)&v, sizeof(v)); break; }
         case 5:  { u_long v = row->selftest_status_value;
                    snmp_set_var_typed_value(req->requestvb, ASN_GAUGE,
-                       (u_char*)&v, sizeof(v)); break; }
-        case 7:  { u_long v = row->polling_short_min;
-                   snmp_set_var_typed_value(req->requestvb, ASN_GAUGE,
-                       (u_char*)&v, sizeof(v)); break; }
-        case 8:  { u_long v = row->polling_ext_min;
-                   snmp_set_var_typed_value(req->requestvb, ASN_GAUGE,
-                       (u_char*)&v, sizeof(v)); break; }
-        case 9:  { u_long v = row->polling_conv_min;
-                   snmp_set_var_typed_value(req->requestvb, ASN_GAUGE,
-                       (u_char*)&v, sizeof(v)); break; }
-        case 10: { long v = row->cap_auto_offline ? 1 : 2;
-                   snmp_set_var_typed_value(req->requestvb, ASN_INTEGER,
-                       (u_char*)&v, sizeof(v)); break; }
-        case 11: { long v = row->cap_selftests ? 1 : 2;
-                   snmp_set_var_typed_value(req->requestvb, ASN_INTEGER,
-                       (u_char*)&v, sizeof(v)); break; }
-        case 12: { long v = row->cap_conveyance ? 1 : 2;
-                   snmp_set_var_typed_value(req->requestvb, ASN_INTEGER,
-                       (u_char*)&v, sizeof(v)); break; }
-        case 13: { long v = row->cap_selective ? 1 : 2;
-                   snmp_set_var_typed_value(req->requestvb, ASN_INTEGER,
-                       (u_char*)&v, sizeof(v)); break; }
-        case 14: { long v = row->cap_error_logging ? 1 : 2;
-                   snmp_set_var_typed_value(req->requestvb, ASN_INTEGER,
-                       (u_char*)&v, sizeof(v)); break; }
-        case 15: { long v = row->cap_gp_logging ? 1 : 2;
-                   snmp_set_var_typed_value(req->requestvb, ASN_INTEGER,
-                       (u_char*)&v, sizeof(v)); break; }
-        case 16: { long v = row->sct_error_recovery ? 1 : 2;
-                   snmp_set_var_typed_value(req->requestvb, ASN_INTEGER,
-                       (u_char*)&v, sizeof(v)); break; }
-        case 17: { long v = row->sct_feature_control ? 1 : 2;
-                   snmp_set_var_typed_value(req->requestvb, ASN_INTEGER,
-                       (u_char*)&v, sizeof(v)); break; }
-        case 18: { long v = row->sct_data_table ? 1 : 2;
-                   snmp_set_var_typed_value(req->requestvb, ASN_INTEGER,
                        (u_char*)&v, sizeof(v)); break; }
         case 19: set_counter64(req, row->power_cycles); break;
         case 20: set_counter64(req, row->power_on_hours); break;
         case 21: { u_long v = row->error_log_count;
                    snmp_set_var_typed_value(req->requestvb, ASN_GAUGE,
                        (u_char*)&v, sizeof(v)); break; }
-        case 22: { u_long v = 1;  // healthIndex
-                   snmp_set_var_typed_value(req->requestvb, ASN_GAUGE,
-                       (u_char*)&v, sizeof(v)); break; }
-        case 23: { long v = row->cap_exec_offline_immediate ? 1 : 2;
-                   snmp_set_var_typed_value(req->requestvb, ASN_INTEGER,
-                       (u_char*)&v, sizeof(v)); break; }
-        case 24: { long v = row->cap_offline_aborted_on_cmd ? 1 : 2;
-                   snmp_set_var_typed_value(req->requestvb, ASN_INTEGER,
-                       (u_char*)&v, sizeof(v)); break; }
-        case 25: { long v = row->cap_offline_surface_scan ? 1 : 2;
-                   snmp_set_var_typed_value(req->requestvb, ASN_INTEGER,
-                       (u_char*)&v, sizeof(v)); break; }
-        case 26: { long v = row->cap_attr_autosave ? 1 : 2;
-                   snmp_set_var_typed_value(req->requestvb, ASN_INTEGER,
-                       (u_char*)&v, sizeof(v)); break; }
-        case 27: { u_long v = row->pending_defects_size;
-                   snmp_set_var_typed_value(req->requestvb, ASN_UNSIGNED,
-                       (u_char*)&v, sizeof(v)); break; }
         case 28: { u_long v = row->pending_defects_count;
-                   snmp_set_var_typed_value(req->requestvb, ASN_UNSIGNED,
-                       (u_char*)&v, sizeof(v)); break; }
-        // cases 29-30 (spare_available) belong in the sensor MIB, not here
-        case 31: { u_long v = row->error_log_revision;
-                   snmp_set_var_typed_value(req->requestvb, ASN_UNSIGNED,
-                       (u_char*)&v, sizeof(v)); break; }
-        case 32: { u_long v = row->error_log_sectors;
-                   snmp_set_var_typed_value(req->requestvb, ASN_UNSIGNED,
-                       (u_char*)&v, sizeof(v)); break; }
-        case 33: { u_long v = row->selftest_log_revision;
-                   snmp_set_var_typed_value(req->requestvb, ASN_UNSIGNED,
-                       (u_char*)&v, sizeof(v)); break; }
-        case 34: { u_long v = row->selftest_log_sectors;
                    snmp_set_var_typed_value(req->requestvb, ASN_UNSIGNED,
                        (u_char*)&v, sizeof(v)); break; }
         case 35: { u_long v = row->selftest_log_count;
@@ -1087,8 +1081,8 @@ void register_sata_mib() {
         oid_sata_selftest_last_change,  OID_LEN(oid_sata_selftest_last_change),  HANDLER_CAN_RONLY));
 
     // SATA table iterator registrations
-    REG_TABLE_UU("smartmonSataInfoTable",     sata_info_handler,   oid_sata_info_table,      sata_info_get_next,    1, 32);
-    REG_TABLE_UU("smartmonSataHealthTable",   sata_health_handler, oid_sata_health_table,    sata_health_get_next,  1, 37);
+    REG_TABLE_U("smartmonSataInfoTable",      sata_info_handler,   oid_sata_info_table,      sata_info_get_next,    1, 53);
+    REG_TABLE_U("smartmonSataHealthTable",    sata_health_handler, oid_sata_health_table,    sata_health_get_next,  1, 37);
     REG_TABLE_UU("smartmonSataErrorLogTable", sata_el_handler,     oid_sata_error_log_table, sata_el_get_next,      1, 12);
     REG_TABLE_UU("smartmonSataAttrTable",     sata_attr_handler,   oid_sata_attr_table,      sata_attr_get_next,    2, 12);
 
