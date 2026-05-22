@@ -6,6 +6,9 @@ CXXFLAGS ?= -std=c++14 -Wall -Wextra -g
 SRCDIR   := ..
 FIXTURES ?= $(abspath ../fixtures)
 
+DEPDIR   := .deps
+$(shell mkdir -p $(DEPDIR))
+
 # Source files shared by tests (no net-snmp dependencies)
 COMMON_SRC := $(SRCDIR)/agentxd_json.cpp $(SRCDIR)/agentxd_cache.cpp
 
@@ -14,7 +17,7 @@ TESTS := test_json test_datasrc
 all: $(TESTS)
 
 test_json: test_json.cpp $(SRCDIR)/agentxd_json.cpp
-	$(CXX) $(CXXFLAGS) -I$(SRCDIR) -o $@ $^
+	$(CXX) $(CXXFLAGS) -I$(SRCDIR) -MMD -MP -MF $(DEPDIR)/$@.d -o $@ $^
 
 DATASRC_DEPS := $(SRCDIR)/agentxd_datasrc.cpp $(SRCDIR)/agentxd_datasrc.h \
                 $(SRCDIR)/agentxd_cache.cpp $(SRCDIR)/agentxd_cache.h \
@@ -22,7 +25,9 @@ DATASRC_DEPS := $(SRCDIR)/agentxd_datasrc.cpp $(SRCDIR)/agentxd_datasrc.h \
                 $(SRCDIR)/agentxd_config.h
 
 test_datasrc: test_datasrc.cpp $(DATASRC_DEPS)
-	$(CXX) $(CXXFLAGS) -I$(SRCDIR) -o $@ $<
+	$(CXX) $(CXXFLAGS) -I$(SRCDIR) -MMD -MP -MF $(DEPDIR)/$@.d -o $@ $<
+
+-include $(DEPDIR)/test_json.d $(DEPDIR)/test_datasrc.d
 
 # Run all tests; pass fixture files if the directory exists
 FIXTURE_FILES := $(wildcard $(FIXTURES)/*.json)
@@ -35,6 +40,6 @@ test: all
 	@echo "=== All tests passed ==="
 
 clean:
-	rm -f $(TESTS)
+	rm -f $(TESTS) $(DEPDIR)/*.d
 
 .PHONY: all test clean

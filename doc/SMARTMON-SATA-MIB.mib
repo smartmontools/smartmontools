@@ -13,8 +13,9 @@ IMPORTS
     SmartmonHealthStatus, SmartmonAtaSelfTestType,
     SmartmonAtaSelfTestResult, SmartmonAtaSmartAttrType,
     SmartmonAtaSmartAttrUpdated, SmartmonAtaSmartAttrStatus,
-    SmartmonAtaVersion, SmartmonAtaFormFactor, SmartmonSataVersion,
-    SmartmonAtaDeviceState, SmartmonAtaApmLevel,
+    SmartmonAtaVersion, SmartmonAtaMinorVersion, SmartmonAtaFormFactor,
+    SmartmonSataVersion, SmartmonAtaDeviceState, SmartmonAtaApmLevel,
+    SmartmonAtaLogAddress, SmartmonAtaDevStatPage, SmartmonAtaOfflineStatus,
     SmartmonLogicalBlockAddress, smartmonRoot
         FROM SMARTMON-TC-MIB
     smartmonDeviceIndex, smartmonDeviceName, smartmonDevicePath,
@@ -56,51 +57,6 @@ smartmonSataMIB MODULE-IDENTITY
 
          This MIB requires SMARTMON-TC-MIB and SMARTMON-COMMON-MIB."
     REVISION "202605210200Z"
-    DESCRIPTION
-        "Reorganised SmartmonSataInfoEntry and SmartmonSataHealthEntry
-         to reflect polling-frequency intent (InfoEntry 8 h,
-         HealthEntry 5 min).
-         Moved 21 static fields from SmartmonSataHealthEntry to
-         SmartmonSataInfoEntry (new OIDs 33-53): offline collection
-         completion time, self-test polling minutes (3), all capability
-         flags from ata_smart_data.capabilities (9), SCT capability
-         flags (3), error/self-test log revision and sector counts (4),
-         pending defects log capacity, and attribute autosave.
-         Removed smartmonSataCapabilityAutoOfflineEnabled: the field had
-         no direct JSON path and is derivable from
-         smartmonSataOfflineCollectionStatusValue bit 7.
-         SmartmonSataHealthEntry now contains 10 live-state fields."
-    REVISION "202605210000Z"
-    DESCRIPTION
-        "Added smartmonSataAttrRevision to SmartmonSataInfoEntry (OID 32):
-         SMART attribute table revision (ata_smart_attributes.revision).
-         Added smartmonSataPendingDefectsTable (OIDs 41-43): individual
-         pending-defect LBA entries from ata_pending_defects_log.table[].
-         Added conformance group 14 for pending defects LBA objects."
-    REVISION "202605200100Z"
-    DESCRIPTION
-        "Added smartmonSataErcTable (OIDs 19-21): SCT Error Recovery
-         Control, two rows per device (read/write direction).
-         Extended SmartmonSataHealthEntry with pending defects log
-         size/count,  and error/self-test
-         log metadata (revision, sectors, count, error counts).
-         Added smartmonSataPhyEventTable (OIDs 22-24): SATA PHY event
-         counters.
-         Added smartmonSataSelectiveTestTable (OIDs 25-27) and four
-         selective self-test log metadata scalars (OIDs 28-31).
-         Added smartmonSataLogDirTable (OIDs 32-34) and three ATA log
-         directory metadata scalars (OIDs 35-37).
-         Added smartmonSataDevStatTable (OIDs 38-40): ATA Device
-         Statistics log, indexed by page number and offset.
-         Added conformance groups 9-13 for all new objects."
-    REVISION "202605200000Z"
-    DESCRIPTION
-        "Extended SmartmonSataInfoEntry with user capacity in blocks,
-         form factor ATA value, ATA version integers, interface speed,
-         APM, read look-ahead, write cache, and ATA security fields.
-         Extended SmartmonSataHealthEntry with four additional SMART
-         capability flags."
-    REVISION "202605180000Z"
     DESCRIPTION "Initial draft."
     ::= { smartmonRoot 4 }
 
@@ -345,84 +301,84 @@ smartmonSataUserCapacityBlocks OBJECT-TYPE
     MAX-ACCESS  read-only
     STATUS      current
     DESCRIPTION "Total user-addressable capacity in logical blocks (user_capacity.blocks)."
-    ::= { smartmonSataInfoEntry 18 }
+    ::= { smartmonSataInfoEntry 17 }
 
 smartmonSataAtaVersionMajor OBJECT-TYPE
-    SYNTAX      Unsigned32
+    SYNTAX      SmartmonAtaVersion
     MAX-ACCESS  read-only
     STATUS      current
     DESCRIPTION "ATA major version bitmask from IDENTIFY DEVICE word 80 (ata_version.major_value)."
-    ::= { smartmonSataInfoEntry 19 }
+    ::= { smartmonSataInfoEntry 18 }
 
 smartmonSataAtaVersionMinor OBJECT-TYPE
-    SYNTAX      Unsigned32
+    SYNTAX      SmartmonAtaMinorVersion
     MAX-ACCESS  read-only
     STATUS      current
     DESCRIPTION "ATA minor version value from IDENTIFY DEVICE word 81 (ata_version.minor_value)."
-    ::= { smartmonSataInfoEntry 20 }
+    ::= { smartmonSataInfoEntry 19 }
 
 smartmonSataIfSpeedMaxValue OBJECT-TYPE
     SYNTAX      Unsigned32
     MAX-ACCESS  read-only
     STATUS      current
     DESCRIPTION "Maximum interface speed SATA value (interface_speed.max.sata_value)."
-    ::= { smartmonSataInfoEntry 21 }
+    ::= { smartmonSataInfoEntry 20 }
 
 smartmonSataIfSpeedCurrentValue OBJECT-TYPE
     SYNTAX      Unsigned32
     MAX-ACCESS  read-only
     STATUS      current
     DESCRIPTION "Negotiated interface speed SATA value (interface_speed.current.sata_value)."
-    ::= { smartmonSataInfoEntry 22 }
+    ::= { smartmonSataInfoEntry 21 }
 
 smartmonSataApmEnabled OBJECT-TYPE
     SYNTAX      TruthValue
     MAX-ACCESS  read-only
     STATUS      current
     DESCRIPTION "Whether Advanced Power Management is enabled (ata_apm.enabled)."
-    ::= { smartmonSataInfoEntry 23 }
+    ::= { smartmonSataInfoEntry 22 }
 
 smartmonSataApmLevel OBJECT-TYPE
     SYNTAX      SmartmonAtaApmLevel
     MAX-ACCESS  read-only
     STATUS      current
     DESCRIPTION "Advanced Power Management level (ata_apm.level)."
-    ::= { smartmonSataInfoEntry 24 }
+    ::= { smartmonSataInfoEntry 23 }
 
 smartmonSataReadLookaheadEnabled OBJECT-TYPE
     SYNTAX      TruthValue
     MAX-ACCESS  read-only
     STATUS      current
     DESCRIPTION "Whether read look-ahead is enabled (read_lookahead.enabled)."
-    ::= { smartmonSataInfoEntry 26 }
+    ::= { smartmonSataInfoEntry 24 }
 
 smartmonSataWriteCacheEnabled OBJECT-TYPE
     SYNTAX      TruthValue
     MAX-ACCESS  read-only
     STATUS      current
     DESCRIPTION "Whether write cache is enabled (write_cache.enabled)."
-    ::= { smartmonSataInfoEntry 27 }
+    ::= { smartmonSataInfoEntry 25 }
 
 smartmonSataSecurityState OBJECT-TYPE
     SYNTAX      Unsigned32
     MAX-ACCESS  read-only
     STATUS      current
     DESCRIPTION "ATA security state numeric value (ata_security.state)."
-    ::= { smartmonSataInfoEntry 28 }
+    ::= { smartmonSataInfoEntry 26 }
 
 smartmonSataSecurityEnabled OBJECT-TYPE
     SYNTAX      TruthValue
     MAX-ACCESS  read-only
     STATUS      current
     DESCRIPTION "Whether ATA security password protection is enabled (ata_security.enabled)."
-    ::= { smartmonSataInfoEntry 30 }
+    ::= { smartmonSataInfoEntry 27 }
 
 smartmonSataSecurityFrozen OBJECT-TYPE
     SYNTAX      TruthValue
     MAX-ACCESS  read-only
     STATUS      current
     DESCRIPTION "Whether the ATA security state is frozen (ata_security.frozen)."
-    ::= { smartmonSataInfoEntry 31 }
+    ::= { smartmonSataInfoEntry 28 }
 
 smartmonSataAttrRevision OBJECT-TYPE
     SYNTAX      Unsigned32
@@ -431,10 +387,10 @@ smartmonSataAttrRevision OBJECT-TYPE
     DESCRIPTION
         "SMART attribute table revision number
          (ata_smart_attributes.revision)."
-    ::= { smartmonSataInfoEntry 32 }
+    ::= { smartmonSataInfoEntry 29 }
 
 -- Capability and log-structure fields (static; polled on the 8-hour
--- InfoEntry schedule).  OIDs 33-53.
+-- InfoEntry schedule).  OIDs 30-50.
 
 smartmonSataOfflineCollectionCompletionSecs OBJECT-TYPE
     SYNTAX      Unsigned32
@@ -444,7 +400,7 @@ smartmonSataOfflineCollectionCompletionSecs OBJECT-TYPE
     DESCRIPTION
         "Total time to complete offline data collection
          (ata_smart_data.offline_data_collection.completion_seconds)."
-    ::= { smartmonSataInfoEntry 33 }
+    ::= { smartmonSataInfoEntry 30 }
 
 smartmonSataSelfTestPollingShortMinutes OBJECT-TYPE
     SYNTAX      Unsigned32
@@ -454,7 +410,7 @@ smartmonSataSelfTestPollingShortMinutes OBJECT-TYPE
     DESCRIPTION
         "Estimated time for short self-test
          (ata_smart_data.self_test.polling_minutes.short)."
-    ::= { smartmonSataInfoEntry 34 }
+    ::= { smartmonSataInfoEntry 31 }
 
 smartmonSataSelfTestPollingExtendedMinutes OBJECT-TYPE
     SYNTAX      Unsigned32
@@ -464,7 +420,7 @@ smartmonSataSelfTestPollingExtendedMinutes OBJECT-TYPE
     DESCRIPTION
         "Estimated time for extended self-test
          (ata_smart_data.self_test.polling_minutes.extended)."
-    ::= { smartmonSataInfoEntry 35 }
+    ::= { smartmonSataInfoEntry 32 }
 
 smartmonSataSelfTestPollingConveyanceMinutes OBJECT-TYPE
     SYNTAX      Unsigned32
@@ -474,7 +430,7 @@ smartmonSataSelfTestPollingConveyanceMinutes OBJECT-TYPE
     DESCRIPTION
         "Estimated time for conveyance self-test, if supported
          (ata_smart_data.self_test.polling_minutes.conveyance)."
-    ::= { smartmonSataInfoEntry 36 }
+    ::= { smartmonSataInfoEntry 33 }
 
 smartmonSataCapabilitySelfTestsSupported OBJECT-TYPE
     SYNTAX      TruthValue
@@ -483,7 +439,7 @@ smartmonSataCapabilitySelfTestsSupported OBJECT-TYPE
     DESCRIPTION
         "Whether self-tests are supported
          (ata_smart_data.capabilities.self_tests_supported)."
-    ::= { smartmonSataInfoEntry 37 }
+    ::= { smartmonSataInfoEntry 34 }
 
 smartmonSataCapabilityConveyanceSupported OBJECT-TYPE
     SYNTAX      TruthValue
@@ -492,7 +448,7 @@ smartmonSataCapabilityConveyanceSupported OBJECT-TYPE
     DESCRIPTION
         "Whether conveyance self-test is supported
          (ata_smart_data.capabilities.conveyance_self_test_supported)."
-    ::= { smartmonSataInfoEntry 38 }
+    ::= { smartmonSataInfoEntry 35 }
 
 smartmonSataCapabilitySelectiveSupported OBJECT-TYPE
     SYNTAX      TruthValue
@@ -501,7 +457,7 @@ smartmonSataCapabilitySelectiveSupported OBJECT-TYPE
     DESCRIPTION
         "Whether selective self-test is supported
          (ata_smart_data.capabilities.selective_self_test_supported)."
-    ::= { smartmonSataInfoEntry 39 }
+    ::= { smartmonSataInfoEntry 36 }
 
 smartmonSataCapabilityErrorLoggingSupported OBJECT-TYPE
     SYNTAX      TruthValue
@@ -510,7 +466,7 @@ smartmonSataCapabilityErrorLoggingSupported OBJECT-TYPE
     DESCRIPTION
         "Whether error logging is supported
          (ata_smart_data.capabilities.error_logging_supported)."
-    ::= { smartmonSataInfoEntry 40 }
+    ::= { smartmonSataInfoEntry 37 }
 
 smartmonSataCapabilityGpLoggingSupported OBJECT-TYPE
     SYNTAX      TruthValue
@@ -519,7 +475,7 @@ smartmonSataCapabilityGpLoggingSupported OBJECT-TYPE
     DESCRIPTION
         "Whether General Purpose logging is supported
          (ata_smart_data.capabilities.gp_logging_supported)."
-    ::= { smartmonSataInfoEntry 41 }
+    ::= { smartmonSataInfoEntry 38 }
 
 smartmonSataSctErrorRecoverySupported OBJECT-TYPE
     SYNTAX      TruthValue
@@ -528,7 +484,7 @@ smartmonSataSctErrorRecoverySupported OBJECT-TYPE
     DESCRIPTION
         "Whether SCT Error Recovery Control is supported
          (ata_sct_capabilities.error_recovery_control_supported)."
-    ::= { smartmonSataInfoEntry 42 }
+    ::= { smartmonSataInfoEntry 39 }
 
 smartmonSataSctFeatureControlSupported OBJECT-TYPE
     SYNTAX      TruthValue
@@ -537,7 +493,7 @@ smartmonSataSctFeatureControlSupported OBJECT-TYPE
     DESCRIPTION
         "Whether SCT Feature Control is supported
          (ata_sct_capabilities.feature_control_supported)."
-    ::= { smartmonSataInfoEntry 43 }
+    ::= { smartmonSataInfoEntry 40 }
 
 smartmonSataSctDataTableSupported OBJECT-TYPE
     SYNTAX      TruthValue
@@ -546,7 +502,7 @@ smartmonSataSctDataTableSupported OBJECT-TYPE
     DESCRIPTION
         "Whether SCT Data Table is supported
          (ata_sct_capabilities.data_table_supported)."
-    ::= { smartmonSataInfoEntry 44 }
+    ::= { smartmonSataInfoEntry 41 }
 
 smartmonSataCapabilityExecOfflineImmediate OBJECT-TYPE
     SYNTAX      TruthValue
@@ -555,7 +511,7 @@ smartmonSataCapabilityExecOfflineImmediate OBJECT-TYPE
     DESCRIPTION
         "Whether Execute Offline Immediate is supported
          (ata_smart_data.capabilities.exec_offline_immediate_supported)."
-    ::= { smartmonSataInfoEntry 45 }
+    ::= { smartmonSataInfoEntry 42 }
 
 smartmonSataCapabilityOfflineAbortedOnCmd OBJECT-TYPE
     SYNTAX      TruthValue
@@ -565,7 +521,7 @@ smartmonSataCapabilityOfflineAbortedOnCmd OBJECT-TYPE
         "Whether offline data collection is aborted upon receipt of a
          new command
          (ata_smart_data.capabilities.offline_is_aborted_upon_new_cmd)."
-    ::= { smartmonSataInfoEntry 46 }
+    ::= { smartmonSataInfoEntry 43 }
 
 smartmonSataCapabilityOfflineSurfaceScan OBJECT-TYPE
     SYNTAX      TruthValue
@@ -574,7 +530,7 @@ smartmonSataCapabilityOfflineSurfaceScan OBJECT-TYPE
     DESCRIPTION
         "Whether offline surface scan is supported
          (ata_smart_data.capabilities.offline_surface_scan_supported)."
-    ::= { smartmonSataInfoEntry 47 }
+    ::= { smartmonSataInfoEntry 44 }
 
 smartmonSataErrorLogRevision OBJECT-TYPE
     SYNTAX      Unsigned32
@@ -583,7 +539,7 @@ smartmonSataErrorLogRevision OBJECT-TYPE
     DESCRIPTION
         "Revision number of the extended SMART error log
          (ata_smart_error_log.extended.revision)."
-    ::= { smartmonSataInfoEntry 48 }
+    ::= { smartmonSataInfoEntry 45 }
 
 smartmonSataErrorLogSectors OBJECT-TYPE
     SYNTAX      Unsigned32
@@ -592,7 +548,7 @@ smartmonSataErrorLogSectors OBJECT-TYPE
     DESCRIPTION
         "Number of sectors occupied by the extended SMART error log
          (ata_smart_error_log.extended.sectors)."
-    ::= { smartmonSataInfoEntry 49 }
+    ::= { smartmonSataInfoEntry 46 }
 
 smartmonSataSelfTestLogRevision OBJECT-TYPE
     SYNTAX      Unsigned32
@@ -601,7 +557,7 @@ smartmonSataSelfTestLogRevision OBJECT-TYPE
     DESCRIPTION
         "Revision number of the extended self-test log
          (ata_smart_self_test_log.extended.revision)."
-    ::= { smartmonSataInfoEntry 50 }
+    ::= { smartmonSataInfoEntry 47 }
 
 smartmonSataSelfTestLogSectors OBJECT-TYPE
     SYNTAX      Unsigned32
@@ -610,7 +566,7 @@ smartmonSataSelfTestLogSectors OBJECT-TYPE
     DESCRIPTION
         "Number of sectors occupied by the extended self-test log
          (ata_smart_self_test_log.extended.sectors)."
-    ::= { smartmonSataInfoEntry 51 }
+    ::= { smartmonSataInfoEntry 48 }
 
 smartmonSataPendingDefectsSize OBJECT-TYPE
     SYNTAX      Unsigned32
@@ -619,7 +575,7 @@ smartmonSataPendingDefectsSize OBJECT-TYPE
     DESCRIPTION
         "Maximum number of defects the pending defects log can store
          (ata_pending_defects_log.size).  Zero if the log is absent."
-    ::= { smartmonSataInfoEntry 52 }
+    ::= { smartmonSataInfoEntry 49 }
 
 smartmonSataCapabilityAttrAutosave OBJECT-TYPE
     SYNTAX      TruthValue
@@ -628,7 +584,7 @@ smartmonSataCapabilityAttrAutosave OBJECT-TYPE
     DESCRIPTION
         "Whether SMART attribute autosave is currently enabled
          (ata_smart_data.capabilities.attribute_autosave_enabled)."
-    ::= { smartmonSataInfoEntry 53 }
+    ::= { smartmonSataInfoEntry 50 }
 
 -- --------------------------------------------------------------------------
 -- SATA SMART health table  (.4 RowCount, .5 LastChange, .6 Table)
@@ -690,11 +646,12 @@ smartmonSataHealthOverallStatus OBJECT-TYPE
     ::= { smartmonSataHealthEntry 1 }
 
 smartmonSataOfflineCollectionStatusValue OBJECT-TYPE
-    SYNTAX      Unsigned32
+    SYNTAX      SmartmonAtaOfflineStatus
     MAX-ACCESS  read-only
     STATUS      current
     DESCRIPTION
-        "Raw offline data collection status byte
+        "Offline data collection status (bits 6:0 of the raw status byte).
+         Bit 7 (auto offline flag) is not represented.
          (ata_smart_data.offline_data_collection.status.value)."
     ::= { smartmonSataHealthEntry 2 }
 
@@ -705,14 +662,14 @@ smartmonSataSelfTestExecutionStatusValue OBJECT-TYPE
     DESCRIPTION
         "Raw self-test execution status byte
          (ata_smart_data.self_test.status.value)."
-    ::= { smartmonSataHealthEntry 5 }
+    ::= { smartmonSataHealthEntry 3 }
 
 smartmonSataPowerCycles OBJECT-TYPE
     SYNTAX      CounterBasedGauge64
     MAX-ACCESS  read-only
     STATUS      current
     DESCRIPTION "Number of power cycles (power_cycle_count)."
-    ::= { smartmonSataHealthEntry 19 }
+    ::= { smartmonSataHealthEntry 4 }
 
 smartmonSataPowerOnHours OBJECT-TYPE
     SYNTAX      CounterBasedGauge64
@@ -720,7 +677,7 @@ smartmonSataPowerOnHours OBJECT-TYPE
     MAX-ACCESS  read-only
     STATUS      current
     DESCRIPTION "Power-on hours (power_on_time.hours)."
-    ::= { smartmonSataHealthEntry 20 }
+    ::= { smartmonSataHealthEntry 5 }
 
 smartmonSataErrorLogCount OBJECT-TYPE
     SYNTAX      Unsigned32
@@ -729,7 +686,7 @@ smartmonSataErrorLogCount OBJECT-TYPE
     DESCRIPTION
         "Total error count from the extended ATA SMART error log
          (ata_smart_error_log.extended.count)."
-    ::= { smartmonSataHealthEntry 21 }
+    ::= { smartmonSataHealthEntry 6 }
 
 smartmonSataPendingDefectsCount OBJECT-TYPE
     SYNTAX      Unsigned32
@@ -738,7 +695,7 @@ smartmonSataPendingDefectsCount OBJECT-TYPE
     DESCRIPTION
         "Current number of entries in the pending defects log
          (ata_pending_defects_log.count)."
-    ::= { smartmonSataHealthEntry 28 }
+    ::= { smartmonSataHealthEntry 7 }
 
 smartmonSataSelfTestLogCount OBJECT-TYPE
     SYNTAX      Unsigned32
@@ -747,7 +704,7 @@ smartmonSataSelfTestLogCount OBJECT-TYPE
     DESCRIPTION
         "Total number of self-test entries in the extended log
          (ata_smart_self_test_log.extended.count)."
-    ::= { smartmonSataHealthEntry 35 }
+    ::= { smartmonSataHealthEntry 8 }
 
 smartmonSataSelfTestLogErrTotal OBJECT-TYPE
     SYNTAX      Unsigned32
@@ -756,7 +713,7 @@ smartmonSataSelfTestLogErrTotal OBJECT-TYPE
     DESCRIPTION
         "Total number of self-test errors recorded in the extended log
          (ata_smart_self_test_log.extended.error_count_total)."
-    ::= { smartmonSataHealthEntry 36 }
+    ::= { smartmonSataHealthEntry 9 }
 
 smartmonSataSelfTestLogErrOutdated OBJECT-TYPE
     SYNTAX      Unsigned32
@@ -765,7 +722,7 @@ smartmonSataSelfTestLogErrOutdated OBJECT-TYPE
     DESCRIPTION
         "Number of self-test errors that have been overwritten and are
          no longer in the log (ata_smart_self_test_log.extended.error_count_outdated)."
-    ::= { smartmonSataHealthEntry 37 }
+    ::= { smartmonSataHealthEntry 10 }
 
 -- --------------------------------------------------------------------------
 -- SATA SMART attributes table  (.7 RowCount, .8 LastChange, .9 Table)
@@ -929,7 +886,7 @@ smartmonSataAttrStatus OBJECT-TYPE
     DESCRIPTION
         "Enumerated failure status derived from value, worst, and
          threshold."
-    ::= { smartmonSataAttrEntry 12 }
+    ::= { smartmonSataAttrEntry 11 }
 
 -- --------------------------------------------------------------------------
 -- SATA ATA error log table  (.10 RowCount, .11 LastChange, .12 Table)
@@ -1304,7 +1261,7 @@ smartmonSataSelfTestResult OBJECT-TYPE
     DESCRIPTION
         "Normalized self-test result, derived from
          ata_smart_self_test_log.extended.table[].status.value."
-    ::= { smartmonSataSelfTestEntry 4 }
+    ::= { smartmonSataSelfTestEntry 3 }
 
 smartmonSataSelfTestResultPassed OBJECT-TYPE
     SYNTAX      TruthValue
@@ -1313,7 +1270,7 @@ smartmonSataSelfTestResultPassed OBJECT-TYPE
     DESCRIPTION
         "Whether the self-test completed successfully
          (ata_smart_self_test_log.extended.table[].status.passed)."
-    ::= { smartmonSataSelfTestEntry 6 }
+    ::= { smartmonSataSelfTestEntry 4 }
 
 smartmonSataSelfTestRemainingPct OBJECT-TYPE
     SYNTAX      Unsigned32 (0..100)
@@ -1324,7 +1281,7 @@ smartmonSataSelfTestRemainingPct OBJECT-TYPE
         "Percentage of test remaining when the entry was written; non-zero
          only for aborted tests
          (ata_smart_self_test_log.extended.table[].status.remaining_percent)."
-    ::= { smartmonSataSelfTestEntry 7 }
+    ::= { smartmonSataSelfTestEntry 5 }
 
 smartmonSataSelfTestLifetimeHours OBJECT-TYPE
     SYNTAX      CounterBasedGauge64
@@ -1334,7 +1291,7 @@ smartmonSataSelfTestLifetimeHours OBJECT-TYPE
     DESCRIPTION
         "Power-on lifetime hours at the time of the self-test
          (ata_smart_self_test_log.extended.table[].lifetime_hours)."
-    ::= { smartmonSataSelfTestEntry 8 }
+    ::= { smartmonSataSelfTestEntry 6 }
 
 smartmonSataSelfTestLbaFirstError OBJECT-TYPE
     SYNTAX      SmartmonLogicalBlockAddress
@@ -1343,7 +1300,7 @@ smartmonSataSelfTestLbaFirstError OBJECT-TYPE
     DESCRIPTION
         "LBA of the first error, if reported
          (ata_smart_self_test_log.extended.table[].lba_first_error)."
-    ::= { smartmonSataSelfTestEntry 9 }
+    ::= { smartmonSataSelfTestEntry 7 }
 
 -- --------------------------------------------------------------------------
 -- SATA SCT Error Recovery Control table  (.19 RowCount, .20 LastChange, .21 Table)
@@ -1402,7 +1359,7 @@ smartmonSataErcEnabled OBJECT-TYPE
     DESCRIPTION
         "Whether SCT ERC is enabled for this direction
          (ata_sct_erc.read.enabled / ata_sct_erc.write.enabled)."
-    ::= { smartmonSataErcEntry 3 }
+    ::= { smartmonSataErcEntry 2 }
 
 smartmonSataErcDeciseconds OBJECT-TYPE
     SYNTAX      Unsigned32
@@ -1413,7 +1370,7 @@ smartmonSataErcDeciseconds OBJECT-TYPE
         "SCT ERC recovery time limit for this direction
          (ata_sct_erc.read.deciseconds / ata_sct_erc.write.deciseconds).
          Zero means no limit is configured."
-    ::= { smartmonSataErcEntry 4 }
+    ::= { smartmonSataErcEntry 3 }
 
 -- --------------------------------------------------------------------------
 -- SATA PHY Event Counters table  (.22 RowCount, .23 LastChange, .24 Table)
@@ -1668,7 +1625,7 @@ SmartmonSataLogDirEntry ::= SEQUENCE {
 }
 
 smartmonSataLogDirAddress OBJECT-TYPE
-    SYNTAX      Unsigned32 (0..255)
+    SYNTAX      SmartmonAtaLogAddress
     MAX-ACCESS  not-accessible
     STATUS      current
     DESCRIPTION
@@ -1796,7 +1753,7 @@ SmartmonSataDevStatEntry ::= SEQUENCE {
 }
 
 smartmonSataDevStatPageNum OBJECT-TYPE
-    SYNTAX      Unsigned32 (0..255)
+    SYNTAX      SmartmonAtaDevStatPage
     MAX-ACCESS  not-accessible
     STATUS      current
     DESCRIPTION

@@ -1062,6 +1062,47 @@ static void parse_ata(uint32_t dev_idx, const JVal &root) {
         info.write_cache_enabled = root["write_cache"]["enabled"].as_bool();
         info.attr_revision = static_cast<uint32_t>(
             root["ata_smart_attributes"]["revision"].as_uint64());
+
+        // Static capability and log-structure fields (cols 33–53)
+        {
+            const JVal &smart = root["ata_smart_data"];
+            if (!smart.is_null()) {
+                const JVal &odc = smart["offline_data_collection"];
+                info.offline_completion_secs = static_cast<uint32_t>(odc["completion_seconds"].as_uint64());
+                const JVal &st = smart["self_test"];
+                info.polling_short_min = static_cast<uint32_t>(st["polling_minutes"]["short"].as_uint64());
+                info.polling_ext_min   = static_cast<uint32_t>(st["polling_minutes"]["extended"].as_uint64());
+                info.polling_conv_min  = static_cast<uint32_t>(st["polling_minutes"]["conveyance"].as_uint64());
+                const JVal &cap = smart["capabilities"];
+                info.cap_selftests              = cap["self_tests_supported"].as_bool();
+                info.cap_conveyance             = cap["conveyance_self_test_supported"].as_bool();
+                info.cap_selective              = cap["selective_self_test_supported"].as_bool();
+                info.cap_error_logging          = cap["error_logging_supported"].as_bool();
+                info.cap_gp_logging             = cap["gp_logging_supported"].as_bool();
+                info.cap_exec_offline_immediate = cap["exec_offline_immediate_supported"].as_bool();
+                info.cap_offline_aborted_on_cmd = cap["offline_is_aborted_upon_new_cmd"].as_bool();
+                info.cap_offline_surface_scan   = cap["offline_surface_scan_supported"].as_bool();
+                info.cap_attr_autosave          = cap["attribute_autosave_enabled"].as_bool();
+            }
+        }
+        {
+            const JVal &sct = root["ata_sct_capabilities"];
+            info.sct_error_recovery  = sct["error_recovery_control_supported"].as_bool();
+            info.sct_feature_control = sct["feature_control_supported"].as_bool();
+            info.sct_data_table      = sct["data_table_supported"].as_bool();
+        }
+        info.pending_defects_size = static_cast<uint32_t>(root["ata_pending_defects_log"]["size"].as_uint64());
+        {
+            const JVal &el = root["ata_smart_error_log"]["extended"];
+            info.error_log_revision = static_cast<uint32_t>(el["revision"].as_uint64());
+            info.error_log_sectors  = static_cast<uint32_t>(el["sectors"].as_uint64());
+        }
+        {
+            const JVal &stl = root["ata_smart_self_test_log"]["extended"];
+            info.selftest_log_revision = static_cast<uint32_t>(stl["revision"].as_uint64());
+            info.selftest_log_sectors  = static_cast<uint32_t>(stl["sectors"].as_uint64());
+        }
+
         if (!info.model_name.empty() || info.logical_block_size > 0)
             g_cache.sata_info.push_back(info);
     }
@@ -1071,50 +1112,24 @@ static void parse_ata(uint32_t dev_idx, const JVal &root) {
         const JVal &smart = root["ata_smart_data"];
         if (!smart.is_null()) {
             CacheSataHealthRow h;
-            h.device_index              = dev_idx;
-            h.overall_status            = health_status_from_passed(root);
+            h.device_index         = dev_idx;
+            h.overall_status       = health_status_from_passed(root);
             const JVal &odc = smart["offline_data_collection"];
-            h.offline_status_value      = static_cast<uint32_t>(odc["status"]["value"].as_uint64());
-            h.offline_completion_secs   = static_cast<uint32_t>(odc["completion_seconds"].as_uint64());
+            h.offline_status_value = static_cast<uint32_t>(odc["status"]["value"].as_uint64());
             const JVal &st = smart["self_test"];
-            h.selftest_status_value     = static_cast<uint32_t>(st["status"]["value"].as_uint64());
-            h.polling_short_min         = static_cast<uint32_t>(st["polling_minutes"]["short"].as_uint64());
-            h.polling_ext_min           = static_cast<uint32_t>(st["polling_minutes"]["extended"].as_uint64());
-            h.polling_conv_min          = static_cast<uint32_t>(st["polling_minutes"]["conveyance"].as_uint64());
-            const JVal &cap = smart["capabilities"];
-            h.cap_auto_offline          = (odc["status"]["value"].as_uint64() & 0x80) != 0;
-            h.cap_selftests             = cap["self_tests_supported"].as_bool();
-            h.cap_conveyance            = cap["conveyance_self_test_supported"].as_bool();
-            h.cap_selective             = cap["selective_self_test_supported"].as_bool();
-            h.cap_error_logging         = cap["error_logging_supported"].as_bool();
-            h.cap_gp_logging            = cap["gp_logging_supported"].as_bool();
-            h.cap_exec_offline_immediate = cap["exec_offline_immediate_supported"].as_bool();
-            h.cap_offline_aborted_on_cmd = cap["offline_is_aborted_upon_new_cmd"].as_bool();
-            h.cap_offline_surface_scan   = cap["offline_surface_scan_supported"].as_bool();
-            h.cap_attr_autosave          = cap["attribute_autosave_enabled"].as_bool();
-            const JVal &sct = root["ata_sct_capabilities"];
-            h.sct_error_recovery        = sct["error_recovery_control_supported"].as_bool();
-            h.sct_feature_control       = sct["feature_control_supported"].as_bool();
-            h.sct_data_table            = sct["data_table_supported"].as_bool();
-            h.power_cycles              = root["power_cycle_count"].as_uint64();
-            h.power_on_hours            = root["power_on_time"]["hours"].as_uint64();
-            h.error_log_count           = static_cast<uint32_t>(
+            h.selftest_status_value = static_cast<uint32_t>(st["status"]["value"].as_uint64());
+            h.power_cycles         = root["power_cycle_count"].as_uint64();
+            h.power_on_hours       = root["power_on_time"]["hours"].as_uint64();
+            h.error_log_count      = static_cast<uint32_t>(
                 root["ata_smart_error_log"]["extended"]["count"].as_uint64());
-
-            // sub-OIDs 27–37: new health fields
-            h.pending_defects_size  = static_cast<uint32_t>(root["ata_pending_defects_log"]["size"].as_uint64());
             h.pending_defects_count = static_cast<uint32_t>(root["ata_pending_defects_log"]["count"].as_uint64());
             h.spare_available_pct        = static_cast<uint32_t>(root["spare_available"]["current_percent"].as_uint64());
             h.spare_available_thresh_pct = static_cast<uint32_t>(root["spare_available"]["threshold_percent"].as_uint64());
-            h.error_log_revision = static_cast<uint32_t>(root["ata_smart_error_log"]["extended"]["revision"].as_uint64());
-            h.error_log_sectors  = static_cast<uint32_t>(root["ata_smart_error_log"]["extended"]["sectors"].as_uint64());
             {
                 const JVal &stl = root["ata_smart_self_test_log"]["extended"];
-                h.selftest_log_revision    = static_cast<uint32_t>(stl["revision"].as_uint64());
-                h.selftest_log_sectors     = static_cast<uint32_t>(stl["sectors"].as_uint64());
-                h.selftest_log_count       = static_cast<uint32_t>(stl["count"].as_uint64());
-                h.selftest_log_err_total   = static_cast<uint32_t>(stl["error_count_total"].as_uint64());
-                h.selftest_log_err_outdated= static_cast<uint32_t>(stl["error_count_outdated"].as_uint64());
+                h.selftest_log_count        = static_cast<uint32_t>(stl["count"].as_uint64());
+                h.selftest_log_err_total    = static_cast<uint32_t>(stl["error_count_total"].as_uint64());
+                h.selftest_log_err_outdated = static_cast<uint32_t>(stl["error_count_outdated"].as_uint64());
             }
 
             // selective self-test log scalars
@@ -1132,6 +1147,16 @@ static void parse_ata(uint32_t dev_idx, const JVal &root) {
                 h.logdir_gp_version        = static_cast<uint32_t>(ld["gp_dir_version"].as_uint64());
                 h.logdir_smart_version     = static_cast<uint32_t>(ld["smart_dir_version"].as_uint64());
                 h.logdir_smart_multisector = ld["smart_dir_multi_sector"].as_bool();
+            }
+
+            h.error_log_revision = static_cast<uint32_t>(
+                root["ata_smart_error_log"]["extended"]["revision"].as_uint64());
+            {
+                const JVal &cap = smart["capabilities"];
+                h.cap_exec_offline_immediate = cap["exec_offline_immediate_supported"].as_bool();
+                h.cap_offline_aborted_on_cmd = cap["offline_is_aborted_upon_new_cmd"].as_bool();
+                h.cap_offline_surface_scan   = cap["offline_surface_scan_supported"].as_bool();
+                h.cap_attr_autosave          = cap["attribute_autosave_enabled"].as_bool();
             }
 
             g_cache.sata_health.push_back(h);

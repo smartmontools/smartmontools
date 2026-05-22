@@ -332,6 +332,28 @@ struct CacheSataInfoRow {
     bool        security_enabled { false };   // col 30
     bool        security_frozen  { false };   // col 31
     uint32_t    attr_revision    { 0 };       // col 32  ata_smart_attributes.revision
+    // Static capability and log-structure fields (cols 33–53, 8-hour poll)
+    uint32_t    offline_completion_secs      { 0 };    // col 33
+    uint32_t    polling_short_min            { 0 };    // col 34
+    uint32_t    polling_ext_min              { 0 };    // col 35
+    uint32_t    polling_conv_min             { 0 };    // col 36
+    bool        cap_selftests                { false }; // col 37
+    bool        cap_conveyance               { false }; // col 38
+    bool        cap_selective                { false }; // col 39
+    bool        cap_error_logging            { false }; // col 40
+    bool        cap_gp_logging               { false }; // col 41
+    bool        sct_error_recovery           { false }; // col 42
+    bool        sct_feature_control          { false }; // col 43
+    bool        sct_data_table               { false }; // col 44
+    bool        cap_exec_offline_immediate   { false }; // col 45
+    bool        cap_offline_aborted_on_cmd   { false }; // col 46
+    bool        cap_offline_surface_scan     { false }; // col 47
+    uint32_t    error_log_revision           { 0 };    // col 48
+    uint32_t    error_log_sectors            { 0 };    // col 49
+    uint32_t    selftest_log_revision        { 0 };    // col 50
+    uint32_t    selftest_log_sectors         { 0 };    // col 51
+    uint32_t    pending_defects_size         { 0 };    // col 52
+    bool        cap_attr_autosave            { false }; // col 53
 };
 
 // --------------------------------------------------------------------
@@ -339,51 +361,34 @@ struct CacheSataInfoRow {
 // --------------------------------------------------------------------
 struct CacheSataHealthRow {
     uint32_t    device_index { 0 };
-    int         overall_status   { 0 };
-    uint32_t    offline_status_value { 0 };
-    uint32_t    offline_completion_secs { 0 };
-    uint32_t    selftest_status_value { 0 };
-    uint32_t    polling_short_min { 0 };
-    uint32_t    polling_ext_min   { 0 };
-    uint32_t    polling_conv_min  { 0 };
-    bool        cap_auto_offline  { false };
-    bool        cap_selftests     { false };
-    bool        cap_conveyance    { false };
-    bool        cap_selective     { false };
-    bool        cap_error_logging { false };
-    bool        cap_gp_logging    { false };
-    bool        sct_error_recovery { false };
-    bool        sct_feature_control { false };
-    bool        sct_data_table    { false };
-    uint64_t    power_cycles      { 0 };
-    uint64_t    power_on_hours    { 0 };
-    uint32_t    error_log_count   { 0 };
-    // sub-OIDs 23–26 (previously missing)
-    bool        cap_exec_offline_immediate { false };
-    bool        cap_offline_aborted_on_cmd { false };
-    bool        cap_offline_surface_scan   { false };
-    bool        cap_attr_autosave          { false };
-    // sub-OIDs 27–37
-    uint32_t    pending_defects_size       { 0 };
-    uint32_t    pending_defects_count      { 0 };
+    int         overall_status          { 0 };   // col 1
+    uint32_t    offline_status_value    { 0 };   // col 2
+    uint32_t    selftest_status_value   { 0 };   // col 5
+    uint64_t    power_cycles            { 0 };   // col 19
+    uint64_t    power_on_hours          { 0 };   // col 20
+    uint32_t    error_log_count         { 0 };   // col 21
+    uint32_t    pending_defects_count   { 0 };   // col 28
     uint32_t    spare_available_pct        { 0 };
     uint32_t    spare_available_thresh_pct { 0 };
-    uint32_t    error_log_revision         { 0 };
-    uint32_t    error_log_sectors          { 0 };
-    uint32_t    selftest_log_revision      { 0 };
-    uint32_t    selftest_log_sectors       { 0 };
-    uint32_t    selftest_log_count         { 0 };
-    uint32_t    selftest_log_err_total     { 0 };
-    uint32_t    selftest_log_err_outdated  { 0 };
-    // selective self-test log scalars (for OIDs 28–31)
+    uint32_t    selftest_log_count         { 0 };   // col 35
+    uint32_t    selftest_log_err_total     { 0 };   // col 36
+    uint32_t    selftest_log_err_outdated  { 0 };   // col 37
+    // selective self-test log scalars
     uint32_t    selective_log_revision     { 0 };
     uint32_t    selective_flags_value      { 0 };
     bool        selective_remainder_scan   { false };
     uint32_t    selective_powerup_resume_min { 0 };
-    // log directory scalars (for OIDs 35–37)
+    // log directory scalars
     uint32_t    logdir_gp_version          { 0 };
     uint32_t    logdir_smart_version       { 0 };
     bool        logdir_smart_multisector   { false };
+    // error log revision (col from ata_smart_error_log.extended.revision)
+    uint32_t    error_log_revision         { 0 };
+    // offline/capability flags (sub-OIDs 23–26)
+    bool        cap_exec_offline_immediate { false };
+    bool        cap_offline_aborted_on_cmd { false };
+    bool        cap_offline_surface_scan   { false };
+    bool        cap_attr_autosave          { false };
 };
 
 // --------------------------------------------------------------------

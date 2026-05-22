@@ -19,7 +19,15 @@ smartmonTcMIB MODULE-IDENTITY
     DESCRIPTION
         "Textual conventions shared across all SMARTMON-*-MIB modules."
     REVISION "202605210000Z"
-    DESCRIPTION "Added SmartmonAtaApmLevel. Added SmartmonLogicalBlockAddress."
+    DESCRIPTION
+        "Added SmartmonAtaApmLevel. Added SmartmonLogicalBlockAddress.
+         Added SmartmonAtaMinorVersion (named INTEGER, word-81 values).
+         Added SmartmonAtaLogAddress (GetLogName), SmartmonAtaDevStatPage
+         (device statistics page numbers), SmartmonAtaOfflineStatus
+         (offline collection status bits 6:0).
+         Fixed SmartmonAtaSelfTestType: replaced unknown(0)/abort(9) with
+         offline(0)/abortOffline(127); added captive variants 129-132.
+         Removed unused neverRun(255) from SmartmonAtaSelfTestResult."
     REVISION "202605180000Z"
     DESCRIPTION "Initial draft."
     ::= { smartmonRoot 1 }
@@ -115,22 +123,28 @@ SmartmonAtaSelfTestResult ::= TEXTUAL-CONVENTION
         completedServomechanismFailure(7),
         completedReadFailure(8),
         completedHandlingDamageSuspect(9),
-        inProgress(15),
-        neverRun(255)
+        inProgress(15)
     }
 
 SmartmonAtaSelfTestType ::= TEXTUAL-CONVENTION
     STATUS      current
     DESCRIPTION
         "The type of self-test recorded in an ATA/SATA self-test log
-         entry, derived from the self-test routine field."
+         entry, as the raw self-test routine byte from the log.
+         Bit 7 (0x80) distinguishes captive (foreground) from offline
+         (background) mode.  Values 0x40-0x7e and 0x90+ are
+         vendor-specific and will appear as unrecognised integers."
     SYNTAX INTEGER {
-        unknown(0),
+        offline(0),
         short(1),
         extended(2),
         conveyance(3),
         selective(4),
-        abort(9)
+        abortOffline(127),
+        shortCaptive(129),
+        extendedCaptive(130),
+        conveyanceCaptive(131),
+        selectiveCaptive(132)
     }
 
 SmartmonNvmeSelfTestType ::= TEXTUAL-CONVENTION
@@ -255,6 +269,70 @@ SmartmonAtaDeviceState ::= TEXTUAL-CONVENTION
         smartOfflineOrSelftest(4)
     }
 
+SmartmonAtaMinorVersion ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION
+        "ATA minor version number from IDENTIFY DEVICE word 81
+         (ata_version.minor_value).  0x0000 (0) and 0xffff (65535)
+         indicate not reported.  Values are sparse; unlisted integers
+         are reserved or vendor-specific.
+         Source: ataprint.cpp get_ata_minor_version."
+    SYNTAX INTEGER {
+        ata1X3t9Pr4(1),
+        ata1Ansi1994(2),
+        ata1X3t9Rev4(3),
+        ata2Ansi1996(4),
+        ata2X3t10Pr2k(5),
+        ata3X3t10Rev1(6),
+        ata2X3t10Rev2k(7),
+        ata3X3t10Rev0(8),
+        ata2X3t10Rev3(9),
+        ata3Ansi1997(10),
+        ata3X3t10Rev6(11),
+        ata3X3t13Rev7(12),
+        ataAtapi4X3t13Rev6(13),
+        ataAtapi4T13Rev13(14),
+        ataAtapi4X3t13Rev7(15),
+        ataAtapi4T13Rev18(16),
+        ataAtapi4T13Rev15(17),
+        ataAtapi4Ansi1998(18),
+        ataAtapi5T13Rev3(19),
+        ataAtapi4T13Rev14(20),
+        ataAtapi5T13Rev1(21),
+        ataAtapi5Ansi2000(22),
+        ataAtapi4T13Rev17(23),
+        ataAtapi6T13Rev0(24),
+        ataAtapi6T13Rev3a(25),
+        ataAtapi7T13Rev1(26),
+        ataAtapi6T13Rev2(27),
+        ataAtapi6T13Rev1(28),
+        ataAtapi7Ansi2005(29),
+        ataAtapi7T13Rev0(30),
+        acs3T13Rev3b(31),
+        ataAtapi7T13Rev4a(33),
+        ataAtapi6Ansi2002(34),
+        acs6BsrRev7(37),
+        ata8AcsRev3c(39),
+        ata8AcsRev6(40),
+        ata8AcsRev4(41),
+        acs5BsrRev10(48),
+        acs2T13Rev2(49),
+        ata8AcsRev3e(51),
+        ata8AcsRev4c(57),
+        ata8AcsRev3f(66),
+        ata8AcsRev3b(82),
+        acs4BsrRev5(94),
+        acs3T13Rev5(109),
+        acs6BsrRev11(112),
+        acs6BsrRev2(115),
+        acs2Ansi2012(130),
+        acs4Ansi2018(156),
+        ata8AcsRev2d(263),
+        acs3Ansi2014(266),
+        acs2T13Rev3(272),
+        acs3T13Rev4(283)
+    }
+
 SmartmonAtaVersion ::= TEXTUAL-CONVENTION
     STATUS      current
     DESCRIPTION
@@ -305,6 +383,103 @@ SmartmonAtaApmLevel ::= TEXTUAL-CONVENTION
         intermediateNoSpinDownLow(128),
         maximumPerformance(254),
         apmDisabled(255)
+    }
+
+SmartmonAtaLogAddress ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION
+        "ATA GPL/SMART log address as reported in the Log Directory
+         (ata_smart_log_directory / gp_log_directory table[].address).
+         Source: ataprint.cpp GetLogName.
+         Values 0x1a-0x1f, 0x26-0x2e, 0x31-0x41, 0x43-0x46,
+         0x48-0x52, 0x54-0x58, 0x5a-0x60, 0x62-0x7f are reserved.
+         All integers in hostVendorSpecificFirst(128)..hostVendorSpecificLast(159)
+         are host vendor specific logs.
+         All integers in deviceVendorSpecificFirst(160)..deviceVendorSpecificLast(223)
+         are device vendor specific logs.
+         Values 0xe2-0xff are reserved."
+    SYNTAX INTEGER {
+        logDirectory(0),
+        summarySmartErrorLog(1),
+        comprehensiveSmartErrorLog(2),
+        extComprehensiveSmartErrorLog(3),
+        deviceStatisticsLog(4),
+        reservedForCfa1(5),
+        smartSelfTestLog(6),
+        extendedSelfTestLog(7),
+        powerConditionsLog(8),
+        selectiveSelfTestLog(9),
+        deviceStatisticsNotification(10),
+        reservedForCfa2(11),
+        pendingDefectsLog(12),
+        lpsMisalignmentLog(13),
+        reservedForZac2(14),
+        senseDataForNcqLog(15),
+        ncqCommandErrorLog(16),
+        sataPhyEventCountersLog(17),
+        sataNcqNonDataLog(18),
+        sataNcqSendReceiveLog(19),
+        hybridInformationLog(20),
+        rebuildAssistLog(21),
+        outOfBandMgmtLog(22),
+        reservedForSata(23),
+        commandDurationLimitsLog(24),
+        lbaStatusLog(25),
+        streamingPerformanceLog(32),
+        writeStreamErrorLog(33),
+        readStreamErrorLog(34),
+        delayedSectorLog(35),
+        currentDeviceInternalStatus(36),
+        savedDeviceInternalStatus(37),
+        sectorConfigLog(47),
+        identifyDeviceDataLog(48),
+        mutateConfigurationsLog(66),
+        concurrentPositioningRangesLog(71),
+        senseDataLog(83),
+        powerConsumptionControlLog(89),
+        capacityModelNumberMappingLog(97),
+        hostVendorSpecificFirst(128),
+        hostVendorSpecificLast(159),
+        deviceVendorSpecificFirst(160),
+        deviceVendorSpecificLast(223),
+        sctCommandStatus(224),
+        sctDataTransfer(225)
+    }
+
+SmartmonAtaDevStatPage ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION
+        "ATA Device Statistics log page number
+         (ata_device_statistics.pages[].number).
+         Source: ataprint.cpp get_device_statistics_page_name / devstat_infos."
+    SYNTAX INTEGER {
+        supportedLogPages(0),
+        generalStatistics(1),
+        freeFallStatistics(2),
+        rotatingMediaStatistics(3),
+        generalErrorsStatistics(4),
+        temperatureStatistics(5),
+        transportStatistics(6),
+        solidStateStatistics(7),
+        vendorSpecific(255)
+    }
+
+SmartmonAtaOfflineStatus ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION
+        "ATA offline data collection status derived from bits 6:0 of the
+         status byte (ata_smart_data.offline_data_collection.status.value).
+         Bit 7 of the raw byte is the Auto Offline Data Collection flag
+         and is not represented here.  Source: ataprint.cpp
+         OfflineDataCollectionStatus.  Values 0x01, 0x07-0x3f are
+         reserved; 0x40-0x7f are vendor-specific."
+    SYNTAX INTEGER {
+        neverStarted(0),
+        completedWithoutError(2),
+        inProgress(3),
+        suspendedByCommand(4),
+        abortedByCommand(5),
+        abortedFatalError(6)
     }
 
 SmartmonScsiErrorDirection ::= TEXTUAL-CONVENTION
