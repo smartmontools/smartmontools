@@ -6,6 +6,7 @@ smartmon-snmp-agentxd \- SNMP AgentX subagent for smartmontools SMART data
 .RB [ \-c
 .IR config ]
 .RB [ \-f ]
+.RB [ \-v | \-vv ]
 .SH DESCRIPTION
 .B smartmon-snmp-agentxd
 is a net-snmp AgentX subagent (RFC 2741) that exposes SMART drive data
@@ -39,6 +40,17 @@ Default:
 .B \-f
 Run in the foreground; do not daemonise.
 Useful for debugging.
+.TP
+.B \-v
+Enable verbose logging.
+Logs device scan flow and per-device load summaries to syslog at
+.BR LOG_DEBUG .
+.TP
+.B \-vv
+Enable very verbose logging.
+In addition to
+.BR \-v ,
+logs per-sensor detail and SNMP iterator calls.
 .TP
 .B \-h
 Print usage and exit.
@@ -117,7 +129,7 @@ master agentx
 agentXSocket /var/agentx/master
 agentXPerms 0660 0660 root netsnmp
 mibs +SMARTMON-TC-MIB:SMARTMON-COMMON-MIB:SMARTMON-NVME-MIB:SMARTMON-SATA-MIB:SMARTMON-SAS-MIB
-rocommunity public default .1.3.6.1.4.1.99999
+rocommunity public default .1.3.6.1.4.1.9999
 .fi
 .RE
 .SH FILES
@@ -130,6 +142,33 @@ Recommended location for smartd JSON state files.
 .TP
 .I /var/agentx/master
 Default AgentX master socket.
+.SH SIGNALS
+.TP
+.BR SIGTERM ", " SIGINT
+Initiates a clean shutdown: deregisters MIB subtrees, closes the AgentX
+connection, and exits with status 0.
+.TP
+.B SIGHUP
+Rescans
+.I state_dir
+for JSON state files without restarting the process.
+Useful after adding or removing drives while the agent is running.
+If the rescan fails (e.g.\& the directory has become inaccessible),
+the agent continues running but serves an empty MIB until the next
+.BR SIGHUP .
+.SH EXIT STATUS
+.TP
+.B 0
+Clean exit after receiving
+.B SIGTERM
+or
+.BR SIGINT .
+.TP
+.B 1
+Startup error (configuration problem, missing state directory,
+AgentX connection failure) or runtime error (fatal
+.BR select (2)
+failure).
 .SH SEE ALSO
 .BR smartd (8),
 .BR smartd.conf (5),

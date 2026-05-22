@@ -133,11 +133,11 @@ int main(int argc, char *argv[])
     syslog(LOG_INFO, "AgentX registered, entering main loop.");
 
     // Main select loop — runs until SIGTERM/SIGINT
-    agentxd_loop_run(&g_exit_signal, &g_reload_signal, cfg);
+    bool clean_exit = agentxd_loop_run(&g_exit_signal, &g_reload_signal, cfg);
 
     syslog(LOG_INFO, "Shutting down.");
     agentxd_loop_shutdown();
     agentxd_datasrc_shutdown();
     closelog();
-    return EXIT_SUCCESS;
+    return clean_exit ? EXIT_SUCCESS : EXIT_FAILURE;
 }

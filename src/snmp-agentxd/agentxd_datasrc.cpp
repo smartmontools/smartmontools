@@ -1578,9 +1578,11 @@ static void process_json_file(const std::string &filepath) {
     else if (protocol == "SAT")  proto = PROTO_SAT;
     else if (protocol == "SAS")  proto = PROTO_SAS;
 
-    if (proto == PROTO_UNKNOWN)
-        syslog(LOG_WARNING, "datasrc: %s: unrecognized protocol '%s'",
+    if (proto == PROTO_UNKNOWN) {
+        syslog(LOG_WARNING, "datasrc: %s: unrecognized protocol '%s' — skipping",
                filepath.c_str(), protocol.c_str());
+        return;
+    }
 
     uint32_t dev_idx = g_cache.upsert_device(dev_path, proto);
     if (g_verbosity >= 2)
@@ -1611,9 +1613,6 @@ static void process_json_file(const std::string &filepath) {
         parse_ata(dev_idx, root);
     else if (proto == PROTO_SCSI || proto == PROTO_SAS)
         parse_scsi(dev_idx, root);
-    else
-        syslog(LOG_DEBUG, "datasrc: no parser for proto=%d on '%s'",
-               (int)proto, dev_path.c_str());
 
     size_t sensors_added = g_cache.sensors.size() - sensors_before;
     if (g_verbosity >= 1)

@@ -65,7 +65,7 @@ bool agentxd_loop_init(const AgentxConfig &cfg) {
 // Select loop
 // ---------------------------------------------------------------------------
 
-void agentxd_loop_run(volatile sig_atomic_t *exit_flag,
+bool agentxd_loop_run(volatile sig_atomic_t *exit_flag,
                       volatile sig_atomic_t *reload_flag,
                       const AgentxConfig &cfg) {
     time_t last_staleness = time(nullptr);
@@ -76,7 +76,8 @@ void agentxd_loop_run(volatile sig_atomic_t *exit_flag,
             syslog(LOG_INFO, "SIGHUP — rescanning %s", cfg.state_dir.c_str());
             agentxd_datasrc_shutdown();
             g_cache.clear();   // discard stale device rows from before the rescan
-            agentxd_datasrc_init(cfg.state_dir);
+            if (!agentxd_datasrc_init(cfg.state_dir))
+                syslog(LOG_WARNING, "Rescan failed — serving empty cache until next SIGHUP");
         }
 
         fd_set fdset;
@@ -101,8 +102,8 @@ void agentxd_loop_run(volatile sig_atomic_t *exit_flag,
                        block ? nullptr : &timeout);
         if (n < 0) {
             if (errno == EINTR) continue;
-            syslog(LOG_ERR, "select: %s", strerror(errno));
-            break;
+            syslog(LOG_ERR, "select: %s — exiting", strerror(errno));
+            return false;
         }
 
         if (n > 0) {
@@ -127,6 +128,7 @@ void agentxd_loop_run(volatile sig_atomic_t *exit_flag,
             last_staleness = now;
         }
     }
+    return true;
 }
 
 // ---------------------------------------------------------------------------

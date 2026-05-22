@@ -12,7 +12,8 @@ bool agentxd_loop_init(const AgentxConfig &cfg);
 
 // Run the select loop until *exit_flag becomes non-zero.
 // Handles AgentX keepalive, inotify events, and periodic staleness checks.
-void agentxd_loop_run(volatile sig_atomic_t *exit_flag,
+// Returns true on clean signal-driven exit, false if a fatal error occurred.
+bool agentxd_loop_run(volatile sig_atomic_t *exit_flag,
                       volatile sig_atomic_t *reload_flag,
                       const AgentxConfig &cfg);
 
