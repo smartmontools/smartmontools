@@ -1377,10 +1377,19 @@ static void parse_scsi(uint32_t dev_idx, const JVal &root) {
             r.total_corrected= dir_obj["total_errors_corrected"].as_uint64();
             r.algorithm_invoked = dir_obj["correction_algorithm_invocations"].as_uint64();
             r.uncorrected    = dir_obj["total_uncorrected_errors"].as_uint64();
-            // gigabytes_processed may be a string like "47221.194"
+            // gigabytes_processed may be a string ("47221.194"), float, int, or null
             const JVal &gbp  = dir_obj["gigabytes_processed"];
-            double gb = gbp.is_string() ? strtod(gbp.as_string().c_str(), nullptr)
-                                        : gbp.fval;
+            double gb;
+            if (gbp.is_string())
+                gb = strtod(gbp.as_string().c_str(), nullptr);
+            else if (gbp.is_int())
+                gb = static_cast<double>(gbp.ival);
+            else if (gbp.is_uint())
+                gb = static_cast<double>(gbp.uval);
+            else if (gbp.type == JVal::J_FLOAT)
+                gb = gbp.fval;
+            else
+                gb = 0.0;
             r.bytes_processed= static_cast<uint64_t>(gb * 1e9);
             g_cache.sas_error_counters.push_back(r);
         }

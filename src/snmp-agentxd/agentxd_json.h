@@ -2,7 +2,9 @@
 
 #pragma once
 
+#include <cmath>
 #include <cstdint>
+#include <limits>
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -64,18 +66,34 @@ struct JVal {
 };
 
 inline int64_t JVal::as_int64() const {
-    if (type == J_INT)   return ival;
-    if (type == J_UINT)  return static_cast<int64_t>(uval);
-    if (type == J_FLOAT) return static_cast<int64_t>(fval);
-    if (type == J_BOOL)  return bval ? 1 : 0;
+    if (type == J_INT)  return ival;
+    if (type == J_UINT) return uval > static_cast<uint64_t>(std::numeric_limits<int64_t>::max())
+                            ? std::numeric_limits<int64_t>::max()
+                            : static_cast<int64_t>(uval);
+    if (type == J_FLOAT) {
+        if (std::isnan(fval) || std::isinf(fval))
+            return fval > 0 ? std::numeric_limits<int64_t>::max()
+                            : std::numeric_limits<int64_t>::min();
+        if (fval >= static_cast<double>(std::numeric_limits<int64_t>::max()))
+            return std::numeric_limits<int64_t>::max();
+        if (fval <= static_cast<double>(std::numeric_limits<int64_t>::min()))
+            return std::numeric_limits<int64_t>::min();
+        return static_cast<int64_t>(fval);
+    }
+    if (type == J_BOOL) return bval ? 1 : 0;
     return 0;
 }
 
 inline uint64_t JVal::as_uint64() const {
-    if (type == J_UINT)  return uval;
-    if (type == J_INT)   return static_cast<uint64_t>(ival);
-    if (type == J_FLOAT) return static_cast<uint64_t>(fval);
-    if (type == J_BOOL)  return bval ? 1 : 0;
+    if (type == J_UINT) return uval;
+    if (type == J_INT)  return ival < 0 ? 0 : static_cast<uint64_t>(ival);
+    if (type == J_FLOAT) {
+        if (std::isnan(fval) || fval < 0.0) return 0;
+        if (std::isinf(fval) || fval >= static_cast<double>(std::numeric_limits<uint64_t>::max()))
+            return std::numeric_limits<uint64_t>::max();
+        return static_cast<uint64_t>(fval);
+    }
+    if (type == J_BOOL) return bval ? 1 : 0;
     return 0;
 }
 

@@ -84,6 +84,11 @@ ENV AGENTXD_BIN=/build/src/snmp-agentxd/smartmon-snmp-agentxd
 ENV FIXTURES=/src/src/snmp-agentxd/tests/fixtures
 ENV OUTPUT=/output
 
-RUN mkdir -p /output
+RUN mkdir -p /output \
+    && groupadd -r agentxd \
+    && useradd -r -g agentxd -s /usr/sbin/nologin agentxd \
+    && chown agentxd:agentxd /output
+
+USER agentxd
 
 CMD ["/usr/local/bin/run_integration_test.sh"]

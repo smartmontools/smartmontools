@@ -3,8 +3,10 @@
 #include "agentxd_config.h"
 
 #include <cerrno>
+#include <climits>
 #include <cstdio>
 #include <cstring>
+#include <limits>
 #include <syslog.h>
 
 int g_verbosity = 0;
@@ -48,8 +50,10 @@ bool agentxd_config_load(const char *path, AgentxConfig &out)
             out.agentx_socket = value;
         } else if (strcmp(key, "cache_timeout") == 0) {
             char *end;
-            long v = strtol(value, &end, 10);
-            if (*end != '\0' || v <= 0) {
+            errno = 0;
+            unsigned long long v = strtoull(value, &end, 10);
+            if (*end != '\0' || errno == ERANGE || v == 0
+                    || v > static_cast<unsigned long long>(std::numeric_limits<unsigned>::max())) {
                 syslog(LOG_ERR, "%s:%d: cache_timeout must be a positive integer",
                        path, lineno);
                 ok = false;

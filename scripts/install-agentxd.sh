@@ -18,8 +18,9 @@
 #   systemctl enable --now smartmon-collect.timer smartmon-snmp-agentxd
 #
 # To use smartd --jsonstate instead of smartmon-collect, add to smartd.conf:
-#   DEVICESCAN -x -a -s (S/../.././02|L/../../6/03)
+#   DEVICESCAN -x --jsonstate /run/smartmontools/json/ -a -s (S/../.././02|L/../../6/03)
 # and set state_dir in /etc/smartmontools/snmp-agentxd.conf.
+# Note: --jsonstate is required for smartmon-snmp-agentxd to have JSON data to read.
 # Note: DEVICESCAN with -x requires smartd >= 7.0.
 
 set -euo pipefail

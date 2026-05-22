@@ -124,8 +124,8 @@ SmartmonSataInfoEntry ::= SEQUENCE {
     smartmonSataSmartEnabled                     TruthValue,
     smartmonSataTrimSupported                    TruthValue,
     smartmonSataUserCapacityBlocks               CounterBasedGauge64,
-    smartmonSataAtaVersionMajor                  Unsigned32,
-    smartmonSataAtaVersionMinor                  Unsigned32,
+    smartmonSataAtaVersionMajor                  SmartmonAtaVersion,
+    smartmonSataAtaVersionMinor                  SmartmonAtaMinorVersion,
     smartmonSataIfSpeedMaxValue                  Unsigned32,
     smartmonSataIfSpeedCurrentValue              Unsigned32,
     smartmonSataApmEnabled                       TruthValue,
@@ -1007,8 +1007,8 @@ smartmonSataErrorRegCommand OBJECT-TYPE
     MAX-ACCESS  read-only
     STATUS      current
     DESCRIPTION
-        "Completion registers count field
-         (ata_smart_error_log.extended.table[].completion_registers.count)."
+        "Completion registers command field
+         (ata_smart_error_log.extended.table[].completion_registers.command)."
     ::= { smartmonSataErrorLogEntry 8 }
 
 smartmonSataErrorRegCount OBJECT-TYPE
@@ -1016,8 +1016,8 @@ smartmonSataErrorRegCount OBJECT-TYPE
     MAX-ACCESS  read-only
     STATUS      current
     DESCRIPTION
-        "Completion registers device field
-         (ata_smart_error_log.extended.table[].completion_registers.device)."
+        "Completion registers count field
+         (ata_smart_error_log.extended.table[].completion_registers.count)."
     ::= { smartmonSataErrorLogEntry 9 }
 
 smartmonSataErrorRegDevice OBJECT-TYPE
@@ -1025,8 +1025,8 @@ smartmonSataErrorRegDevice OBJECT-TYPE
     MAX-ACCESS  read-only
     STATUS      current
     DESCRIPTION
-        "Completion registers device_control field
-         (ata_smart_error_log.extended.table[].completion_registers.device_control)."
+        "Completion registers device field
+         (ata_smart_error_log.extended.table[].completion_registers.device)."
     ::= { smartmonSataErrorLogEntry 10 }
 
 smartmonSataErrorRegFeature OBJECT-TYPE
@@ -1034,7 +1034,8 @@ smartmonSataErrorRegFeature OBJECT-TYPE
     MAX-ACCESS  read-only
     STATUS      current
     DESCRIPTION
-        "Reserved; not present in extended error log completion_registers."
+        "Completion registers features field
+         (ata_smart_error_log.extended.table[].completion_registers.features)."
     ::= { smartmonSataErrorLogEntry 11 }
 
 smartmonSataErrorState OBJECT-TYPE

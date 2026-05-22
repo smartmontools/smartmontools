@@ -98,9 +98,12 @@ struct Parser {
                     }
                     break;
                 }
-                default: result += *p; break;
+                default: error = "invalid escape sequence"; return {};
                 }
             } else {
+                if (static_cast<unsigned char>(*p) < 0x20) {
+                    error = "unescaped control character in string"; return {};
+                }
                 result += *p;
             }
             ++p;

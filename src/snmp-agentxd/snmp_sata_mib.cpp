@@ -411,9 +411,6 @@ sata_el_handler(netsnmp_mib_handler *,
         if (!row || !tinfo) continue;
 
         switch (tinfo->colnum) {
-        case 1:  { u_long v = row->entry_index;
-                   snmp_set_var_typed_value(req->requestvb, ASN_GAUGE,
-                       (u_char*)&v, sizeof(v)); break; }
         case 2:  { u_long v = row->error_number;
                    snmp_set_var_typed_value(req->requestvb, ASN_GAUGE,
                        (u_char*)&v, sizeof(v)); break; }
@@ -1082,7 +1079,7 @@ void register_sata_mib() {
     // SATA table iterator registrations
     REG_TABLE_U("smartmonSataInfoTable",      sata_info_handler,   oid_sata_info_table,      sata_info_get_next,    1, 50);
     REG_TABLE_U("smartmonSataHealthTable",    sata_health_handler, oid_sata_health_table,    sata_health_get_next,  1, 10);
-    REG_TABLE_UU("smartmonSataErrorLogTable", sata_el_handler,     oid_sata_error_log_table, sata_el_get_next,      1, 12);
+    REG_TABLE_UU("smartmonSataErrorLogTable", sata_el_handler,     oid_sata_error_log_table, sata_el_get_next,      2, 12);
     REG_TABLE_UU("smartmonSataAttrTable",     sata_attr_handler,   oid_sata_attr_table,      sata_attr_get_next,    2, 11);
 
     // SATA error cmd table metadata scalars

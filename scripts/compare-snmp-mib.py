@@ -225,7 +225,7 @@ def print_report(
         known_used += len(names & known.keys())
         extra_used += len(names - known.keys())
 
-    print(f"# SNMP/MIB comparison summary")
+    print("# SNMP/MIB comparison summary")
     print()
     print(f"Output file: `{output_path}`")
     print()

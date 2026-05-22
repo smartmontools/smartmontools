@@ -113,9 +113,6 @@ sas_info_handler(netsnmp_mib_handler *,
         case 12: set_counter64(req, row->user_capacity_bytes); break;
         case 13: set_counter64(req, row->power_cycles); break;
         case 14: set_counter64(req, row->power_on_hours); break;
-        case 15: { u_long v = 1;  // infoIndex
-                   snmp_set_var_typed_value(req->requestvb, ASN_GAUGE,
-                       (u_char*)&v, sizeof(v)); break; }
         default: netsnmp_set_request_error(reqinfo, req, SNMP_NOSUCHOBJECT);
         }
     }
@@ -175,9 +172,6 @@ sas_bgscan_handler(netsnmp_mib_handler *,
         case 5:  snmp_set_var_typed_value(req->requestvb, ASN_OCTET_STR,
                      (u_char*)row->scan_results.c_str(),
                      row->scan_results.size()); break;
-        case 6:  { u_long v = 1;  // bgScanIndex
-                   snmp_set_var_typed_value(req->requestvb, ASN_GAUGE,
-                       (u_char*)&v, sizeof(v)); break; }
         default: netsnmp_set_request_error(reqinfo, req, SNMP_NOSUCHOBJECT);
         }
     }
@@ -403,8 +397,8 @@ void register_sas_mib() {
         oid_sas_bgscan_last_change,       OID_LEN(oid_sas_bgscan_last_change),       HANDLER_CAN_RONLY));
 
     // SAS table iterator registrations
-    REG_TABLE_UU("smartmonSasInfoTable",             sas_info_handler,   oid_sas_info_table,          sas_info_get_next,   1, 15);
-    REG_TABLE_UU("smartmonSasBackgroundScanTable",   sas_bgscan_handler, oid_sas_bgscan_table,        sas_bgscan_get_next, 1,  6);
+    REG_TABLE_UU("smartmonSasInfoTable",             sas_info_handler,   oid_sas_info_table,          sas_info_get_next,   1, 14);
+    REG_TABLE_UU("smartmonSasBackgroundScanTable",   sas_bgscan_handler, oid_sas_bgscan_table,        sas_bgscan_get_next, 1,  5);
     REG_TABLE_UU("smartmonSasHealthTable",           sas_health_handler, oid_sas_health_table,        sas_health_get_next, 1,  5);
     // Error counter index 2 is INTEGER (direction), not UNSIGNED
     REG_TABLE_UI("smartmonSasErrorCounterTable",     sas_ec_handler,     oid_sas_error_counter_table, sas_ec_get_next,     2,  8);

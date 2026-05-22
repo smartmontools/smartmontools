@@ -17,7 +17,7 @@ health changes or self-tests fail.
 Data is read exclusively from JSON state files written by `smartd --jsonstate`.
 The agent never invokes `smartctl` directly.
 
-```
+```text
 smartd --jsonstate /run/smartmontools/json/
       └── writes *.json  ──>  smartmon-snmp-agentxd  ──>  snmpd  ──>  SNMP manager
 ```
@@ -100,7 +100,7 @@ sudo systemctl daemon-reload
 Configure `smartd` to write JSON state files.  The `-x` flag (extended) is
 required for NVMe self-test logs and SAS error counters:
 
-```
+```conf
 # /etc/smartd.conf
 DEVICESCAN -x --jsonstate /run/smartmontools/json/
 ```
@@ -115,7 +115,7 @@ ls /run/smartmontools/json/   # JSON files should appear here
 
 Add AgentX master support to `/etc/snmp/snmpd.conf`:
 
-```
+```conf
 master agentx
 agentXSocket /var/agentx/master
 rocommunity public 127.0.0.1   # adjust as needed
@@ -130,7 +130,7 @@ systemctl restart snmpd
 
 Edit `/etc/smartmontools/snmp-agentxd.conf`:
 
-```
+```conf
 # Directory where smartd writes --jsonstate files (required)
 state_dir       /run/smartmontools/json/
 

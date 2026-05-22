@@ -301,9 +301,6 @@ nvme_ctrl_handler(netsnmp_mib_handler *,
         case 11: { u_long v = row->max_data_transfer_pages;
                    snmp_set_var_typed_value(req->requestvb, ASN_GAUGE,
                        (u_char*)&v, sizeof(v)); break; }
-        case 14: { u_long v = 1;  // controllerIndex
-                   snmp_set_var_typed_value(req->requestvb, ASN_GAUGE,
-                       (u_char*)&v, sizeof(v)); break; }
         case 15: { u_long v = row->pci_subsystem_id;
                    snmp_set_var_typed_value(req->requestvb, ASN_GAUGE,
                        (u_char*)&v, sizeof(v)); break; }

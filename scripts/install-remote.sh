@@ -288,11 +288,16 @@ if [ -f "\$AGENTXD_SVC.in" ]; then
     sudo rm -f "\$AGENTXD_SVC.in"
 fi
 
-# Patch state dir into the collect service if different from default
-if [ "\$INSTALL_COLLECT" = "1" ]; then
-    COLLECT_SVC="\$SYSTEMD_DIR/smartmon-collect.service"
-    if [ -f "\$COLLECT_SVC" ] && [ "\$STATE_DIR" != "/run/smartmontools/json" ]; then
-        sudo sed -i "s|/run/smartmontools/json|\$STATE_DIR|g" "\$COLLECT_SVC"
+# Patch state dir into the agentxd and collect services if different from default
+if [ "\$STATE_DIR" != "/run/smartmontools/json" ]; then
+    if [ -f "\$AGENTXD_SVC" ]; then
+        sudo sed -i "s|/run/smartmontools/json|\$STATE_DIR|g" "\$AGENTXD_SVC"
+    fi
+    if [ "\$INSTALL_COLLECT" = "1" ]; then
+        COLLECT_SVC="\$SYSTEMD_DIR/smartmon-collect.service"
+        if [ -f "\$COLLECT_SVC" ]; then
+            sudo sed -i "s|/run/smartmontools/json|\$STATE_DIR|g" "\$COLLECT_SVC"
+        fi
     fi
 fi
 

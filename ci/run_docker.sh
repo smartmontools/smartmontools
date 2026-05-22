@@ -27,7 +27,11 @@ BUILD_ARGS=()
 while [ $# -gt 0 ]; do
     case "$1" in
         --no-cache)   BUILD_ARGS+=("--no-cache"); shift ;;
-        --tag)        IMAGE_TAG="$2"; shift 2 ;;
+        --tag)
+            if [ -z "${2-}" ] || [[ "$2" == -* ]]; then
+                echo "Error: --tag requires an argument" >&2; exit 1
+            fi
+            IMAGE_TAG="$2"; shift 2 ;;
         -h|--help)
             echo "Usage: $0 [--no-cache] [--tag IMAGE_TAG]"
             exit 0

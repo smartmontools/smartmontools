@@ -45,7 +45,7 @@ def compress(obj):
         if len(obj) > 1:
             if all(not isinstance(v, (dict, list)) for v in obj[1:]):
                 # scalar list: show sorted unique values
-                unique = sorted(set(obj[1:]), key=lambda v: (v is None, v))
+                unique = sorted(set(obj[1:]), key=lambda v: (v is None, type(v).__name__, str(v)))
                 parts = [_alt_repr(v) for v in unique]
             else:
                 seen_reprs = []
