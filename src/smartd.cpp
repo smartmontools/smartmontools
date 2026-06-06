@@ -2856,7 +2856,11 @@ static int SCSIDeviceScan(dev_config & cfg, dev_state & state, scsi_device * scs
       0 == scsiLogSense(scsidev, SUPPORTED_LPAGES, 0, tBuf, sizeof(tBuf), 68))
       /* workaround for the bug #678 on ST8000NM0075/E001. Up to 64 pages + 4b header */
   {
-    for (int k = 4; k < tBuf[3] + LOGPAGEHDRSIZE; ++k) {
+    len = tBuf[3] + LOGPAGEHDRSIZE;
+    if (len > (int)sizeof(tBuf))
+      len = (int)sizeof(tBuf);
+
+    for (int k = 4; k < len; ++k) {
       switch (tBuf[k]) { 
       case TEMPERATURE_LPAGE:
         state.TempPageSupported = 1;
