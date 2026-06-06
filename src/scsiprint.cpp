@@ -218,7 +218,11 @@ scsiGetSupportedLogPages(scsi_device * device)
     }
 
     if (got_subpages) {
+        int resp_len_max = GBUF_SIZE - LOGPAGEHDRSIZE;
+
         resp_len = sg_get_unaligned_be16(gBuf + 2);
+        if (resp_len > (resp_len_max - 2))
+            resp_len = resp_len_max - 2;
         up = gBuf + LOGPAGEHDRSIZE;
         for (k = 0; k < resp_len; k += 2) {
             uint8_t page_code = 0x3f & up[k];
