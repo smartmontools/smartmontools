@@ -4851,10 +4851,12 @@ const drive_settings builtin_knowndrives[] = {
     "-v 188,raw16 -v 240,msec24hour32"
   },
   { "Seagate Barracuda XT", // tested with ST32000641AS/CC13,
-      // ST4000DX000-1C5160/CC42
+      // ST33000651AS/CC45, ST4000DX000-1C5160/CC42
     "ST(3(2000641|3000651)AS|4000DX000-.*)",
     "", "",
-    "-v 188,raw16" // tested with ST33000651AS/CC45
+    "-v 1,raw24/raw32 -v 7,raw24/raw32 -v 188,raw16 "
+    "-v 195,raw24/raw32,ECC_On_the_Fly_Count "
+    "-v 240,msec24hour32"
   },
   { "Seagate Barracuda 7200.14 (AF)", // new firmware, tested with
       // ST3000DM001-9YN166/CC4H, ST3000DM001-9YN166/CC9E
