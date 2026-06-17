@@ -880,9 +880,6 @@ static void write_scsi_attrlog(FILE * f, const dev_state & state)
   if(state.scsi_nonmedium_error.found && state.scsi_nonmedium_error.nme.gotPC0) {
     fprintf(f, "\tnon-medium-errors;%" PRIu64 ";", state.scsi_nonmedium_error.nme.counterPC0);
   }
-  // write SCSI current temperature if it is monitored
-  if (state.temperature)
-    fprintf(f, "\ttemperature;%d;", state.temperature);
 }
 
 static void write_nvme_attrlog(FILE * f, const dev_state & state)
@@ -1153,6 +1150,10 @@ static bool write_dev_attrlog(const char * path, const dev_state & state)
     case 2: write_scsi_attrlog(f, state); break;
     case 3: write_nvme_attrlog(f, state); break;
   }
+
+  // write current temperature if it is monitored
+  if (state.temperature)
+    fprintf(f, "\ttemperature;%d;", state.temperature);
 
   fprintf(f, "\n");
   return true;
