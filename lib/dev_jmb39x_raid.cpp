@@ -606,10 +606,13 @@ static int is_supported_by_jmb(const ata_in_regs & r)
         case ATA_SMART_READ_VALUES:
         case ATA_SMART_READ_THRESHOLDS:
           return 2;
+        case ATA_SMART_IMMEDIATE_OFFLINE: // NO DATA self-test command
+          return 1;
         case ATA_SMART_READ_LOG_SECTOR:
           switch (r.lba_low) {
             case 0x00: return 1; // Log directory
             case 0x01: return 2; // Summary Error log
+            case 0x06: return 1; // Self-test log
             case 0xe0: return 1; // SCT Command/Status
           }
           break;
@@ -619,26 +622,75 @@ static int is_supported_by_jmb(const ata_in_regs & r)
   return 0;
 }
 
+
+// Fix self-test log mostrecenttest index truncated by JMB39x protocol.
+// The index is at byte 508 which is beyond the 464-byte data window.
+// Reconstruct it by finding the entry with highest power-on hours.
+static void jmb_fix_selftest_log_index(void * buffer)
+{
+  uint8_t * data = (uint8_t *)buffer;
+  uint8_t mostrecenttest = data[508];
+
+  // If index is already set, nothing to do
+  if (mostrecenttest != 0)
+    return;
+
+  // Check if there are any non-empty entries
+  bool has_entries = false;
+  for (int i = 0; i < 21; i++) {
+    if (nonempty(data + 2 + i * 24, 24)) {
+      has_entries = true;
+      break;
+    }
+  }
+  if (!has_entries)
+    return;
+
+  // Find entry with highest power-on hours (circular buffer heuristic).
+  // Power-on hours is at offset 4-5 (16-bit LE) within each 24-byte entry.
+  int best_idx = -1;
+  unsigned best_hours = 0;
+  for (int i = 0; i < 21; i++) {
+    uint8_t * entry = data + 2 + i * 24;
+    if (!nonempty(entry, 24))
+      continue;
+    unsigned hours = entry[4] | (entry[5] << 8);
+    if (best_idx < 0 || hours > best_hours) {
+      best_hours = hours;
+      best_idx = i;
+    }
+  }
+
+  if (best_idx >= 0) {
+    data[508] = best_idx + 1;  // mostrecenttest is 1-based index
+    if (ata_debugmode)
+      lib_printf("JMB39x: Reconstructed self-test log index = %d (hours = %u)\n", best_idx + 1, best_hours);
+  }
+}
+
 bool jmb39x_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & /* out */)
 {
   jmbassert(is_open());
   if (m_blocked)
     return set_err(EIO, "Device blocked due to previous errors");
-  if (in.direction == ata_cmd_in::no_data) // TODO: add to ata_cmd_is_supported() ?
-    return set_err(ENOSYS, "NO DATA ATA commands not implemented [JMB39x]");
+  // NO DATA commands (e.g. SMART self-test) now supported with ata_read_size=0x01
+  bool is_no_data = (in.direction == ata_cmd_in::no_data);
   if (!ata_cmd_is_supported(in, 0, "JMB39x"))
     return false;
   // Block all commands which require full sector data
   int supported = is_supported_by_jmb(in.in_regs);
   if (!supported)
-    return set_err(ENOSYS, "ATA command not implemented due to truncated response [JMB39x]");
-  jmbassert(in.direction == ata_cmd_in::data_in);
+    return set_err(ENOSYS, "ATA command not supported [JMB39x]");
+  jmbassert(is_no_data || in.direction == ata_cmd_in::data_in);
 
   // Run ATA pass-through command
+  // ata_read_size: 0x01 for NO DATA, 0x02 for DATA IN; similarly for read_addr
+  uint8_t ata_read_size = is_no_data ? 0x01 : 0x02;
+  uint8_t ata_read_addr = is_no_data ? 0x00 : 0xe0;
   uint8_t cmd[24]= {
     0x00, 0x02, 0x03, 0xff,
     m_port,
-    0x02, 0x00, 0xe0, 0x00, 0x00,
+    ata_read_size, 0x00, ata_read_addr, 0x00, 0x00,
     // Registers
     in.in_regs.features,
     0x00,
@@ -668,14 +720,24 @@ bool jmb39x_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & /* out
   if ((status & 0xc1) != 0x40 /* !(!BSY && DRDY && !ERR) */)
     return set_err(EIO, "ATA command failed (status=0x%02x)", status);
 
-  // Copy data
-  jmbassert(in.size == sizeof(response));
-  memset(in.buffer, 0, in.size);
-  memcpy(in.buffer, response + 32, in.size - 32 - 16);
+  // Copy data (only for DATA IN commands)
+  if (!is_no_data) {
+    jmbassert(in.size == sizeof(response));
+    memset(in.buffer, 0, in.size);
+    memcpy(in.buffer, response + 32, in.size - 32 - 16);
+  }
 
-  // Prevent checksum warning
-  if (supported > 1)
+  // Prevent checksum warning (only for DATA IN commands)
+  if (!is_no_data && supported > 1)
     ((uint8_t *)in.buffer)[512-1] -= checksum(in.buffer);
+
+
+  // JMB39x truncates data to 464 bytes (512 - 32 header - 16 footer).
+  // For self-test log (lba_low 0x06), fix the mostrecenttest index at byte 508.
+  if (!is_no_data && in.in_regs.command == ATA_SMART_CMD
+      && in.in_regs.features == ATA_SMART_READ_LOG_SECTOR && in.in_regs.lba_low == 0x06) {
+    jmb_fix_selftest_log_index(in.buffer);
+  }
 
   return true;
 }
