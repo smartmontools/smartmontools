@@ -341,7 +341,8 @@ private:
 
   bool raw_read(uint8_t (& data)[512]);
   bool raw_write(const uint8_t (& data)[512]);
-  bool run_jmb_command(const uint8_t * cmd, unsigned cmdsize, uint8_t (& response)[512]);
+  bool run_jmb_command(const uint8_t * cmd, unsigned cmdsize, uint8_t (& response)[512],
+    const uint8_t * data_out = nullptr, unsigned data_out_size = 0);
   void report_orig_data_lost() const;
   bool restore_orig_data();
 };
@@ -399,11 +400,25 @@ bool jmb39x_device::raw_write(const uint8_t (& data)[512])
   return true;
 }
 
-bool jmb39x_device::run_jmb_command(const uint8_t * cmd, unsigned cmdsize, uint8_t (& response)[512])
+bool jmb39x_device::run_jmb_command(const uint8_t * cmd, unsigned cmdsize, uint8_t (& response)[512],
+  const uint8_t * data_out, unsigned data_out_size)
 {
   // Set up request
   uint8_t request[512];
   jmb_set_request_sector(request, m_version, m_cmd_id, cmd, cmdsize);
+
+  // For DATA OUT: embed data in request sector at offset 32 (after header + command)
+  // Available space: 512 - 32 (header) - 4 (CRC) = 476 bytes
+  if (data_out && data_out_size > 0) {
+    unsigned max_data = sizeof(request) - 32 - 4;
+    if (data_out_size > max_data)
+      data_out_size = max_data;
+    memcpy(request + 32, data_out, data_out_size);
+    // Recalculate CRC since we modified the request
+    jmb_put_crc(request, jmb_crc(request));
+    if (ata_debugmode)
+      lib_printf("JMB39x: DATA OUT %u bytes embedded in request\n", data_out_size);
+  }
 
   if (ata_debugmode) {
     lib_printf("JMB39x: Write request sector #%d\n", m_cmd_id);
@@ -598,7 +613,6 @@ bool jmb39x_device::close()
 // Return: 0=unsupported, 1=supported, 2=supported and has checksum
 //
 // JMB39x/JMS56x controller limitations:
-// - DATA OUT commands not supported (no SCT writes, no selective self-test)
 // - Output register reading not supported (no SMART STATUS check via registers)
 // - Multi-sector SMART READ LOG not supported (max 464 bytes per transfer)
 // - Data truncated to 464 bytes (512 - 32 header - 16 footer)
@@ -619,6 +633,12 @@ static int is_supported_by_jmb(const ata_in_regs & r)
             case 0x00: return 1; // Log directory
             case 0x01: return 2; // Summary Error log
             case 0x06: return 1; // Self-test log
+            case 0xe0: return 1; // SCT Command/Status
+            case 0xe1: return 1; // SCT Data Table
+          }
+          break;
+        case ATA_SMART_WRITE_LOG_SECTOR: // DATA OUT
+          switch (r.lba_low) {
             case 0xe0: return 1; // SCT Command/Status
           }
           break;
@@ -683,17 +703,19 @@ bool jmb39x_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & /* out
     return set_err(EIO, "Device blocked due to previous errors");
   // NO DATA commands (e.g. SMART self-test) now supported with ata_read_size=0x01
   bool is_no_data = (in.direction == ata_cmd_in::no_data);
-  if (!ata_cmd_is_supported(in, ata_device::supports_48bit, "JMB39x"))
+  bool is_data_out = (in.direction == ata_cmd_in::data_out);
+  if (!ata_cmd_is_supported(in, ata_device::supports_48bit | ata_device::supports_data_out, "JMB39x"))
     return false;
   // Block all commands which require full sector data
   int supported = is_supported_by_jmb(in.in_regs);
   if (!supported)
     return set_err(ENOSYS, "ATA command not supported [JMB39x]");
-  jmbassert(is_no_data || in.direction == ata_cmd_in::data_in);
+  jmbassert(is_no_data || is_data_out || in.direction == ata_cmd_in::data_in);
 
   // Run ATA pass-through command
-  // ata_read_size: 0x01 for NO DATA, 0x02 for DATA IN; similarly for read_addr
-  uint8_t ata_read_size = is_no_data ? 0x01 : 0x02;
+  // ata_read_size: 0x01 for NO DATA, 0x02 for DATA IN, 0x03 for DATA OUT
+  // ata_read_addr: 0x00 for NO DATA, 0xe0 for DATA IN/OUT
+  uint8_t ata_read_size = is_no_data ? 0x01 : (is_data_out ? 0x03 : 0x02);
   uint8_t ata_read_addr = is_no_data ? 0x00 : 0xe0;
   uint8_t cmd[24]= {
     0x00, 0x02, 0x03, 0xff,
@@ -716,7 +738,10 @@ bool jmb39x_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & /* out
     0x00 // status register returned here
   };
   uint8_t response[512];
-  if (!run_jmb_command(cmd, sizeof(cmd), response))
+  // For DATA OUT, pass the buffer data to embed in request sector
+  const uint8_t * data_out_ptr = is_data_out ? (const uint8_t *)in.buffer : nullptr;
+  unsigned data_out_size = is_data_out ? in.size : 0;
+  if (!run_jmb_command(cmd, sizeof(cmd), response, data_out_ptr, data_out_size))
     return false;
 
   // Check status register
