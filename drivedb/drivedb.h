@@ -5864,8 +5864,11 @@ const drive_settings builtin_knowndrives[] = {
       // WDC WD100EFAX-68LHPN0/83.H0A83, WDC WD101EFAX-68LDBN0/81.00A81,
       // WDC WD101EFBX-68B0AN0/85.00A85,
       // WDC WD120EFAX-68UNTN0/81.00A81, WDC WD120EFBX-68B0EN0/85.00A85,
-      // WDC WD140EFFX-68VBXN0/81.00A81
-    "WDC WD(10JFCX|[1-6]0EFRX|[2-8]0EFPX|[23468]0E[FZ](ZX|ZZ)|(80|10[01]|1[24]0|1[68]1)(JFC|EF[ABFRG])X)-.*",
+      // WDC WD140EFFX-68VBXN0/81.00A81, WDC WD140EFGX-68B0GN0.
+      // Also covers WD20EFPX, WD40EFZZ, WD80EFPX, WD100EFGX, WD120EFGX
+      // (untested).
+      // Capacity is matched generically so new sizes need no regex change.
+    "WDC WD[0-9]{2,3}((JFC|EFR|EF[ABFGP])X|EFZ[XZ])-.*",
     "", "", ""
   //"-v 22,raw16(raw16),Helium_Level" // WD80EFAX, WD80EFZX, WD100EFAX, >= 12TB
   },
