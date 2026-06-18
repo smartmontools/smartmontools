@@ -596,6 +596,12 @@ bool jmb39x_device::close()
 }
 
 // Return: 0=unsupported, 1=supported, 2=supported and has checksum
+//
+// JMB39x/JMS56x controller limitations:
+// - DATA OUT commands not supported (no SCT writes, no selective self-test)
+// - Output register reading not supported (no SMART STATUS check via registers)
+// - Multi-sector SMART READ LOG not supported (max 464 bytes per transfer)
+// - Data truncated to 464 bytes (512 - 32 header - 16 footer)
 static int is_supported_by_jmb(const ata_in_regs & r)
 {
   switch (r.command) {
@@ -618,6 +624,8 @@ static int is_supported_by_jmb(const ata_in_regs & r)
           break;
       }
       break;
+    case ATA_READ_LOG_EXT:
+      return 1; // 48-bit READ LOG EXT for GP logs
   }
   return 0;
 }
@@ -675,7 +683,7 @@ bool jmb39x_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & /* out
     return set_err(EIO, "Device blocked due to previous errors");
   // NO DATA commands (e.g. SMART self-test) now supported with ata_read_size=0x01
   bool is_no_data = (in.direction == ata_cmd_in::no_data);
-  if (!ata_cmd_is_supported(in, 0, "JMB39x"))
+  if (!ata_cmd_is_supported(in, ata_device::supports_48bit, "JMB39x"))
     return false;
   // Block all commands which require full sector data
   int supported = is_supported_by_jmb(in.in_regs);
@@ -691,17 +699,17 @@ bool jmb39x_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & /* out
     0x00, 0x02, 0x03, 0xff,
     m_port,
     ata_read_size, 0x00, ata_read_addr, 0x00, 0x00,
-    // Registers
+    // Registers (low byte, high byte for 48-bit)
     in.in_regs.features,
-    0x00,
+    in.in_regs.prev.features,
     in.in_regs.sector_count,
-    0x00,
+    in.in_regs.prev.sector_count,
     in.in_regs.lba_low,
-    0x00,
+    in.in_regs.prev.lba_low,
     in.in_regs.lba_mid,
-    0x00,
+    in.in_regs.prev.lba_mid,
     in.in_regs.lba_high,
-    0x00,
+    in.in_regs.prev.lba_high,
     0xa0, // in.in_regs.device ?
     0x00,
     in.in_regs.command,
