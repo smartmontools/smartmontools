@@ -616,6 +616,7 @@ bool jmb39x_device::close()
 // - Output register reading not supported (no SMART STATUS check via registers)
 // - Multi-sector SMART READ LOG not supported (max 464 bytes per transfer)
 // - Data truncated to 464 bytes (512 - 32 header - 16 footer)
+// - JMS56x: DATA OUT commands (e.g. SCT, TRIM) not supported by controller firmware
 static int is_supported_by_jmb(const ata_in_regs & r)
 {
   switch (r.command) {
