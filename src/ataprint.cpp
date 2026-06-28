@@ -1800,6 +1800,29 @@ static const char * get_device_statistics_page_name(int page)
   return "Unknown Statistics";
 }
 
+static void get_device_statistics_extra_info(char (& buf)[32], int page, int offset,
+  int64_t val, unsigned log_sector_size, const char * decimal_point = nullptr)
+{
+  switch (page) {
+    case 1:
+      switch (offset) {
+        case 0x018: case 0x028:
+          format_capacity(buf, sizeof(buf), val * log_sector_size, decimal_point);
+          break;
+        case 0x038:
+          // Date and Time Stamp: value set by most recent SET DATE & TIME EXT
+          // command plus number of milliseconds elapsed since then, or
+          // a copy of Power-on Hours statistics converted to milliseconds.
+          // Some devices reset this field to zero if Power-on Hours increases.
+          snprintf(buf, sizeof(buf), "%u:%02u:%02u.%03u",
+            (unsigned)(val / (60 * 60 * 1000)), (unsigned)((val / (60 * 1000)) % 60),
+            (unsigned)((val / 1000) % 60), (unsigned)(val % 1000));
+          break;
+      }
+      break;
+  }
+}
+
 static void set_json_globals_from_device_statistics(int page, int offset, int64_t val,
   unsigned log_sector_size)
 {
@@ -1927,8 +1950,13 @@ static void print_device_statistics_page(const json::ref & jref, const unsigned 
       0
     };
 
-    jout("0x%02x  0x%03x  %d %15s  %s %s\n",
-      page, offset, abs(size), valstr, flagstr+1, valname);
+    char infostr[32]; infostr[0] = 0;
+    if (valid)
+      get_device_statistics_extra_info(infostr, page, offset, val, log_sector_size);
+
+    jout("0x%02x  0x%03x  %d %15s  %s %s%s%s%s\n",
+      page, offset, abs(size), valstr, flagstr+1, valname,
+      (infostr[0] ? " [" : ""), infostr, (infostr[0] ? "]" : ""));
 
     if (!jglb.is_enabled())
       continue;
@@ -1939,6 +1967,11 @@ static void print_device_statistics_page(const json::ref & jref, const unsigned 
     jrefi["size"] = abs(size);
     if (valid)
       jrefi["value"] = val; // TODO: May be unsafe JSON int if size > 6
+    if (infostr[0]) {
+      // Reformat with non-localized decimal point
+      get_device_statistics_extra_info(infostr, page, offset, val, log_sector_size, ".");
+      jrefi["string"] = infostr;
+    }
 
     json::ref jreff = jrefi["flags"];
     jreff["value"] = flags;
