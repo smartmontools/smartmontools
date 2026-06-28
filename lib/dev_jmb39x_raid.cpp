@@ -755,22 +755,21 @@ bool jmb39x_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & /* out
     return set_err(EIO, "ATA command failed (status=0x%02x)", status);
 
   // Copy data (only for DATA IN commands)
-  if (!is_no_data) {
+  if (in.direction == ata_cmd_in::data_in) {
     jmbassert(in.size == sizeof(response));
     memset(in.buffer, 0, in.size);
     memcpy(in.buffer, response + 32, in.size - 32 - 16);
-  }
 
-  // Prevent checksum warning (only for DATA IN commands)
-  if (!is_no_data && supported > 1)
-    ((uint8_t *)in.buffer)[512-1] -= checksum(in.buffer);
+    // JMB39x truncates data to 464 bytes (512 - 32 header - 16 footer).
+    // Prevent checksum warning
+    if (supported > 1)
+      ((uint8_t *)in.buffer)[512-1] -= checksum(in.buffer);
 
-
-  // JMB39x truncates data to 464 bytes (512 - 32 header - 16 footer).
-  // For self-test log (lba_low 0x06), fix the mostrecenttest index at byte 508.
-  if (!is_no_data && in.in_regs.command == ATA_SMART_CMD
-      && in.in_regs.features == ATA_SMART_READ_LOG_SECTOR && in.in_regs.lba_low == 0x06) {
-    jmb_fix_selftest_log_index(in.buffer);
+    // For self-test log (lba_low 0x06), fix the mostrecenttest index at byte 508.
+    if (   in.in_regs.command == ATA_SMART_CMD
+        && in.in_regs.features == ATA_SMART_READ_LOG_SECTOR
+        && in.in_regs.lba_low == 0x06                      )
+      jmb_fix_selftest_log_index(in.buffer);
   }
 
   return true;
