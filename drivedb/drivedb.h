@@ -5522,10 +5522,15 @@ const drive_settings builtin_knowndrives[] = {
       // WDC  WDS500G2B0A-00SM50/401000WD,
       // WDC WDBNCE2500PNC/X61130WD, WDC WDBNCE0010PNC-WRSN/X41110WD,
       // WDC  WDS200T1R0A-68A4W0/411000WR, WDC  WDS400T1R0A-68A4W0/411000WR
+      //
+      // Untested names from data sheets:
+      // WDC WDS200T5G0A, WDC WDS100T5G0A, WDC WDS500G5G0A, WDC WDS250G5G0A,
+      // WDC WDS480G3G0B, WDC WDS240G3G0B (0A = 2.5', 0B= M.2)
     "WDC WDBNCE(250|500|00[124])0PNC(-.*)?|" // Blue 3D
-    "WDC  ?WDS((120|240|250|400|480|500)G|[124]00T)(1B|2B|1G|2G|[12]R)0[AB](-.*)?|"
+    "WDC  ?WDS((120|240|250|400|480|500)G|[124]00T)(1B|2B|[1235]G|[12]R)0[AB](-.*)?|"
       // *B* = Blue, *G* = Green, *2B* = Blue 3D NAND, *[12]R* = Red SA500
-    "WD (Green|(Blue|Red) SA5[01]0) (2\\.5|M\\.2 2280) ((25|50|100)0G|[24]T)B|" // tested with
+    "WD (Green|(Blue|Red) SA5[01]0) (2\\.5|M\\.2 2280) ((24|25|50|100)0G|[24]T)B|" // tested with
+      // WD Green 2.5 240GB/42077100 (printed label: WDS240G3G0A-00BJG0),
       // WD Green 2.5 1000GB/42077100,
       // WD Blue SA510 2.5 500GB/52046100, WD Blue SA510 2.5 1000GB/52008100,
       // WD Blue SA510 2.5 4TB/530309WD,  WD Blue SA510 M.2 2280 1000GB/52048100,
