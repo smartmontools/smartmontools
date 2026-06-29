@@ -5423,6 +5423,49 @@ const drive_settings builtin_knowndrives[] = {
     "-v 242,raw48,Total_Reads_GiB "
     "-v 245,raw48,Read_Error_Rate "
   },
+  { "Seagate Nytro WarpDrive and Nytro XP6000", // tested with
+      // 3E128-TS2-550B01/PROLUIO6 (LSI SAS2008 controller)
+      //
+      // Other possible models, from datasheet, not yet confirmed via smartctl:
+      // Nytro WarpDrive 6203: NWD-WLP4-200 (200GB), NWD-WLP4-400 (400GB),
+      //   NWD-BLP4-400 (400GB), NWD-BLP4-800 (800GB), NWD-BLP4-1600 (1600GB)
+      // Nytro XP6209: XP6209-4A1024 (930GB), XP6209-4B2048 (1796GB)
+      // Nytro XP6210: XP6210-4A2048 (1860GB), XP6210-4B2048 (1860GB)
+      // Nytro WarpDrive 6301: NWD-BFH6-1200 (1200GB), NWD-BFH8-1600 (1600GB),
+      //   NWD-BFH8-3200 (3200GB) 
+    "3E128-TS2-550B01",
+    "", "",
+  //"-v 1,raw48,Raw_Read_Error_Rate "
+  //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
+    "-v 9,msec24hour32,Power_On_Hours_and_Msec "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 13,raw24/raw32 "
+    "-v 100,raw48,Gigabytes_Erased "
+    "-v 170,raw48,Reserved_Blocks "
+    "-v 171,raw48,Unknown_Seagate_Attrib "
+    "-v 172,raw48,Unknown_Seagate_Attrib "
+    "-v 174,raw48,Unexpect_Power_Loss_Ct "
+  //"-v 177,raw48,Wear_Leveling_Count "
+  //"-v 181,raw48,Program_Fail_Cnt_Total "
+  //"-v 182,raw48,Erase_Fail_Count_Total "
+  //"-v 184,raw48,End-to-End_Error "
+  //"-v 187,raw48,Reported_Uncorrect "
+  //"-v 194,tempminmax,Temperature_Celsius "
+  //"-v 195,raw48,Hardware_ECC_Recovered "
+  //"-v 196,raw16(raw16),Reallocated_Event_Count "
+    "-v 198,raw24/raw32 " // confirmed by issue reporter, matches 195/201/204
+  //"-v 199,raw48,UDMA_CRC_Error_Count "
+    "-v 201,raw48,Unknown_Seagate_Attrib "
+  //"-v 204,raw48,Soft_ECC_Correction "
+  //"-v 230,raw48,Unknown_Seagate_Attrib "
+    "-v 231,raw48,Unknown_Seagate_Attrib " // not Temperature_Celsius, raw ~2^32 (unimplemented)
+  //"-v 232,raw48,Available_Reservd_Space "
+  //"-v 233,raw48,Media_Wearout_Indicator "
+    "-v 234,raw48,Unknown_Seagate_Attrib "
+  //"-v 241,raw48,Total_LBAs_Written "
+  //"-v 242,raw48,Total_LBAs_Read "
+    "-v 243,raw48,Unknown_Seagate_Attrib "
+  },
   { "Seagate IronWolf 110 SATA SSD", //Written to Seagate documentation
     "ZA(240|480|960|1920|3840)NM10001",
     "", "",
