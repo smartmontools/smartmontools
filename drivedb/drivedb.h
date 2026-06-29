@@ -6528,9 +6528,9 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   { "USB: SanDisk Extreme; ASMedia ASM2362",
-    "0x0781:0x55(ae|bb)", // 0x55ae(0x3008): SanDisk Extreme (Western Digital SN580E 1TB)
+    "0x0781:0x55(a[ef]|bb)", // 0x55ae(0x3008): SanDisk Extreme (Western Digital SN580E 1TB)
     "", // 0x55bb(0x6004, 0x6006): SanDisk Portable SSD (WDC SN350E 1TB, WDC 360E 2TB)
-    "",
+    "", // 0x55af(0x4060): SanDisk Extreme Pro Portable SSD (Western Digital SN850XE 4TB)
     "-d sntasmedia"
   },
   // Freecom
