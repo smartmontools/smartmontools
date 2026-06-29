@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "VERSION: 7.0/6157 2026-05-18 16:46:51 +0000 fc8d1c2488e8",
+  { "VERSION: 7.0/6178 2026-06-29 15:47:49 +0000 6c5eac3c22f7",
     "-", "-",
     "Version information",
     ""
@@ -2489,6 +2489,7 @@ const drive_settings builtin_knowndrives[] = {
       // ADATA SU800/R0427A, ADATA SU800/R0918B, ADATA SU900/Q0125A, ADATA SU900/Q0710B
     "AMD R5SL512G|"// tested with AMD R5SL512G/V0929A0
     "CORSAIR FORCE LX SSD|" // tested with CORSAIR FORCE LX SSD/N0307A
+    "Corsair Force LX SSD|" // tested with Corsair Force LX SSD/N0307A
     "CHN (25SATA01M|mSATAM3) (060|128|256|512)|" // Zheino A1/M3 tested with CHN 25SATA01M 060/20150529,
       // CHN mSATAM3 128/Q1124A0,
     "CIS 2S M305 (16|32|64|128|256)GB|" // Ceroz M305, tested with CIS 2S M305 64GB/P0316B
@@ -2669,6 +2670,7 @@ const drive_settings builtin_knowndrives[] = {
     "GIM(16|32|64|128|256|512)|"// GUDGA GIM, tested with GIM128/U0401A0
     "INTENSO( SSD)?|" // tested with INTENSO/S1211A0 (Portable SSD 256GB premium edition),
       // INTENSO/V0609A0, INTENSO SSD/V0823A0, INTENSO/V0718B0, INTENSO SSD/W0413A0, INTENSO SSD/W0714A0,
+      // INTENSO SSD/W1025B0 (256 GB)
     "Intenso  ?SSD( S(ata|ATA) ?III)?|" // tested with Intenso SSD/Q1107A0, Intenso  SSD Sata III/P0510E,
       // Intenso SSD Sata III/R0817B0, Intenso SSD Sata III/S0222A0, Intenso SSD Sata III/V0303B0,
       // Intenso SSD SATAIII/W0825A0,
@@ -2701,7 +2703,7 @@ const drive_settings builtin_knowndrives[] = {
     "HP(3418C5|3C09BA|S2227I)|KFS03005|P0510E|P0725A|Q(0627|1107)A0|R(0529A|0817B0)|"
     "S(0222|0424|0509|0618|1211|1230)A0|S112[78]B0|T0(311|519|910)A0|"
     "U((0202|03[02]9|0401|0506|1124|1209)A|0302B)0|V0((414|609|823)A|(303|718)B)0|V1(027|102)A0|VE0R6327|"
-    "W((0201|0413|0714|0825)A|0419B)0|Y0(106A|307B)0|SHY09A0",
+    "W((0201|0413|0714|0825)A|(0419|1025)B)0|Y0(106A|307B)0|SHY09A0",
     "",
     "-v 148,raw48,Total_SLC_Erase_Ct "
     "-v 149,raw48,Max_SLC_Erase_Ct "
@@ -4851,9 +4853,12 @@ const drive_settings builtin_knowndrives[] = {
     "-v 188,raw16 -v 240,msec24hour32"
   },
   { "Seagate Barracuda XT", // tested with ST32000641AS/CC13,
-      // ST4000DX000-1C5160/CC42
+      // ST33000651AS/CC45, ST4000DX000-1C5160/CC42
     "ST(3(2000641|3000651)AS|4000DX000-.*)",
-    "", "", ""
+    "", "",
+    "-v 1,raw24/raw32 -v 7,raw24/raw32 -v 188,raw16 "
+    "-v 195,raw24/raw32,ECC_On_the_Fly_Count "
+    "-v 240,msec24hour32"
   },
   { "Seagate Barracuda 7200.14 (AF)", // new firmware, tested with
       // ST3000DM001-9YN166/CC4H, ST3000DM001-9YN166/CC9E
@@ -4964,8 +4969,11 @@ const drive_settings builtin_knowndrives[] = {
     "ST(500LM03[04]|1000LM04[89]|2000LM015|[34]000LM024|5000LM000)-.*",
     "", "",
     "-v 1,raw24/raw32 -v 7,raw24/raw32 "
+    "-v 9,msec24hour32 "
     "-v 183,raw48,SATA_Downshift_Count "
-    "-v 188,raw16"
+    "-v 188,raw16 "
+    "-v 195,raw48,ECC_On_the_Fly_Count "
+    "-v 240,msec24hour32"
   },
   { "Seagate Barracuda ES.2", // fixed firmware
     "ST3(25031|50032|75033|100034)0NS",
@@ -5341,6 +5349,12 @@ const drive_settings builtin_knowndrives[] = {
     "-v 195,raw24/raw32,ECC_On_the_Fly_Count "
     "-v 240,msec24hour32"
   },
+  { "Seagate SkyHawk AI", // tested with ST8000VE001-3AU101/EV01
+    "ST(8000VE00(1|04)|10000VE000[48]|1[24]000VE0008|16000VE000)-.*",
+    "", "",
+    "-v 1,raw24/raw32 -v 7,raw24/raw32 "
+    "-v 188,raw16 -v 240,msec24hour32"
+  },
   { "Seagate DB35", // tested with ST3250823ACE/3.03, ST3300831SCE/3.03
     "ST3(200826|250823|300831|400832)[AS]CE",
     "", "", ""
@@ -5418,6 +5432,49 @@ const drive_settings builtin_knowndrives[] = {
     "-v 241,raw48,Total_Writes_GiB "
     "-v 242,raw48,Total_Reads_GiB "
     "-v 245,raw48,Read_Error_Rate "
+  },
+  { "Seagate Nytro WarpDrive and Nytro XP6000", // tested with
+      // 3E128-TS2-550B01/PROLUIO6 (LSI SAS2008 controller)
+      //
+      // Other possible models, from datasheet, not yet confirmed via smartctl:
+      // Nytro WarpDrive 6203: NWD-WLP4-200 (200GB), NWD-WLP4-400 (400GB),
+      //   NWD-BLP4-400 (400GB), NWD-BLP4-800 (800GB), NWD-BLP4-1600 (1600GB)
+      // Nytro XP6209: XP6209-4A1024 (930GB), XP6209-4B2048 (1796GB)
+      // Nytro XP6210: XP6210-4A2048 (1860GB), XP6210-4B2048 (1860GB)
+      // Nytro WarpDrive 6301: NWD-BFH6-1200 (1200GB), NWD-BFH8-1600 (1600GB),
+      //   NWD-BFH8-3200 (3200GB) 
+    "3E128-TS2-550B01",
+    "", "",
+  //"-v 1,raw48,Raw_Read_Error_Rate "
+  //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
+    "-v 9,msec24hour32,Power_On_Hours_and_Msec "
+  //"-v 12,raw48,Power_Cycle_Count "
+    "-v 13,raw24/raw32 "
+    "-v 100,raw48,Gigabytes_Erased "
+    "-v 170,raw48,Reserved_Blocks "
+    "-v 171,raw48,Unknown_Seagate_Attrib "
+    "-v 172,raw48,Unknown_Seagate_Attrib "
+    "-v 174,raw48,Unexpect_Power_Loss_Ct "
+  //"-v 177,raw48,Wear_Leveling_Count "
+  //"-v 181,raw48,Program_Fail_Cnt_Total "
+  //"-v 182,raw48,Erase_Fail_Count_Total "
+  //"-v 184,raw48,End-to-End_Error "
+  //"-v 187,raw48,Reported_Uncorrect "
+  //"-v 194,tempminmax,Temperature_Celsius "
+  //"-v 195,raw48,Hardware_ECC_Recovered "
+  //"-v 196,raw16(raw16),Reallocated_Event_Count "
+    "-v 198,raw24/raw32 " // confirmed by issue reporter, matches 195/201/204
+  //"-v 199,raw48,UDMA_CRC_Error_Count "
+    "-v 201,raw48,Unknown_Seagate_Attrib "
+  //"-v 204,raw48,Soft_ECC_Correction "
+  //"-v 230,raw48,Unknown_Seagate_Attrib "
+    "-v 231,raw48,Unknown_Seagate_Attrib " // not Temperature_Celsius, raw ~2^32 (unimplemented)
+  //"-v 232,raw48,Available_Reservd_Space "
+  //"-v 233,raw48,Media_Wearout_Indicator "
+    "-v 234,raw48,Unknown_Seagate_Attrib "
+  //"-v 241,raw48,Total_LBAs_Written "
+  //"-v 242,raw48,Total_LBAs_Read "
+    "-v 243,raw48,Unknown_Seagate_Attrib "
   },
   { "Seagate IronWolf 110 SATA SSD", //Written to Seagate documentation
     "ZA(240|480|960|1920|3840)NM10001",
@@ -5518,10 +5575,15 @@ const drive_settings builtin_knowndrives[] = {
       // WDC  WDS500G2B0A-00SM50/401000WD,
       // WDC WDBNCE2500PNC/X61130WD, WDC WDBNCE0010PNC-WRSN/X41110WD,
       // WDC  WDS200T1R0A-68A4W0/411000WR, WDC  WDS400T1R0A-68A4W0/411000WR
+      //
+      // Untested names from data sheets:
+      // WDC WDS200T5G0A, WDC WDS100T5G0A, WDC WDS500G5G0A, WDC WDS250G5G0A,
+      // WDC WDS480G3G0B, WDC WDS240G3G0B (0A = 2.5', 0B= M.2)
     "WDC WDBNCE(250|500|00[124])0PNC(-.*)?|" // Blue 3D
-    "WDC  ?WDS((120|240|250|400|480|500)G|[124]00T)(1B|2B|1G|2G|[12]R)0[AB](-.*)?|"
+    "WDC  ?WDS((120|240|250|400|480|500)G|[124]00T)(1B|2B|[1235]G|[12]R)0[AB](-.*)?|"
       // *B* = Blue, *G* = Green, *2B* = Blue 3D NAND, *[12]R* = Red SA500
-    "WD (Green|(Blue|Red) SA5[01]0) (2\\.5|M\\.2 2280) ((25|50|100)0G|[24]T)B|" // tested with
+    "WD (Green|(Blue|Red) SA5[01]0) (2\\.5|M\\.2 2280) ((24|25|50|100)0G|[24]T)B|" // tested with
+      // WD Green 2.5 240GB/42077100 (printed label: WDS240G3G0A-00BJG0),
       // WD Green 2.5 1000GB/42077100,
       // WD Blue SA510 2.5 500GB/52046100, WD Blue SA510 2.5 1000GB/52008100,
       // WD Blue SA510 2.5 4TB/530309WD,  WD Blue SA510 M.2 2280 1000GB/52048100,
@@ -6523,9 +6585,9 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   { "USB: SanDisk Extreme; ASMedia ASM2362",
-    "0x0781:0x55(ae|bb)", // 0x55ae(0x3008): SanDisk Extreme (Western Digital SN580E 1TB)
+    "0x0781:0x55(a[ef]|bb)", // 0x55ae(0x3008): SanDisk Extreme (Western Digital SN580E 1TB)
     "", // 0x55bb(0x6004, 0x6006): SanDisk Portable SSD (WDC SN350E 1TB, WDC 360E 2TB)
-    "",
+    "", // 0x55af(0x4060): SanDisk Extreme Pro Portable SSD (Western Digital SN850XE 4TB)
     "" // smartmontools >= r5168: -d sntasmedia
   },
   // Freecom
@@ -7336,15 +7398,9 @@ const drive_settings builtin_knowndrives[] = {
   },
   // Other World Computing
   { "USB: OWC; ",
-    "0x1e91:0xa([23]a5|4a7)", // 0xa2a5 (0x0100): Envoy Pro, 0xa3a5 (0x0100): Elite Pro Dual,
-    "", // 0xa4a7 (0x0100): Mercury Elite Pro Quad
-    "",
-    "-d sat"
-  },
-  { "USB: OWC Mercury Elite Pro; ",
-    "0x1e91:0xde46",
-    "", // 0x0115
-    "",
+    "0x1e91:0x(a([23]a5|4a[7e])|de46)", // 0xa2a5 (0x0100): Envoy Pro,
+    "", // 0xa3a5 (0x0100): Elite Pro Dual, 0xa4a7 (0x0100): Elite Pro Quad,
+    "", // 0xa4ae (0x0100): Drive Dock (OWCTCDRVDCK), 0xde46 (0x0115): Elite Pro
     "-d sat"
   },
   { "USB: OWC Express 1M2; ASMedia ASM2464PD",
@@ -7423,9 +7479,9 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
-  { "USB: Lexar E6; JMicron",
-    "0x21c4:0xb06a", // Lexar E6 LPAE06N-RNBNG NVMe enclosure
-    "", // 0x0214
+  { "USB: Lexar ES3/E6; JMicron",
+    "0x21c4:0x(0003|b06a)", // 0xb06a (0x0214): Lexar E6 LPAE06N-RNBNG NVMe enclosure
+    "", // 0x0003 (0x7102): Lexar ES3 Portable SSD (2TB)
     "",
     "-d sntjmicron"
   },
