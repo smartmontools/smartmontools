@@ -7392,15 +7392,9 @@ const drive_settings builtin_knowndrives[] = {
   },
   // Other World Computing
   { "USB: OWC; ",
-    "0x1e91:0xa([23]a5|4a7)", // 0xa2a5 (0x0100): Envoy Pro, 0xa3a5 (0x0100): Elite Pro Dual,
-    "", // 0xa4a7 (0x0100): Mercury Elite Pro Quad
-    "",
-    "-d sat"
-  },
-  { "USB: OWC Mercury Elite Pro; ",
-    "0x1e91:0xde46",
-    "", // 0x0115
-    "",
+    "0x1e91:0x(a([23]a5|4a[7e])|de46)", // 0xa2a5 (0x0100): Envoy Pro,
+    "", // 0xa3a5 (0x0100): Elite Pro Dual, 0xa4a7 (0x0100): Elite Pro Quad,
+    "", // 0xa4ae (0x0100): Drive Dock (OWCTCDRVDCK), 0xde46 (0x0115): Elite Pro
     "-d sat"
   },
   { "USB: OWC Express 1M2; ASMedia ASM2464PD",
