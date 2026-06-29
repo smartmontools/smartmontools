@@ -5348,6 +5348,12 @@ const drive_settings builtin_knowndrives[] = {
     "-v 195,raw24/raw32,ECC_On_the_Fly_Count "
     "-v 240,msec24hour32"
   },
+  { "Seagate SkyHawk AI", // tested with ST8000VE001-3AU101/EV01
+    "ST(8000VE00(1|04)|10000VE000[48]|1[24]000VE0008|16000VE000)-.*",
+    "", "",
+    "-v 1,raw24/raw32 -v 7,raw24/raw32 "
+    "-v 188,raw16 -v 240,msec24hour32"
+  },
   { "Seagate DB35", // tested with ST3250823ACE/3.03, ST3300831SCE/3.03
     "ST3(200826|250823|300831|400832)[AS]CE",
     "", "", ""
