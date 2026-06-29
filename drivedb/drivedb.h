@@ -7480,9 +7480,9 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
-  { "USB: Lexar E6; JMicron",
-    "0x21c4:0xb06a", // Lexar E6 LPAE06N-RNBNG NVMe enclosure
-    "", // 0x0214
+  { "USB: Lexar ES3/E6; JMicron",
+    "0x21c4:0x(0003|b06a)", // 0xb06a (0x0214): Lexar E6 LPAE06N-RNBNG NVMe enclosure
+    "", // 0x0003 (0x7102): Lexar ES3 Portable SSD (2TB)
     "",
     "-d sntjmicron"
   },
