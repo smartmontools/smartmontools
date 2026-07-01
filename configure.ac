@@ -549,17 +549,21 @@ cxx_missing=
 case "$with_cxx11_option" in
   no) ;;
   auto)
-    check_cxx_options "C++17" 201703 999999 "-std=gnu++17 -std=gnu++1z -std=c++17 -std=c++1z"
+    check_cxx_options "C++20"               202002 999999 "-std=gnu++20 -std=gnu++2a -std=c++20 -std=c++2a"
+    cxx20_option=$res;
+    check_cxx_options "C++17 but not C++20" 201703 202002 "-std=gnu++17 -std=gnu++1z -std=c++17 -std=c++1z"
     cxx17_option=$res;
     check_cxx_options "C++14 but not C++17" 201402 201703 "-std=gnu++14 -std=gnu++1y -std=c++14 -std=c++1y"
     cxx14_option=$res;
-    case "$cxx17_option:$cxx14_option" in
-      unknown:unknown) cxx_missing=14 ;;
-      unknown:*)       cxx_missing=17 ;;
+    case "$cxx20_option:$cxx17_option:$cxx14_option" in
+      unknown:unknown:unknown) cxx_missing=14 ;;
+      unknown:unknown:*)       cxx_missing=17 ;;
+      unknown:*)               cxx_missing=20 ;;
     esac
     check_cxx_options "C++11 but not C++14" 201103 201402 "-std=gnu++11 -std=gnu++0x -std=c++11 -std=c++0x"
     test "$res" != "unknown" || res=$cxx14_option
     test "$res" != "unknown" || res=$cxx17_option
+    test "$res" != "unknown" || res=$cxx20_option
     test "$res" != "unknown" || AC_MSG_ERROR([
 This script was unable to determine a compiler option to accept C++11.
 Use option '--with-cxx11-option=OPTION' to specify a compiler option.
@@ -1133,7 +1137,7 @@ of smartd log messages in the Windows event log.
 esac
 
 test -z "$cxx_missing" || AC_MSG_WARN([
-This version of smartmontools does not use C++14 or C++17 enhancements,
+This version of smartmontools does not use C++14, C++17 or C++20 enhancements,
 but future versions possibly will.
 This script was unable to determine a compiler option to enable C++$cxx_missing.
 Please send info about compiler and platform to
