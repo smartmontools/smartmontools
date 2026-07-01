@@ -18,14 +18,26 @@ added for ATA and NVMe.
 
 - `smartctl -j`: the new JSON values `scsi_self_test_status: {...}` have been added for SCSI.
 
+- `smartctl -j`: the new JSON values `thermal_mgmt_temperature_*` have been added to the
+structure `nvme_smart_health_information_log`.
+
+- `smartctl [-j] -l devstat`: informal strings for the `Device Statistics` values
+`Logical Sectors Read/Written` and `Date and Time Stamp` have been added.
+
 - `smartd`: the new command line option `-j PREFIX, --jsonstate=PREFIX` has been added to write
 per-device JSON state files after each successful check cycle.
 The JSON syntax is aligned with `smartctl`.
 This lets external tools read cached health data without spawning `smartctl` for each device.
 See also `configure --with-jsonstate` below.
 
-- USB/NVMe/SAT: the NVMe/SAT autodetection enabled by the options `-d snt*/sat` now also
-checks for nonempty NVMe identify controller data before assuming that a NVMe device is
+- ATA/RAID: device types `-d jmb39x*,...` and `-d jms56x,...`: limited support for NO DATA, DATA
+OUT and 48-bit ATA commands has been added.
+This enables usage of `smartctl` options like
+`-t TEST -l selftest -l scttemp -l directory -l sataphy`
+and of `smartd.conf` directives `-s REGEXP -l selftest`.
+
+- USB/NVMe/SAT: device types `-d snt*/sat`: the NVMe/SAT autodetection enabled by these options
+now also checks for nonempty NVMe identify controller data before assuming that a NVMe device is
 connected.
 
 - Linux: a check of runtime power management has been added for ATA, SCSI and NVMe devices.
@@ -38,7 +50,8 @@ spins up a disk.
 - Linux: `smartctl --scan -d by-id` and `DEVICESCAN -d by-id` now also include
 `/dev/disk/by-id` links to NVMe devices.
 Duplicates, including multiple namespaces, are removed.
-The option `-d nvme,0xffffffff` is always set.
+The option `-d nvme,0xffffffff` is always set to ensure that the broadcast namespace is
+monitored.
 
 - Linux: `smartctl --scan -d TYPE` and `DEVICESCAN -d TYPE` no longer include devices
 behind `megaraid` or `sssraid` controllers if `TYPE` is `sat` and/or `scsi`.
@@ -91,12 +104,13 @@ It is no longer needed to use `make BUILD_INFO='"(TEXT)"'` but still possible.
 - Reproducible builds: if `SOURCE_DATE_EPOCH` is passed to `configure`, it is now also
 exported to the environment during `make`.
 This requires that `make` supports `export` (GNU make) or `.export` (BSD make).
+`configure` prints a warning if this is not the case.
 
 ### What changed
 
 - NVMe: it is now assumed that the NVMe Error Information log is missing if only one entry is
 reported.
-This log is mandatory but some devices which emulate NVMe SMART/Health Information do not
+This log is mandatory but some (USB-)devices which emulate NVMe SMART/Health Information do not
 provide it.
 The decision could be overridden (only) for `smartctl` with the option `-l error,1`.
 
@@ -118,6 +132,7 @@ or to `X.Y.0.1000` for releases.
 
 - The source tree has been reorganized.
 The source directory `smartmontools` has been renamed to `src`.
+See `libsmartmon` above for further changes.
 
 - `configure`: now fails if the option `--without-nvme-devicescan` is used.
 NVMe device scanning is now always enabled by default if supported.
@@ -130,6 +145,12 @@ The new option `--enable-static-link` is now required to build the Windows insta
 Most `packed` structure attributes are no longer needed and have been removed.
 
 ### Bug fixes
+
+- `smartctl`: SCSI: fixed a possible stack buffer overflow via bogus result from Supported Log
+Pages request.
+
+- `smartd`: SCSI: fixed a possible stack out-of-bounds read via bogus result from Supported Log
+Pages request.
 
 - `smartctl -c`: no longer prints bogus NVMe `Namespace Features` if no namespace is
 available.
