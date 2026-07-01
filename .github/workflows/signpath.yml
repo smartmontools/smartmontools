@@ -4,7 +4,7 @@ on: workflow_dispatch
 
 jobs:
   build-and-sign-windows:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04 # TODO: change back to 'ubuntu-latest'
 
     steps:
       - name: Install build tools
