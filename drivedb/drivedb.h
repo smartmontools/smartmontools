@@ -7098,7 +7098,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "USB: ; JMicron",
     "0x152d:0x0583", // USB->SATA adapter using default id of JMS583 (see below)
-    "0x0414",
+    "0x(0414|3202)",
     "",
     "-d sat"
   },
