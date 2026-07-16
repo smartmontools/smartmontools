@@ -435,7 +435,7 @@ scsiPrintActiveTapeAlerts(scsi_device * device, int peripheral_type,
 {
     unsigned short pagelength;
     unsigned short parametercode;
-    int i, k, j, m, err;
+    int i, j, m, err;
     const char *s;
     const char *ts;
     int failures = 0;
@@ -458,8 +458,8 @@ scsiPrintActiveTapeAlerts(scsi_device * device, int peripheral_type,
     pagelength = sg_get_unaligned_be16(gBuf + 2);
 
     json::ref jref = jglb[tapealert_s]["status"];
-    for (s=severities, k = 0, j = 0; *s; s++, ++k) {
-        for (i = 4, m = 0; i < pagelength; i += 5, ++k, ++m) {
+    for (s=severities, j = 0; *s; s++) {
+        for (i = 4, m = 0; i < pagelength; i += 5, ++m) {
             parametercode = sg_get_unaligned_be16(gBuf + i);
 
             if (gBuf[i + 4]) {
