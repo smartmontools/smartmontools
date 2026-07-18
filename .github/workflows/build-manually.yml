@@ -377,6 +377,50 @@ jobs:
           path: smartmontools-windows-x86_64-setup-${{ github.event.inputs.suffix }}-*.exe
           retention-days: 30
 
+  check-windows-x86_64:
+    if: ${{ contains(github.event.inputs.cfg-options, '--enable-static-link') }}
+    needs: build-windows-x86_64
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: smartmontools-windows-x86_64-${{ github.event.inputs.suffix }}-setup
+
+      - name: Unpack installer
+        run: |
+          7z x smartmontools-windows-x86_64-setup-${{ github.event.inputs.suffix }}-*.exe "bin"
+
+      - name: Run smartctl -V
+        run: |
+          bin/smartctl -V
+
+      - name: Run smartctl ${{ github.event.inputs.check-options }}
+        run: |
+          bin/smartctl ${{ github.event.inputs.check-options }}
+
+  check-windows-arm64:
+    if: ${{ contains(github.event.inputs.cfg-options, '--enable-static-link') }}
+    needs: build-windows-x86_64
+    runs-on: windows-11-arm
+
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: smartmontools-windows-x86_64-${{ github.event.inputs.suffix }}-setup
+
+      - name: Unpack installer
+        run: |
+          7z x smartmontools-windows-x86_64-setup-${{ github.event.inputs.suffix }}-*.exe "bin"
+
+      - name: Run smartctl -V
+        run: |
+          bin/smartctl -V
+
+      - name: Run smartctl ${{ github.event.inputs.check-options }}
+        run: |
+          bin/smartctl ${{ github.event.inputs.check-options }}
+
   build-cygwin:
     if: ${{ contains(github.event.inputs.platforms, 'cygwin') }}
     needs: build-source-tarball
