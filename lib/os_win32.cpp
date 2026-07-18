@@ -4085,13 +4085,19 @@ private:
 
 /////////////////////////////////////////////////////////////////////////////
 
+template <typename F>
+static inline F * get_proc_address(HMODULE module, const char * name)
+{
+  return reinterpret_cast<F *>(reinterpret_cast<void *>(GetProcAddress(module, name)));
+}
+
 #ifndef _WIN64
 // Running on 64-bit Windows as 32-bit app ?
 static bool is_wow64()
 {
-  BOOL (WINAPI * IsWow64Process_p)(HANDLE, PBOOL) =
-    (BOOL (WINAPI *)(HANDLE, PBOOL))(void *)
-    GetProcAddress(GetModuleHandleA("kernel32.dll"), "IsWow64Process");
+  auto IsWow64Process_p = get_proc_address<BOOL WINAPI (HANDLE, PBOOL)>(
+    GetModuleHandleA("kernel32.dll"), "IsWow64Process"
+  );
   if (!IsWow64Process_p)
     return false;
   BOOL w64 = FALSE;
@@ -4114,10 +4120,9 @@ std::string win_smart_interface::get_os_version_str()
 
   // Starting with Windows 8.1, GetVersionEx() does no longer report the
   // actual OS version.  RtlGetVersion() is not affected.
-  LONG /*NTSTATUS*/ (WINAPI /*NTAPI*/ * RtlGetVersion_p)(LPOSVERSIONINFOEXW) =
-    (LONG (WINAPI *)(LPOSVERSIONINFOEXW))(void *)
-    GetProcAddress(GetModuleHandleA("ntdll.dll"), "RtlGetVersion");
-
+  auto RtlGetVersion_p = get_proc_address<LONG WINAPI (LPOSVERSIONINFOEXW)>(
+    GetModuleHandleA("ntdll.dll"), "RtlGetVersion"
+  );
   OSVERSIONINFOEXW vi; memset(&vi, 0, sizeof(vi));
   vi.dwOSVersionInfoSize = sizeof(vi);
   if (!RtlGetVersion_p || RtlGetVersion_p(&vi)) {
@@ -4820,9 +4825,9 @@ void smart_interface::init()
   {
     // Remove "." from DLL search path if supported
     // to prevent DLL preloading attacks
-    BOOL (WINAPI * SetDllDirectoryA_p)(LPCSTR) =
-      (BOOL (WINAPI *)(LPCSTR))(void *)
-      GetProcAddress(GetModuleHandleA("kernel32.dll"), "SetDllDirectoryA");
+    auto SetDllDirectoryA_p = os_win32::get_proc_address<BOOL WINAPI (LPCSTR)>(
+      GetModuleHandleA("kernel32.dll"), "SetDllDirectoryA" // >= Windows XP SP1
+    );
     if (SetDllDirectoryA_p)
       SetDllDirectoryA_p("");
   }
