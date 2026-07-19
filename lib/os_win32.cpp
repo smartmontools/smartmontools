@@ -4091,21 +4091,34 @@ static inline F * get_proc_address(HMODULE module, const char * name)
   return reinterpret_cast<F *>(reinterpret_cast<void *>(GetProcAddress(module, name)));
 }
 
-#ifndef _WIN64
-// Running on 64-bit Windows as 32-bit app ?
-static bool is_wow64()
+// Return "(64)" if running as x86 on x86_64, "(arm64)" if x86[_64] is emulated on arm64,
+// "" otherwise.
+static const char * get_wow64()
 {
-  auto IsWow64Process_p = get_proc_address<BOOL WINAPI (HANDLE, PBOOL)>(
-    GetModuleHandleA("kernel32.dll"), "IsWow64Process"
+#if !(defined(__aarch64__) /*GCC*/ || defined(_M_ARM64) /*MSVC*/)
+  HMODULE kernel = GetModuleHandleA("kernel32.dll");
+  auto IsWow64Process2_p = get_proc_address<BOOL WINAPI (HANDLE, USHORT *, USHORT *)>(
+    kernel, "IsWow64Process2" // >= Windows 10
   );
-  if (!IsWow64Process_p)
-    return false;
+  HANDLE currproc = GetCurrentProcess();
+  USHORT process_arch = 0, native_arch = 0;
+  if (   IsWow64Process2_p
+      && IsWow64Process2_p(currproc, &process_arch, &native_arch)
+      && native_arch == 0xaa64 /* IMAGE_FILE_MACHINE_ARM64 */    )
+    return "(arm64)";
+
+#ifndef _WIN64
+  auto IsWow64Process_p = get_proc_address<BOOL WINAPI (HANDLE, PBOOL)>(
+    kernel, "IsWow64Process" // >= Windows XP SP2
+  );
   BOOL w64 = FALSE;
-  if (!IsWow64Process_p(GetCurrentProcess(), &w64))
-    return false;
-  return !!w64;
+  if (IsWow64Process_p && IsWow64Process_p(currproc, &w64) && w64)
+    return "(64)";
+#endif // !_WIN64
+
+#endif // !(__aarch64__ || _M_ARM64)
+  return "";
 }
-#endif // _WIN64
 
 // Return info string about build host and OS version
 std::string win_smart_interface::get_os_version_str()
@@ -4201,12 +4214,7 @@ std::string win_smart_interface::get_os_version_str()
     }
   }
 
-  const char * w64 = "";
-#ifndef _WIN64
-  if (is_wow64())
-    w64 = "(64)";
-#endif
-
+  const char * w64 = get_wow64();
   if (!w)
     snprintf(vptr, vlen, "-%s%u.%u%s",
       (vi.dwPlatformId==VER_PLATFORM_WIN32_NT ? "nt" : "??"),
