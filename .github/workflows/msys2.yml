@@ -57,4 +57,4 @@ jobs:
         with:
           name: smartmontools-mingw64-${{matrix.env}}
           path: build/src/smartmontools-mingw64-${{matrix.env}}-*.exe
-          retention-days: 30
+          retention-days: 90

@@ -69,7 +69,7 @@ jobs:
         with:
           name: smartmontools-msvc17-src
           path: build/smartmontools/
-          retention-days: 30
+          retention-days: 90
 
   build:
     needs: configure-src
@@ -101,11 +101,11 @@ jobs:
             src/os_win32/vc17/${{matrix.platform}}/${{matrix.config}}/*.exe
             src/os_win32/vc17/${{matrix.platform}}/${{matrix.config}}/*.lib
           compression-level: 9
-          retention-days: 30
+          retention-days: 90
 
       - uses: actions/upload-artifact@v7
         with:
           name: smartmontools-msvc17-${{matrix.platform}}-${{matrix.config}}-pdb
           path: src/os_win32/vc17/${{matrix.platform}}/${{matrix.config}}/*.pdb
           compression-level: 9
-          retention-days: 30
+          retention-days: 90

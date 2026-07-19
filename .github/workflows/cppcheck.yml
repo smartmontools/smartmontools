@@ -27,4 +27,4 @@ jobs:
         with:
           name: smartmontools-cppcheck
           path: smartmontools-cppcheck-*.txt
-          retention-days: 30
+          retention-days: 90

@@ -41,4 +41,4 @@ jobs:
         with:
           name: smartmontools-macos
           path: build/smartmontools-macos-*.tar.gz
-          retention-days: 30
+          retention-days: 90
