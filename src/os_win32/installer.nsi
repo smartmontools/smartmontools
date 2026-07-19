@@ -68,6 +68,7 @@ LicenseData "${INPDIR}\doc\COPYING.txt"
 !include "FileFunc.nsh"
 !include "LogicLib.nsh"
 !include "Sections.nsh"
+!include "x64.nsh"
 
 
 ;--------------------------------------------------------------------
@@ -613,15 +614,9 @@ Function .onInit
   ${EndIf}
 
 !ifdef INPDIR64
-  ; Check for 64-bit unless already installed in 32-bit location
-  ${If} $INSTDIR64 != ""
-  ${OrIf} $INSTDIR != "$PROGRAMFILES\smartmontools"
-    ; $1 = IsWow64Process(GetCurrentProcess(), ($0=FALSE, &$0))
-    System::Call "kernel32::GetCurrentProcess() i.s"
-    System::Call "kernel32::IsWow64Process(i s, *i 0 r0) i.r1"
-    ${If} "$0 $1" == "1 1" ; 64-bit Windows ?
-      !insertmacro SelectSection ${X64_SECTION}
-    ${EndIf}
+  ${If} $INSTDIR == "$PROGRAMFILES\smartmontools" ; Installed in 32-bit default location, ...
+  ${OrIfNot} ${RunningX64} ; ... or not running on 64-bit Windows, then ...
+    !insertmacro UnselectSection ${X64_SECTION} ; ... default to 32-bit version
   ${EndIf}
 
   ; Sizes of binary sections include 32-bit and 64-bit executables
