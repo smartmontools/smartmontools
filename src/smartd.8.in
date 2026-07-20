@@ -568,7 +568,7 @@ See NOTES below for details.
 .\" %ENDIF OS Windows
 .TP
 .B \-V, \-\-version, \-\-license, \-\-copyright
-Prints version, copyright, license, home page and SVN revision
+Prints version, copyright, license, home page and git revision
 information for your copy of \fBsmartd\fP to STDOUT and then exits.
 .Sp
 .SH EXAMPLES

@@ -216,7 +216,7 @@ ENABLE/DISABLE, DISPLAY DATA, RUN/ABORT TESTS.
 Prints a usage message to STDOUT and exits.
 .TP
 .B \-V, \-\-version, \-\-copyright, \-\-license
-Prints version, copyright, license, home page and SVN revision
+Prints version, copyright, license, home page and git revision
 information for your copy of \fBsmartctl\fP to STDOUT and then exits.
 .TP
 .B \-i, \-\-info
