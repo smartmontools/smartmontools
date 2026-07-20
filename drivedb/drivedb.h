@@ -2042,6 +2042,45 @@ const drive_settings builtin_knowndrives[] = {
     "-v 234,raw24/raw32:04321,Thermal_Throttle_Status "
     "-v 245,raw48,Percent_Life_Remaining"
   },
+  { "Lenovo OEM Intel D3-S4510 Series SSDs", // tested with
+    // SSDSC2KB038T8L       01PE328D7A09676LEN/XCV1LX42
+    // SSDSC2KB038T8L       01PE328D7A09676LEN/XCV1LX46
+    "SSDSC(2K|KK)(B|G)(240G|480G|960G|019T|038T|076T)8L[ ]+[^ ]+LEN",
+    "", "",
+  //"-v 1,raw48,Raw_Read_Error_Rate "
+  //"-v 5,raw48,Reallocated_Sector_Ct "
+  //"-v 9,raw48,Power_On_Hours "
+  //"-v 12,raw48,Power_Cycle_Count "
+    // High 24-bits: Soft/ECC error events; Low 24-bits: Total read activity units
+    "-v 13,raw24/raw24,Soft_Errors_and_Reads "
+    "-v 100,raw48,Gigabytes_Erased "
+    "-v 170,raw48,Available_Reservd_Space "
+    "-v 171,raw48,Program_Fail_Count "
+    "-v 172,raw48,Erase_Fail_Count "
+    // Slices 6 bytes into three 16-bit integers: Average, Maximum, and Minimum erase cycles
+    "-v 173,raw16,Erase_Cycles_Avg_Max_Mn "
+    "-v 174,raw48,Unsafe_Shutdown_Count "
+    "-v 177,raw16,Wear_Delta_Avg_Max_Min "
+    "-v 184,raw48,End-to-End_Error_Count "
+    "-v 187,raw48,Uncorrectable_Error_Cnt "
+  //"-v 188,raw48,Command_Timeout "
+  //"-v 190,tempminmax,Airflow_Temperature_Cel "
+    "-v 192,raw48,Unsafe_Shutdown_Count "
+  //"-v 194,tempminmax,Temperature_Celsius "
+  //"-v 195,raw48,Hardware_ECC_Recovered "
+  //"-v 196,raw16(raw16),Reallocated_Event_Count "
+  //"-v 197,raw48,Current_Pending_Sector "
+  //"-v 198,raw48,Offline_Uncorrectable "
+  //"-v 199,raw48,UDMA_CRC_Error_Count "
+    "-v 231,raw48,SATA_Phy_Error_Count "
+  //"-v 232,raw48,Available_Reservd_Space "
+  //"-v 233,raw48,Media_Wearout_Indicator "
+    // Slices 6 bytes into three 16-bit integers: Total tests, Minutes since last test, Duration (us)
+    "-v 235,raw16,PLP_Tests_Min_Us "
+    "-v 237,raw16,PLP_Mirror_Tests_Min_Us "
+    "-v 241,raw48,Total_LBAs_Written "
+    "-v 242,raw48,Total_LBAs_Read"
+  },
   { "Kingston branded X25-V SSDs", // fixed firmware
     "KINGSTON SSDNow 40GB",
     "2CV102(J[89A-Z]|[K-Z].)", // >= "2CV102J8"
