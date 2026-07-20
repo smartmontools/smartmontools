@@ -92,8 +92,13 @@ jobs:
           rm -v build/src/smartmontools-win32-setup-${VERSION}.exe &&
           mv -v signed-binaries/uninst-smartmontools.exe build/src &&
           mv -v signed-binaries/*.exe build64/src/smartmontools-*.win64/bin &&
+          cp -v signed-binaries/*.ps1 build64/src/smartmontools-*.win64/bin &&
           mv -v signed-binaries/bin32/*.exe build/src/smartmontools-*.win32/bin &&
           mv -v signed-binaries/*.ps1 build/src/smartmontools-*.win32/bin &&
+          for d in build/src/smartmontools-*.win32 build64/src/smartmontools-*.win64; do
+            ( cd $d/bin && set -o pipefail &&
+              sha256sum *.exe *.cmd *.ps1 | unix2dos > "../doc/checksums${d:0-2}.txt" )
+          done &&
           cd build/src && dest="smartmontools-win32-setup-${VERSION}.exe" &&
           make MAKENSISFLAGS=-DIMPORT_UNINST builddir_win64=../../build64/src \
             distinst_win32="$dest" installer-win32 &&
