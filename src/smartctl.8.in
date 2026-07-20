@@ -1413,6 +1413,13 @@ Only the 16 most recent log entries are printed by default.
 This number can be changed by the optional parameter NUM.
 The maximum number of log entries is vendor specific
 (in the range from 1 to 256 inclusive).
+.br
+[NEW EXPERIMENTAL SMARTCTL 8.0 FEATURE]
+If a device reports only a maximum of one, it is assumed that this log is
+not supported.
+This log is mandatory but some (USB-)devices which emulate NVMe SMART/Health
+Information do not provide it.
+This decision could be overridden with the option \*(Aq\-l error,1\*(Aq\.
 .Sp
 Note that the contents of this log is not preserved across power cycles or
 controller resets, but the value of \*(AqError Information Log Entries\*(Aq
