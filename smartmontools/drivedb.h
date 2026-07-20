@@ -68,7 +68,7 @@
 /*
 const drive_settings builtin_knowndrives[] = {
  */
-  { "VERSION: 7.0/6178 2026-06-29 15:47:49 +0000 6c5eac3c22f7",
+  { "VERSION: 7.0/6204 2026-07-20 17:31:50 +0000 98360bf7d5d9",
     "-", "-",
     "Version information",
     ""
@@ -653,6 +653,7 @@ const drive_settings builtin_knowndrives[] = {
         // HS-SSD-E100N 1024G/030fAA20
     "Lexar 128GB SSD|"  // Lexar 128GB SSD/H190117D
         // for other Lexar drives see trac ticket 1529
+    "MT-(64|128|256|512|[124]TB?)|"                  // KingSpec MT, tested with MT-256/SN20764
     "P3-(128|256|512|[124]TB)|"                      // KingSpec P3, tested with P3-256/SN11873
     "Patriot Burst Elite (120|240|480|960|1920)GB|"  // Patriot Burst Elite 120GB/SN08979, 960GB/030fAA20, 960GB/H221215a,
         // 1920GB/SN09405
@@ -662,7 +663,7 @@ const drive_settings builtin_knowndrives[] = {
     "SSDPR-CX400-(128|256|512|01T|02T)-G2|"          // GOODRAM CX400 G2, tested with SSDPR-CX400-128-G2/SN07373
         // also available with Phison controllers
     "Verbatim Vi560 SATA III M.2 SSD",               // Verbatim Vi560 SATA III M.2 SSD/H190505 (256GB)
-    "03[01]fAA20|J00fae20|H(19[0-9]{4}[DH]?|2212[0-9]{2}a?)|SN(0(73|89|94)|81|1(18|41))[0-9]{2}|V1.2.7", "",
+    "03[01]fAA20|J00fae20|H(19[0-9]{4}[DH]?|2212[0-9]{2}a?)|SN(0(73|89|94)|81|1(18|41)|207)[0-9]{2}|V1\\.2\\.7", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 2,raw48,Throughput_Performance "
   //"-v 3,raw16(avg16),Spin_Up_Time "
@@ -2041,6 +2042,45 @@ const drive_settings builtin_knowndrives[] = {
     "-v 234,raw24/raw32:04321,Thermal_Throttle_Status "
     "-v 245,raw48,Percent_Life_Remaining"
   },
+  { "Lenovo OEM Intel D3-S4510 Series SSDs", // tested with
+    // SSDSC2KB038T8L       01PE328D7A09676LEN/XCV1LX42
+    // SSDSC2KB038T8L       01PE328D7A09676LEN/XCV1LX46
+    "SSDSC(2K|KK)(B|G)(240G|480G|960G|019T|038T|076T)8L[ ]+[^ ]+LEN",
+    "", "",
+  //"-v 1,raw48,Raw_Read_Error_Rate "
+  //"-v 5,raw48,Reallocated_Sector_Ct "
+  //"-v 9,raw48,Power_On_Hours "
+  //"-v 12,raw48,Power_Cycle_Count "
+    // High 24-bits: Soft/ECC error events; Low 24-bits: Total read activity units
+    "-v 13,raw24/raw24,Soft_Errors_and_Reads "
+    "-v 100,raw48,Gigabytes_Erased "
+    "-v 170,raw48,Available_Reservd_Space "
+    "-v 171,raw48,Program_Fail_Count "
+    "-v 172,raw48,Erase_Fail_Count "
+    // Slices 6 bytes into three 16-bit integers: Average, Maximum, and Minimum erase cycles
+    "-v 173,raw16,Erase_Cycles_Avg_Max_Mn "
+    "-v 174,raw48,Unsafe_Shutdown_Count "
+    "-v 177,raw16,Wear_Delta_Avg_Max_Min "
+    "-v 184,raw48,End-to-End_Error_Count "
+    "-v 187,raw48,Uncorrectable_Error_Cnt "
+  //"-v 188,raw48,Command_Timeout "
+  //"-v 190,tempminmax,Airflow_Temperature_Cel "
+    "-v 192,raw48,Unsafe_Shutdown_Count "
+  //"-v 194,tempminmax,Temperature_Celsius "
+  //"-v 195,raw48,Hardware_ECC_Recovered "
+  //"-v 196,raw16(raw16),Reallocated_Event_Count "
+  //"-v 197,raw48,Current_Pending_Sector "
+  //"-v 198,raw48,Offline_Uncorrectable "
+  //"-v 199,raw48,UDMA_CRC_Error_Count "
+    "-v 231,raw48,SATA_Phy_Error_Count "
+  //"-v 232,raw48,Available_Reservd_Space "
+  //"-v 233,raw48,Media_Wearout_Indicator "
+    // Slices 6 bytes into three 16-bit integers: Total tests, Minutes since last test, Duration (us)
+    "-v 235,raw16,PLP_Tests_Min_Us "
+    "-v 237,raw16,PLP_Mirror_Tests_Min_Us "
+    "-v 241,raw48,Total_LBAs_Written "
+    "-v 242,raw48,Total_LBAs_Read"
+  },
   { "Kingston branded X25-V SSDs", // fixed firmware
     "KINGSTON SSDNow 40GB",
     "2CV102(J[89A-Z]|[K-Z].)", // >= "2CV102J8"
@@ -2281,7 +2321,7 @@ const drive_settings builtin_knowndrives[] = {
     "SAMSUNG MZ[7N](LF|TY)(128|192|256)H[CD](GS|HP)-.*|" // CM871/871a, tested with SAMSUNG MZNLF128HCHP-000H1/FXT21H1Q,
       // SAMSUNG MZNTY256HDHP-000/MAT21K0Q, SAMSUNG MZ7LF192HCGS-000L1/FXT03L1Q
     "SAMSUNG MZ[7NY]LN(128|256|512|1T0)H[ACM](GR|HP|HQ|J[HPQ]|LR)-.*|" // PM871/871a/b, tested with
-      // SAMSUNG MZ7LN128HCHP-00000/EMT0100Q, SAMSUNG MZ7LN256HAHQ-000H1/MVT03H6Q,
+      // SAMSUNG MZ7LN128HCHP-00000/EMT0100Q, SAMSUNG MZ7LN128HAHQ-000H1/MVT03H6Q,
       // SAMSUNG MZNLN256HMHQ-000H1/MAV21H3Q, SAMSUNG MZYLN256HCHP-000L2/EMT63L0Q
     "SAMSUNG SSD PM871 .*|" // SAMSUNG SSD PM871 2.5 7mm 256GB/EMT02D0Q
       // SAMSUNG MZ7LN256HMJP-00000/MAV0100Q, SAMSUNG MZ7LN512HMJP-00000/MAV0100Q
@@ -4898,15 +4938,20 @@ const drive_settings builtin_knowndrives[] = {
     "-v 240,msec24hour32"
   },
   { "Seagate Barracuda 7200.14 (AF)", // < 1TB, tested with ST250DM000-1BC141
+      // ST500DM002-1BC142/JC4B
     "ST(250|320|500|750)DM00[0-3]-.*",
     "", "",
-    "-v 188,raw16 -v 240,msec24hour32"
+    "-v 1,raw24/raw32 -v 7,raw24/raw32 -v 188,raw16 "
+    "-v 195,raw24/raw32,ECC_On_the_Fly_Count "
+    "-v 240,msec24hour32"
   },
   { "Seagate BarraCuda 3.5 (CMR)", // tested with ST1000DM010-2EP102/CC43, ST3000DM008-2DM166/CC26
     "ST(500DM009|1000DM010|2000DM00[67]|3000DM00[89]|4000DM005)-.*",
     "", "",
+    "-v 1,raw24/raw32 -v 7,raw24/raw32 -v 188,raw16 "
+    "-v 195,raw24/raw32,ECC_On_the_Fly_Count "
     "-v 200,raw48,Pressure_Limit "
-    "-v 188,raw16 -v 240,msec24hour32"
+    "-v 240,msec24hour32"
   },
   { "Seagate BarraCuda 3.5 (SMR)", // tested with ST2000DM008-2FR102/0001,
       // ST4000DM004-2CV104/0001 (TRIM: no), ST4000DM005-2DP166/0001, ST8000DM004-2CX188/0001
@@ -5341,8 +5386,9 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "Seagate SkyHawk", // tested with ST2000VX017-3CV102/CV10, ST3000VX010-2H916L/CV11,
+      // ST4000VX015-3CU104/CV10,
       // ST4000VX016-3CV104/CV10, ST4000VX007-2DT166/CV11, ST6000VX0023-2EF110/SC60
-    "ST(1000VX0(05|13)|2000VX0(08|15|17)|3000VX0(09|10|15)|4000VX0(07|13|16)|6000VX00(1|9|23)|8000VX0(04|10|022)|10000VX0004)-.*",
+    "ST(1000VX0(05|13)|2000VX0(08|15|17)|3000VX0(09|10|15)|4000VX0(07|13|15|16)|6000VX00(1|9|23)|8000VX0(04|10|022)|10000VX0004)-.*",
     "", "",
     "-v 1,raw24/raw32 -v 7,raw24/raw32 -v 188,raw16 "
     "-v 9,msec24hour32 " // CV* Firmware only?
@@ -5442,7 +5488,7 @@ const drive_settings builtin_knowndrives[] = {
       // Nytro XP6209: XP6209-4A1024 (930GB), XP6209-4B2048 (1796GB)
       // Nytro XP6210: XP6210-4A2048 (1860GB), XP6210-4B2048 (1860GB)
       // Nytro WarpDrive 6301: NWD-BFH6-1200 (1200GB), NWD-BFH8-1600 (1600GB),
-      //   NWD-BFH8-3200 (3200GB) 
+      //   NWD-BFH8-3200 (3200GB)
     "3E128-TS2-550B01",
     "", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
@@ -5947,10 +5993,11 @@ const drive_settings builtin_knowndrives[] = {
   { "Western Digital Purple (Pro)", // tested with WDC WD10PURZ-85U8XY0/01.01A01,
       // WDC WD22PURZ-85B4ZY0/80.00A80, WDC WD30PURZ-85GU6Y0/80.00A80,
       // WDC WD40PURX-64GVNY0/80.00A80, WDC WD40PURZ-85TTDY0/80.00A80,
+      // WDC WD43PURZ-74BWPY0/80.00A80,
       // WDC WD64PURZ-74BWUY0/80.00A80, WDC WD80PUZX-64NEAY0/80.H0A80,
       // WDC WD82PURZ-85TEUY0/82.00A82, WDC WD8002PURP-85C9JY0/82.00A82,
       // WDC WD121PURP-85B5SY0/82.00A82
-    "WDC WD([1-68][024]|8002|1[02]1)PU[RZ][PXZ]-.*",
+    "WDC WD([1-68][0234]|8002|1[02]1)PU[RZ][PXZ]-.*",
     "", "", ""
   //"-v 22,raw16(raw16),Helium_Level" // WD121PURP-85B5SY0, WD80PUZX-64NEAY0
   },
@@ -7097,15 +7144,16 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "USB: ; JMicron",
     "0x152d:0x0583", // USB->SATA adapter using default id of JMS583 (see below)
-    "0x0414",
+    "0x(0414|3202|9128)",
     "",
     "-d sat"
   },
   { "USB: ; JMicron JMS583", // USB->PCIe (NVMe)
-    "0x152d:0x[0a]583",
-    "", // 0x214
+    "0x152d:0x0583",
+    "0xXXXX", // TODO: add 'bcdDevice' values of devices which support '-d sntjmicron'
     "",
-    "-d sntjmicron"
+    "-d sntjmicron" // Caution: Using this on the USB->SATA adapter above issues the
+                    // SAT command 'ATA hardware reset'
   },
   { "USB: OCZ THROTTLE OCZESATATHR8G; JMicron JMF601",
     "0x152d:0x0602",
@@ -7238,6 +7286,12 @@ const drive_settings builtin_knowndrives[] = {
     "", // 0xb581 (0x4403): Unitek M.2 NVMe/SATA USB adapter
     "",
     "-d sntjmicron" // smartmontools >= r5677: -d sntjmicron/sat
+  },
+  { "USB: ; JMicron JMS583", // USB->PCIe (NVMe)
+    "0x152d:0xa583",
+    "", // 0x0214
+    "",
+    "-d sntjmicron"
   },
   // PNY
   { "USB: ; PNY",
