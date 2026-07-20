@@ -653,6 +653,7 @@ const drive_settings builtin_knowndrives[] = {
         // HS-SSD-E100N 1024G/030fAA20
     "Lexar 128GB SSD|"  // Lexar 128GB SSD/H190117D
         // for other Lexar drives see trac ticket 1529
+    "MT-(64|128|256|512|[124]TB?)|"                  // KingSpec MT, tested with MT-256/SN20764
     "P3-(128|256|512|[124]TB)|"                      // KingSpec P3, tested with P3-256/SN11873
     "Patriot Burst Elite (120|240|480|960|1920)GB|"  // Patriot Burst Elite 120GB/SN08979, 960GB/030fAA20, 960GB/H221215a,
         // 1920GB/SN09405
@@ -662,7 +663,7 @@ const drive_settings builtin_knowndrives[] = {
     "SSDPR-CX400-(128|256|512|01T|02T)-G2|"          // GOODRAM CX400 G2, tested with SSDPR-CX400-128-G2/SN07373
         // also available with Phison controllers
     "Verbatim Vi560 SATA III M.2 SSD",               // Verbatim Vi560 SATA III M.2 SSD/H190505 (256GB)
-    "03[01]fAA20|J00fae20|H(19[0-9]{4}[DH]?|2212[0-9]{2}a?)|SN(0(73|89|94)|81|1(18|41))[0-9]{2}|V1.2.7", "",
+    "03[01]fAA20|J00fae20|H(19[0-9]{4}[DH]?|2212[0-9]{2}a?)|SN(0(73|89|94)|81|1(18|41)|207)[0-9]{2}|V1\\.2\\.7", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 2,raw48,Throughput_Performance "
   //"-v 3,raw16(avg16),Spin_Up_Time "
