@@ -244,9 +244,9 @@ disabled.
 .\" %ENDIF ENABLE_JSONSTATE
 .TP
 .B \-B [+]FILE, \-\-drivedb=[+]FILE
-[ATA only] Read the drive database from FILE.  The new database replaces
-the built in database by default.  If \*(Aq+\*(Aq is specified, then the new
-entries prepend the built in entries.
+[ATA][USB] Read the drive database from FILE.
+If \*(Aq+\*(Aq is not specified, the drive database is replaced.
+Otherwise the entries read from FILE prepend the local and default entries.
 Please see the \fBsmartctl\fP(8) man page for further details.
 .TP
 .B \-c FILE, \-\-configfile=FILE
