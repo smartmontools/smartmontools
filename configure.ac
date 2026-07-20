@@ -675,6 +675,13 @@ else
 fi
 AM_CONDITIONAL(NEED_REGEX, [test "$need_regex" = "yes"])
 
+troff_cw_font=CW
+AC_ARG_WITH(troff-cw-font,
+  [AS_HELP_STRING([--with-troff-cw-font@<:@=FONT|CR|yes|no@:>@],
+    [Monospace (Constant Width) font for man page formatting with troff [CW] (yes=CW, no=R)])],
+  [ case "$withval" in yes) ;; no) troff_cw_font=R ;; *) troff_cw_font=$withval ;; esac ])
+AC_SUBST(troff_cw_font)
+
 # Set platform-specific modules and symbols
 os_libs=
 os_dltools='curl wget lynx'
@@ -995,6 +1002,7 @@ info=`
   else
     echo "Reproducible build:     [[disabled]]"
   fi
+  echo "Monospace font (troff): $troff_cw_font"
 
   case "$host_os" in
     mingw*)

@@ -376,6 +376,7 @@ MAN_FILTER = { \
     sed -e "s|@SMARTMONTOOLS_GIT_VER_DESC@|$$SMARTMONTOOLS_GIT_VER_DESC|g" \
         -e "s|@SMARTMONTOOLS_GIT_REV_DATE@|$${SMARTMONTOOLS_GIT_REV_DATE:--}|g" \
         -e "s|@SMARTMONTOOLS_GIT_REV@|$${SMARTMONTOOLS_GIT_REV:--}|g" \
+        -e 's|\.ft CW$$|.ft $(troff_cw_font)|' \
         -e 's|/usr/local/share/man/|$(mandir)/|g' \
         -e 's|/usr/local/sbin/|$(sbindir)/|g' \
         -e 's|/usr/local/share/doc/smartmontools/examplescripts/|!exampledir!|g' \
