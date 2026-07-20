@@ -1,6 +1,6 @@
 .ig
 Copyright (C) 2002-10 Bruce Allen
-Copyright (C) 2004-25 Christian Franke
+Copyright (C) 2004-26 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
@@ -50,8 +50,7 @@ ACS-3, ACS-2, ATA8-ACS, ATA/ATAPI-7 and earlier standards
 (equivalent to \fBsmartctl \-s on\fP) and polls these and SCSI devices
 every 30 minutes (configurable), logging SMART errors and changes of
 SMART Attributes via the SYSLOG interface.  The default location for
-these SYSLOG notifications and warnings is system-dependent
-(typically \fB/var/log/messages\fP or \fB/var/log/syslog\fP).
+these SYSLOG notifications and warnings is system-dependent.
 To change this default location, please see the \*(Aq\-l\*(Aq
 command-line option described below.
 .PP
@@ -339,19 +338,7 @@ for the same purpose.
 .B \-l FACILITY, \-\-logfacility=FACILITY
 Uses syslog facility FACILITY to log the messages from \fBsmartd\fP.
 Here FACILITY is one of \fIlocal0\fP, \fIlocal1\fP, ..., \fIlocal7\fP,
-or \fIdaemon\fP [default].  If this command-line option is not used,
-then by default messages from \fBsmartd\fP are logged to the facility
-\fIdaemon\fP.
-.Sp
-If you would like to have \fBsmartd\fP messages logged somewhere other
-than the default location, include (for example) \*(Aq\-l local3\*(Aq in its
-start up argument list.
-Tell the syslog daemon to log all messages from facility \fBlocal3\fP
-to (for example) \*(Aq/var/log/smartd.log\*(Aq.
-.Sp
-For more detailed information, please refer to the man pages for
-the local syslog daemon, typically \fBsyslogd\fP(8), \fBsyslog-ng\fP(8)
-or \fBrsyslogd\fP(8).
+or \fIdaemon\fP [default].
 .\" %IF OS Cygwin
 .Sp
 Cygwin: If no \fBsyslogd\fP is running, the \*(Aq\-l\*(Aq option has no effect.

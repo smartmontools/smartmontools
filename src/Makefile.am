@@ -478,8 +478,7 @@ SOLARIS_MAN_FILTER = \
     sed -e '/^\.TH/s, \([58]\) , !!\1!! ,' \
         -e '/^\.BR/s, (\([578]\)), (!!\1!!),' \
         -e 's,\\fP(\([578]\)),\\fP(!!\1!!),g' \
-        -e 's,!!5!!,4,g' -e 's,!!7!!,5,g' -e 's,!!8!!,1m,g' \
-        -e 's,/var/log/messages,/var/adm/messages,g'
+        -e 's,!!5!!,4,g' -e 's,!!7!!,5,g' -e 's,!!8!!,1m,g'
 
 smartctl.1m: smartctl.8
 	$(ECHO_V_GEN) ' $$(SOLARIS_MAN_FILTER) < smartctl.8 > $@'
