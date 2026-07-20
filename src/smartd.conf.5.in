@@ -1594,7 +1594,7 @@ This can be changed to Attribute 9 or 220 by the drive database or by
 the \*(Aq\-v 9,temp\*(Aq or \*(Aq\-v 220,temp\*(Aq directive.
 .Sp
 [NVMe] smartd checks the Composite Temperature value reported by the
-SMART/HealthInformation log.
+SMART/Health Information log.
 .br
 [NEW EXPERIMENTAL SMARTD 7.5 FIX]
 The individual Temperature Sensor values are no longer checked because
