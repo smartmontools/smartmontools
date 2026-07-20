@@ -7150,10 +7150,11 @@ const drive_settings builtin_knowndrives[] = {
     "-d sat"
   },
   { "USB: ; JMicron JMS583", // USB->PCIe (NVMe)
-    "0x152d:0x[0a]583",
-    "", // 0x214
+    "0x152d:0x0583",
+    "0xXXXX", // TODO: add 'bcdDevice' values of devices which support '-d sntjmicron'
     "",
-    "-d sntjmicron"
+    "-d sntjmicron" // Caution: Using this on the USB->SATA adapter above issues the
+                    // SAT command 'ATA hardware reset'
   },
   { "USB: OCZ THROTTLE OCZESATATHR8G; JMicron JMF601",
     "0x152d:0x0602",
@@ -7286,6 +7287,12 @@ const drive_settings builtin_knowndrives[] = {
     "", // 0xb581 (0x4403): Unitek M.2 NVMe/SATA USB adapter
     "",
     "-d sntjmicron/sat"
+  },
+  { "USB: ; JMicron JMS583", // USB->PCIe (NVMe)
+    "0x152d:0xa583",
+    "", // 0x0214
+    "",
+    "-d sntjmicron"
   },
   // PNY
   { "USB: ; PNY",
