@@ -376,7 +376,12 @@ Section "Start Menu Shortcuts" MENU_SECTION
   ; drivedb.h update
   ${If} ${FileExists} "$INSTDIR\bin\update-smart-drivedb.ps1"
     SetOutPath "$INSTDIR\bin"
-    !insertmacro CreateAdminShortCut "$SMPROGRAMS\smartmontools\drivedb.h update (ps1).lnk" "$INSTDIR\bin\runcmdu.exe" "powershell -NoProfile -ExecutionPolicy Bypass .\update-smart-drivedb.ps1"
+!ifdef IMPORT_UNINST ; If importing a signed uninstaller ...
+    StrCpy $0 "AllSigned" ; ... assume that 'update-smart-drivedb.ps1' is also signed
+!else
+    StrCpy $0 "Bypass"
+!endif
+    !insertmacro CreateAdminShortCut "$SMPROGRAMS\smartmontools\drivedb.h update (ps1).lnk" "$INSTDIR\bin\runcmdu.exe" "powershell -NoProfile -ExecutionPolicy $0 .\update-smart-drivedb.ps1"
     ${If} ${FileExists} "$INSTDIR\doc\README.md"
       CreateShortCut "$SMPROGRAMS\smartmontools\Documentation\drivedb.h update help (ps1).lnk" "$INSTDIR\bin\runcmdu.exe" 'powershell -NoProfile -ExecutionPolicy Bypass "Get-Help .\update-smart-drivedb.ps1 -Detail | more"'
     ${EndIf}
