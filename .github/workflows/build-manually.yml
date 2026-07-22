@@ -356,6 +356,62 @@ jobs:
           path: smartmontools-freebsd-15-${{ github.event.inputs.suffix }}-*.tar.gz
           retention-days: 90
 
+  check-freebsd-14:
+    needs: build-freebsd-14
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: smartmontools-freebsd-14-${{ github.event.inputs.suffix }}
+
+      - name: Unpack tarball
+        run: |
+          tar -xvf smartmontools-freebsd-14-${{ github.event.inputs.suffix }}-*.tar.gz usr/local
+
+      - name: Run smartctl on FreeBSD 14 in QEMU
+        uses: vmactions/freebsd-vm@v1
+        with:
+          release: "14.4"
+          usesh: true # use 'sh' instead of 'tcsh'
+          run: |
+            uname -a
+            export LD_LIBRARY_PATH="$(pwd)/usr/local/lib"
+            echo
+            echo '$' usr/local/sbin/smartctl -V
+            usr/local/sbin/smartctl -V
+            echo
+            echo '$' usr/local/sbin/smartctl ${{ github.event.inputs.check-options }}
+            usr/local/sbin/smartctl ${{ github.event.inputs.check-options }}
+
+  check-freebsd-15:
+    needs: build-freebsd-15
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: smartmontools-freebsd-15-${{ github.event.inputs.suffix }}
+
+      - name: Unpack tarball
+        run: |
+          tar -xvf smartmontools-freebsd-15-${{ github.event.inputs.suffix }}-*.tar.gz usr/local
+
+      - name: Run smartctl on FreeBSD 15 in QEMU
+        uses: vmactions/freebsd-vm@v1
+        with:
+          release: "15.1"
+          usesh: true # use 'sh' instead of 'tcsh'
+          run: |
+            uname -a
+            export LD_LIBRARY_PATH="$(pwd)/usr/local/lib"
+            echo
+            echo '$' usr/local/sbin/smartctl -V
+            usr/local/sbin/smartctl -V
+            echo
+            echo '$' usr/local/sbin/smartctl ${{ github.event.inputs.check-options }}
+            usr/local/sbin/smartctl ${{ github.event.inputs.check-options }}
+
   build-windows-x86_64:
     if: ${{ contains(github.event.inputs.platforms, 'windows-x86_64') }}
     needs: build-source-tarball
