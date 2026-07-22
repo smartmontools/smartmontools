@@ -123,10 +123,51 @@ jobs:
           github-artifact-id: '${{ steps.installer-upload-step.outputs.artifact-id }}'
           output-artifact-directory: signed-installer
 
+      - name: Emulate signing if this is a fork
+        if: ${{ github.repository != 'smartmontools/smartmontools' }}
+        run: |
+          mkdir -pv signed-installer
+          cp -fv build/src/smartmontools-win32-setup-*.exe signed-installer
+
       - name: Upload signed installer
-        if: ${{ github.repository == 'smartmontools/smartmontools' }}
         uses: actions/upload-artifact@v7
         with:
           name: smartmontools-windows-signed
           path: signed-installer/*.exe
           retention-days: 90
+
+  check-windows-x86_64:
+    needs: build-and-sign-windows
+    runs-on: windows-latest
+
+    steps:
+      - name: Download signed installer
+        uses: actions/download-artifact@v8
+        with:
+          name: smartmontools-windows-signed
+
+      - name: Unpack signed installer
+        run: |
+          7z x smartmontools-win32-setup-*.exe
+
+      - run: |
+          bin/smartctl -V
+
+      - run: |
+          bin32/smartctl -V
+
+      - run: |
+          bin/smartctl --scan
+
+      - run: |
+          bin32/smartctl --scan
+
+      - run: |
+          bin/update-smart-drivedb.ps1 -DryRun
+        continue-on-error: true
+
+      - name: Check signatures
+        run: |
+          Get-AuthenticodeSignature smartmontools-win32-setup-*.exe, `
+            bin/smart*.exe, bin32/smart*.exe, bin/update-smart-drivedb.ps1 `
+            | format-list
