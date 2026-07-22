@@ -4123,13 +4123,33 @@ static const char * get_wow64()
 // Return info string about build host and OS version
 std::string win_smart_interface::get_os_version_str()
 {
-  char vstr[sizeof(SMARTMONTOOLS_BUILD_HOST)-1+sizeof("-2003r2(64)-sp2.1")+13]
-    = SMARTMONTOOLS_BUILD_HOST;
-  if (vstr[1] < '6')
-    vstr[1] = '6';
-  char * const vptr = vstr+sizeof(SMARTMONTOOLS_BUILD_HOST)-1;
-  const int vlen = sizeof(vstr)-sizeof(SMARTMONTOOLS_BUILD_HOST);
-  assert(vptr == vstr+strlen(vstr) && vptr+vlen+1 == vstr+sizeof(vstr));
+  const char cpu_mfr_os[] =
+#ifndef _MSC_VER
+    SMARTMONTOOLS_BUILD_HOST
+#else // _MSC_VER
+  #undef SMARTMONTOOLS_BUILD_HOST
+  #if   defined(_M_IX86)
+       "i686"
+  #elif defined(_M_X64) && !defined(_M_ARM64EC)
+     "x86_64"
+  #elif defined(_M_ARM64)
+      "arm64"
+  #else
+    "unknown"
+  #endif
+           "-pc-w32vc"
+  #if   1930 <= _MSC_VER && _MSC_VER < 1950
+                    "17"
+  #elif 1950 <= _MSC_VER && _MSC_VER < 1970
+                    "18"
+  #endif
+#endif // _MSC_VER
+  ;
+
+  char vstr[sizeof(cpu_mfr_os) - 1 + sizeof("-2025-b1234567890(arm64)") + 13];
+  memcpy(vstr, cpu_mfr_os, sizeof(cpu_mfr_os));
+  char * const vptr = vstr + sizeof(cpu_mfr_os) - 1;
+  const size_t vlen = sizeof(vstr) - sizeof(cpu_mfr_os);
 
   // Starting with Windows 8.1, GetVersionEx() does no longer report the
   // actual OS version.  RtlGetVersion() is not affected.

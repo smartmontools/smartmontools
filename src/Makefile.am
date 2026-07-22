@@ -878,7 +878,7 @@ CONFIG_VC_FILTER = { \
     fi && \
     echo '/* os_win32/vc$(vcver)/[smartmon_]config.h.  Generated from [smartmon_]config.h by Makefile.  */' && \
     sed -e 's/^\#define \([SMARTON_]*HAVE_\(ATTR_PACKED\|__INT128\|LONG_DOUBLE_WIDER\|STRINGS_H\|UNISTD_H\)\) 1.*$$/\/* \#undef \1 *\/ \/* VC$(vcver) *\//' \
-        -e 's/^\(\#define SMARTMONTOOLS_BUILD_HOST "[^-]*\)[^"].*$$/\1-pc-w32vc$(vcver)"/'; }
+        -e 's/^\(\#define SMARTMONTOOLS_BUILD_HOST "\)[^"]*/\1unknown-pc-w32vc/'; }
 
 $(srcdir)/os_win32/vc$(vcver)/config.h: ../config.h Makefile
 	$(ECHO_V_GEN) ' $$(CONFIG_VC_FILTER) < ../config.h > $@.tmp'
