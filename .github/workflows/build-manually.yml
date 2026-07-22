@@ -264,6 +264,28 @@ jobs:
           path: smartmontools-*.dmg
           retention-days: 90
 
+  check-darwin:
+    needs: build-darwin
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: smartmontools-darwin-${{ github.event.inputs.suffix }}-tar
+
+      - name: Unpack tarball
+        run: |
+          tar -xvf smartmontools-darwin-${{ github.event.inputs.suffix }}-*.tar.gz usr/local
+
+      - name: Set library search path
+        if: ${{ contains(github.event.inputs.cfg-options, '--enable-shared') }}
+        run: |
+          echo "DYLD_LIBRARY_PATH=$(pwd)/usr/local/lib" | tee $GITHUB_ENV
+
+      - name: Run smartctl -V
+        run: |
+          usr/local/sbin/smartctl -V
+
   build-freebsd-14:
     if: ${{ contains(github.event.inputs.platforms, 'freebsd-14') }}
     needs: build-source-tarball
