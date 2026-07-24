@@ -2630,6 +2630,7 @@ show_sas_port_param(int port_num, unsigned char * ucp, int param_len)
         case 9: snprintf(s, sz, "phy enabled; 3 Gbps"); break;
         case 0xa: snprintf(s, sz, "phy enabled; 6 Gbps"); break;
         case 0xb: snprintf(s, sz, "phy enabled; 12 Gbps"); break;
+        case 0xc: snprintf(s, sz, "phy enabled; 22.5 Gbps"); break;
         default: snprintf(s, sz, "reserved [%d]", t); break;
         }
         q = "negotiated logical link rate";
