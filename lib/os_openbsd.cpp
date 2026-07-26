@@ -69,11 +69,11 @@ public:
 
   virtual ~openbsd_smart_device();
 
-  virtual bool is_open() const;
+  virtual bool is_open() const override;
 
-  virtual bool open();
+  virtual bool open() override;
 
-  virtual bool close();
+  virtual bool close() override;
 
 protected:
   /// Return filedesc for derived classes.
