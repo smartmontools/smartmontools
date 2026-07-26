@@ -1,7 +1,13 @@
-name: Build smartmontools on FreeBSD (QEMU)
+name: Build on x86_64 Free/Net/OpenBSD (QEMU)
 
 on:
-  workflow_dispatch
+  workflow_dispatch:
+    inputs:
+      platforms:
+        description: Build platforms (defaults to all)
+        required: false
+        default: >-
+          freebsd netbsd openbsd
 
 jobs:
   build-source-tarball:
@@ -33,6 +39,7 @@ jobs:
           retention-days: 90
 
   build-freebsd-qemu:
+    if: ${{ contains(github.event.inputs.platforms, 'freebsd') }}
     needs: build-source-tarball
     runs-on: ubuntu-latest
     steps:
@@ -45,22 +52,90 @@ jobs:
         with:
           usesh: true # use 'sh' instead of 'tcsh'
           run: | # SOURCE_DATE_EPOCH not used because GNU tar is not installed by default
-            uname -a && fbver=$(uname -r) && fbver=${fbver%%.*} &&
+            uname -a && ver=$(uname -r) && ver=${ver%%.*} &&
             distfile=$(ls -d smartmontools-*.tar.gz) &&
             test "$(echo "$distfile" | wc -l | tr -d ' ')" = 1 &&
             tar -xf "$distfile" && distdir=${distfile%-*-g*.tar.gz} &&
             version_sh=$("$distdir/src/getversion.sh" -s) && eval "${version_sh}" &&
             cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
-            ../configure --with-build-info='(GHA/freebsd-qemu)' &&
+            ../configure --with-build-info='(GHA/qemu)' &&
             make -j4 && make check &&
-            bin_distfile="../../smartmontools-freebsd-$fbver-qemu-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" &&
-            make bin_distfile="$bin_distfile" bin-dist && tar -tvf "$bin_distfile"
-            tar -xf "$bin_distfile" usr/local/sbin/smartctl
-            echo '$' usr/local/sbin/smartctl --scan
-            usr/local/sbin/smartctl --scan || echo "::error::'smartctl --scan' failed"
+            bin_distfile="../../smartmontools-freebsd-$ver-qemu-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" &&
+            make bin_distfile="$bin_distfile" bin-dist && tar -tvf "$bin_distfile" &&
+            tar -xf "$bin_distfile" usr/local/sbin/smartctl &&
+            echo '$' usr/local/sbin/smartctl --scan &&
+            { usr/local/sbin/smartctl --scan || echo "::error::'smartctl --scan' failed"; }
 
       - uses: actions/upload-artifact@v7
         with:
           name: smartmontools-freebsd-qemu
           path: smartmontools-freebsd-*.tar.gz
+          retention-days: 90
+
+  build-netbsd-qemu:
+    if: ${{ contains(github.event.inputs.platforms, 'netbsd') }}
+    needs: build-source-tarball
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: smartmontools-src
+
+      - name: Build (QEMU)
+        uses: vmactions/netbsd-vm@v1
+        with:
+          usesh: true
+          run: | # SOURCE_DATE_EPOCH not used because GNU tar is not installed by default
+            uname -a && ver=$(uname -r) && ver=${ver%%.*} &&
+            distfile=$(ls -d smartmontools-*.tar.gz) &&
+            test "$(echo "$distfile" | wc -l | tr -d ' ')" = 1 &&
+            tar -xf "$distfile" && distdir=${distfile%-*-g*.tar.gz} &&
+            version_sh=$("$distdir/src/getversion.sh" -s) && eval "${version_sh}" &&
+            cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
+            ../configure --with-build-info='(GHA/qemu)' &&
+            make -j4 && make check &&
+            bin_distfile="../../smartmontools-netbsd-$ver-qemu-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" &&
+            make bin_distfile="$bin_distfile" bin-dist && tar -tvf "$bin_distfile" &&
+            tar -xf "$bin_distfile" usr/local/sbin/smartctl &&
+            echo '$' usr/local/sbin/smartctl --scan &&
+            { usr/local/sbin/smartctl --scan || echo "::error::'smartctl --scan' failed"; }
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: smartmontools-netbsd-qemu
+          path: smartmontools-netbsd-*.tar.gz
+          retention-days: 90
+
+  build-openbsd-qemu:
+    if: ${{ contains(github.event.inputs.platforms, 'openbsd') }}
+    needs: build-source-tarball
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: smartmontools-src
+
+      - name: Build (QEMU)
+        uses: vmactions/openbsd-vm@v1
+        with:
+          usesh: true
+          run: | # SOURCE_DATE_EPOCH not used because GNU tar is not installed by default
+            uname -a && ver=$(uname -r) && ver=${ver%%.*} &&
+            distfile=$(ls -d smartmontools-*.tar.gz) &&
+            test "$(echo "$distfile" | wc -l | tr -d ' ')" = 1 &&
+            tar -xzf "$distfile" && distdir=${distfile%-*-g*.tar.gz} &&
+            version_sh=$("$distdir/src/getversion.sh" -s) && eval "${version_sh}" &&
+            cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
+            ../configure --with-build-info='(GHA/qemu)' &&
+            make -j4 && make check &&
+            bin_distfile="../../smartmontools-openbsd-$ver-qemu-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" &&
+            make bin_distfile="$bin_distfile" bin-dist && tar -tvzf "$bin_distfile" &&
+            tar -xzf "$bin_distfile" usr/local/sbin/smartctl &&
+            echo '$' usr/local/sbin/smartctl --scan &&
+            { usr/local/sbin/smartctl --scan || echo "::error::'smartctl --scan' failed"; }
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: smartmontools-openbsd-qemu
+          path: smartmontools-openbsd-*.tar.gz
           retention-days: 90
