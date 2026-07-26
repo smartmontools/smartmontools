@@ -147,7 +147,8 @@ dist-lzip: dist-fail
 dist-zip: dist-fail
 
 dist-fail:
-	@! echo "Only 'dist-{gzip,xz,zstd}' are supported if SOURCE_DATE_EPOCH is used." >&2
+	@echo "Only 'dist-{gzip,xz,zstd}' are supported if SOURCE_DATE_EPOCH is used." >&2
+	@exit 1
 endif
 
 #

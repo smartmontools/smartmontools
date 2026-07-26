@@ -215,13 +215,15 @@ install-examples: examples
 	cd examples && ./make.sh DESTDIR=$(DESTDIR) install
 
 uninstall-examples:
-	! test -f examples/make.sh || (cd examples && ./make.sh DESTDIR=$(DESTDIR) uninstall)
+	if [ -f examples/make.sh ]; then \
+	  cd examples && ./make.sh DESTDIR=$(DESTDIR) uninstall; \
+	fi
 
 installdir-examples:
 	$(MKDIR_P) $(DESTDIR)$(develbindir)
 
 clean-examples:
-	! test -f examples/make.sh || (cd examples && ./make.sh clean)
+	if [ -f examples/make.sh ]; then cd examples && ./make.sh clean; fi
 	rm -f examples/make.sh examples/make.sh.tmp examples.stamp
 
 clean-local: clean-examples

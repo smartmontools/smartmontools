@@ -32,7 +32,7 @@ smartmon/smartmon_config.h: ../config.h Makefile
 	  -e 's/^!!/error: config.h: invalid line: /' \
 	  < ../config.h >> $@.tmp
 	@echo '#endif // _SMARTMON_CONFIG_H' >> $@.tmp
-	@! grep '^error: ' $@.tmp
+	@if grep '^error: ' $@.tmp; then exit 1; fi
 	$(AM_V_at)mv -f $@.tmp $@
 
 # Get version info
@@ -45,7 +45,7 @@ smartmon/version.sh: ../src/getversion.sh ../config.h ../Makefile \
 	$(AM_V_at)$(MKDIR_P) smartmon
 	$(AM_V_GEN)$(top_srcdir)/src/getversion.sh -s > $@.tmp
 	$(AM_V_at)mv -f $@.tmp $@
-	@! $(AM_V_P) || cat $@
+	@if $(AM_V_P); then cat $@; fi
 
 smartmon_headers = \
         smartmon/ata.h \
