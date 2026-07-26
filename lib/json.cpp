@@ -439,6 +439,8 @@ void json::output_function::operator()(char c)
   operator()(buf);
 }
 
+SMARTMON_DIAGNOSTIC_FORMAT_NONLITERAL_IGNORE
+
 void json::output_function::formatv(const char * fmt, va_list ap)
 {
   char buf[512];
@@ -447,6 +449,8 @@ void json::output_function::formatv(const char * fmt, va_list ap)
     return;
   operator()(buf);
 }
+
+SMARTMON_DIAGNOSTIC_FORMAT_NONLITERAL_RESTORE
 
 void json::output_function::format(const char * fmt, ...)
 {
