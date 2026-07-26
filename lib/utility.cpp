@@ -987,29 +987,10 @@ static void check_endianness()
     throw std::logic_error("CPU endianness does not match compile time test");
 }
 
-#if defined(__GNUC__) && (__GNUC__ >= 7)
-
-// G++ 7+: Assume sane implementation and avoid -Wformat-truncation warning
-static void check_snprintf() {}
-
-#else
-
-static void check_snprintf()
-{
-  char buf[] =              "ABCDEFGHI";
-  int n1 = snprintf(buf, 8, "123456789");
-  int n2 = snprintf(buf, 0, "X");
-  if (!(!strcmp(buf, "1234567") && n1 == 9 && n2 == 1))
-    throw std::logic_error("Function snprintf() does not conform to C99");
-}
-
-#endif
-
 // Runtime check of ./configure result, throws on error.
 void check_config()
 {
   check_endianness();
-  check_snprintf();
 }
 
 } // namespace smartmon
