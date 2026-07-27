@@ -7,7 +7,7 @@ on:
         description: Build platforms (defaults to all)
         required: false
         default: >-
-          freebsd-x86_64 freebsd-powerpc64 netbsd openbsd openindiana
+          freebsd-x86_64 freebsd-arm64 freebsd-powerpc64 netbsd openbsd openindiana
 
 jobs:
   build-source-tarball:
@@ -69,6 +69,41 @@ jobs:
       - uses: actions/upload-artifact@v7
         with:
           name: smartmontools-freebsd-x86_64
+          path: smartmontools-freebsd-*.tar.gz
+          retention-days: 90
+
+  build-freebsd-arm64:
+    if: ${{ contains(github.event.inputs.platforms, 'freebsd-arm64') }}
+    needs: build-source-tarball
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: smartmontools-src
+
+      - name: Build (QEMU)
+        uses: vmactions/freebsd-vm@v1
+        with:
+          arch: aarch64
+          usesh: true # use 'sh' instead of 'tcsh'
+          run: | # SOURCE_DATE_EPOCH not used because GNU tar is not installed by default
+            uname -a && ver=$(uname -r) && ver=${ver%%.*} &&
+            distfile=$(ls -d smartmontools-*.tar.gz) &&
+            test "$(echo "$distfile" | wc -l | tr -d ' ')" = 1 &&
+            tar -xf "$distfile" && distdir=${distfile%-*-g*.tar.gz} &&
+            version_sh=$("$distdir/src/getversion.sh" -s) && eval "${version_sh}" &&
+            cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
+            ../configure --with-build-info='(GHA/x86_64)' &&
+            make -j4 && make check &&
+            bin_distfile="../../smartmontools-freebsd-$ver-arm64-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" &&
+            make bin_distfile="$bin_distfile" bin-dist && tar -tvf "$bin_distfile" &&
+            tar -xf "$bin_distfile" usr/local/sbin/smartctl &&
+            echo '$' usr/local/sbin/smartctl --scan &&
+            { usr/local/sbin/smartctl --scan || echo "::error::'smartctl --scan' failed"; }
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: smartmontools-freebsd-arm64
           path: smartmontools-freebsd-*.tar.gz
           retention-days: 90
 
