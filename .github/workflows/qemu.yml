@@ -1,4 +1,4 @@
-name: Build on x86_64 Free/Net/OpenBSD (QEMU)
+name: Build on various platforms (QEMU)
 
 on:
   workflow_dispatch:
@@ -7,7 +7,7 @@ on:
         description: Build platforms (defaults to all)
         required: false
         default: >-
-          freebsd netbsd openbsd
+          freebsd netbsd openbsd openindiana
 
 jobs:
   build-source-tarball:
@@ -138,4 +138,41 @@ jobs:
         with:
           name: smartmontools-openbsd-qemu
           path: smartmontools-openbsd-*.tar.gz
+          retention-days: 90
+
+  build-openindiana-qemu:
+    if: ${{ contains(github.event.inputs.platforms, 'openindiana') }}
+    needs: build-source-tarball
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: smartmontools-src
+
+      - name: Build (QEMU)
+        uses: vmactions/openindiana-vm@v1
+        with:
+          release: "202604-build" # "202604" + "pkg install build-essential"
+          usesh: true
+          run: |
+            uname -a && ver=$(uname -r) && ver=${ver%%.*} &&
+            distfile=$(ls -d smartmontools-*.tar.gz) &&
+            test "$(echo "$distfile" | wc -l | tr -d ' ')" = 1 &&
+            tar -xf "$distfile" && distdir=${distfile%-*-g*.tar.gz} &&
+            version_sh=$("$distdir/src/getversion.sh" -s) && eval "${version_sh}" &&
+            cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
+            ../configure --with-build-info='(GHA/qemu)' \
+              MAKE=gmake OBJCOPY=gobjcopy \
+              SOURCE_DATE_EPOCH=$((SMARTMONTOOLS_GIT_REV_EPOCH + 1)) &&
+            gmake -j4 && gmake check &&
+            bin_distfile="../../smartmontools-openindiana-$ver-qemu-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" &&
+            gmake bin_distfile="$bin_distfile" bin-dist && tar -tvf "$bin_distfile" &&
+            tar -xf "$bin_distfile" usr/local/sbin/smartctl &&
+            echo '$' usr/local/sbin/smartctl --scan &&
+            { usr/local/sbin/smartctl --scan || echo "::error::'smartctl --scan' failed"; }
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: smartmontools-openindiana-qemu
+          path: smartmontools-openindiana-*.tar.gz
           retention-days: 90
