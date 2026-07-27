@@ -2,6 +2,9 @@
 
 ## smartmontools 8.0 (not yet released)
 
+**Full Changelog**:
+[7.5...pre-8.0](https://github.com/smartmontools/smartmontools/compare/svn/tags/RELEASE_7_5%5E...HEAD)
+
 ### What's new
 
 - `libsmartmon`: work on a smartmontools library has begun.
@@ -69,6 +72,8 @@ installation directory to the System `PATH` instead of the User `PATH` has been 
 
 - Windows installer: signed versions of the installer now also contain signed versions of
 all `*.exe` and `*.ps1` files.
+The shortcut for `update-smart-drivedb.ps1` now uses `-ExecutionPolicy AllSigned` instead of
+`-ExecutionPolicy Bypass`.
 
 - HDD, SSD and USB entries have been added to the drive database.
 
@@ -100,6 +105,14 @@ The latter could still be used but will be removed in a future version of smartm
 - `configure`: the new option `--with-build-info='(TEXT)'` has been added to specify the build
 information printed in the first output line.
 It is no longer needed to use `make BUILD_INFO='"(TEXT)"'` but still possible.
+
+- `configure`: the new option `--with-troff-cw-font` has been added to specify the monospace
+font used for preformatted text on man pages.
+Newer versions of [groff(1)](https://man7.org/linux/man-pages/man1/groff.1.html) no longer
+support the `CW` font or print a deprecation warning.
+This could be fixed with `--with-troff-cw-font=CR`.
+Formatting with [nroff(1)](https://man7.org/linux/man-pages/man1/nroff.1.html) is not affected
+because the `CW` font is not used then.
 
 - Reproducible builds: if `SOURCE_DATE_EPOCH` is passed to `configure`, it is now also
 exported to the environment during `make`.
@@ -170,6 +183,8 @@ available.
 
 - Windows: `update-smart-drivedb.ps1`: fixed failure of the rename command if the output path
 is not a plain filename.
+
+- Windows installer: no longer preselects "64-bit version" if running on 32-bit OS.
 
 ### Moved to GitHub (2025-06-01)
 
