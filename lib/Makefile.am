@@ -192,8 +192,9 @@ EXTRA_DIST = \
 
 examples: examples.stamp
 
+# Note: running 'cd' in a subshell is a workaround for some versions of (BSD) 'make'
 examples.stamp: libsmartmon.la examples/Makefile examples/make.sh
-	$(AM_V_at)cd examples && ./make.sh clean && ./make.sh
+	$(AM_V_at)(cd examples && ./make.sh clean && ./make.sh)
 	$(AM_V_at)touch $@
 
 examples/Makefile: examples/Makefile.in ../Makefile
@@ -223,7 +224,7 @@ installdir-examples:
 	$(MKDIR_P) $(DESTDIR)$(develbindir)
 
 clean-examples:
-	if [ -f examples/make.sh ]; then cd examples && ./make.sh clean; fi
+	if [ -f examples/make.sh ]; then (cd examples && ./make.sh clean) fi
 	rm -f examples/make.sh examples/make.sh.tmp examples.stamp
 
 clean-local: clean-examples
