@@ -16,9 +16,15 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <errno.h>
 #include <sys/param.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/scsi/generic/commands.h>
+#include <sys/scsi/generic/status.h>
+#include <sys/scsi/impl/types.h>
+#include <sys/scsi/impl/uscsi.h>
+#undef STATUS_CHECK // conflicts with 'enum smart_command_set'
 
 // These are needed to define prototypes for the functions defined below
 #include "config.h"
@@ -26,6 +32,7 @@
 #include <smartmon/atacmds.h>
 #include <smartmon/scsicmds.h>
 #include <smartmon/utility.h>
+using namespace smartmon;
 
 // print examples for smartctl
 void print_smartctl_examples(){
@@ -222,12 +229,6 @@ int ata_command_interface(int, smart_command_set, int, char *)
     return -1;
 }
 
-#include <errno.h>
-#include <sys/scsi/generic/commands.h>
-#include <sys/scsi/generic/status.h>
-#include <sys/scsi/impl/types.h>
-#include <sys/scsi/impl/uscsi.h>
-
 // Interface to SCSI devices.
 int do_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
 {
@@ -311,7 +312,7 @@ int do_scsi_cmnd_io(int fd, struct scsi_cmnd_io * iop, int report)
     } else if (iop->scsi_status)
       lib_printf("  status=%x\n", iop->scsi_status);
     if (iop->resid)
-      lib_printf("  dxfer_len=%d, resid=%d\n", iop->dxfer_len, iop->resid);
+      lib_printf("  dxfer_len=%d, resid=%d\n", (int)iop->dxfer_len, iop->resid);
     if (report > 1) {
       len = iop->dxfer_len - iop->resid;
       if (len > 0) {
