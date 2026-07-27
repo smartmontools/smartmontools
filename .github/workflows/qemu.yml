@@ -7,7 +7,7 @@ on:
         description: Build platforms (defaults to all)
         required: false
         default: >-
-          freebsd netbsd openbsd openindiana
+          freebsd-x86_64 freebsd-powerpc64 netbsd openbsd openindiana
 
 jobs:
   build-source-tarball:
@@ -38,8 +38,8 @@ jobs:
           path: build/smartmontools-*.tar.gz
           retention-days: 90
 
-  build-freebsd-qemu:
-    if: ${{ contains(github.event.inputs.platforms, 'freebsd') }}
+  build-freebsd-x86_64:
+    if: ${{ contains(github.event.inputs.platforms, 'freebsd-x86_64') }}
     needs: build-source-tarball
     runs-on: ubuntu-latest
     steps:
@@ -60,7 +60,7 @@ jobs:
             cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
             ../configure --with-build-info='(GHA/qemu)' &&
             make -j4 && make check &&
-            bin_distfile="../../smartmontools-freebsd-$ver-qemu-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" &&
+            bin_distfile="../../smartmontools-freebsd-$ver-x86_64-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" &&
             make bin_distfile="$bin_distfile" bin-dist && tar -tvf "$bin_distfile" &&
             tar -xf "$bin_distfile" usr/local/sbin/smartctl &&
             echo '$' usr/local/sbin/smartctl --scan &&
@@ -68,11 +68,47 @@ jobs:
 
       - uses: actions/upload-artifact@v7
         with:
-          name: smartmontools-freebsd-qemu
+          name: smartmontools-freebsd-x86_64
           path: smartmontools-freebsd-*.tar.gz
           retention-days: 90
 
-  build-netbsd-qemu:
+  build-freebsd-powerpc64: # Big Endian
+    if: ${{ contains(github.event.inputs.platforms, 'freebsd-powerpc64') }}
+    needs: build-source-tarball
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: smartmontools-src
+
+      - name: Build (QEMU)
+        uses: vmactions/freebsd-vm@v1
+        with:
+          arch: powerpc64
+          sync: scp # 'rsync' not supported
+          usesh: true # use 'sh' instead of 'tcsh'
+          run: | # SOURCE_DATE_EPOCH not used because GNU tar is not installed by default
+            uname -a && ver=$(uname -r) && ver=${ver%%.*} &&
+            distfile=$(ls -d smartmontools-*.tar.gz) &&
+            test "$(echo "$distfile" | wc -l | tr -d ' ')" = 1 &&
+            tar -xf "$distfile" && distdir=${distfile%-*-g*.tar.gz} &&
+            version_sh=$("$distdir/src/getversion.sh" -s) && eval "${version_sh}" &&
+            cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
+            ../configure --with-build-info='(GHA/x86_64)' &&
+            make -j4 && make check &&
+            bin_distfile="../../smartmontools-freebsd-$ver-powerpc64-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" &&
+            make bin_distfile="$bin_distfile" bin-dist && tar -tvf "$bin_distfile" &&
+            tar -xf "$bin_distfile" usr/local/sbin/smartctl &&
+            echo '$' usr/local/sbin/smartctl --scan &&
+            { usr/local/sbin/smartctl --scan || echo "::error::'smartctl --scan' failed"; }
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: smartmontools-freebsd-powerpc64
+          path: smartmontools-freebsd-*.tar.gz
+          retention-days: 90
+
+  build-netbsd-x86_64:
     if: ${{ contains(github.event.inputs.platforms, 'netbsd') }}
     needs: build-source-tarball
     runs-on: ubuntu-latest
@@ -94,7 +130,7 @@ jobs:
             cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
             ../configure --with-build-info='(GHA/qemu)' &&
             make -j4 && make check &&
-            bin_distfile="../../smartmontools-netbsd-$ver-qemu-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" &&
+            bin_distfile="../../smartmontools-netbsd-$ver-x86_64-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" &&
             make bin_distfile="$bin_distfile" bin-dist && tar -tvf "$bin_distfile" &&
             tar -xf "$bin_distfile" usr/local/sbin/smartctl &&
             echo '$' usr/local/sbin/smartctl --scan &&
@@ -102,11 +138,11 @@ jobs:
 
       - uses: actions/upload-artifact@v7
         with:
-          name: smartmontools-netbsd-qemu
+          name: smartmontools-netbsd-x86_64
           path: smartmontools-netbsd-*.tar.gz
           retention-days: 90
 
-  build-openbsd-qemu:
+  build-openbsd-x86_64:
     if: ${{ contains(github.event.inputs.platforms, 'openbsd') }}
     needs: build-source-tarball
     runs-on: ubuntu-latest
@@ -128,7 +164,7 @@ jobs:
             cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
             ../configure --with-build-info='(GHA/qemu)' &&
             make -j4 && make check &&
-            bin_distfile="../../smartmontools-openbsd-$ver-qemu-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" &&
+            bin_distfile="../../smartmontools-openbsd-$ver-x86_64-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" &&
             make bin_distfile="$bin_distfile" bin-dist && tar -tvzf "$bin_distfile" &&
             tar -xzf "$bin_distfile" usr/local/sbin/smartctl &&
             echo '$' usr/local/sbin/smartctl --scan &&
@@ -136,11 +172,11 @@ jobs:
 
       - uses: actions/upload-artifact@v7
         with:
-          name: smartmontools-openbsd-qemu
+          name: smartmontools-openbsd-x86_64
           path: smartmontools-openbsd-*.tar.gz
           retention-days: 90
 
-  build-openindiana-qemu:
+  build-openindiana-x86_64:
     if: ${{ contains(github.event.inputs.platforms, 'openindiana') }}
     needs: build-source-tarball
     runs-on: ubuntu-latest
@@ -165,7 +201,7 @@ jobs:
               MAKE=gmake OBJCOPY=gobjcopy \
               SOURCE_DATE_EPOCH=$((SMARTMONTOOLS_GIT_REV_EPOCH + 1)) &&
             gmake -j4 && gmake check &&
-            bin_distfile="../../smartmontools-openindiana-$ver-qemu-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" &&
+            bin_distfile="../../smartmontools-openindiana-$ver-x86_64-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" &&
             gmake bin_distfile="$bin_distfile" bin-dist && tar -tvf "$bin_distfile" &&
             tar -xf "$bin_distfile" usr/local/sbin/smartctl &&
             echo '$' usr/local/sbin/smartctl --scan &&
@@ -173,6 +209,6 @@ jobs:
 
       - uses: actions/upload-artifact@v7
         with:
-          name: smartmontools-openindiana-qemu
+          name: smartmontools-openindiana-x86_64
           path: smartmontools-openindiana-*.tar.gz
           retention-days: 90
