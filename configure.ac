@@ -696,6 +696,7 @@ os_win32=no
 os_win32_mingw=no
 os_win64=no
 os_man_filter=
+os_unmaintained=
 case "${host}" in
   *-*-linux*)
     os_deps='os_linux.lo cciss.lo dev_areca.lo'
@@ -765,10 +766,12 @@ case "${host}" in
     ;;
   *-*-nto-qnx*)
     os_deps='os_qnxnto.lo dev_legacy.lo' # TODO: migrate to new interface
+    os_unmaintained='QNX'
     ;;
   *-*-os2-*)
     os_deps='os_os2.lo dev_legacy.lo' # TODO: migrate to new interface
     os_posix=no
+    os_unmaintained='OS/2'
     ;;
   *)
     os_deps='os_generic.lo'
@@ -1180,4 +1183,9 @@ esac
 # TODO: Remove after smartmontools 8.1
 test -z "$with_exampledir" || AC_MSG_WARN([
 Option '--with-exampledir' is deprecated, use '--with-smartd-scripts' instead.
+])
+
+test -z "$os_unmaintained" || AC_MSG_WARN([
+The $os_unmaintained port of smartmontools is unmaintained.  Please report the test
+results to $PACKAGE_BUGREPORT - Thanks!
 ])
