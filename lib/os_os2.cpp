@@ -26,6 +26,8 @@
 // This is to include whatever prototypes you define in os_generic.h
 #include "os_os2.h"
 
+using namespace smartmon;
+
 // global handle to device driver
 static HFILE hDevice;
 

@@ -22,6 +22,8 @@
 #include "os_qnxnto.h"
 #include <errno.h>
 
+using namespace smartmon;
+
 // This is here to prevent compiler warnings for unused arguments of
 // functions.
 #define ARGUSED(x) ((void)(x))
