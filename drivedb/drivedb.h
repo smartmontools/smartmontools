@@ -881,6 +881,44 @@ const drive_settings builtin_knowndrives[] = {
     "-v 247,raw48,Host_Program_Page_Count "
     "-v 248,raw48,Bckgnd_Program_Page_Cnt"
   },
+  { "BIWIN Enterprise SATA SSDs",
+    "BIWIN_SS821_(CSE25|CSM80)Y88A(10|N0)-(240G|480G|960G|1T9|3T8|7T6)" // tested with
+      // 
+    "BIWIN_SS811_CSE25H68A(K0|N0)-(480G|960G|1T9|3T8)", // tested with
+      // 
+    "", "",
+  //"-v 1,raw48,Raw_Read_Error_Rate "
+    "-v 5,raw48,Reallocated_Sector_Count "
+    "-v 9,raw24(raw8),Power_On_Hours "
+    "-v 12,raw48,Power_Cycle_Count "
+    "-v 170,raw48,Available_Reserved_Space "
+    "-v 171,raw48,Program_Fail_Count "
+    "-v 172,raw48,Erase_Fail_Count "
+  //"-v 173,raw48,Ave_Block-Erase_Count "
+    "-v 174,raw48,Unexpected_Power_Loss "
+    "-v 175,raw48,Power Loss Protection Failure "
+    "-v 183,raw48,SATA Downshift Count "
+    "-v 184,raw48,End-to-End Error Detection Count "
+    "-v 187,raw48,Uncorrectable Error Count "
+    "-v 190,raw48,Drive Temperature "
+    "-v 192,raw48,Power-Off Retract Count "
+    "-v 194,tempminmax,Drive Temperature "
+  //"-v 195,raw48,Cumulativ_Corrected_ECC "
+    "-v 197,raw48,Current_Pending_Sector "
+  //"-v 198,raw48,Offline_Uncorrectable "
+    "-v 199,raw48,CRC_Error_Count "
+    "-v 225,raw48,Host Writes "
+    "-v 226,raw48,Timed Workload Media Wear "
+    "-v 227,raw48,Timed Workload Host Read/Write Ratio "
+    "-v 228,raw48,Timed Workload Timer "
+    "-v 232,raw48,Available Reserved Space "
+    "-v 233,raw48,Media Wearout Indicator "
+    "-v 234,raw48,Thermal Throttle Status "
+    "-v 241,raw48,Total LBAs Written "
+    "-v 242,raw48,Total LBAs Read "
+    "-v 243,raw48,Total Bytes Written "
+    "-v 245,raw48,Media Wearout Indicator "
+  },
   { "SandForce Driven SSDs", // Corsair Force LS with buggy firmware only
     "Corsair Force LS SSD", // tested with Corsair Force LS SSD/S9FM01.8
     "S9FM01\\.8",
