@@ -173,7 +173,11 @@ std::string format_version_info(const char * prog_name, int lines /* = 2 */)
 #else
     "smartmontools git revision is unknown\n"
 #endif
-    "smartmontools build host: " SMARTMONTOOLS_BUILD_HOST "\n"
+    "smartmontools build host: " SMARTMONTOOLS_BUILD_HOST
+#ifdef WORDS_BIGENDIAN
+                                                        " (BE)"
+#endif
+                                                              "\n"
     "smartmontools build with: "
 
 #ifdef _MSVC_LANG // MSVC sets __cplusplus to 199711L even if a later version is enabled
