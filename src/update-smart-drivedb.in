@@ -525,6 +525,7 @@ cacert=
 capath=
 insecure=
 no_verify=
+not_verified_msg=
 force=
 expkey=
 usageerr=t
@@ -588,7 +589,8 @@ while true; do case $1 in
     insecure=t ;;
 
   --no-verify)
-    no_verify=t ;;
+    no_verify=t;
+    not_verified_msg=" (NOT VERIFIED)" ;;
 
   --force)
     force=t ;;
@@ -819,7 +821,7 @@ fi
 rm -f "$drivedb.lastcheck"
 if [ ! -f "$drivedb" ]; then
   drivedb_mv ".new" ""
-  iecho "$drivedb $newver newly installed${no_verify:+ (NOT VERIFIED)}"
+  iecho "$drivedb $newver newly installed$not_verified_msg"
   exit 0
 fi
 
@@ -832,7 +834,7 @@ if [ -n "$equal" ]; then
   fi
   rm_f "$drivedb.new" "$drivedb.new.asc" "$drivedb.raw" "$drivedb.raw.asc"
   touch "$drivedb.lastcheck"
-  iecho "$drivedb $newver is already up to date${no_verify:+ (NOT VERIFIED)}"
+  iecho "$drivedb $newver is already up to date$not_verified_msg"
   exit 0
 fi
 
@@ -858,4 +860,4 @@ fi
 
 drivedb_mv "" ".old"
 drivedb_mv ".new" ""
-iecho "$drivedb $oldver $updmsg $newver${no_verify:+ (NOT VERIFIED)}"
+iecho "$drivedb $oldver $updmsg $newver$not_verified_msg"

@@ -1,6 +1,6 @@
 .ig
 Copyright (C) 2013 Hannes von Haugwitz <hannes@vonhaugwitz.com>
-Copyright (C) 2014-25 Christian Franke
+Copyright (C) 2014-26 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
@@ -129,7 +129,8 @@ unless \*(Aq\-\-no\-verify\*(Aq is also specified.
 .TP
 .B \-\-install
 Copy from originally installed drive database file.
-This is the same as:
+This does the same as the following options, except that \*(Aq(NOT VERIFIED)\*(Aq
+is not printed in the informal message:
 .br
 \*(Aq\-\-no\-verify \-\-file /usr/local/share/smartmontools/drivedb.h\*(Aq
 .\" %ENDIF ENABLE_DB_INSTALL
