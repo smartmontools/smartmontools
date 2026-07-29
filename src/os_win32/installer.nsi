@@ -212,7 +212,8 @@ Section "!Documentation" DOC_SECTION
   Delete "$INSTDIR\doc\ChangeLog-6.0-7.0.txt" ; TODO: Remove after smartmontools 8.1
   Delete "$INSTDIR\doc\ChangeLog-7.0-7.5.txt"; TODO: Remove after smartmontools 8.1
   File "${INPDIR}\doc\COPYING.txt"
-  File "${INPDIR}\doc\INSTALL.txt"
+  File "${INPDIR}\doc\INSTALL.md"
+  Delete "$INSTDIR\doc\INSTALL.txt" ; TODO: Remove after smartmontools 8.1
   Delete "$INSTDIR\doc\NEWS.txt" ; TODO: Remove after smartmontools 8.1
   File "${INPDIR}\doc\README.md"
   Delete "$INSTDIR\doc\README.txt" ; TODO: Remove after smartmontools 8.1
@@ -531,7 +532,8 @@ Section "Uninstall"
   Delete "$INSTDIR\doc\ChangeLog-7.0-7.5.txt" ; TODO: Remove after smartmontools 8.1
   Delete "$INSTDIR\doc\ChangeLog-6.0-7.0.txt" ; TODO: Remove after smartmontools 8.1
   Delete "$INSTDIR\doc\COPYING.txt"
-  Delete "$INSTDIR\doc\INSTALL.txt"
+  Delete "$INSTDIR\doc\INSTALL.md"
+  Delete "$INSTDIR\doc\INSTALL.txt" ; TODO: Remove after smartmontools 8.1
   Delete "$INSTDIR\doc\NEWS.txt" ; TODO: Remove after smartmontools 8.1
   Delete "$INSTDIR\doc\README.md"
   Delete "$INSTDIR\doc\README.txt" ; TODO: Remove after smartmontools 8.1

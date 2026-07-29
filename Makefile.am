@@ -9,7 +9,7 @@ doc_DATA = \
         doc/AUTHORS \
         doc/CHANGELOG.md \
         COPYING \
-        doc/INSTALL \
+        doc/INSTALL.md \
         README.md
 
 docolddir = $(docdir)/old

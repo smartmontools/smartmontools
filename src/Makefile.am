@@ -708,7 +708,7 @@ DOCFILES_WIN32 = \
         $(top_srcdir)/doc/AUTHORS \
         $(top_srcdir)/doc/CHANGELOG.md \
         $(top_srcdir)/COPYING \
-        $(top_srcdir)/doc/INSTALL \
+        $(top_srcdir)/doc/INSTALL.md \
         $(top_srcdir)/doc/old/NEWS-5.0-7.5.txt \
         $(top_srcdir)/README.md \
         $(srcdir)/smartd.conf
