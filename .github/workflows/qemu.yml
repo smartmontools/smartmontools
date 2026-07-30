@@ -50,7 +50,7 @@ jobs:
         with:
           name: smartmontools-src
 
-      - name: Build (QEMU)
+      - name: Build and Run (QEMU)
         uses: vmactions/freebsd-vm@v1
         with:
           usesh: true # use 'sh' instead of 'tcsh'
@@ -78,13 +78,13 @@ jobs:
   build-freebsd-arm64:
     if: ${{ contains(github.event.inputs.emulated-platforms, 'freebsd-arm64') }}
     needs: build-source-tarball
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest # 'ubuntu-24.04-arm' is slower
     steps:
       - uses: actions/download-artifact@v8
         with:
           name: smartmontools-src
 
-      - name: Build (QEMU)
+      - name: Build and Run (QEMU)
         uses: vmactions/freebsd-vm@v1
         with:
           arch: aarch64
@@ -119,7 +119,7 @@ jobs:
         with:
           name: smartmontools-src
 
-      - name: Build (QEMU)
+      - name: Build and Run (QEMU)
         uses: vmactions/freebsd-vm@v1
         with:
           arch: powerpc64
@@ -155,7 +155,7 @@ jobs:
         with:
           name: smartmontools-src
 
-      - name: Build (QEMU)
+      - name: Build and Run (QEMU)
         uses: vmactions/netbsd-vm@v1
         with:
           usesh: true
@@ -189,7 +189,7 @@ jobs:
         with:
           name: smartmontools-src
 
-      - name: Build (QEMU)
+      - name: Build and Run (QEMU)
         uses: vmactions/netbsd-vm@v1
         with:
           arch: sparc64
@@ -225,7 +225,7 @@ jobs:
         with:
           name: smartmontools-src
 
-      - name: Build (QEMU)
+      - name: Build and Run (QEMU)
         uses: vmactions/openbsd-vm@v1
         with:
           usesh: true
@@ -259,7 +259,7 @@ jobs:
         with:
           name: smartmontools-src
 
-      - name: Build (QEMU)
+      - name: Build and Run (QEMU)
         uses: vmactions/openindiana-vm@v1
         with:
           release: "202604-build" # "202604" + "pkg install build-essential"
@@ -296,7 +296,7 @@ jobs:
         with:
           name: smartmontools-src
 
-      - name: Build (QEMU)
+      - name: Build and Run (QEMU)
         uses: vmactions/solaris-vm@v1
         with:
           release: "11.4-gcc" # CBE with default gcc/g++
