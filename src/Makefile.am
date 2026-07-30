@@ -777,7 +777,8 @@ cleandist-win32:
 	rm -f $(distzip_win32) $(distzip_win32).md5 $(distzip_win32).sha1 $(distzip_win32).sha256
 
 # Build distribution directory.
-# Strip all executables.  Convert all text files to CR/LF.
+# Strip all executables.
+# Convert all text files (except drivedb.h) to CR/LF.
 # Build checksums*.txt file.
 # Fix header and file timestamps if reproducible build.
 # The latter uses 'stat' and 'touch' enhancements from GNU coreutils.
@@ -793,6 +794,7 @@ $(distdir_win32).stamp: Makefile $(BINFILES_WIN32) $(DOCFILES_WIN32)
 	  dst=$(distdir_win32)/bin/$${src##*/} && \
 	  case $${src##*/} in \
 	    *.exe) vrun $$strip -o $$dst $$src ;; \
+	    drivedb.h) vrun cp -p $$src $$dst ;; \
 	    *) vrun $(UNIX2DOS) \< $$src \> $$dst && vrun touch -r $$src $$dst ;; \
 	  esac || exit 1; \
 	done && \
