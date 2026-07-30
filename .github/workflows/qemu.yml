@@ -3,12 +3,14 @@ name: Build smartmontools on QEMU
 on:
   workflow_dispatch:
     inputs:
-      platforms:
-        description: Build platforms (defaults to all)
+      native-platforms:
+        description: Native build platforms (defaults to all)
         required: false
-        default: >-
-          freebsd-x86_64 freebsd-arm64 freebsd-powerpc64
-          netbsd-x86_64 netbsd-sparc64 openbsd openindiana
+        default: freebsd-x86_64 freebsd-powerpc64 netbsd-x86_64 openbsd openindiana
+      emulated-platforms:
+        description: "Emulated build platforms (slow): freebsd-arm64 freebsd-powerpc64 netbsd-sparc64"
+        required: false
+        default: none
 
 jobs:
   build-source-tarball:
@@ -40,7 +42,7 @@ jobs:
           retention-days: 90
 
   build-freebsd-x86_64:
-    if: ${{ contains(github.event.inputs.platforms, 'freebsd-x86_64') }}
+    if: ${{ contains(github.event.inputs.native-platforms, 'freebsd-x86_64') }}
     needs: build-source-tarball
     runs-on: ubuntu-latest
     steps:
@@ -74,7 +76,7 @@ jobs:
           retention-days: 90
 
   build-freebsd-arm64:
-    if: ${{ contains(github.event.inputs.platforms, 'freebsd-arm64') }}
+    if: ${{ contains(github.event.inputs.emulated-platforms, 'freebsd-arm64') }}
     needs: build-source-tarball
     runs-on: ubuntu-latest
     steps:
@@ -109,7 +111,7 @@ jobs:
           retention-days: 90
 
   build-freebsd-powerpc64: # Big Endian
-    if: ${{ contains(github.event.inputs.platforms, 'freebsd-powerpc64') }}
+    if: ${{ contains(github.event.inputs.emulated-platforms, 'freebsd-powerpc64') }}
     needs: build-source-tarball
     runs-on: ubuntu-latest
     steps:
@@ -145,7 +147,7 @@ jobs:
           retention-days: 90
 
   build-netbsd-x86_64:
-    if: ${{ contains(github.event.inputs.platforms, 'netbsd-x86_64') }}
+    if: ${{ contains(github.event.inputs.native-platforms, 'netbsd-x86_64') }}
     needs: build-source-tarball
     runs-on: ubuntu-latest
     steps:
@@ -179,7 +181,7 @@ jobs:
           retention-days: 90
 
   build-netbsd-sparc64: # Big Endian
-    if: ${{ contains(github.event.inputs.platforms, 'netbsd-sparc64') }}
+    if: ${{ contains(github.event.inputs.emulated-platforms, 'netbsd-sparc64') }}
     needs: build-source-tarball
     runs-on: ubuntu-latest
     steps:
@@ -215,7 +217,7 @@ jobs:
           retention-days: 90
 
   build-openbsd-x86_64:
-    if: ${{ contains(github.event.inputs.platforms, 'openbsd') }}
+    if: ${{ contains(github.event.inputs.native-platforms, 'openbsd') }}
     needs: build-source-tarball
     runs-on: ubuntu-latest
     steps:
@@ -249,7 +251,7 @@ jobs:
           retention-days: 90
 
   build-openindiana-x86_64:
-    if: ${{ contains(github.event.inputs.platforms, 'openindiana') }}
+    if: ${{ contains(github.event.inputs.native-platforms, 'openindiana') }}
     needs: build-source-tarball
     runs-on: ubuntu-latest
     steps:
