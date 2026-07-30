@@ -6,7 +6,7 @@ on:
       native-platforms:
         description: Native build platforms (defaults to all)
         required: false
-        default: freebsd-x86_64 freebsd-powerpc64 netbsd-x86_64 openbsd openindiana
+        default: freebsd-x86_64 freebsd-powerpc64 netbsd-x86_64 openbsd openindiana solaris
       emulated-platforms:
         description: "Emulated build platforms (slow): freebsd-arm64 freebsd-powerpc64 netbsd-sparc64"
         required: false
@@ -285,4 +285,41 @@ jobs:
         with:
           name: smartmontools-openindiana-x86_64
           path: smartmontools-openindiana-*.tar.gz
+          retention-days: 90
+
+  build-solaris-x86_64:
+    if: ${{ contains(github.event.inputs.native-platforms, 'solaris') }}
+    needs: build-source-tarball
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: smartmontools-src
+
+      - name: Build (QEMU)
+        uses: vmactions/solaris-vm@v1
+        with:
+          release: "11.4-gcc" # CBE with default gcc/g++
+          usesh: true
+          run: |
+            uname -a && ver=$(uname -r) && ver=${ver%%.*} &&
+            distfile=$(ls -d smartmontools-*.tar.gz) &&
+            test "$(echo "$distfile" | wc -l | tr -d ' ')" = 1 &&
+            tar -xf "$distfile" && distdir=${distfile%-*-g*.tar.gz} &&
+            version_sh=$("$distdir/src/getversion.sh" -s) && eval "${version_sh}" &&
+            cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
+            ../configure --with-build-info='(GHA/qemu)' \
+              MAKE=gmake OBJCOPY=gobjcopy \
+              SOURCE_DATE_EPOCH=$((SMARTMONTOOLS_GIT_REV_EPOCH + 1)) &&
+            gmake -j4 && gmake check &&
+            bin_distfile="../../smartmontools-solaris-$ver-x86_64-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" &&
+            gmake bin_distfile="$bin_distfile" bin-dist && tar -tvf "$bin_distfile" &&
+            tar -xf "$bin_distfile" usr/local/sbin/smartctl &&
+            echo '$' usr/local/sbin/smartctl --scan &&
+            { usr/local/sbin/smartctl --scan || echo "::error::'smartctl --scan' failed"; }
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: smartmontools-solaris-x86_64
+          path: smartmontools-solaris-*.tar.gz
           retention-days: 90
