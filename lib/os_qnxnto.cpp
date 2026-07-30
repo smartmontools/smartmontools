@@ -22,6 +22,10 @@
 #include "os_qnxnto.h"
 #include <errno.h>
 
+// from utility.h:
+#define CONTROLLER_UNKNOWN  0x00
+#define CONTROLLER_ATA      0x01
+
 using namespace smartmon;
 
 // This is here to prevent compiler warnings for unused arguments of

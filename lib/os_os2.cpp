@@ -26,6 +26,10 @@
 // This is to include whatever prototypes you define in os_generic.h
 #include "os_os2.h"
 
+// from utility.h:
+#define CONTROLLER_UNKNOWN  0x00
+#define CONTROLLER_ATA      0x01
+
 using namespace smartmon;
 
 // global handle to device driver

@@ -781,11 +781,6 @@ esac
 # Replace if '--with-os-deps' was specified
 test -z "$with_os_deps" || os_deps="$with_os_deps"
 
-# Define 'OLD_INTERFACE' if 'dev_legacy.cpp' is still required
-case " $os_deps " in *\ dev_legacy.lo\ *)
-  AC_DEFINE(OLD_INTERFACE, 1, [Define to 1 if os_*.cpp still uses the old interface]) ;;
-esac
-
 AC_MSG_CHECKING([whether the OS provides a POSIX API])
 if test "$os_posix" = "yes"; then
   AC_DEFINE(HAVE_POSIX_API, 1, [Define to 1 if the OS provides a POSIX API])

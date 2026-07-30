@@ -20,9 +20,12 @@
 
 /////////////////////////////////////////////////////////////////////////////
 
-// Legacy interface declarations (now commented out globally):
+// Legacy interface declarations
 
 // from utility.h:
+#define CONTROLLER_UNKNOWN  0x00
+#define CONTROLLER_ATA      0x01
+#define CONTROLLER_SCSI     0x02
 int guess_device_type(const char * dev_name);
 int make_device_names (char ***devlist, const char* name);
 int deviceopen(const char *pathname, char *type);

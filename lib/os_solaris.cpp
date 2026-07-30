@@ -34,6 +34,11 @@
 #include <smartmon/utility.h>
 using namespace smartmon;
 
+// from utility.h:
+#define CONTROLLER_UNKNOWN  0x00
+#define CONTROLLER_ATA      0x01
+#define CONTROLLER_SCSI     0x02
+
 // print examples for smartctl
 void print_smartctl_examples(){
   printf("=================================================== SMARTCTL EXAMPLES =====\n\n"

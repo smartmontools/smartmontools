@@ -4,7 +4,7 @@
  * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen
- * Copyright (C) 2008-25 Christian Franke
+ * Copyright (C) 2008-26 Christian Franke
  * Copyright (C) 2000 Michael Cornwell <cornwell@acm.org>
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
@@ -388,14 +388,6 @@ long long get_timer_usec();
 // Get exe directory
 //(implemented in os_win32.cpp)
 std::string get_exe_dir();
-#endif
-
-
-#ifdef SMARTMON_OLD_INTERFACE
-// remaining controller types in old interface modules
-#define CONTROLLER_UNKNOWN              0x00
-#define CONTROLLER_ATA                  0x01
-#define CONTROLLER_SCSI                 0x02
 #endif
 
 } // namespace smartmon
