@@ -208,10 +208,8 @@ bool netbsd_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & ou
   out.out_regs.lba_high = req.cylinder >> 8;
   out.out_regs.status = req.command;
   /* Undo byte-swapping for IDENTIFY */
-  if (in.in_regs.command == ATA_IDENTIFY_DEVICE && isbigendian()) {
-     for (int i = 0; i < 256; i+=2)
-      swap2 ((char *)req.databuf + i);
-  }
+  if (in.in_regs.command == ATA_IDENTIFY_DEVICE && byteorder_is_big_endian)
+    byteswap_array_16_inplace((uint8_t *)in.buffer, in.size);
   return true;
 }
 

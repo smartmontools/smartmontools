@@ -412,13 +412,9 @@ bool darwin_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & ou
         if (err != kIOReturnSuccess && err != kIOReturnTimeout
           && err != kIOReturnNotResponding)
         printf ("identify failed: %#x\n", (unsigned) rc);
-        if (err == kIOReturnSuccess && isbigendian())
-        {
-          int i;
+        if (err == kIOReturnSuccess && byteorder_is_big_endian)
           /* The system has already byte-swapped, undo it.  */
-          for (i = 0; i < 256; i+=2)
-            swap2 (data + i);
-        }
+          byteswap_array_16_inplace((uint8_t *)in.buffer, in.size);
       }
       break;
     case ATA_IDENTIFY_PACKET_DEVICE:

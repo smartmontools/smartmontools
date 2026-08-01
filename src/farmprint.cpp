@@ -151,7 +151,7 @@ static char* farm_format_id_string(char* buffer, const uint64_t param1, const ui
  */
 void ataPrintFarmLog(const ataFarmLog& farmLog) {
   // Request feedback on FARM output on big-endian systems
-  if (isbigendian()) {
+  if (byteorder_is_big_endian) {
     jinf("FARM support was not tested on Big Endian platforms by the developers.\n"
          "Please report success/failure to " PACKAGE_BUGREPORT "\n\n");
   }
@@ -514,7 +514,7 @@ void ataPrintFarmLog(const ataFarmLog& farmLog) {
  */
 void scsiPrintFarmLog(const scsiFarmLog& farmLog) {
   // Request feedback on FARM output on big-endian systems
-  if (isbigendian()) {
+  if (byteorder_is_big_endian) {
     jinf("FARM support was not tested on Big Endian platforms by the developers.\n"
          "Please report success/failure to " PACKAGE_BUGREPORT "\n\n");
   }

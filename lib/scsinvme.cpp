@@ -248,9 +248,8 @@ bool sntjmicron_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out &
     nvm_cmd[17] = in.cdw15;
     // nvm_cmd[18-127]: reserved
 
-    if (isbigendian())
-      for (unsigned i = 0; i < (SNT_JMICRON_NVM_CMD_LEN / sizeof(uint32_t)); i++)
-        swapx(&nvm_cmd[i]);
+    if (byteorder_is_big_endian)
+      byteswap_array_inplace(nvm_cmd);
 
     scsi_cmnd_io io_nvm = {};
 
@@ -328,9 +327,8 @@ bool sntjmicron_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out &
          "sntjmicron_device::nvme_pass_through:Reply: "))
       return set_err(scsidev->get_err());
 
-    if (isbigendian())
-      for (unsigned i = 0; i < (SNT_JMICRON_NVM_CMD_LEN / sizeof(uint32_t)); i++)
-        swapx(&nvm_reply[i]);
+    if (byteorder_is_big_endian)
+      byteswap_array_inplace(nvm_reply);
 
     if (nvm_reply[0] != SNT_JMICRON_NVME_SIGNATURE)
       return set_err(EIO, "Out of spec JMicron NVMe reply");

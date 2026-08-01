@@ -980,8 +980,13 @@ static void check_endianness()
   } x = {{1, 2, 3, 4, 5, 6, 7, 8}};
   const uint64_t le = 0x0807060504030201ULL;
   const uint64_t be = 0x0102030405060708ULL;
-
-  if (!(   x.i == (isbigendian() ? be : le)
+  uint16_t be16 = (uint32_t)(le >> 48); byteswap_inplace(be16);
+  uint32_t be32 = (uint32_t)(le >> 32); byteswap_inplace(be32);
+  uint64_t be64 = le;                   byteswap_inplace(be64);
+  if (!(   x.i == (byteorder_is_big_endian ? be : le)
+        && be16 == (uint16_t)be
+        && be32 == (uint32_t)be
+        && be64 == be
         && sg_get_unaligned_le16(x.c)   == (uint16_t)le
         && sg_get_unaligned_be16(x.c+6) == (uint16_t)be
         && sg_get_unaligned_le32(x.c)   == (uint32_t)le

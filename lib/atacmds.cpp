@@ -4,7 +4,7 @@
  * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2002-11 Bruce Allen
- * Copyright (C) 2008-25 Christian Franke
+ * Copyright (C) 2008-26 Christian Franke
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  * Copyright (C) 2000 Andre Hedrick <andre@linux-ide.org>
  *
@@ -327,45 +327,6 @@ const char * get_valid_firmwarebug_args()
 }
 
 
-// swap two bytes.  Point to low address
-void swap2(char *location){
-  char tmp=*location;
-  *location=*(location+1);
-  *(location+1)=tmp;
-  return;
-}
-
-// swap four bytes.  Point to low address
-void swap4(char *location){
-  char tmp=*location;
-  *location=*(location+3);
-  *(location+3)=tmp;
-  swap2(location+1);
-  return;
-}
-
-// swap eight bytes.  Points to low address
-void swap8(char *location){
-  char tmp=*location;
-  *location=*(location+7);
-  *(location+7)=tmp;
-  tmp=*(location+1);
-  *(location+1)=*(location+6);
-  *(location+6)=tmp;
-  swap4(location+2);
-  return;
-}
-
-// When using the overloaded swapx() function with member of packed ATA structs,
-// it is required to pass a possibly unaligned pointer as argument.
-// Clang++ 4.0 prints -Waddress-of-packed-member warning in this case.
-// The SWAPV() macro below is a replacement which prevents the use of such pointers.
-template <typename T>
-static T get_swapx_val(T x)
-  { swapx(&x); return x; }
-
-#define SWAPV(x)  ((x) = get_swapx_val(x))
-
 // Invalidate serial number and WWN and adjust checksum in IDENTIFY data
 static void invalidate_serno(ata_identify_device * id)
 {
@@ -379,12 +340,12 @@ static void invalidate_serno(ata_identify_device * id)
     sum += b[i]; sum -= b[i] = 0x00;
   }
 
-  if (isbigendian())
-    SWAPV(id->words088_255[255-88]);
+  if /*constexpr*/(byteorder_is_big_endian)
+    byteswap_inplace(id->words088_255[255-88]);
   if ((id->words088_255[255-88] & 0x00ff) == 0x00a5)
     id->words088_255[255-88] += sum << 8;
-  if (isbigendian())
-    SWAPV(id->words088_255[255-88]);
+  if /*constexpr*/(byteorder_is_big_endian)
+    byteswap_inplace(id->words088_255[255-88]);
 }
 
 static const char * const commandstrings[]={
@@ -856,16 +817,8 @@ int ata_read_identity(ata_device * device, ata_identify_device * buf, bool fix_s
     packet = true;
   }
 
-  if (fix_swapped_id) {
-    // Swap ID strings
-    unsigned i;
-    for (i = 0; i < sizeof(buf->serial_no)-1; i += 2)
-      swap2((char *)(buf->serial_no+i));
-    for (i = 0; i < sizeof(buf->fw_rev)-1; i += 2)
-      swap2((char *)(buf->fw_rev+i));
-    for (i = 0; i < sizeof(buf->model)-1; i += 2)
-      swap2((char *)(buf->model+i));
-  }
+  if (fix_swapped_id)
+    ata_byteswap_id_strings_inplace(*buf);
 
   // If requested, save raw data before endianness adjustments
   if (raw_buf)
@@ -877,16 +830,7 @@ int ata_read_identity(ata_device * device, ata_identify_device * buf, bool fix_s
     checksumwarning("Drive Identity Structure");
 
   // if machine is big-endian, swap byte order as needed
-  if (isbigendian()){
-    // swap various capability words that are needed
-    unsigned i;
-    for (i=0; i<33; i++)
-      swap2((char *)(buf->words047_079+i));
-    for (i=80; i<=87; i++)
-      swap2((char *)(rawbyte+2*i));
-    for (i=0; i<168; i++)
-      swap2((char *)(buf->words088_255+i));
-  }
+  ata_if_be_byteswap_inplace(*buf);
   
   // AT Attachment 8 - ATA/ATAPI Command Set (ATA8-ACS)
   // T13/1699-D Revision 6a (Final Draft), September 6, 2008.
@@ -1002,12 +946,7 @@ int ataReadSmartValues(ata_device * device, struct ata_smart_values *data){
     checksumwarning("SMART Attribute Data Structure");
   
   // swap endian order if needed
-  if (isbigendian()){
-    swap2((char *)&(data->revnumber));
-    swap2((char *)&(data->total_time_to_complete_off_line));
-    swap2((char *)&(data->smart_capability));
-  }
-
+  ata_if_be_byteswap_inplace(*data);
   return 0;
 }
 
@@ -1018,14 +957,14 @@ static void fixsamsungselftestlog(ata_smart_selftestlog * data)
 {
   // bytes 508/509 (numbered from 0) swapped (swap of self-test index
   // with one byte of reserved.
-  swap2((char *)&(data->mostrecenttest));
+  byteswap_array_16_inplace(&data->mostrecenttest, 2);
 
   // LBA low register (here called 'selftestnumber", containing
   // information about the TYPE of the self-test) is byte swapped with
   // Self-test execution status byte.  These are bytes N, N+1 in the
   // entries.
   for (int i = 0; i < 21; i++)
-    swap2((char *)&(data->selftest_struct[i].selftestnumber));
+    byteswap_array_16_inplace(&data->selftest_struct[i].selftestnumber, 2);
 
   return;
 }
@@ -1049,15 +988,7 @@ int ataReadSelfTestLog (ata_device * device, ata_smart_selftestlog * data,
     fixsamsungselftestlog(data);
 
   // swap endian order if needed
-  if (isbigendian()){
-    int i;
-    swap2((char*)&(data->revnumber));
-    for (i=0; i<21; i++){
-      struct ata_smart_selftestlog_struct *x=data->selftest_struct+i;
-      swap2((char *)&(x->timestamp));
-    }
-  }
-
+  ata_if_be_byteswap_inplace(*data);
   return 0;
 }
 
@@ -1086,13 +1017,7 @@ bool ataReadExtSelfTestLog(ata_device * device, ata_smart_extselftestlog * log,
 
   check_multi_sector_sum(log, nsectors, "SMART Extended Self-test Log Structure");
 
-  if (isbigendian()) {
-    for (unsigned i = 0; i < nsectors; i++) {
-      SWAPV(log[i].log_desc_index);
-      for (unsigned j = 0; j < 19; j++)
-        SWAPV(log[i].log_descs[j].timestamp);
-    }
-  }
+  ata_if_be_byteswap_inplace(log, nsectors);
   return true;
 }
 
@@ -1193,9 +1118,7 @@ int ataReadLogDirectory(ata_device * device, ata_smart_log_directory * data, boo
   }
 
   // swap endian order if needed
-  if (isbigendian())
-    SWAPV(data->logversion);
-
+  ata_if_be_byteswap_inplace(*data);
   return 0;
 }
 
@@ -1213,13 +1136,7 @@ int ataReadSelectiveSelfTestLog(ata_device * device, struct ata_selective_self_t
     checksumwarning("SMART Selective Self-Test Log Structure");
   
   // swap endian order if needed
-  if (isbigendian()){
-    swap2((char *)&(data->logversion));
-    swap2((char *)&(data->currentspan));
-    swap2((char *)&(data->flags));
-    swap2((char *)&(data->pendingtime));
-  }
-  
+  ata_if_be_byteswap_inplace(*data);
   return 0;
 }
 
@@ -1382,12 +1299,7 @@ int ataWriteSelectiveSelfTestLog(ata_device * device, ata_selective_selftest_arg
   data->checksum=cksum;
 
   // swap endian order if needed
-  if (isbigendian()){
-    swap2((char *)&(data->logversion));
-    swap2((char *)&(data->currentspan));
-    swap2((char *)&(data->flags));
-    swap2((char *)&(data->pendingtime));
-  }
+  ata_if_be_byteswap_inplace(*data);
 
   // write new selective self-test log
   if (smartcommandhandler(device, WRITE_LOG, 0x09, (char *)data)){
@@ -1404,14 +1316,14 @@ static void fixsamsungerrorlog(ata_smart_errorlog * data)
 {
   // FIXED IN SAMSUNG -25 FIRMWARE???
   // Device error count in bytes 452-3
-  swap2((char *)&(data->ata_error_count));
+  byteswap_inplace(data->ata_error_count);
   
   // FIXED IN SAMSUNG -22a FIRMWARE
   // step through 5 error log data structures
   for (int i = 0; i < 5; i++){
     // Error data structure two-byte hour life timestamp.  These are
     // bytes (N+28, N+29).
-    swap2((char *)&(data->errorlog_struct[i].error_struct.timestamp));
+    byteswap_inplace(data->errorlog_struct[i].error_struct.timestamp);
   }
   return;
 }
@@ -1420,7 +1332,7 @@ static void fixsamsungerrorlog(ata_smart_errorlog * data)
 static void fixsamsungerrorlog2(ata_smart_errorlog * data)
 {
   // Device error count in bytes 452-3
-  swap2((char *)&(data->ata_error_count));
+  byteswap_inplace(data->ata_error_count);
   return;
 }
 
@@ -1448,17 +1360,7 @@ int ataReadErrorLog (ata_device * device, ata_smart_errorlog *data,
     fixsamsungerrorlog2(data);
 
   // swap endian order if needed
-  if (isbigendian()){
-    // Device error count in bytes 452-3
-    swap2((char *)&(data->ata_error_count));
-    
-    // step through 5 error log data structures
-    for (int i=0; i<5; i++) {
-      // Error data structure life timestamp
-      swap2((char *)&(data->errorlog_struct[i].error_struct.timestamp));
-    }
-  }
-  
+  ata_if_be_byteswap_inplace(*data);
   return 0;
 }
 
@@ -1496,15 +1398,7 @@ bool ataReadExtErrorLog(ata_device * device, ata_smart_exterrlog * log,
 
   check_multi_sector_sum(log, nsectors, "SMART Extended Comprehensive Error Log Structure");
 
-  if (isbigendian()) {
-    SWAPV(log->device_error_count);
-    SWAPV(log->error_log_index);
-    for (unsigned i = 0; i < nsectors; i++) {
-      for (unsigned j = 0; j < 4; j++) {
-        SWAPV(log[i].error_logs[j].error.timestamp);
-      }
-    }
-  }
+  ata_if_be_byteswap_inplace(log, nsectors);
 
   if (firmwarebugs.is_set(BUG_XERRORLBA))
     fix_exterrlog_lba(log, nsectors);
@@ -1525,8 +1419,7 @@ int ataReadSmartThresholds (ata_device * device, struct ata_smart_thresholds_pvt
     checksumwarning("SMART Attribute Thresholds Structure");
   
   // swap endian order if needed
-  if (isbigendian())
-    swap2((char *)&(data->revnumber));
+  ata_if_be_byteswap_inplace(*data);
 
   return 0;
 }
@@ -2196,16 +2089,7 @@ int ataReadSCTStatus(ata_device * device, ata_sct_status_response * sts)
   }
 
   // swap endian order if needed
-  if (isbigendian()){
-    SWAPV(sts->format_version);
-    SWAPV(sts->sct_version);
-    SWAPV(sts->sct_spec);
-    SWAPV(sts->ext_status_code);
-    SWAPV(sts->action_code);
-    SWAPV(sts->function_code);
-    SWAPV(sts->smart_status);
-    SWAPV(sts->min_erc_time);
-  }
+  ata_if_be_byteswap_inplace(*sts);
 
   // Check format version
   if (!(sts->format_version == 2 || sts->format_version == 3)) {
@@ -2236,11 +2120,7 @@ int ataReadSCTTempHist(ata_device * device, ata_sct_temperature_history_table * 
   cmd.table_id      = 2; // Temperature History Table
 
   // swap endian order if needed
-  if (isbigendian()) {
-    SWAPV(cmd.action_code);
-    SWAPV(cmd.function_code);
-    SWAPV(cmd.table_id);
-  }
+  ata_if_be_byteswap_inplace(cmd);
 
   // write command via SMART log page 0xe0
   if (smartcommandhandler(device, WRITE_LOG, 0xe0, (char *)&cmd)){
@@ -2266,13 +2146,7 @@ int ataReadSCTTempHist(ata_device * device, ata_sct_temperature_history_table * 
   }
 
   // swap endian order if needed
-  if (isbigendian()){
-    SWAPV(tmh->format_version);
-    SWAPV(tmh->sampling_period);
-    SWAPV(tmh->interval);
-    SWAPV(tmh->cb_index);
-    SWAPV(tmh->cb_size);
-  }
+  ata_if_be_byteswap_inplace(*tmh);
   return 0;
 }
 
@@ -2303,13 +2177,7 @@ static int ataGetSetSCTFeatureControl(ata_device * device, unsigned short featur
   cmd.option_flags  = (persistent ? 0x01 : 0x00);
 
   // swap endian order if needed
-  if (isbigendian()) {
-    SWAPV(cmd.action_code);
-    SWAPV(cmd.function_code);
-    SWAPV(cmd.feature_code);
-    SWAPV(cmd.state);
-    SWAPV(cmd.option_flags);
-  }
+  ata_if_be_byteswap_inplace(cmd);
 
   // write command via SMART log page 0xe0
   // TODO: Debug output
@@ -2383,13 +2251,7 @@ int ataSetSCTTempInterval(ata_device * device, unsigned interval, bool persisten
   cmd.option_flags  = (persistent ? 0x01 : 0x00);
 
   // swap endian order if needed
-  if (isbigendian()) {
-    SWAPV(cmd.action_code);
-    SWAPV(cmd.function_code);
-    SWAPV(cmd.feature_code);
-    SWAPV(cmd.state);
-    SWAPV(cmd.option_flags);
-  }
+  ata_if_be_byteswap_inplace(cmd);
 
   // write command via SMART log page 0xe0
   if (smartcommandhandler(device, WRITE_LOG, 0xe0, (char *)&cmd)){
@@ -2446,12 +2308,7 @@ static int ataGetSetSCTErrorRecoveryControltime(ata_device * device, unsigned ty
     cmd.time_limit   = time_limit;
 
   // swap endian order if needed
-  if (isbigendian()) {
-    SWAPV(cmd.action_code);
-    SWAPV(cmd.function_code);
-    SWAPV(cmd.selection_code);
-    SWAPV(cmd.time_limit);
-  }
+  ata_if_be_byteswap_inplace(cmd);
 
   // write command via SMART log page 0xe0
   // TODO: Debug output
@@ -2516,6 +2373,180 @@ int ataSetSCTErrorRecoveryControltime(ata_device * device, unsigned type, unsign
                                       bool power_on, bool mfg_default)
 {
   return ataGetSetSCTErrorRecoveryControltime(device, type, true/*set*/, time_limit, power_on, mfg_default);
+}
+
+// Byteswap strings in identify_device data.
+void ata_byteswap_id_strings_inplace(ata_identify_device & id)
+{
+  byteswap_array_16_inplace(id.serial_no);
+  byteswap_array_16_inplace(id.fw_rev);
+  byteswap_array_16_inplace(id.model);
+}
+
+// Byteswap all aligned integers on Big Endian platforms, otherwise do nothing.
+void ata_if_be_byteswap_inplace(ata_identify_device & id)
+{
+  if /*constexpr*/(!byteorder_is_big_endian)
+    return;
+
+  byteswap_array_inplace(id.words000_009);
+  // serial_no: ata_byteswap_id_strings_inplace()
+  byteswap_array_inplace(id.words020_022);
+  // fw_rev:    ata_byteswap_id_strings_inplace()
+  // model:     ata_byteswap_id_strings_inplace()
+  byteswap_array_inplace(id.words047_079);
+  byteswap_inplace(id.minor_rev_num);
+  byteswap_inplace(id.major_rev_num);
+  byteswap_inplace(id.command_set_1);
+  byteswap_inplace(id.command_set_2);
+  byteswap_inplace(id.command_set_extension);
+  byteswap_inplace(id.cfs_enable_1);
+  byteswap_inplace(id.word086);
+  byteswap_inplace(id.csf_default);
+  byteswap_array_inplace(id.words088_255);
+}
+
+void ata_if_be_byteswap_inplace(ata_smart_values & val)
+{
+  if /*constexpr*/(!byteorder_is_big_endian)
+    return;
+
+  byteswap_inplace(val.revnumber);
+  byteswap_inplace(val.total_time_to_complete_off_line);
+  byteswap_inplace(val.smart_capability);
+}
+
+void ata_if_be_byteswap_inplace(ata_smart_thresholds_pvt & thr)
+{
+  if /*constexpr*/(!byteorder_is_big_endian)
+    return;
+
+  byteswap_inplace(thr.revnumber);
+}
+
+void ata_if_be_byteswap_inplace(ata_smart_log_directory & log)
+{
+  if /*constexpr*/(!byteorder_is_big_endian)
+    return;
+
+  byteswap_inplace(log.logversion);
+}
+
+void ata_if_be_byteswap_inplace(ata_smart_errorlog & log)
+{
+  if /*constexpr*/(!byteorder_is_big_endian)
+    return;
+
+  byteswap_inplace(log.ata_error_count);
+  for (int i = 0; i < 5; i++)
+    byteswap_inplace(log.errorlog_struct[i].error_struct.timestamp);
+}
+
+void ata_if_be_byteswap_inplace(ata_smart_selftestlog & log)
+{
+  if /*constexpr*/(!byteorder_is_big_endian)
+    return;
+
+  byteswap_inplace(log.revnumber);
+  for (int i = 0; i < 21; i++)
+    byteswap_inplace(log.selftest_struct[i].timestamp);
+}
+
+
+void ata_if_be_byteswap_inplace(ata_smart_exterrlog * log, unsigned num_sectors)
+{
+  if /*constexpr*/(!byteorder_is_big_endian)
+    return;
+
+  byteswap_inplace(log->device_error_count);
+  byteswap_inplace(log->error_log_index);
+  for (unsigned i = 0; i < num_sectors; i++) {
+    for (unsigned j = 0; j < 4; j++)
+      byteswap_inplace(log[i].error_logs[j].error.timestamp);
+  }
+}
+
+void ata_if_be_byteswap_inplace(ata_smart_extselftestlog * log, unsigned num_sectors)
+{
+  if /*constexpr*/(!byteorder_is_big_endian)
+    return;
+
+  for (unsigned i = 0; i < num_sectors; i++) {
+    byteswap_inplace(log[i].log_desc_index);
+    for (unsigned j = 0; j < 19; j++)
+      byteswap_inplace(log[i].log_descs[j].timestamp);
+  }
+}
+
+void ata_if_be_byteswap_inplace(ata_selective_self_test_log & log)
+{
+  if /*constexpr*/(!byteorder_is_big_endian)
+    return;
+
+  byteswap_inplace(log.logversion);
+  byteswap_inplace(log.currentspan);
+  byteswap_inplace(log.flags);
+  byteswap_inplace(log.pendingtime);
+}
+
+void ata_if_be_byteswap_inplace(ata_sct_status_response & sts)
+{
+  if /*constexpr*/(!byteorder_is_big_endian)
+    return;
+
+  byteswap_inplace(sts.format_version);
+  byteswap_inplace(sts.sct_version);
+  byteswap_inplace(sts.sct_spec);
+  byteswap_inplace(sts.ext_status_code);
+  byteswap_inplace(sts.action_code);
+  byteswap_inplace(sts.function_code);
+  byteswap_inplace(sts.smart_status);
+  byteswap_inplace(sts.min_erc_time);
+}
+
+void ata_if_be_byteswap_inplace(ata_sct_data_table_command & cmd)
+{
+  if /*constexpr*/(!byteorder_is_big_endian)
+    return;
+
+  byteswap_inplace(cmd.action_code);
+  byteswap_inplace(cmd.function_code);
+  byteswap_inplace(cmd.table_id);
+}
+
+void ata_if_be_byteswap_inplace(ata_sct_temperature_history_table & tmh)
+{
+  if /*constexpr*/(!byteorder_is_big_endian)
+    return;
+
+  byteswap_inplace(tmh.format_version);
+  byteswap_inplace(tmh.sampling_period);
+  byteswap_inplace(tmh.interval);
+  byteswap_inplace(tmh.cb_index);
+  byteswap_inplace(tmh.cb_size);
+}
+
+void ata_if_be_byteswap_inplace(ata_sct_feature_control_command & cmd)
+{
+  if /*constexpr*/(!byteorder_is_big_endian)
+    return;
+
+  byteswap_inplace(cmd.action_code);
+  byteswap_inplace(cmd.function_code);
+  byteswap_inplace(cmd.feature_code);
+  byteswap_inplace(cmd.state);
+  byteswap_inplace(cmd.option_flags);
+}
+
+void ata_if_be_byteswap_inplace(ata_sct_error_recovery_control_command & cmd)
+{
+  if /*constexpr*/(!byteorder_is_big_endian)
+    return;
+
+  byteswap_inplace(cmd.action_code);
+  byteswap_inplace(cmd.function_code);
+  byteswap_inplace(cmd.selection_code);
+  byteswap_inplace(cmd.time_limit);
 }
 
 

@@ -3,7 +3,7 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2016-24 Christian Franke
+ * Copyright (C) 2016-26 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -12,7 +12,7 @@
 #include <smartmon/nvmecmds.h>
 
 #include <smartmon/dev_interface.h>
-#include <smartmon/atacmds.h> // swapx(), dont_print_serial_number
+#include <smartmon/atacmds.h> // dont_print_serial_number
 #include <smartmon/scsicmds.h> // dStrHex()
 #include <smartmon/utility.h>
 
@@ -131,34 +131,7 @@ bool nvme_read_id_ctrl(nvme_device * device, nvme_id_ctrl & id_ctrl)
   if (!nvme_read_identify(device, 0, 0x01, &id_ctrl, sizeof(id_ctrl)))
     return false;
 
-  if (isbigendian()) {
-    swapx(&id_ctrl.vid);
-    swapx(&id_ctrl.ssvid);
-    swapx(&id_ctrl.cntlid);
-    swapx(&id_ctrl.ver);
-    swapx(&id_ctrl.oacs);
-    swapx(&id_ctrl.wctemp);
-    swapx(&id_ctrl.cctemp);
-    swapx(&id_ctrl.mtfa);
-    swapx(&id_ctrl.hmpre);
-    swapx(&id_ctrl.hmmin);
-    swapx(&id_ctrl.rpmbs);
-    swapx(&id_ctrl.nn);
-    swapx(&id_ctrl.oncs);
-    swapx(&id_ctrl.fuses);
-    swapx(&id_ctrl.awun);
-    swapx(&id_ctrl.awupf);
-    swapx(&id_ctrl.acwu);
-    swapx(&id_ctrl.sgls);
-    for (int i = 0; i < 32; i++) {
-      swapx(&id_ctrl.psd[i].max_power);
-      swapx(&id_ctrl.psd[i].entry_lat);
-      swapx(&id_ctrl.psd[i].exit_lat);
-      swapx(&id_ctrl.psd[i].idle_power);
-      swapx(&id_ctrl.psd[i].active_power);
-    }
-  }
-
+  nvme_if_be_byteswap_inplace(id_ctrl);
   return true;
 }
 
@@ -168,20 +141,7 @@ bool nvme_read_id_ns(nvme_device * device, unsigned nsid, nvme_id_ns & id_ns)
   if (!nvme_read_identify(device, nsid, 0x00, &id_ns, sizeof(id_ns)))
     return false;
 
-  if (isbigendian()) {
-    swapx(&id_ns.nsze);
-    swapx(&id_ns.ncap);
-    swapx(&id_ns.nuse);
-    swapx(&id_ns.nawun);
-    swapx(&id_ns.nawupf);
-    swapx(&id_ns.nacwu);
-    swapx(&id_ns.nabsn);
-    swapx(&id_ns.nabo);
-    swapx(&id_ns.nabspf);
-    for (int i = 0; i < 16; i++)
-      swapx(&id_ns.lbaf[i].ms);
-  }
-
+  nvme_if_be_byteswap_inplace(id_ns);
   return true;
 }
 
@@ -232,18 +192,7 @@ unsigned nvme_read_error_log(nvme_device * device, nvme_error_log_page * error_l
                                   num_entries * sizeof(*error_log), lpo_sup);
 
   unsigned read_entries = n / sizeof(*error_log);
-  if (isbigendian()) {
-    for (unsigned i = 0; i < read_entries; i++) {
-      swapx(&error_log[i].error_count);
-      swapx(&error_log[i].sqid);
-      swapx(&error_log[i].cmdid);
-      swapx(&error_log[i].status_field);
-      swapx(&error_log[i].parm_error_location);
-      swapx(&error_log[i].lba);
-      swapx(&error_log[i].nsid);
-    }
-  }
-
+  nvme_if_be_byteswap_inplace(error_log, read_entries);
   return read_entries;
 }
 
@@ -253,13 +202,7 @@ bool nvme_read_smart_log(nvme_device * device, uint32_t nsid, nvme_smart_log & s
   if (!nvme_read_log_page_1(device, nsid, 0x02, &smart_log, sizeof(smart_log)))
     return false;
 
-  if (isbigendian()) {
-    swapx(&smart_log.warning_temp_time);
-    swapx(&smart_log.critical_comp_time);
-    for (int i = 0; i < 8; i++)
-      swapx(&smart_log.temp_sensor[i]);
-  }
-
+  nvme_if_be_byteswap_inplace(smart_log);
   return true;
 }
 
@@ -270,11 +213,7 @@ bool nvme_read_self_test_log(nvme_device * device, uint32_t nsid,
   if (!nvme_read_log_page_1(device, nsid, 0x06, &self_test_log, sizeof(self_test_log)))
     return false;
 
-  if (isbigendian()) {
-    for (int i = 0; i < 20; i++)
-      swapx(&self_test_log.results[i].nsid);
-  }
-
+  nvme_if_be_byteswap_inplace(self_test_log);
   return true;
 }
 
@@ -504,6 +443,107 @@ const char * nvme_status_to_info_str(char * buf, size_t bufsize, uint16_t status
   else
     snprintf(buf, bufsize, "Unknown Status 0x%x/0x%02x", sct, sc);
   return buf;
+}
+
+// Byteswap all aligned integers on Big Endian platforms, otherwise do nothing.
+void nvme_if_be_byteswap_inplace(nvme_id_ctrl & id_ctrl)
+{
+  if /*constexpr*/(!byteorder_is_big_endian)
+    return;
+
+  byteswap_inplace(id_ctrl.vid);
+  byteswap_inplace(id_ctrl.ssvid);
+  byteswap_inplace(id_ctrl.cntlid);
+  byteswap_inplace(id_ctrl.ver);
+  byteswap_inplace(id_ctrl.rtd3r);
+  byteswap_inplace(id_ctrl.rtd3e);
+  byteswap_inplace(id_ctrl.oaes);
+  byteswap_inplace(id_ctrl.ctratt);
+  byteswap_inplace(id_ctrl.oacs);
+  byteswap_inplace(id_ctrl.wctemp);
+  byteswap_inplace(id_ctrl.cctemp);
+  byteswap_inplace(id_ctrl.mtfa);
+  byteswap_inplace(id_ctrl.hmpre);
+  byteswap_inplace(id_ctrl.hmmin);
+  byteswap_inplace(id_ctrl.rpmbs);
+  byteswap_inplace(id_ctrl.edstt);
+  byteswap_inplace(id_ctrl.kas);
+  byteswap_inplace(id_ctrl.hctma);
+  byteswap_inplace(id_ctrl.mntmt);
+  byteswap_inplace(id_ctrl.mxtmt);
+  byteswap_inplace(id_ctrl.sanicap);
+  byteswap_inplace(id_ctrl.maxcmd);
+  byteswap_inplace(id_ctrl.nn);
+  byteswap_inplace(id_ctrl.oncs);
+  byteswap_inplace(id_ctrl.fuses);
+  byteswap_inplace(id_ctrl.awun);
+  byteswap_inplace(id_ctrl.awupf);
+  byteswap_inplace(id_ctrl.acwu);
+  byteswap_inplace(id_ctrl.sgls);
+  byteswap_inplace(id_ctrl.ioccsz);
+  byteswap_inplace(id_ctrl.iorcsz);
+  byteswap_inplace(id_ctrl.icdoff);
+  for (int i = 0; i < 32; i++) {
+    byteswap_inplace(id_ctrl.psd[i].max_power);
+    byteswap_inplace(id_ctrl.psd[i].entry_lat);
+    byteswap_inplace(id_ctrl.psd[i].exit_lat);
+    byteswap_inplace(id_ctrl.psd[i].idle_power);
+    byteswap_inplace(id_ctrl.psd[i].active_power);
+  }
+}
+
+void nvme_if_be_byteswap_inplace(nvme_id_ns & id_ns)
+{
+  if /*constexpr*/(!byteorder_is_big_endian)
+    return;
+
+  byteswap_inplace(id_ns.nsze);
+  byteswap_inplace(id_ns.ncap);
+  byteswap_inplace(id_ns.nuse);
+  byteswap_inplace(id_ns.nawun);
+  byteswap_inplace(id_ns.nawupf);
+  byteswap_inplace(id_ns.nacwu);
+  byteswap_inplace(id_ns.nabsn);
+  byteswap_inplace(id_ns.nabo);
+  byteswap_inplace(id_ns.nabspf);
+  for (int i = 0; i < 16; i++)
+    byteswap_inplace(id_ns.lbaf[i].ms);
+}
+
+void nvme_if_be_byteswap_inplace(nvme_error_log_page * error_log, unsigned num_entries)
+{
+  if /*constexpr*/(!byteorder_is_big_endian)
+    return;
+
+  for (unsigned i = 0; i < num_entries; i++) {
+    byteswap_inplace(error_log[i].error_count);
+    byteswap_inplace(error_log[i].sqid);
+    byteswap_inplace(error_log[i].cmdid);
+    byteswap_inplace(error_log[i].status_field);
+    byteswap_inplace(error_log[i].parm_error_location);
+    byteswap_inplace(error_log[i].lba);
+    byteswap_inplace(error_log[i].nsid);
+  }
+}
+
+void nvme_if_be_byteswap_inplace(nvme_smart_log & smart_log)
+{
+  if /*constexpr*/(!byteorder_is_big_endian)
+    return;
+
+  byteswap_inplace(smart_log.warning_temp_time);
+  byteswap_inplace(smart_log.critical_comp_time);
+  for (int i = 0; i < 8; i++)
+    byteswap_inplace(smart_log.temp_sensor[i]);
+}
+
+void nvme_if_be_byteswap_inplace(nvme_self_test_log & self_test_log)
+{
+  if /*constexpr*/(!byteorder_is_big_endian)
+    return;
+
+  for (int i = 0; i < 20; i++)
+    byteswap_inplace(self_test_log.results[i].nsid);
 }
 
 } // namespace smartmon

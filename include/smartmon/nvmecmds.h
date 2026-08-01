@@ -3,7 +3,7 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2016-2025 Christian Franke
+ * Copyright (C) 2016-26 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -68,6 +68,13 @@ const char * nvme_status_to_info_str(char * buf, size_t bufsize, uint16_t status
 template <size_t SIZE>
 inline const char * nvme_status_to_info_str(char (& buf)[SIZE], unsigned status)
   { return nvme_status_to_info_str(buf, SIZE, status); }
+
+// Byteswap all aligned integers on Big Endian platforms, do nothing otherwise.
+void nvme_if_be_byteswap_inplace(nvme_id_ctrl & id_ctrl);
+void nvme_if_be_byteswap_inplace(nvme_id_ns & id_ns);
+void nvme_if_be_byteswap_inplace(nvme_error_log_page * error_log, unsigned num_entries);
+void nvme_if_be_byteswap_inplace(nvme_smart_log & smart_log);
+void nvme_if_be_byteswap_inplace(nvme_self_test_log & self_test_log);
 
 } // namespace smartmon
 

@@ -3,7 +3,7 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2025 Christian Franke
+ * Copyright (C) 2025-26 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -14,8 +14,86 @@
 #include <smartmon/smartmon_defs.h>
 
 #include <stdint.h>
+#include <stdlib.h>
+
+#include <utility>
 
 namespace smartmon {
+
+// Little/Big Endian compile time constant
+#ifdef SMARTMON_WORDS_BIGENDIAN
+constexpr bool byteorder_is_big_endian = true;
+#else
+constexpr bool byteorder_is_big_endian = false;
+#endif
+
+// Return byte swapped values of int*_t
+
+constexpr uint16_t byteswap_uint16(uint16_t x)
+{
+  return x << 8 | x >> 8;
+}
+
+constexpr uint32_t byteswap_uint32(uint32_t x)
+{
+  return   (x & 0x000000ff) << 24 | (x & 0x0000ff00) <<  8
+         | (x & 0x00ff0000) >>  8 | (x & 0xff000000) >> 24;
+}
+
+constexpr uint64_t byteswap_uint64(uint64_t x)
+{
+  return   (x & 0x00000000000000ffULL) << 56 | (x & 0x000000000000ff00ULL) << 40
+         | (x & 0x0000000000ff0000ULL) << 24 | (x & 0x00000000ff000000ULL) <<  8
+         | (x & 0x000000ff00000000ULL) >>  8 | (x & 0x0000ff0000000000ULL) >> 24
+         | (x & 0x00ff000000000000ULL) >> 40 | (x & 0xff00000000000000ULL) >> 56;
+}
+
+// Swap bytes of aligned uint*_t in-place
+
+static inline void byteswap_inplace(uint16_t & x)
+{
+  x = byteswap_uint16(x);
+}
+
+static inline void byteswap_inplace(uint32_t & x)
+{
+  x = byteswap_uint32(x);
+}
+
+static inline void byteswap_inplace(uint64_t & x)
+{
+  x = byteswap_uint64(x);
+}
+
+// Swap bytes of all elements of aligned arrays of uint*_t
+
+template <typename T>
+static inline void byteswap_array_inplace(T * p, size_t size)
+{
+  for (size_t i = 0; i < size; i++)
+    byteswap_inplace(p[i]);
+}
+
+template <typename T, size_t SIZE>
+static inline void byteswap_array_inplace(T (& a)[SIZE])
+{
+  byteswap_array_inplace(a, SIZE);
+}
+
+// Swap adjacent bytes of arrays of uint8_t
+
+static inline void byteswap_array_16_inplace(uint8_t * p, size_t size)
+{
+  for (size_t i = 0; i + 1 < size; i += 2)
+    std::swap(p[i], p[i + 1]);
+}
+
+template <size_t SIZE>
+static inline void byteswap_array_16_inplace(uint8_t (& a)[SIZE])
+{
+  SMARTMON_STATIC_ASSERT(SIZE % 2 == 0);
+  byteswap_array_16_inplace(a, SIZE);
+}
 
 // Unaligned Little Endian unsigned integers
 struct uile16_t { uint8_t b[2]; };
@@ -128,6 +206,9 @@ constexpr uibe64_t uint_to_uibe64(uint64_t x)
 }
 
 // Compile-time checks
+SMARTMON_STATIC_ASSERT(byteswap_uint16(0x1234) == 0x3412);
+SMARTMON_STATIC_ASSERT(byteswap_uint32(0x12345678) == 0x78563412);
+SMARTMON_STATIC_ASSERT(byteswap_uint64(0x123456789abcdef1) == 0xf1debc9a78563412);
 SMARTMON_STATIC_ASSERT(uile16_to_uint(uile16_t{{0x34,0x12}}) == 0x1234);
 SMARTMON_STATIC_ASSERT(uile16_to_uint(uint_to_uile16(0x1234)) == 0x1234);
 SMARTMON_STATIC_ASSERT(uile32_to_uint(uile32_t{{0x78,0x56,0x34,0x12}}) == 0x12345678);

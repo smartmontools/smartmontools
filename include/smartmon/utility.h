@@ -92,28 +92,6 @@ void syserror(const char * message);
 // Function for processing -t selective... option in smartctl
 int split_selective_arg(char *s, uint64_t *start, uint64_t *stop, int *mode);
 
-// Compile time check of byte ordering
-// (inline const function allows compiler to remove dead code)
-inline bool isbigendian()
-{
-#ifdef SMARTMON_WORDS_BIGENDIAN
-  return true;
-#else
-  return false;
-#endif
-}
-
-void swap2(char *location);
-void swap4(char *location);
-void swap8(char *location);
-// Typesafe variants using overloading
-inline void swapx(unsigned short * p)
-  { swap2((char*)p); }
-inline void swapx(unsigned int * p)
-  { swap4((char*)p); }
-inline void swapx(uint64_t * p)
-  { swap8((char*)p); }
-
 // Runtime check of ./configure result, throws on error.
 void check_config();
 

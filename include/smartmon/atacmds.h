@@ -5,7 +5,7 @@
  *
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  * Copyright (C) 2002-2011 Bruce Allen
- * Copyright (C) 2008-2025 Christian Franke
+ * Copyright (C) 2008-2026 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -457,6 +457,25 @@ unsigned char checksum(const void * data);
 // Returns the name of the command (and possibly sub-command) with the given
 // command code and feature register values.
 const char * look_up_ata_command(unsigned char c_code, unsigned char f_reg);
+
+// Byteswap strings in identify_device data.
+void ata_byteswap_id_strings_inplace(ata_identify_device & id);
+
+// Byteswap all aligned integers on Big Endian platforms, do nothing otherwise.
+void ata_if_be_byteswap_inplace(ata_identify_device & id);
+void ata_if_be_byteswap_inplace(ata_smart_values & val);
+void ata_if_be_byteswap_inplace(ata_smart_thresholds_pvt & thr);
+void ata_if_be_byteswap_inplace(ata_smart_log_directory & log);
+void ata_if_be_byteswap_inplace(ata_smart_errorlog & log);
+void ata_if_be_byteswap_inplace(ata_smart_selftestlog & log);
+void ata_if_be_byteswap_inplace(ata_smart_exterrlog * log, unsigned num_sectors);
+void ata_if_be_byteswap_inplace(ata_smart_extselftestlog * log, unsigned num_sectors);
+void ata_if_be_byteswap_inplace(ata_selective_self_test_log & log);
+void ata_if_be_byteswap_inplace(ata_sct_status_response & sts);
+void ata_if_be_byteswap_inplace(ata_sct_data_table_command & cmd);
+void ata_if_be_byteswap_inplace(ata_sct_temperature_history_table & tmh);
+void ata_if_be_byteswap_inplace(ata_sct_feature_control_command & cmd);
+void ata_if_be_byteswap_inplace(ata_sct_error_recovery_control_command & cmd);
 
 // Return pseudo-device to parse "smartctl -r ataioctl,2 ..." output
 // and simulate an ATA device with same behaviour
