@@ -2658,9 +2658,9 @@ bool win_tw_cli_device::open()
   unsigned long nblocks = 0; // "Capacity = N.N GB (N Blocks)"
   sscanf(findstr(buffer, "Capacity = "), "%*[^(\r\n](%lu", &nblocks);
   if (nblocks) {
-    id->words047_079[49-47] = 0x0200; // size valid
-    id->words047_079[60-47] = (unsigned short)(nblocks    ); // secs_16
-    id->words047_079[61-47] = (unsigned short)(nblocks>>16); // secs_32
+    ata_set_id_word<49>(*id) = 0x0200; // size valid
+    ata_set_id_word<60>(*id) = (uint16_t)(nblocks    ); // secs_16
+    ata_set_id_word<61>(*id) = (uint16_t)(nblocks>>16); // secs_32
   }
   id->command_set_1 = 0x0001; id->command_set_2 = 0x4000; // SMART supported, words 82,83 valid
   id->cfs_enable_1  = 0x0001; id->csf_default   = 0x4000; // SMART enabled, words 85,87 valid

@@ -312,6 +312,30 @@ int ataIsSmartEnabled(const ata_identify_device * drive);
 
 int ataSmartStatus2(ata_device * device);
 
+// Get reference to modify word N from `ata_identify_device.words*[]` arrays.
+// Does not compile for the other fields.
+template <int N>
+static inline uint16_t & ata_set_id_word(ata_identify_device & id)
+{
+  SMARTMON_STATIC_ASSERT(   ( 0 <= N && N <=  9) || (20 <= N && N <=  22)
+                         || (47 <= N && N <= 79) || (88 <= N && N <= 255));
+  if (N < 20)
+    return id.words000_009[N];
+  else if (N < 47)
+    return id.words020_022[N - 20];
+  else if (N < 88)
+    return id.words047_079[N - 47];
+  else
+    return id.words088_255[N - 88];
+}
+
+// Get const reference to word N from `ata_identify_device.words*[]` arrays.
+template <int N>
+static inline const uint16_t & ata_get_id_word(const ata_identify_device & id)
+{
+  return ata_set_id_word<N>(const_cast<ata_identify_device &>(id));
+}
+
 bool isSmartErrorLogCapable(const ata_smart_values * data, const ata_identify_device * identity);
 
 bool isSmartTestLogCapable(const ata_smart_values * data, const ata_identify_device * identity);
@@ -347,16 +371,16 @@ inline bool isSupportSelectiveSelfTest(const ata_smart_values * data)
   { return !!(data->offline_data_collection_capability & 0x40); }
 
 inline bool isSCTCapable(const ata_identify_device *drive)
-  { return !!(drive->words088_255[206-88] & 0x01); } // 0x01 = SCT support
+  { return !!(ata_get_id_word<206>(*drive) & 0x01); } // 0x01 = SCT support
 
 inline bool isSCTErrorRecoveryControlCapable(const ata_identify_device *drive)
-  { return ((drive->words088_255[206-88] & 0x09) == 0x09); } // 0x08 = SCT Error Recovery Control support
+  { return ((ata_get_id_word<206>(*drive) & 0x09) == 0x09); } // 0x08 = SCT Error Recovery Control support
 
 inline bool isSCTFeatureControlCapable(const ata_identify_device *drive)
-  { return ((drive->words088_255[206-88] & 0x11) == 0x11); } // 0x10 = SCT Feature Control support
+  { return ((ata_get_id_word<206>(*drive) & 0x11) == 0x11); } // 0x10 = SCT Feature Control support
 
 inline bool isSCTDataTableCapable(const ata_identify_device *drive)
-  { return ((drive->words088_255[206-88] & 0x21) == 0x21); } // 0x20 = SCT Data Table support
+  { return ((ata_get_id_word<206>(*drive) & 0x21) == 0x21); } // 0x20 = SCT Data Table support
 
 int TestTime(const ata_smart_values * data, int testtype);
 

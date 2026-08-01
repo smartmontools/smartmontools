@@ -340,12 +340,13 @@ static void invalidate_serno(ata_identify_device * id)
     sum += b[i]; sum -= b[i] = 0x00;
   }
 
+  uint16_t & word255 = ata_set_id_word<255>(*id);
   if /*constexpr*/(byteorder_is_big_endian)
-    byteswap_inplace(id->words088_255[255-88]);
-  if ((id->words088_255[255-88] & 0x00ff) == 0x00a5)
-    id->words088_255[255-88] += sum << 8;
+    byteswap_inplace(word255);
+  if ((word255 & 0x00ff) == 0x00a5)
+    word255 += sum << 8;
   if /*constexpr*/(byteorder_is_big_endian)
-    byteswap_inplace(id->words088_255[255-88]);
+    byteswap_inplace(word255);
 }
 
 static const char * const commandstrings[]={
@@ -650,20 +651,20 @@ void ata_get_size_info(const ata_identify_device * id, ata_size_info & sizes)
   sizes.log_sector_offset = 0;
 
   // Return if no LBA support
-  if (!(id->words047_079[49-47] & 0x0200))
+  if (!(ata_get_id_word<49>(*id) & 0x0200))
     return;
 
   // Determine 28-bit LBA capacity
-  unsigned lba28 = (unsigned)id->words047_079[61-47] << 16
-                 | (unsigned)id->words047_079[60-47]      ;
+  unsigned lba28 = (unsigned)ata_get_id_word<61>(*id) << 16
+                 | (unsigned)ata_get_id_word<60>(*id)      ;
 
   // Determine 48-bit LBA capacity if supported
   uint64_t lba48 = 0;
   if ((id->command_set_2 & 0xc400) == 0x4400)
-    lba48 = (uint64_t)id->words088_255[103-88] << 48
-          | (uint64_t)id->words088_255[102-88] << 32
-          | (uint64_t)id->words088_255[101-88] << 16
-          | (uint64_t)id->words088_255[100-88]      ;
+    lba48 = (uint64_t)ata_get_id_word<103>(*id) << 48
+          | (uint64_t)ata_get_id_word<102>(*id) << 32
+          | (uint64_t)ata_get_id_word<101>(*id) << 16
+          | (uint64_t)ata_get_id_word<100>(*id)      ;
 
   // Return if capacity unknown (ATAPI CD/DVD)
   if (!(lba28 || lba48))
@@ -672,19 +673,19 @@ void ata_get_size_info(const ata_identify_device * id, ata_size_info & sizes)
   // Determine sector sizes
   sizes.log_sector_size = sizes.phy_sector_size = 512;
 
-  unsigned short word106 = id->words088_255[106-88];
+  uint16_t word106 = ata_get_id_word<106>(*id);
   if ((word106 & 0xc000) == 0x4000) {
     // Long Logical/Physical Sectors (LLS/LPS) ?
     if (word106 & 0x1000)
       // Logical sector size is specified in 16-bit words
       sizes.log_sector_size = sizes.phy_sector_size =
-        ((id->words088_255[118-88] << 16) | id->words088_255[117-88]) << 1;
+        ((ata_get_id_word<118>(*id) << 16) | ata_get_id_word<117>(*id)) << 1;
 
     if (word106 & 0x2000)
       // Physical sector size is multiple of logical sector size
       sizes.phy_sector_size <<= (word106 & 0x0f);
 
-    unsigned short word209 = id->words088_255[209-88];
+    uint16_t word209 = ata_get_id_word<209>(*id);
     if ((word209 & 0xc000) == 0x4000)
       sizes.log_sector_offset = (word209 & 0x3fff) * sizes.log_sector_size;
   }
@@ -875,10 +876,10 @@ int ata_get_wwn(const ata_identify_device * id, unsigned & oui, uint64_t & uniqu
   if ((word087 & 0xc100) != 0x4100)
     return -1; // word not valid or WWN support bit 8 not set
 
-  unsigned short word108 = id->words088_255[108-88];
-  unsigned short word109 = id->words088_255[109-88];
-  unsigned short word110 = id->words088_255[110-88];
-  unsigned short word111 = id->words088_255[111-88];
+  uint16_t word108 = ata_get_id_word<108>(*id);
+  uint16_t word109 = ata_get_id_word<109>(*id);
+  uint16_t word110 = ata_get_id_word<110>(*id);
+  uint16_t word111 = ata_get_id_word<111>(*id);
 
   oui = ((word108 & 0x0fff) << 12) | (word109 >> 4);
   unique_id = ((uint64_t)(word109 & 0xf) << 32)
@@ -892,7 +893,7 @@ int ata_get_rotation_rate(const ata_identify_device * id)
 {
   // Table 37 of T13/1699-D (ATA8-ACS) Revision 6a, September 6, 2008
   // Table A.31 of T13/2161-D (ACS-3) Revision 3b, August 25, 2012
-  unsigned short word217 = id->words088_255[217-88];
+  uint16_t word217 = ata_get_id_word<217>(*id);
   if (word217 == 0x0000 || word217 == 0xffff)
     return 0;
   else if (word217 == 0x0001)
