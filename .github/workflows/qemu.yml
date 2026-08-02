@@ -6,7 +6,7 @@ on:
       native-platforms:
         description: Native build platforms (defaults to all)
         required: false
-        default: freebsd-x86_64 freebsd-powerpc64 netbsd-x86_64 openbsd openindiana solaris
+        default: freebsd-x86_64 netbsd-x86_64 openbsd openindiana solaris
       emulated-platforms:
         description: "Emulated build platforms (slow): freebsd-arm64 freebsd-powerpc64 netbsd-sparc64"
         required: false
