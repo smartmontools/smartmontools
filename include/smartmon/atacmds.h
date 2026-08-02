@@ -209,8 +209,9 @@ extern unsigned char ata_debugmode;
 extern bool dont_print_serial_number;
 
 // Get information from drive
-int ata_read_identity(ata_device * device, ata_identify_device * buf, bool fix_swapped_id,
-                      unsigned char * raw_buf = 0);
+int ata_read_identity(ata_device * device, ata_identify_device & id,
+                      bool fix_swapped_id = false);
+
 int ataCheckPowerMode(ata_device * device);
 
 // Issue a no-data ATA command with optional sector count register value
@@ -317,16 +318,19 @@ int ataSmartStatus2(ata_device * device);
 template <int N>
 static inline uint16_t & ata_set_id_word(ata_identify_device & id)
 {
-  SMARTMON_STATIC_ASSERT(   ( 0 <= N && N <=  9) || (20 <= N && N <=  22)
-                         || (47 <= N && N <= 79) || (88 <= N && N <= 255));
+  SMARTMON_STATIC_ASSERT(   (  0 <= N && N <=   9) || (20 <= N && N <=  22)
+                         || ( 47 <= N && N <=  79) || (88 <= N && N <= 169)
+                         || (174 <= N && N <= 255)                         );
   if (N < 20)
     return id.words000_009[N];
   else if (N < 47)
     return id.words020_022[N - 20];
   else if (N < 88)
     return id.words047_079[N - 47];
+  else if (N < 174)
+    return id.words088_169[N - 88];
   else
-    return id.words088_255[N - 88];
+    return id.words174_255[N - 174];
 }
 
 // Get const reference to word N from `ata_identify_device.words*[]` arrays.
@@ -472,9 +476,6 @@ struct ata_size_info
 
 void ata_get_size_info(const ata_identify_device * id, ata_size_info & sizes);
 
-// Convenience function for formatting strings from ata_identify_device.
-void ata_format_id_string(char * out, const unsigned char * in, int n);
-
 // Utility routines.
 unsigned char checksum(const void * data);
 
@@ -483,7 +484,7 @@ unsigned char checksum(const void * data);
 const char * look_up_ata_command(unsigned char c_code, unsigned char f_reg);
 
 // Byteswap strings in identify_device data.
-void ata_byteswap_id_strings_inplace(ata_identify_device & id);
+void ata_byteswap_id_strings_inplace(ata_identify_device & id, bool all = true);
 
 // Byteswap all aligned integers on Big Endian platforms, do nothing otherwise.
 void ata_if_be_byteswap_inplace(ata_identify_device & id);

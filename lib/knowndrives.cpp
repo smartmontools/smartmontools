@@ -4,7 +4,7 @@
  * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2003-11 Philip Williams, Bruce Allen
- * Copyright (C) 2008-21 Christian Franke
+ * Copyright (C) 2008-26 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -551,8 +551,8 @@ void show_presets(const ata_identify_device * drive)
   char model[MODEL_STRING_LENGTH+1], firmware[FIRMWARE_STRING_LENGTH+1];
 
   // get the drive's model/firmware strings
-  ata_format_id_string(model, drive->model, sizeof(model)-1);
-  ata_format_id_string(firmware, drive->fw_rev, sizeof(firmware)-1);
+  format_char_array(model, drive->model);
+  format_char_array(firmware, drive->fw_rev);
 
   // and search to see if they match values in the table
   const drive_settings * dbentry = lookup_drive(model, firmware);
@@ -586,8 +586,8 @@ const drive_settings * lookup_drive_apply_presets(
 {
   // get the drive's model/firmware strings
   char model[MODEL_STRING_LENGTH+1], firmware[FIRMWARE_STRING_LENGTH+1];
-  ata_format_id_string(model, drive->model, sizeof(model)-1);
-  ata_format_id_string(firmware, drive->fw_rev, sizeof(firmware)-1);
+  format_char_array(model, drive->model);
+  format_char_array(firmware, drive->fw_rev);
 
   // Look up the drive in knowndrives[].
   const drive_settings * dbentry = lookup_drive(model, firmware, &dbversion);

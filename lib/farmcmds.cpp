@@ -36,7 +36,7 @@ bool ataIsSeagate(const ata_identify_device& drive, const drive_settings* dbentr
     return true;
   }
   char model[40 + 1];
-  ata_format_id_string(model, drive.model, sizeof(model) - 1);
+  format_char_array(model, drive.model);
   if (regular_expression("^ST[0-9]{3,5}[A-Z]{2}[A-Z0-9]{3,5}(-.*)?$").full_match(model)) {
     return true;
   }

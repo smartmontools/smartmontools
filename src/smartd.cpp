@@ -2261,7 +2261,7 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
   // Device must be open
 
   // Get drive identity structure
-  if ((retid = ata_read_identity(atadev, &drive, fix_swapped_id))) {
+  if ((retid = ata_read_identity(atadev, drive, fix_swapped_id))) {
     if (retid<0)
       // Unable to read Identity structure
       PrintOut(LOG_INFO,"Device: %s, not ATA, no IDENTIFY DEVICE Structure\n",name);
@@ -2274,9 +2274,9 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
 
   // Get drive identity, size and rotation rate (HDD/SSD)
   char model[40+1], serial[20+1], firmware[8+1];
-  ata_format_id_string(model, drive.model, sizeof(model)-1);
-  ata_format_id_string(serial, drive.serial_no, sizeof(serial)-1);
-  ata_format_id_string(firmware, drive.fw_rev, sizeof(firmware)-1);
+  format_char_array(model, drive.model);
+  format_char_array(serial, drive.serial_no);
+  format_char_array(firmware, drive.fw_rev);
 
   ata_size_info sizes;
   ata_get_size_info(&drive, sizes);

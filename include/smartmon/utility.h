@@ -106,21 +106,38 @@ bool nonempty(const void * data, int size);
 // needed to fix glibc bug
 void FixGlibcTimeZoneBug();
 
+// Cast any char pointer to default char pointer.
+static inline char * to_char_ptr(char * p) { return p; }
+static inline char * to_char_ptr(signed char * p) { return reinterpret_cast<char *>(p); }
+static inline char * to_char_ptr(unsigned char * p) { return reinterpret_cast<char *>(p); }
+static inline const char * to_char_ptr(const char * p) { return p; }
+static inline const char * to_char_ptr(const signed char * p) { return reinterpret_cast<const char *>(p); }
+static inline const char * to_char_ptr(const unsigned char * p) { return reinterpret_cast<const char *>(p); }
+
 // Copy not null terminated char array to null terminated string.
 // Replace non-ascii characters.  Remove leading and trailing blanks.
 const char * format_char_array(char * str, int strsize, const char * chr, int chrsize);
 
+// Variant for '[un]signed char' aka '[u]int8_t'.
+template<typename STRTYPE, typename CHRTYPE>
+static inline const STRTYPE * format_char_array(STRTYPE * str, int strsize, const CHRTYPE * chr, int chrsize)
+{
+  return reinterpret_cast<const STRTYPE *>(
+    format_char_array(to_char_ptr(str), strsize, to_char_ptr(chr), chrsize)
+  );
+}
+
 // Variants for fixed size buffers.
-template<size_t STRSIZE, size_t CHRSIZE>
-inline const char * format_char_array(char (& str)[STRSIZE], const char (& chr)[CHRSIZE])
+template<typename STRTYPE, size_t STRSIZE, typename CHRTYPE, size_t CHRSIZE>
+static inline const STRTYPE * format_char_array(STRTYPE (& str)[STRSIZE], const CHRTYPE (& chr)[CHRSIZE])
   { return format_char_array(str, (int)STRSIZE, chr, (int)CHRSIZE); }
 
-template<size_t STRSIZE>
-inline const char * format_char_array(char (& str)[STRSIZE], const char * chr, int chrsize)
+template<typename STRTYPE, size_t STRSIZE, typename CHRTYPE>
+static inline const STRTYPE * format_char_array(STRTYPE (& str)[STRSIZE], const CHRTYPE * chr, int chrsize)
   { return format_char_array(str, (int)STRSIZE, chr, chrsize); }
 
-template<size_t CHRSIZE>
-inline const char * format_char_array(char * str, int strsize, const char (& chr)[CHRSIZE])
+template<typename STRTYPE, typename CHRTYPE, size_t CHRSIZE>
+static inline const STRTYPE * format_char_array(STRTYPE * str, int strsize, const CHRTYPE (& chr)[CHRSIZE])
   { return format_char_array(str, strsize, chr, (int)CHRSIZE); }
 
 // Format integer with thousands separator

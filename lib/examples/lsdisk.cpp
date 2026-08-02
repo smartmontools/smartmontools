@@ -3,7 +3,7 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2025 Christian Franke
+ * Copyright (C) 2025-26 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -42,7 +42,7 @@ static int dev_error(const smartmon::smart_device * dev, const char * msg)
 static int identify(smartmon::ata_device * dev)
 {
   smartmon::ata_identify_device id{};
-  int atapi = smartmon::ata_read_identity(dev, &id, false, nullptr);
+  int atapi = smartmon::ata_read_identity(dev, id);
   if (atapi < 0)
     return dev_error(dev, "ata_read_identity() failed");
 
@@ -53,12 +53,13 @@ static int identify(smartmon::ata_device * dev)
     smartmon::format_capacity(cap, sizeof(cap), sizes.capacity);
 
   char md[40 + 1], fw[8 + 1], sn[20 + 1];
-  smartmon::ata_format_id_string(md, id.model, sizeof(md) - 1);
-  smartmon::ata_format_id_string(fw, id.fw_rev, sizeof(fw) - 1);
-  smartmon::ata_format_id_string(sn, id.serial_no, sizeof(sn) - 1);
   std::printf("%s -d %s [ATA%s]: \"%s\", FW:\"%s\", S/N:\"%s\"%s%s\n",
     dev->get_info_name(), dev->get_dev_type(),
-    (!atapi ? "" : "PI"), md, fw, sn, (cap[0] ? ", " : ""), cap);
+    (!atapi ? "" : "PI"),
+    smartmon::format_char_array(md, id.model),
+    smartmon::format_char_array(fw, id.fw_rev),
+    smartmon::format_char_array(sn, id.serial_no),
+    (cap[0] ? ", " : ""), cap);
   return 0;
 }
 

@@ -5,7 +5,7 @@
  *
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
  * Copyright (C) 2002-2011 Bruce Allen
- * Copyright (C) 2008-2025 Christian Franke
+ * Copyright (C) 2008-2026 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -95,7 +95,9 @@ struct ata_identify_device {
   uint16_t  cfs_enable_1;
   uint16_t  word086;
   uint16_t  csf_default;
-  uint16_t  words088_255[168];
+  uint16_t  words088_169[82];
+  uint8_t   add_product_id[8];
+  uint16_t  words174_255[82];
 };
 SMARTMON_ASSERT_SIZEOF(ata_identify_device, 512);
 

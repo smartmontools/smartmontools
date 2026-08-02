@@ -3,9 +3,9 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2002-11 Bruce Allen
- * Copyright (C) 2008-25 Christian Franke
  * Copyright (C) 1999-2000 Michael Cornwell <cornwell@acm.org>
+ * Copyright (C) 2002-2011 Bruce Allen
+ * Copyright (C) 2008-2026 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -649,9 +649,9 @@ static void print_drive_info(const ata_identify_device * drive,
 {
   // format drive information (with byte swapping as needed)
   char model[40+1], serial[20+1], firmware[8+1];
-  ata_format_id_string(model, drive->model, sizeof(model)-1);
-  ata_format_id_string(serial, drive->serial_no, sizeof(serial)-1);
-  ata_format_id_string(firmware, drive->fw_rev, sizeof(firmware)-1);
+  format_char_array(model, drive->model);
+  format_char_array(serial, drive->serial_no);
+  format_char_array(firmware, drive->fw_rev);
 
   // Print model family if known
   if (dbentry && *dbentry->modelfamily) {
@@ -678,9 +678,9 @@ static void print_drive_info(const ata_identify_device * drive,
 
   // Additional Product Identifier (OEM Id) string in words 170-173
   // (e08130r1, added in ACS-2 Revision 1, December 17, 2008)
-  if (0x2020 <= ata_get_id_word<170>(*drive) && ata_get_id_word<170>(*drive) <= 0x7e7e) {
+  if (' ' <= drive->add_product_id[0] && drive->add_product_id[0] <= '~') {
     char add[8+1];
-    ata_format_id_string(add, (const unsigned char *)(&ata_get_id_word<170>(*drive)), sizeof(add)-1);
+    format_char_array(add, drive->add_product_id);
     if (add[0]) {
       jout("Add. Product Id:  %s\n", add);
       jglb["ata_additional_product_id"] = add;
@@ -3603,10 +3603,9 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   // Start by getting Drive ID information.  We need this, to know if SMART is supported.
   int returnval = 0;
   ata_identify_device drive; memset(&drive, 0, sizeof(drive));
-  unsigned char raw_drive[sizeof(drive)]; memset(&raw_drive, 0, sizeof(raw_drive));
 
   device->clear_err();
-  int retid = ata_read_identity(device, &drive, options.fix_swapped_id, raw_drive);
+  int retid = ata_read_identity(device, drive, options.fix_swapped_id);
   if (retid < 0) {
     pout("Read Device Identity failed: %s\n\n",
          (device->get_errno() ? device->get_errmsg() : "Unknown error"));
@@ -3645,8 +3644,11 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   // Print ATA IDENTIFY info if requested
   if (options.identify_word_level >= 0) {
     pout("=== ATA IDENTIFY DATA ===\n");
-    // Pass raw data without endianness adjustments
-    ata_print_identify_data(raw_drive, (options.identify_word_level > 0), options.identify_bit_level);
+    // Pass raw data without byte swapping
+    ata_identify_device raw_id = drive;
+    ata_byteswap_id_strings_inplace(raw_id);
+    ata_if_be_byteswap_inplace(raw_id);
+    ata_print_identify_data(&raw_id, (options.identify_word_level > 0), options.identify_bit_level);
   }
 
   // Print most drive identity information if requested

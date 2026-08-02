@@ -710,53 +710,6 @@ unsigned char checksum(const void * data)
   return sum;
 }
 
-// Copies n bytes (or n-1 if n is odd) from in to out, but swaps adjacents
-// bytes.
-static void swapbytes(char * out, const char * in, size_t n)
-{
-  for (size_t i = 0; i < n; i += 2) {
-    out[i]   = in[i+1];
-    out[i+1] = in[i];
-  }
-}
-
-// Copies in to out, but removes leading and trailing whitespace.
-static void trim(char * out, const char * in)
-{
-  // Find the first non-space character (maybe none).
-  int first = -1;
-  int i;
-  for (i = 0; in[i]; i++)
-    if (!isspace((int)in[i])) {
-      first = i;
-      break;
-    }
-
-  if (first == -1) {
-    // There are no non-space characters.
-    out[0] = '\0';
-    return;
-  }
-
-  // Find the last non-space character.
-  for (i = strlen(in)-1; i >= first && isspace((int)in[i]); i--)
-    ;
-  int last = i;
-
-  strncpy(out, in+first, last-first+1);
-  out[last-first+1] = '\0';
-}
-
-// Convenience function for formatting strings from ata_identify_device
-void ata_format_id_string(char * out, const unsigned char * in, int n)
-{
-  char tmp[65];
-  n = n > 64 ? 64 : n;
-  swapbytes(tmp, (const char *)in, n);
-  tmp[n] = '\0';
-  trim(out, tmp);
-}
-
 // returns -1 if command fails or the device is in Sleep mode, else
 // value of Sector Count register.  Sector Count result values:
 //   00h device is in Standby mode. 
@@ -797,21 +750,21 @@ bool ata_set_features(ata_device * device, unsigned char features,
   return device->ata_pass_through(in);
 }
 
-// Reads current Device Identity info (512 bytes) into buf.  Returns 0
+// Reads current Device Identity info (512 bytes) into ID.  Returns 0
 // if all OK.  Returns -1 if no ATA Device identity can be
 // established.  Returns >0 if Device is ATA Packet Device (not SMART
 // capable).  The value of the integer helps identify the type of
 // Packet device, which is useful so that the user can connect the
 // formal device number with whatever object is inside their computer.
-int ata_read_identity(ata_device * device, ata_identify_device * buf, bool fix_swapped_id,
-                      unsigned char * raw_buf /* = 0 */)
+int ata_read_identity(ata_device * device, ata_identify_device & id,
+                      bool fix_swapped_id /* = false */)
 {
   // See if device responds either to IDENTIFY DEVICE or IDENTIFY
   // PACKET DEVICE
   bool packet = false;
-  if ((smartcommandhandler(device, IDENTIFY, 0, (char *)buf))){
+  if ((smartcommandhandler(device, IDENTIFY, 0, (char *)&id))){
     smart_device::error_info err = device->get_err();
-    if (smartcommandhandler(device, PIDENTIFY, 0, (char *)buf)){
+    if (smartcommandhandler(device, PIDENTIFY, 0, (char *)&id)){
       device->set_err(err);
       return -1; 
     }
@@ -819,19 +772,18 @@ int ata_read_identity(ata_device * device, ata_identify_device * buf, bool fix_s
   }
 
   if (fix_swapped_id)
-    ata_byteswap_id_strings_inplace(*buf);
-
-  // If requested, save raw data before endianness adjustments
-  if (raw_buf)
-    memcpy(raw_buf, buf, sizeof(*buf));
+    // Fix already swapped serial_no, fw_rev and model
+    ata_byteswap_id_strings_inplace(id, false /* !all */);
 
   // If there is a checksum there, validate it
-  unsigned char * rawbyte = (unsigned char *)buf;
+  const uint8_t * rawbyte = reinterpret_cast<const uint8_t *>(&id);
   if (rawbyte[512-2] == 0xa5 && checksum(rawbyte))
     checksumwarning("Drive Identity Structure");
 
+  // Byteswap strings always
+  ata_byteswap_id_strings_inplace(id);
   // if machine is big-endian, swap byte order as needed
-  ata_if_be_byteswap_inplace(*buf);
+  ata_if_be_byteswap_inplace(id);
   
   // AT Attachment 8 - ATA/ATAPI Command Set (ATA8-ACS)
   // T13/1699-D Revision 6a (Final Draft), September 6, 2008.
@@ -854,12 +806,13 @@ int ata_read_identity(ata_device * device, ata_identify_device * buf, bool fix_s
   // 0040h = Alternate value turns on ATA device while zeroing all retired bits
 
   // Assume ATA if IDENTIFY DEVICE returns CompactFlash Signature
-  if (!packet && rawbyte[1] == 0x84 && rawbyte[0] == 0x8a)
+  uint16_t word000 = ata_get_id_word<0>(id);
+  if (!packet && word000 == 0x848a)
     return 0;
 
   // If this is a PACKET DEVICE, return device type
-  if (rawbyte[1] & 0x80)
-    return 1+(rawbyte[1] & 0x1f);
+  if (word000 & 0x8000)
+    return 1 + ((word000 >> 8) & 0x1f);
   
   // Not a PACKET DEVICE
   return 0;
@@ -2377,11 +2330,14 @@ int ataSetSCTErrorRecoveryControltime(ata_device * device, unsigned type, unsign
 }
 
 // Byteswap strings in identify_device data.
-void ata_byteswap_id_strings_inplace(ata_identify_device & id)
+void ata_byteswap_id_strings_inplace(ata_identify_device & id, bool all /* = true */)
 {
   byteswap_array_16_inplace(id.serial_no);
   byteswap_array_16_inplace(id.fw_rev);
   byteswap_array_16_inplace(id.model);
+  if (!all)
+    return;
+  byteswap_array_16_inplace(id.add_product_id);
 }
 
 // Byteswap all aligned integers on Big Endian platforms, otherwise do nothing.
@@ -2404,7 +2360,8 @@ void ata_if_be_byteswap_inplace(ata_identify_device & id)
   byteswap_inplace(id.cfs_enable_1);
   byteswap_inplace(id.word086);
   byteswap_inplace(id.csf_default);
-  byteswap_array_inplace(id.words088_255);
+  byteswap_array_inplace(id.words088_169);
+  byteswap_array_inplace(id.words174_255);
 }
 
 void ata_if_be_byteswap_inplace(ata_smart_values & val)
