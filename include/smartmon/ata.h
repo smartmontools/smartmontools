@@ -87,7 +87,9 @@ struct ata_identify_device {
   uint16_t  words020_022[3];
   uint8_t   fw_rev[8];                // 23-26: firmware revision
   uint8_t   model[40];                // 27-46: model "number"
-  uint16_t  words047_079[33];
+  uint16_t  words047_059[13];
+  uile32_t  user_sectors_28;          // 60-61: user addressable logical sectors for 28-bit commands
+  uint16_t  words062_079[18];
   uint16_t  major_rev_num;            // 80: major version number
   uint16_t  minor_rev_num;            // 81: minor version number
   uint16_t  command_set_1;            // 82: commands and feature sets supported
@@ -96,9 +98,13 @@ struct ata_identify_device {
   uint16_t  cfs_enabled_1;            // 85: commands and feature sets supported or enabled
   uint16_t  cfs_enabled_2;            // 86: commands and feature sets supported or enabled
   uint16_t  cfs_enabled_3;            // 87: commands and feature sets supported or enabled
-  uint16_t  words088_169[82];
+  uint16_t  words088_099[12];
+  uile64_t  user_sectors_48;          // 100-103: user addressable logical sectors for 48-bit commands
+  uint16_t  words104_169[66];
   uint8_t   add_product_id[8];        // 170-173: additional product identifier
-  uint16_t  words174_255[82];
+  uint16_t  words174_229[56];
+  uile64_t  user_sectors_ext;         // 230-233: extended number of user addressable logical sectors
+  uint16_t  words234_255[22];
 };
 SMARTMON_ASSERT_SIZEOF(ata_identify_device, 512);
 

@@ -655,20 +655,22 @@ void ata_get_size_info(const ata_identify_device * id, ata_size_info & sizes)
     return;
 
   // Determine 28-bit LBA capacity
-  unsigned lba28 = (unsigned)ata_get_id_word<61>(*id) << 16
-                 | (unsigned)ata_get_id_word<60>(*id)      ;
+  uint32_t lba28 = uile32_to_uint(id->user_sectors_28);
 
   // Determine 48-bit LBA capacity if supported
-  uint64_t lba48 = 0;
-  if ((id->command_set_2 & 0xc400) == 0x4400)
-    lba48 = (uint64_t)ata_get_id_word<103>(*id) << 48
-          | (uint64_t)ata_get_id_word<102>(*id) << 32
-          | (uint64_t)ata_get_id_word<101>(*id) << 16
-          | (uint64_t)ata_get_id_word<100>(*id)      ;
+  uint64_t lba48 = ((id->command_set_2 & 0xc400) == 0x4400
+                    ? uile64_to_uint(id->user_sectors_48) : 0);
 
   // Return if capacity unknown (ATAPI CD/DVD)
   if (!(lba28 || lba48))
     return;
+
+  // In some cases, 'user_sectors_48' is limited to 32bit (2TiB - 512B) and
+  // the real value is provided in 'user_sectors_ext'.
+  uint64_t lba_ext = ((ata_get_id_word<69>(*id) & 0x0004)
+                      ? uile64_to_uint(id->user_sectors_ext) : 0);
+  if (lba_ext > lba48)
+    lba48 = lba_ext;
 
   // Determine sector sizes
   sizes.log_sector_size = sizes.phy_sector_size = 512;
@@ -2351,7 +2353,8 @@ void ata_if_be_byteswap_inplace(ata_identify_device & id)
   byteswap_array_inplace(id.words020_022);
   // fw_rev:    ata_byteswap_id_strings_inplace()
   // model:     ata_byteswap_id_strings_inplace()
-  byteswap_array_inplace(id.words047_079);
+  byteswap_array_inplace(id.words047_059);
+  byteswap_array_inplace(id.words062_079);
   byteswap_inplace(id.minor_rev_num);
   byteswap_inplace(id.major_rev_num);
   byteswap_inplace(id.command_set_1);
@@ -2360,8 +2363,11 @@ void ata_if_be_byteswap_inplace(ata_identify_device & id)
   byteswap_inplace(id.cfs_enabled_1);
   byteswap_inplace(id.cfs_enabled_2);
   byteswap_inplace(id.cfs_enabled_3);
-  byteswap_array_inplace(id.words088_169);
-  byteswap_array_inplace(id.words174_255);
+  byteswap_array_inplace(id.words088_099);
+  byteswap_array_inplace(id.words104_169);
+  // add_product_id: ata_byteswap_id_strings_inplace()
+  byteswap_array_inplace(id.words174_229);
+  byteswap_array_inplace(id.words234_255);
 }
 
 void ata_if_be_byteswap_inplace(ata_smart_values & val)

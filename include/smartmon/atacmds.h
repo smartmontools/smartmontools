@@ -318,19 +318,26 @@ int ataSmartStatus2(ata_device * device);
 template <int N>
 static inline uint16_t & ata_set_id_word(ata_identify_device & id)
 {
-  SMARTMON_STATIC_ASSERT(   (  0 <= N && N <=   9) || (20 <= N && N <=  22)
-                         || ( 47 <= N && N <=  79) || (88 <= N && N <= 169)
-                         || (174 <= N && N <= 255)                         );
+  SMARTMON_STATIC_ASSERT(   (  0 <= N && N <=   9) || ( 20 <= N && N <=  22)
+                         || ( 47 <= N && N <=  59) || ( 62 <= N && N <=  79)
+                         || ( 88 <= N && N <=  99) || (104 <= N && N <= 169)
+                         || (174 <= N && N <= 229) || (234 <= N && N <= 255));
   if (N < 20)
     return id.words000_009[N];
   else if (N < 47)
-    return id.words020_022[N - 20];
+    return id.words020_022[N -  20];
+  else if (N < 62)
+    return id.words047_059[N -  47];
   else if (N < 88)
-    return id.words047_079[N - 47];
+    return id.words062_079[N -  62];
+  else if (N < 104)
+    return id.words088_099[N -  88];
   else if (N < 174)
-    return id.words088_169[N - 88];
+    return id.words104_169[N - 104];
+  else if (N < 234)
+    return id.words174_229[N - 174];
   else
-    return id.words174_255[N - 174];
+    return id.words234_255[N - 234];
 }
 
 // Get const reference to word N from `ata_identify_device.words*[]` arrays.
