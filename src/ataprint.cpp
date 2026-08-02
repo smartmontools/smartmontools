@@ -3719,7 +3719,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   if (options.get_aam) {
     if ((drive.command_set_2 & 0xc200) != 0x4200) // word083
       pout("AAM feature is:   Unavailable\n");
-    else if (!(drive.word086 & 0x0200)) {
+    else if (!(drive.cfs_enabled_2 & 0x0200)) {
       jout("AAM feature is:   Disabled\n");
       jglb["ata_aam"]["enabled"] = false;
     }
@@ -3732,7 +3732,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   if (options.get_apm) {
     if ((drive.command_set_2 & 0xc008) != 0x4008) // word083
       pout("APM feature is:   Unavailable\n");
-    else if (!(drive.word086 & 0x0008)) {
+    else if (!(drive.cfs_enabled_2 & 0x0008)) {
       jout("APM feature is:   Disabled\n");
       jglb["ata_apm"]["enabled"] = false;
     }
@@ -3746,7 +3746,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
         || !(drive.command_set_1 & 0x0040)         ) // word082
       pout("Rd look-ahead is: Unavailable\n");
     else {
-      bool enabled = !!(drive.cfs_enable_1 & 0x0040); // word085
+      bool enabled = !!(drive.cfs_enabled_1 & 0x0040); // word085
       jout("Rd look-ahead is: %sabled\n", (enabled ? "En" : "Dis"));
       jglb["read_lookahead"]["enabled"] = enabled;
     }
@@ -3758,7 +3758,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
         || !(drive.command_set_1 & 0x0020)         ) // word082
       pout("Write cache is:   Unavailable\n");
     else {
-      bool enabled = !!(drive.cfs_enable_1 & 0x0020); // word085
+      bool enabled = !!(drive.cfs_enabled_1 & 0x0020); // word085
       jout("Write cache is:   %sabled\n", (enabled ? "En" : "Dis"));
       jglb["write_cache"]["enabled"] = enabled;
     }
@@ -3768,7 +3768,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
   uint16_t word120 = ata_get_id_word<120>(drive);
   uint16_t word119 = ata_get_id_word<119>(drive);
   if (options.get_dsn) {
-    if (!(drive.word086 & 0x8000) // word086
+    if (!(drive.cfs_enabled_2 & 0x8000) // word086
        || ((word119 & 0xc200) != 0x4200) // word119
        || ((word120 & 0xc000) != 0x4000)) // word120
       pout("DSN feature is:   Unavailable\n");

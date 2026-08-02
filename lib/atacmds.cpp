@@ -825,7 +825,7 @@ int ata_read_identity(ata_device * device, ata_identify_device & id,
 int ata_get_wwn(const ata_identify_device * id, unsigned & oui, uint64_t & unique_id)
 {
   // Don't use word 84 to be compatible with some older ATA-7 disks
-  unsigned short word087 = id->csf_default;
+  unsigned short word087 = id->cfs_enabled_3;
   if ((word087 & 0xc100) != 0x4100)
     return -1; // word not valid or WWN support bit 8 not set
 
@@ -875,8 +875,8 @@ int ataSmartSupport(const ata_identify_device * drive)
 // returns 1 if SMART enabled, 0 if SMART disabled, -1 if can't tell
 int ataIsSmartEnabled(const ata_identify_device * drive)
 {
-  unsigned short word85=drive->cfs_enable_1;
-  unsigned short word87=drive->csf_default;
+  unsigned short word85=drive->cfs_enabled_1;
+  unsigned short word87=drive->cfs_enabled_3;
   
   // check if words 85/86/87 contain valid info
   if ((word87>>14) == 0x01)
@@ -1578,8 +1578,8 @@ int TestTime(const ata_smart_values *data, int testtype)
 // remaining bits were reserved (==0).
 bool isSmartErrorLogCapable(const ata_smart_values * data, const ata_identify_device * identity)
 {
-  unsigned short word84=identity->command_set_extension;
-  unsigned short word87=identity->csf_default;
+  unsigned short word84=identity->command_set_3;
+  unsigned short word87=identity->cfs_enabled_3;
   int isata6=identity->major_rev_num & (0x01<<6);
   int isata7=identity->major_rev_num & (0x01<<7);
 
@@ -1597,8 +1597,8 @@ bool isSmartErrorLogCapable(const ata_smart_values * data, const ata_identify_de
 // log should (must?) also exist.
 bool isSmartTestLogCapable(const ata_smart_values * data, const ata_identify_device *identity)
 {
-  unsigned short word84=identity->command_set_extension;
-  unsigned short word87=identity->csf_default;
+  unsigned short word84=identity->command_set_3;
+  unsigned short word87=identity->cfs_enabled_3;
   int isata6=identity->major_rev_num & (0x01<<6);
   int isata7=identity->major_rev_num & (0x01<<7);
 
@@ -1616,8 +1616,8 @@ bool isSmartTestLogCapable(const ata_smart_values * data, const ata_identify_dev
 
 bool isGeneralPurposeLoggingCapable(const ata_identify_device *identity)
 {
-  unsigned short word84=identity->command_set_extension;
-  unsigned short word87=identity->csf_default;
+  unsigned short word84=identity->command_set_3;
+  unsigned short word87=identity->cfs_enabled_3;
 
   // If bit 14 of word 84 is set to one and bit 15 of word 84 is
   // cleared to zero, the contents of word 84 contains valid support
@@ -2356,10 +2356,10 @@ void ata_if_be_byteswap_inplace(ata_identify_device & id)
   byteswap_inplace(id.major_rev_num);
   byteswap_inplace(id.command_set_1);
   byteswap_inplace(id.command_set_2);
-  byteswap_inplace(id.command_set_extension);
-  byteswap_inplace(id.cfs_enable_1);
-  byteswap_inplace(id.word086);
-  byteswap_inplace(id.csf_default);
+  byteswap_inplace(id.command_set_3);
+  byteswap_inplace(id.cfs_enabled_1);
+  byteswap_inplace(id.cfs_enabled_2);
+  byteswap_inplace(id.cfs_enabled_3);
   byteswap_array_inplace(id.words088_169);
   byteswap_array_inplace(id.words174_255);
 }

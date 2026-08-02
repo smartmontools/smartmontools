@@ -1178,7 +1178,7 @@ static int get_identify_from_device_property(HANDLE hdevice, ata_identify_device
     copy_swapped(id->fw_rev, data.raw+data.desc.ProductRevisionOffset, sizeof(id->fw_rev));
 
   id->command_set_1 = 0x0001; id->command_set_2 = 0x4000; // SMART supported, words 82,83 valid
-  id->cfs_enable_1  = 0x0001; id->csf_default   = 0x4000; // SMART enabled, words 85,87 valid
+  id->cfs_enabled_1 = 0x0001; id->cfs_enabled_3 = 0x4000; // SMART enabled, words 85,87 valid
   return 0;
 }
 
@@ -2663,7 +2663,7 @@ bool win_tw_cli_device::open()
     ata_set_id_word<61>(*id) = (uint16_t)(nblocks>>16); // secs_32
   }
   id->command_set_1 = 0x0001; id->command_set_2 = 0x4000; // SMART supported, words 82,83 valid
-  id->cfs_enable_1  = 0x0001; id->csf_default   = 0x4000; // SMART enabled, words 85,87 valid
+  id->cfs_enabled_1 = 0x0001; id->cfs_enabled_3 = 0x4000; // SMART enabled, words 85,87 valid
 
   // Parse smart data hex dump
   const char * s = findstr(buffer, "Drive Smart Data:");
