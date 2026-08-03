@@ -8,7 +8,7 @@ on:
         required: false
         default: >-
           ubuntu-x86_64-gcc ubuntu-arm64-gcc ubuntu-x86_64-clang ubuntu-arm64-clang
-          darwin freebsd-14 freebsd-15 windows-x86_64 cygwin
+          fedora darwin freebsd-14 freebsd-15 windows-x86_64 cygwin
       cfg-options:
         description: "'configure' options to select library"
         required: false
@@ -215,6 +215,42 @@ jobs:
         with:
           name: smartmontools-ubuntu-arm64-clang-report
           path: smartmontools-ubuntu-arm64-clang-report-*.tar.gz
+          retention-days: 90
+
+      - name: Run smartctl ${{ github.event.inputs.check-options }}
+        run: |
+          cd smartmontools-[89].[0-9]/build/src && ./smartctl ${{ github.event.inputs.check-options }}
+
+  build-fedora:
+    if: ${{ contains(github.event.inputs.platforms, 'fedora') }}
+    needs: build-source-tarball
+    runs-on: ubuntu-latest
+    container: fedora:latest
+
+    steps:
+      - run: sudo dnf install -y diffutils gcc-g++ make
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: smartmontools-src
+
+      - name: Build
+        run: |
+          distfile=$(ls -d smartmontools-*.tar.gz) && test "$(echo "$distfile" | wc -l)" = 1 &&
+          tar -xf "$distfile" && distdir=${distfile%-*-g*.tar.gz} &&
+          version_sh=$("$distdir/src/getversion.sh" -s) && eval "${version_sh}" &&
+          cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
+          ../configure --with-build-info='(GHA/${{ github.event.inputs.suffix }})' \
+            ${{ github.event.inputs.cfg-options }} \
+            SOURCE_DATE_EPOCH=$((SMARTMONTOOLS_GIT_REV_EPOCH + 1)) &&
+          make ${{ github.event.inputs.make-options }} && make check &&
+          bin_distfile="../../smartmontools-fedora-x86_64-${{ github.event.inputs.suffix }}-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" &&
+          make bin_distfile="$bin_distfile" bin-dist && tar -tvf "$bin_distfile"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: smartmontools-fedora-x86_64-${{ github.event.inputs.suffix }}
+          path: smartmontools-fedora-x86_64-${{ github.event.inputs.suffix }}-*.tar.gz
           retention-days: 90
 
       - name: Run smartctl ${{ github.event.inputs.check-options }}
