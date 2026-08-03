@@ -9,6 +9,10 @@ on:
         default: >-
           ubuntu-x86_64-gcc ubuntu-arm64-gcc ubuntu-x86_64-clang ubuntu-arm64-clang
           fedora darwin freebsd-14 freebsd-15 windows-x86_64 cygwin
+      libs-ubuntu:
+        description: "Additional libraries for Ubuntu or 'none'"
+        required: false
+        default: libcap-ng-dev libsystemd-dev
       cfg-options:
         description: "'configure' options to select library"
         required: false
@@ -35,9 +39,11 @@ jobs:
         run: |
           echo "::notice::" \
                "platforms: '${{ github.event.inputs.platforms }}'," \
+               "libs-ubuntu: '${{ github.event.inputs.libs-ubuntu }}'," \
                "cfg-options: '${{ github.event.inputs.cfg-options }}'," \
                "make-options: '${{ github.event.inputs.make-options }}'," \
-               "suffix: '${{ github.event.inputs.suffix }}'"
+               "suffix: '${{ github.event.inputs.suffix }}'" \
+               "check-options: '${{ github.event.inputs.check-options }}'"
 
       - uses: actions/checkout@v6
         with:
@@ -70,6 +76,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Install additional libraries
+        if: ${{ github.event.inputs.libs-ubuntu != 'none' }}
+        run: |
+          sudo apt-get update &&
+          sudo apt-get install -y ${{ github.event.inputs.libs-ubuntu }}
+
       - uses: actions/download-artifact@v8
         with:
           name: smartmontools-src
@@ -104,6 +116,12 @@ jobs:
     runs-on: ubuntu-24.04-arm
 
     steps:
+      - name: Install additional libraries
+        if: ${{ github.event.inputs.libs-ubuntu != 'none' }}
+        run: |
+          sudo apt-get update &&
+          sudo apt-get install -y ${{ github.event.inputs.libs-ubuntu }}
+
       - uses: actions/download-artifact@v8
         with:
           name: smartmontools-src
@@ -138,6 +156,10 @@ jobs:
 
     steps:
       - run: sudo apt-get update && sudo apt-get install clang-tools
+
+      - name: Install additional libraries
+        if: ${{ github.event.inputs.libs-ubuntu != 'none' }}
+        run: sudo apt-get install -y ${{ github.event.inputs.libs-ubuntu }}
 
       - uses: actions/download-artifact@v8
         with:
@@ -183,6 +205,10 @@ jobs:
 
     steps:
       - run: sudo apt-get update && sudo apt-get install clang-tools
+
+      - name: Install additional libraries
+        if: ${{ github.event.inputs.libs-ubuntu != 'none' }}
+        run: sudo apt-get install -y ${{ github.event.inputs.libs-ubuntu }}
 
       - uses: actions/download-artifact@v8
         with:
