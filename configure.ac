@@ -415,8 +415,9 @@ AC_ARG_WITH(os-deps,
     done
   ],[])
 
+# TODO: Remove after smartmontools 8.1 (TBD)
 AC_ARG_WITH(selinux,
-  [AS_HELP_STRING([--with-selinux@<:@=yes|no@:>@], [Enables SELinux support [no]])],
+  [AS_HELP_STRING([--with-selinux@<:@=yes|no@:>@], [(deprecated)])],
   [ if test "$withval" = "yes"; then
       AC_CHECK_HEADERS([selinux/selinux.h], [], [AC_MSG_ERROR([Missing SELinux header files])])
       AC_CHECK_LIB(selinux, matchpathcon, [], [AC_MSG_ERROR([Missing or incorrect SELinux library files])])
@@ -1203,6 +1204,14 @@ Option '--with-exampledir' is deprecated, use '--with-smartd-scripts' instead.
 # TODO: Remove after smartmontools 8.1
 test -z "$with_systemdsystemunitdir" || AC_MSG_WARN([
 Option '--with-systemdsystemunitdir' is deprecated, use '--with-smartd-service-file' instead.
+])
+
+# TODO: Remove after smartmontools 8.1 (TBD)
+test "$with_selinux" != "yes" || AC_MSG_WARN([
+Option '--with-selinux' is deprecated and may be removed in a future version
+of smartmontools.  It only affects the creation of missing /dev nodes for
+very old 3ware controllers.  If you still need this option, please inform
+$PACKAGE_BUGREPORT - Thanks!
 ])
 
 test -z "$os_unmaintained" || AC_MSG_WARN([
