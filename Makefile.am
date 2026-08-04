@@ -35,7 +35,6 @@ EXTRA_DIST = \
         doc/old/ChangeLog-5.0-6.0.txt \
         doc/old/ChangeLog-7.0-7.5.txt \
         drivedb/drivedb.h \
-        m4/pkg.m4 \
         $(doc_DATA) \
         $(docold_DATA) \
         $(examplescripts_DATA) \
@@ -63,7 +62,6 @@ MAINTAINERCLEANFILES = \
         $(srcdir)/m4/libtool.m4~ \
         $(srcdir)/m4/lt*.m4 \
         $(srcdir)/m4/lt*.m4~ \
-        $(srcdir)/m4/pkg.m4 \
         $(srcdir)/missing
 
 SUBDIRS = include lib src

@@ -285,7 +285,7 @@ CLEANFILES = \
         smartd.initd \
         smartd.cygwin.initd \
         smartd.freebsd.initd \
-        smartd.service \
+        $(smartd_service) \
         smartd_warning.sh \
         update-smart-drivedb \
         update-smart-drivedb.8 \
@@ -336,10 +336,10 @@ endif
 endif
 
 if INSTALL_SYSTEMDUNIT
-systemdsystemunit_DATA = smartd.service
+systemdsystemunit_DATA = $(smartd_service)
 endif
 
-smartd.service: smartd.service.in Makefile
+$(smartd_service): smartd.service.in Makefile
 	$(ECHO_V_GEN) ' $$(SMARTD_SERVICE_FILTER) < $(srcdir)/smartd.service.in > $@'
 	@{ \
 	sed 's|/usr/local/sbin/smartd|$(sbindir)/smartd|' | \
@@ -351,7 +351,7 @@ smartd.service: smartd.service.in Makefile
 	if test -n '$(systemdenvfile)'; then \
 	  sed 's|/usr/local/etc/sysconfig/smartmontools|$(systemdenvfile)|'; \
 	else \
-	  sed -e '/^EnvironmentFile=/d' -e 's| *\$$smartd[_a-z]* *||g'; \
+	  sed -e '/^EnvironmentFile=/d'; \
 	fi; } < $(srcdir)/smartd.service.in > $@
 
 

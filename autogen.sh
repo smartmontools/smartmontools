@@ -45,7 +45,7 @@ if $clean || $force; then
   rm -f $v \
     aclocal.m4 compile configure configure~ config.guess config.h.in \
     config.h.in~ config.sub depcomp install-sh ltmain.sh missing \
-    m4/libtool.m4 m4/libtool.m4~ m4/lt*.m4 m4/lt*.m4~ m4/pkg.m4 \
+    m4/libtool.m4 m4/libtool.m4~ m4/lt*.m4 m4/lt*.m4~ \
     Makefile.in include/Makefile.in lib/Makefile.in src/Makefile.in
   rm -f -r $v autom4te.cache
   test ! -d m4 || rmdir $v m4 || exit 1

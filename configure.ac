@@ -33,14 +33,6 @@ AC_PROG_CXX
 AM_PROG_AS
 AC_PROG_INSTALL
 
-m4_pattern_forbid([^PKG_PROG_])
-if test "$cross_compiling" = "no"; then
-  # PKG_PROG_PKG_CONFIG from 'pkgconf' >= 2.3.0 aborts if 'pkg-config' is
-  # missing and the new 2nd parameter is not set
-  m4_ifdef([PKG_PROG_PKG_CONFIG], [PKG_PROG_PKG_CONFIG([], [PKG_CONFIG=])],
-    [AC_MSG_WARN([m4/pkg.m4 missing, systemd detection disabled])])
-fi
-
 AC_ARG_VAR(SOURCE_DATE_EPOCH, [Reproducible build timestamp])
 AC_ARG_VAR(OBJCOPY, [Object file copy command which supports '-D'])
 AC_ARG_VAR(WINDMC, [Windows message compiler command])
@@ -466,32 +458,63 @@ case "$with_libsystemd:$host_os" in
 esac
 AC_SUBST(SYSTEMD_LDADD)
 
+running_systemd=no
+case "$host_os:$cross_compiling:$with_libsystemd:$use_libsystemd" in
+  linux*:no:auto:no)
+    AC_MSG_CHECKING([for the command running as PID 1])
+    # 'ps 1' without '-o comm' may print '/sbin/init' which may be a symlink to systemd
+    cmd=$(ps --no-headers -o comm 1 2>/dev/null | sed -n '1s/^\([[0-9A-Za-z]]*\)$/\1/p')
+    AC_MSG_RESULT([${cmd:-unknown}])
+    test "$cmd" != "systemd" || running_systemd=yes
+esac
+
+AC_ARG_WITH(smartd-service-file,
+  [AS_HELP_STRING([--with-smartd-service-file@<:@=DIR/FILE.service|auto|yes|no@:>@],
+    [Path of smartd systemd service file [auto] (yes=[/usr]/lib/systemd/system/smartd.service)])])
+smartd_service="smartd.service"
+
+# TODO: Remove after smartmontools 8.1
 AC_ARG_WITH(systemdsystemunitdir,
-  [AS_HELP_STRING([--with-systemdsystemunitdir@<:@=DIR|auto|yes|no@:>@], [Location of systemd service files [auto]])],
-  [], [with_systemdsystemunitdir=auto])
+  [AS_HELP_STRING([--with-systemdsystemunitdir@<:@=DIR|auto|yes|no@:>@], [(deprecated)])],
+  [ test -z "$with_smartd_service_file" ||
+      AC_MSG_ERROR(['--with-systemdsystemunitdir' cannot be used with '--with-smartd-service-file'])
+    case $withval in
+      auto|yes|no) with_smartd_service_file=$withval ;;
+      *) with_smartd_service_file="$withval/$smartd_service" ;;
+    esac
+  ],
+  [test -n "$with_smartd_service_file" || with_smartd_service_file=auto])
 
 systemdsystemunitdir=
-case "$with_systemdsystemunitdir:$use_libsystemd" in
-  auto:yes|yes:yes)
-    if test -n "$PKG_CONFIG"; then
-      AC_MSG_CHECKING([for systemdsystemunitdir])
-      systemdsystemunitdir=`$PKG_CONFIG --variable=systemdsystemunitdir systemd 2>/dev/null`
-      AC_MSG_RESULT([${systemdsystemunitdir:-no}])
-    fi
-    case "$with_systemdsystemunitdir:$sysconfdir:$systemdsystemunitdir" in
+case "$with_smartd_service_file:$cross_compiling:$running_systemd:$use_libsystemd" in
+  auto:no:*yes*|yes:*)
+    AC_MSG_CHECKING([for systemdsystemunitdir])
+    # Start with '/usr/...' because '/lib' may be only a symlink to '/usr/lib'
+    for dir in /usr/lib/systemd/system /lib/systemd/system; do
+      if test -d $dir; then
+        systemdsystemunitdir=$dir
+        break
+      fi
+    done
+    AC_MSG_RESULT([${systemdsystemunitdir:-no}])
+    case "$with_smartd_service_file:$sysconfdir:$systemdsystemunitdir" in
       yes:*:) AC_MSG_ERROR([Location of systemd service files not found]) ;;
       yes:*:*|auto:*:|auto:/etc:*) ;;
-      *) systemdsystemunitdir='${prefix}'$systemdsystemunitdir ;;
+      *) systemdsystemunitdir='${prefix}'"${systemdsystemunitdir#/usr}" ;;
     esac ;;
   auto:*|no:*) ;;
-  *:yes) systemdsystemunitdir="$with_systemdsystemunitdir" ;;
-  *) AC_MSG_ERROR(['--with-systemdsystemunitdir=$with_systemdsystemunitdir' now requires '--with-libsystemd']) ;;
+  /?*/?*.service:*:*:*)
+    systemdsystemunitdir=${with_smartd_service_file%/*}
+    smartd_service=${with_smartd_service_file##*/} ;;
+  *) AC_MSG_ERROR([Invalid path for systemd service file: '$with_smartd_service_file']) ;;
 esac
 AC_SUBST(systemdsystemunitdir)
+AC_SUBST(smartd_service)
 AM_CONDITIONAL(INSTALL_SYSTEMDUNIT, [test -n "$systemdsystemunitdir"])
 
 AC_ARG_WITH(systemdenvfile,
-  [AS_HELP_STRING([--with-systemdenvfile@<:@=FILE|auto|yes|no@:>@], [Path of systemd EnvironmentFile [auto]])],
+  [AS_HELP_STRING([--with-systemdenvfile@<:@=DIR/FILE|auto|yes|no@:>@],
+    [Path of systemd EnvironmentFile [auto] (yes=SYSCONFDIR/[default|sysconfig]/smartmontools)])],
   [], [with_systemdenvfile=auto])
 
 systemdenvfile=
@@ -1080,7 +1103,7 @@ info=`
         echo "smartd initd script:    [[disabled]]"
       fi
       if test -n "$systemdsystemunitdir"; then
-        echo "smartd service file:    \`eval eval eval echo $systemdsystemunitdir\`/smartd.service"
+        echo "smartd service file:    \`eval eval eval echo $systemdsystemunitdir/$smartd_service\`"
         if test -n "$systemdenvfile"; then
           echo "smartd environ file:    \`eval eval eval echo $systemdenvfile\`"
         else
@@ -1123,15 +1146,12 @@ The option '--with-nvme-devicescan' is no longer required.
 NVMe device scanning is now always enabled if supported.
 ])
 
-case "$host_os:$with_libsystemd:$use_libsystemd:$PKG_CONFIG" in
-  linux*:auto:no:?*)
-    if $PKG_CONFIG systemd >/dev/null 2>&1; then
-      AC_MSG_WARN([
+case "$running_systemd:$with_libsystemd:$use_libsystemd" in
+  yes:auto:no) AC_MSG_WARN([
 systemd(1) is used on this system but smartd systemd notify support will
 not be available because a required library is missing.
 Use option '--without-libsystemd' to suppress this warning.
-])
-    fi ;;
+]) ;;
 esac
 
 case "$host_os:$WINDMC" in
@@ -1178,6 +1198,11 @@ esac
 # TODO: Remove after smartmontools 8.1
 test -z "$with_exampledir" || AC_MSG_WARN([
 Option '--with-exampledir' is deprecated, use '--with-smartd-scripts' instead.
+])
+
+# TODO: Remove after smartmontools 8.1
+test -z "$with_systemdsystemunitdir" || AC_MSG_WARN([
+Option '--with-systemdsystemunitdir' is deprecated, use '--with-smartd-service-file' instead.
 ])
 
 test -z "$os_unmaintained" || AC_MSG_WARN([
