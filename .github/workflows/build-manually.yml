@@ -8,7 +8,7 @@ on:
         required: false
         default: >-
           ubuntu-x86_64-gcc ubuntu-arm64-gcc ubuntu-x86_64-clang ubuntu-arm64-clang
-          fedora darwin freebsd-14 freebsd-15 windows-x86_64 cygwin
+          fedora darwin freebsd-14 freebsd-15 windows-x86_64 cygwin os2emx
       libs-ubuntu:
         description: "Additional libraries for Ubuntu or 'none'"
         required: false
@@ -603,4 +603,48 @@ jobs:
         with:
           name: smartmontools-cygwin-${{ github.event.inputs.suffix }}
           path: smartmontools-cygwin-${{ github.event.inputs.suffix }}-*.tar.gz
+          retention-days: 90
+
+  build-os2emx:
+    # '--enable-shared' is ignored, '--enable-static-link' fails due to missing static libraries
+    if: ${{ contains(github.event.inputs.platforms, 'os2emx') && !contains(github.event.inputs.cfg-options, '--enable-static-link') }}
+    needs: build-source-tarball
+    runs-on: ubuntu-26.04 # cross-os2emx requires glibc-2.43
+
+    steps:
+      - name: Install cross-os2emx toolchain
+        run: |
+          set -e -o pipefail
+          sudo mkdir -pv /opt
+          curl -L https://github.com/komh/cross-os2emx/releases/download/1.4.0/cross-os2emx-1.4.0-linux-x64.tar.gz \
+          | sudo tar -xzf - -C /opt
+          sudo mv -v /opt/cross-os2emx-*/opt/os2emx /opt
+          /opt/os2emx/bin/i686-pc-os2-emx-g++ --version
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: smartmontools-src
+
+      - name: Build
+        run: |
+          export PATH="/opt/os2emx/bin:$PATH" &&
+          distfile=$(ls -d smartmontools-*.tar.gz) && test "$(echo "$distfile" | wc -l)" = 1 &&
+          tar -xf "$distfile" && distdir=${distfile%-*-g*.tar.gz} &&
+          version_sh=$("$distdir/src/getversion.sh" -s) && eval "${version_sh}" &&
+          cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
+          ../configure --build=$(../config.guess) --host=i686-pc-os2-emx \
+            --with-build-info='(GHA/${{ github.event.inputs.suffix }})' \
+            ${{ github.event.inputs.cfg-options }} \
+            SOURCE_DATE_EPOCH=$((SMARTMONTOOLS_GIT_REV_EPOCH + 1)) &&
+          make ${{ github.event.inputs.make-options }} && make check &&
+          mv -v src/smart*.exe lib/examples/lsdisk.exe ../.. &&
+          cp -pv /opt/os2emx/i686-pc-os2-emx/lib/libcn0.dll ../..
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: smartmontools-os2emx-${{ github.event.inputs.suffix }}
+          path: |
+            *.exe
+            libcn0.dll
+          compression-level: 9
           retention-days: 90
