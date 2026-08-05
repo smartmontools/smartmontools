@@ -231,7 +231,7 @@ int deviceopen(const char *pathname, char * /* type */ ){
 int deviceclose(int /* fd */){
 
   DosClose( hDevice);
-  hDevice = NULL;
+  hDevice = 0;
 
   return 0;
 }
