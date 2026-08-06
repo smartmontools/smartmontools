@@ -22,6 +22,7 @@ jobs:
 
     outputs:
       matrix: ${{ steps.matrix.outputs.matrix }}
+      version: ${{ steps.configure.outputs.version }}
 
     steps:
       - name: Define matrix
@@ -44,8 +45,7 @@ jobs:
             done
             printf ']}'
           )
-          echo "matrix=$matrix"
-          echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
+          echo "matrix=$matrix" | tee "$GITHUB_OUTPUT"
 
       - run: sudo apt-get update && sudo apt-get install -y g++-mingw-w64-x86-64
 
@@ -59,16 +59,21 @@ jobs:
           fetch-tags: true
 
       - name: Configure source
+        id: configure
         run: |
           ./autogen.sh && mkdir build && cd build &&
           ../configure --build=$(../config.guess) --host=x86_64-w64-mingw32 &&
-          make config-vc && make distdir && mv smartmontools-*.* smartmontools &&
-          cp -av ../src/os_win32/vc17 smartmontools/src/os_win32
+          make config-vc && make distdir &&
+          version=$(../src/getversion.sh -n) &&
+          mv -v smartmontools-*.* smartmontools &&
+          mv -v ../src/os_win32/vc17 smartmontools/src/os_win32 &&
+          mv -v smartmontools "smartmontools-$version" &&
+          echo "version=$version" | tee "$GITHUB_OUTPUT"
 
       - uses: actions/upload-artifact@v7
         with:
           name: smartmontools-msvc17-src
-          path: build/smartmontools/
+          path: build/smartmontools-*.*
           retention-days: 90
 
   build:
@@ -85,27 +90,43 @@ jobs:
         with:
           name: smartmontools-msvc17-src
 
-      - run: |
-          MSBuild /m /p:Platform=${{matrix.platform}} /p:Configuration=${{matrix.config}} src/os_win32/vc17/smartmontools.sln
+      - name: Run MSBuild -m -p:Platform=${{matrix.platform}} -p:Configuration=${{matrix.config}} smartmontools.sln
+        run: |
+          MSBuild -m -p:Platform=${{matrix.platform}} -p:Configuration=${{matrix.config}} `
+            "smartmontools-${{needs.configure-src.outputs.version}}/src/os_win32/vc17/smartmontools.sln"
 
-      - run: |
-          src/os_win32/vc17/${{matrix.platform}}/${{matrix.config}}/smartctl -V
-
-      - run: |
-          src/os_win32/vc17/${{matrix.platform}}/${{matrix.config}}/smartctl ${{ github.event.inputs.check-options }}
+      - name: Create dist directory
+        run: |
+          $bindir = "smartmontools-${{needs.configure-src.outputs.version}}/src/os_win32/vc17/${{matrix.platform}}/${{matrix.config}}"
+          $distdir = "smartmontools-msvc17-${{matrix.platform}}-${{matrix.config}}-${{needs.configure-src.outputs.version}}"
+          New-item -Verbose -Type Directory $distdir
+          Move-Item -Verbose $bindir/*.exe, $bindir/*.lib, $bindir/*.pdb $distdir
 
       - uses: actions/upload-artifact@v7
         with:
           name: smartmontools-msvc17-${{matrix.platform}}-${{matrix.config}}-bin
-          path: |
-            src/os_win32/vc17/${{matrix.platform}}/${{matrix.config}}/*.exe
-            src/os_win32/vc17/${{matrix.platform}}/${{matrix.config}}/*.lib
+          path: smartmontools-msvc17-*-*-*/*.exe
+          compression-level: 9
+          retention-days: 90
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: smartmontools-msvc17-${{matrix.platform}}-${{matrix.config}}-lib
+          path: smartmontools-msvc17-*-*-*/*.lib
           compression-level: 9
           retention-days: 90
 
       - uses: actions/upload-artifact@v7
         with:
           name: smartmontools-msvc17-${{matrix.platform}}-${{matrix.config}}-pdb
-          path: src/os_win32/vc17/${{matrix.platform}}/${{matrix.config}}/*.pdb
+          path: smartmontools-msvc17-*-*-*/*.pdb
           compression-level: 9
           retention-days: 90
+
+      - name: Run smartctl -V
+        run: |
+          smartmontools-msvc17-${{matrix.platform}}-${{matrix.config}}-${{needs.configure-src.outputs.version}}/smartctl -V
+
+      - name: Run smartctl ${{ github.event.inputs.check-options }}
+        run: |
+          smartmontools-msvc17-${{matrix.platform}}-${{matrix.config}}-${{needs.configure-src.outputs.version}}/smartctl ${{github.event.inputs.check-options}}
