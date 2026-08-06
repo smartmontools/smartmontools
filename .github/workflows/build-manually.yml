@@ -637,14 +637,12 @@ jobs:
             ${{ github.event.inputs.cfg-options }} \
             SOURCE_DATE_EPOCH=$((SMARTMONTOOLS_GIT_REV_EPOCH + 1)) &&
           make ${{ github.event.inputs.make-options }} && make check &&
-          mv -v src/smart*.exe lib/examples/lsdisk.exe ../.. &&
-          cp -pv /opt/os2emx/i686-pc-os2-emx/lib/libcn0.dll ../..
+          bin_distdir="../../smartmontools-os2emx-${{ github.event.inputs.suffix }}-${SMARTMONTOOLS_GIT_VER_FNAME}" &&
+          mkdir -v "$bin_distdir" && mv -v src/smart*.exe lib/examples/lsdisk.exe "$bin_distdir"
 
       - uses: actions/upload-artifact@v7
         with:
           name: smartmontools-os2emx-${{ github.event.inputs.suffix }}
-          path: |
-            *.exe
-            libcn0.dll
+          path: smartmontools-os2emx-${{ github.event.inputs.suffix }}-*
           compression-level: 9
           retention-days: 90
