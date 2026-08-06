@@ -1,7 +1,7 @@
 /*
- * os_os2.c
+ * os_os2.h
  *
- * Home page of code is: http://www.smartmontools.org
+ * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2004-8 Yuri Dario
  *
@@ -11,17 +11,8 @@
 #ifndef OS_OS2_H_
 #define OS_OS2_H_
 
-#define OS_XXXX_H_CVSID "$Id: os_os2.h 4760 2018-08-19 18:45:53Z chrfranke $\n"
-
-// Additional material should start here.  Note: to keep the '-V' CVS
-// reporting option working as intended, you should only #include
-// system include files <something.h>.  Local #include files
-// <"something.h"> should be #included in os_generic.c
-
 #define INCL_DOS
 #include <os2.h>
-
-#include "os_linux.h"
 
 #pragma pack(1)
 
@@ -48,6 +39,7 @@ typedef struct _DSKSP_CommandParameters {
 				   /* 0 = 1st disk, 1 = 2nd disk, ...*/
 				   /* 0x80 = Pri/Mas, 0x81=Pri/Sla, 0x82=Sec/Mas,*/
 } DSKSP_CommandParameters, *PDSKSP_CommandParameters;
+SMARTMON_ASSERT_SIZEOF(_DSKSP_CommandParameters, 1);
 
 struct SMART_ParamExt {
   UCHAR      byPhysicalUnit;  // 0=Pri/Mas, 1=Pri/Sla, 2=Sec/Mas, etc.
@@ -57,10 +49,13 @@ struct SMART_ParamExt {
                               // for details
   ULONG      reserved;        // reserved. must be set to 0
 };
+SMARTMON_ASSERT_SIZEOF(SMART_ParamExt, 13);
+
+#pragma pack()
 
 const char * danisdev="\\DEV\\IBMS506$"; // DANIS506
 const char * danispref="hd";
 const char * ahcidev="\\DEV\\OS2AHCI$";  // OS2AHCI
 const char * ahcipref="ahci";
 
-#endif /* OS_GENERIC_H_ */
+#endif // OS_OS2_H_
