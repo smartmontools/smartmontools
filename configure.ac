@@ -795,7 +795,6 @@ case "${host}" in
   *-*-os2-*)
     os_deps='os_os2.lo dev_legacy.lo' # TODO: migrate to new interface
     os_posix=no
-    os_unmaintained='OS/2'
     ;;
   *)
     os_deps='os_generic.lo'
