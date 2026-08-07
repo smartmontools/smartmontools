@@ -606,8 +606,13 @@ jobs:
           retention-days: 90
 
   build-os2emx:
-    # '--enable-shared' is ignored, '--enable-static-link' fails due to missing static libraries
-    if: ${{ contains(github.event.inputs.platforms, 'os2emx') && !contains(github.event.inputs.cfg-options, '--enable-static-link') }}
+    # '--enable-shared' fails due to syntax error in generated 'smartmon.def'
+    # '--enable-static-link' fails due to missing static libraries
+    if: >-
+      ${{   contains(github.event.inputs.platforms, 'os2emx')
+         && !(   contains(github.event.inputs.cfg-options, '--enable-shared')
+              || contains(github.event.inputs.cfg-options, '--enable-static-link'))
+      }}
     needs: build-source-tarball
     runs-on: ubuntu-26.04 # cross-os2emx requires glibc-2.43
 
