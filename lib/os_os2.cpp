@@ -40,11 +40,11 @@ static HFILE hDevice;
 // unsupported commands (eg, 3ware controllers).
 void print_smartctl_examples(){
   printf("=================================================== SMARTCTL EXAMPLES =====\n\n"
-         "  smartctl -a hd0                       (Prints all SMART information)\n\n"
-         "  smartctl --smart=on --offlineauto=on --saveauto=on hd0\n"
+         "  smartctl -a ahci0                       (Prints all SMART information)\n\n"
+         "  smartctl --smart=on --offlineauto=on --saveauto=on ahci0\n"
          "                                              (Enables SMART on first disk)\n\n"
-         "  smartctl -t long hd0              (Executes extended disk self-test)\n\n"
-         "  smartctl --attributes --log=selftest --quietmode=errorsonly hd0\n"
+         "  smartctl -t long ahci0              (Executes extended disk self-test)\n\n"
+         "  smartctl --attributes --log=selftest --quietmode=errorsonly ahci0\n"
          "                                      (Prints Self-Test & Attribute errors)\n"
          );
   return;
