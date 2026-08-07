@@ -115,6 +115,11 @@ libsmartmon_la_SOURCES += \
         os_win32/popen_win32.cpp
 endif
 
+if OS_OS2
+# OS/2 DLLs do not support undefined symbols
+libsmartmon_la_LDFLAGS = -no-undefined
+endif
+
 if NEED_REGEX
 
 libsmartmon_la_SOURCES += \

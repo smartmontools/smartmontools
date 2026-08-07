@@ -719,6 +719,7 @@ os_solaris=no
 os_win32=no
 os_win32_mingw=no
 os_win64=no
+os_os2=no
 os_man_filter=
 os_unmaintained=
 case "${host}" in
@@ -795,6 +796,7 @@ case "${host}" in
   *-*-os2-*)
     os_deps='os_os2.lo dev_legacy.lo' # TODO: migrate to new interface
     os_posix=no
+    os_os2=yes
     ;;
   *)
     os_deps='os_generic.lo'
@@ -831,6 +833,7 @@ AM_CONDITIONAL(OS_SOLARIS, [test "$os_solaris" = "yes"])
 AM_CONDITIONAL(OS_WIN32, [test "$os_win32" = "yes"])
 AM_CONDITIONAL(OS_WIN32_MINGW, [test "$os_win32_mingw" = "yes"])
 AM_CONDITIONAL(OS_WIN64, [test "$os_win64" = "yes"])
+AM_CONDITIONAL(OS_OS2, [test "$os_os2" = "yes"])
 
 if test "$GXX" = "yes"; then
   orig_CXXFLAGS=$CXXFLAGS
