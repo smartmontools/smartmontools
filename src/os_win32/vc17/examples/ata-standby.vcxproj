@@ -393,7 +393,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\lib\examples\ata-standby.cpp" />
+    <ClCompile Include="..\..\..\..\src\examples\ata-standby.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\libsmartmon.vcxproj">

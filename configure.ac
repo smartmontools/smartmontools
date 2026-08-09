@@ -998,8 +998,8 @@ AC_CONFIG_FILES([
   Makefile
   include/Makefile
   lib/Makefile
-  lib/examples/Makefile
   src/Makefile
+  src/examples/Makefile
 ])
 AC_OUTPUT
 AC_PROG_MAKE_SET

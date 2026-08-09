@@ -393,7 +393,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\lib\examples\lsdisk.cpp" />
+    <ClCompile Include="..\..\..\..\src\examples\lsdisk.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\libsmartmon.vcxproj">
