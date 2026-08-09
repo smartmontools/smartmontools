@@ -230,26 +230,28 @@ AC_SUBST([develbindir])
 AM_CONDITIONAL(INSTALL_DEVEL_BIN, [test -n "$develbindir"])
 
 objcopy_deterministic=false
-case "$with_devel:$enable_static:$SOURCE_DATE_EPOCH" in
-  yes:yes:?*)
-    # Use 'objcopy -D' to remove the timestamps from the static library
-    # because libtool offers no way to pass '-D' to 'ranlib'.
-    AC_CHECK_TOOL(OBJCOPY, [objcopy], [false])
-    AC_MSG_CHECKING([whether $OBJCOPY accepts -D])
-    objcopy_deterministic="$OBJCOPY -D"
-    res=yes
-    if ! (rm -f conftest.a && ${AR:-false} cr conftest.a \
-          && $objcopy_deterministic conftest.a) >/dev/null 2>&1; then
+case "$with_devel:$SOURCE_DATE_EPOCH" in
+  yes:?*)
+    # Use 'objcopy -D' to remove the timestamps from possible static and
+    # import libraries because libtool offers no way to pass '-D' to 'ranlib'.
+    AC_CHECK_TOOL(OBJCOPY, [objcopy], [])
+    if test -n "$OBJCOPY"; then
+      AC_MSG_CHECKING([whether $OBJCOPY accepts -D])
+      cmd="$OBJCOPY -D"; res=no
+      if (rm -f conftest.a && ${AR:-false} cr conftest.a && $cmd conftest.a) >/dev/null 2>&1; then
+        objcopy_deterministic=$cmd; res=yes
+      fi
+      rm -f conftest.a
+      AC_MSG_RESULT([$res])
+    fi
+    if test "$objcopy_deterministic" = "false"; then
       # Accept missing reproducibility if unsupported and warn below
-      objcopy_deterministic=": unsupported objcopy -D"
+      objcopy_deterministic=": unsupported ${OBJCOPY:-objcopy} -D"
       res=no
     fi
-    rm -f conftest.a
-    AC_MSG_RESULT([$res])
     ;;
 esac
 AC_SUBST([objcopy_deterministic])
-AM_CONDITIONAL(REPRODUCIBLE_BUILD_STATIC_LIB, [test "$objcopy_deterministic" != "false"])
 
 initddir=
 AC_ARG_WITH(initscriptdir,
@@ -1175,8 +1177,8 @@ $PACKAGE_BUGREPORT - Thanks!
 
 case $objcopy_deterministic in
   :*) AC_MSG_WARN([
-The installed static library will not be reproducible because 'objcopy -D'
-is not available.
+Installed static and import libraries will not be reproducible because
+'${OBJCOPY:-objcopy} -D' is not available.
 ]) ;;
 esac
 

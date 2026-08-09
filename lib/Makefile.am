@@ -37,10 +37,14 @@ if INSTALL_DEVEL_LIB
 
 lib_LTLIBRARIES = libsmartmon.la
 
-if REPRODUCIBLE_BUILD_STATIC_LIB
-# Remove timestamps from static library
+if REPRODUCIBLE_BUILD
+# Remove timestamps from possible static and import libraries because libtool
+# offers no way to pass '-D' to 'ranlib'.
 install-exec-hook:
-	$(objcopy_deterministic) $(DESTDIR)$(libdir)/libsmartmon.a
+	@for f in $(DESTDIR)$(libdir)/*.a; do if [ -f "$$f" ]; then \
+	  echo " $(objcopy_deterministic) '$$f'"; \
+	  $(objcopy_deterministic) "$$f" || exit $?; \
+	fi; done
 endif
 
 else
