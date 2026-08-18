@@ -4,11 +4,21 @@ on:
   workflow_dispatch:
     inputs:
       native-platforms:
-        description: Native build platforms (defaults to all)
+        description: >-
+          Native platforms or 'none' (defaults to all)
         required: false
-        default: freebsd-x86_64 netbsd-x86_64 openbsd openindiana solaris
-      emulated-platforms:
-        description: "Emulated build platforms (slow): freebsd-arm64 freebsd-powerpc64 netbsd-sparc64"
+        default: >-
+          freebsd-x86_64 netbsd-x86_64 openbsd openindiana solaris
+      emulated-le-platforms:
+        description: >-
+          Emulated Little Endian platforms (slow):
+          freebsd-arm64 ubuntu-riscv64
+        required: false
+        default: none
+      emulated-be-platforms:
+        description: >-
+          Emulated Big Endian platforms (slow):
+          freebsd-powerpc64 netbsd-sparc64 ubuntu-s390x
         required: false
         default: none
 
@@ -76,7 +86,7 @@ jobs:
           retention-days: 90
 
   build-freebsd-arm64:
-    if: ${{ contains(github.event.inputs.emulated-platforms, 'freebsd-arm64') }}
+    if: ${{ contains(github.event.inputs.emulated-le-platforms, 'freebsd-arm64') }}
     needs: build-source-tarball
     runs-on: ubuntu-latest # 'ubuntu-24.04-arm' is slower
     steps:
@@ -111,7 +121,7 @@ jobs:
           retention-days: 90
 
   build-freebsd-powerpc64: # Big Endian
-    if: ${{ contains(github.event.inputs.emulated-platforms, 'freebsd-powerpc64') }}
+    if: ${{ contains(github.event.inputs.emulated-be-platforms, 'freebsd-powerpc64') }}
     needs: build-source-tarball
     runs-on: ubuntu-latest
     steps:
@@ -181,7 +191,7 @@ jobs:
           retention-days: 90
 
   build-netbsd-sparc64: # Big Endian
-    if: ${{ contains(github.event.inputs.emulated-platforms, 'netbsd-sparc64') }}
+    if: ${{ contains(github.event.inputs.emulated-be-platforms, 'netbsd-sparc64') }}
     needs: build-source-tarball
     runs-on: ubuntu-latest
     steps:
@@ -322,4 +332,82 @@ jobs:
         with:
           name: smartmontools-solaris-x86_64
           path: smartmontools-solaris-*.tar.gz
+          retention-days: 90
+
+  build-ubuntu-riscv64:
+    if: ${{ contains(github.event.inputs.emulated-le-platforms, 'ubuntu-riscv64') }}
+    needs: build-source-tarball
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: smartmontools-src
+
+      - name: Build and Run (QEMU)
+        uses: vmactions/ubuntu-vm@v1
+        with:
+          arch: riscv64
+          release: "26.04"
+          prepare: |
+            apt-get update && apt-get install -y g++ make
+          run: |
+            uname -a && cat /etc/os-release &&
+            ver=$(eval "$(cat /etc/os-release)" && echo "$VERSION_ID") && echo "Ubuntu $ver" &&
+            distfile=$(ls -d smartmontools-*.tar.gz) &&
+            test "$(echo "$distfile" | wc -l | tr -d ' ')" = 1 &&
+            tar -xf "$distfile" && distdir=${distfile%-*-g*.tar.gz} &&
+            version_sh=$("$distdir/src/getversion.sh" -s) && eval "${version_sh}" &&
+            cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
+            ../configure --with-build-info='(GHA/qemu)' \
+              SOURCE_DATE_EPOCH=$((SMARTMONTOOLS_GIT_REV_EPOCH + 1)) &&
+            make -j4 && make check &&
+            bin_distfile="../../smartmontools-ubuntu-$ver-riscv64-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" &&
+            make bin_distfile="$bin_distfile" bin-dist && tar -tvf "$bin_distfile" &&
+            tar -xf "$bin_distfile" usr/local/sbin/smartctl &&
+            echo '$' usr/local/sbin/smartctl --scan &&
+            { usr/local/sbin/smartctl --scan || echo "::error::'smartctl --scan' failed"; }
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: smartmontools-ubuntu-riscv64
+          path: smartmontools-ubuntu-*.tar.gz
+          retention-days: 90
+
+  build-ubuntu-s390x: # Big Endian
+    if: ${{ contains(github.event.inputs.emulated-be-platforms, 'ubuntu-s390x') }}
+    needs: build-source-tarball
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: smartmontools-src
+
+      - name: Build and Run (QEMU)
+        uses: vmactions/ubuntu-vm@v1
+        with:
+          arch: s390x
+          release: "26.04"
+          prepare: |
+            apt-get update && apt-get install -y g++ make
+          run: |
+            uname -a && cat /etc/os-release &&
+            ver=$(eval "$(cat /etc/os-release)" && echo "$VERSION_ID") && echo "Ubuntu $ver" &&
+            distfile=$(ls -d smartmontools-*.tar.gz) &&
+            test "$(echo "$distfile" | wc -l | tr -d ' ')" = 1 &&
+            tar -xf "$distfile" && distdir=${distfile%-*-g*.tar.gz} &&
+            version_sh=$("$distdir/src/getversion.sh" -s) && eval "${version_sh}" &&
+            cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
+            ../configure --with-build-info='(GHA/qemu)' \
+              SOURCE_DATE_EPOCH=$((SMARTMONTOOLS_GIT_REV_EPOCH + 1)) &&
+            make -j4 && make check &&
+            bin_distfile="../../smartmontools-ubuntu-$ver-s390x-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" &&
+            make bin_distfile="$bin_distfile" bin-dist && tar -tvf "$bin_distfile" &&
+            tar -xf "$bin_distfile" usr/local/sbin/smartctl &&
+            echo '$' usr/local/sbin/smartctl --scan &&
+            { usr/local/sbin/smartctl --scan || echo "::error::'smartctl --scan' failed"; }
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: smartmontools-ubuntu-s390x
+          path: smartmontools-ubuntu-*.tar.gz
           retention-days: 90
