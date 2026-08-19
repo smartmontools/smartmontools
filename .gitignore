@@ -66,6 +66,7 @@
 /src/examples.stamp
 /src/examples/*.exe
 /src/examples/ata-standby
+/src/examples/hexdump
 /src/examples/lsdisk
 /src/examples/make.sh
 /src/examples/make.sh.tmp

@@ -32,7 +32,7 @@ EXEEXT = @EXEEXT@
 
 LDLIBS = -lsmartmon $(LIBS)
 
-PROGRAMS = ata-standby$(EXEEXT) lsdisk$(EXEEXT)
+PROGRAMS = ata-standby$(EXEEXT) hexdump$(EXEEXT) lsdisk$(EXEEXT)
 
 all: $(PROGRAMS)
 

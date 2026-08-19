@@ -13,7 +13,7 @@
 
 #include <smartmon/dev_interface.h>
 #include <smartmon/atacmds.h> // dont_print_serial_number
-#include <smartmon/scsicmds.h> // dStrHex()
+#include <smartmon/hexdump.h>
 #include <smartmon/utility.h>
 
 #include <errno.h>
@@ -22,29 +22,6 @@ namespace smartmon {
 
 // Print NVMe debug messages?
 unsigned char nvme_debugmode = 0;
-
-// Dump up to 4096 bytes, do not dump trailing zero bytes.
-// TODO: Handle this by new unified function in utility.cpp
-static void debug_hex_dump(const void * data, unsigned size)
-{
-  const unsigned char * p = (const unsigned char *)data;
-  const unsigned limit = 4096; // sizeof(nvme_id_ctrl)
-  unsigned sz = (size <= limit ? size : limit);
-
-  while (sz > 0x10 && !p[sz-1])
-    sz--;
-  if (sz < size) {
-    if (sz & 0x0f)
-      sz = (sz & ~0x0f) + 0x10;
-    sz += 0x10;
-    if (sz > size)
-      sz = size;
-  }
-
-  dStrHex((const uint8_t *)p, sz, 0);
-  if (sz < size)
-    lib_printf(" ...\n");
-}
 
 // Call NVMe pass-through and print debug info if requested.
 static bool nvme_pass_through(nvme_device * device, const nvme_cmd_in & in,
@@ -94,7 +71,10 @@ static bool nvme_pass_through(nvme_device * device, const nvme_cmd_in & in,
       lib_printf(" [NVMe call succeeded: result=0x%08x", out.result);
       if (nvme_debugmode > 1 && in.direction() == nvme_cmd_in::data_in) {
         lib_printf("\n");
-        debug_hex_dump(in.buffer, in.size);
+        hexdump_options opts = hexdump_options_canonical;
+        opts.prefix = "  ";
+        opts.offset_max = 1;
+        hexdump([](const char * str){lib_printf("%s", str);}, in.buffer, in.size, opts);
         lib_printf(" ");
       }
     }

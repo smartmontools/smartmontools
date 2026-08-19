@@ -87,6 +87,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-static|ARM64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\..\..\lib\farmcmds.cpp" />
+    <ClCompile Include="..\..\..\lib\hexdump.cpp" />
     <ClCompile Include="..\..\..\lib\json.cpp" />
     <ClCompile Include="..\..\..\lib\knowndrives.cpp" />
     <ClCompile Include="..\..\..\lib\nvmecmds.cpp" />
@@ -286,6 +287,7 @@
     <ClInclude Include="..\..\..\include\smartmon\byteorder.h" />
     <ClInclude Include="..\..\..\include\smartmon\dev_interface.h" />
     <ClInclude Include="..\..\..\include\smartmon\farmcmds.h" />
+    <ClInclude Include="..\..\..\include\smartmon\hexdump.h" />
     <ClInclude Include="..\..\..\include\smartmon\json.h" />
     <ClInclude Include="..\..\..\include\smartmon\knowndrives.h" />
     <ClInclude Include="..\..\..\include\smartmon\nvme.h" />

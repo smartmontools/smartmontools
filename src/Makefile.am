@@ -553,6 +553,7 @@ phony += clean-examples examples
 
 examples_cpp = \
         examples/ata-standby.cpp \
+        examples/hexdump.cpp \
         examples/lsdisk.cpp
 
 EXTRA_DIST += \
@@ -561,7 +562,7 @@ EXTRA_DIST += \
 
 examples: examples.stamp
 
-examples.stamp: ../lib/libsmartmon.la examples/Makefile examples/make.sh
+examples.stamp: $(examples_cpp) examples/Makefile examples/make.sh ../lib/libsmartmon.la
 	$(AM_V_at)examples/make.sh V=$(V) clean
 	$(AM_V_at)examples/make.sh V=$(V)
 	$(AM_V_at)touch $@

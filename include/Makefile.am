@@ -53,6 +53,7 @@ smartmon_headers = \
         smartmon/byteorder.h \
         smartmon/dev_interface.h \
         smartmon/farmcmds.h \
+        smartmon/hexdump.h \
         smartmon/json.h \
         smartmon/knowndrives.h \
         smartmon/nvme.h \
