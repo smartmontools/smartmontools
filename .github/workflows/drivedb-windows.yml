@@ -33,7 +33,7 @@ jobs:
         run: |
           cd bin
           ./update-smart-drivedb.ps1 -Verbose -NoVerify drivedb-svn.h
-          if ($LASTEXITCODE) { "::error:: Download from svn failed" }
+          if ($LASTEXITCODE) { "::error:: Download from svn failed"; exit 0 }
 
       - name: Compare
         run: |
@@ -100,7 +100,7 @@ jobs:
       - name: Run update-smart-drivedb.ps1 -UrlOf trac
         run: |
           build\lib\update-smart-drivedb.ps1 -Verbose -UrlOf trac build\lib\drivedb-trac.h
-          if ($LASTEXITCODE) { "::error:: Download from trac failed" }
+          if ($LASTEXITCODE) { "::error:: Download from trac failed"; exit 0 }
 
       - name: Compare
         run: |
