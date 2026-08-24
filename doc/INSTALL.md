@@ -3,7 +3,7 @@
 ## Supported platforms
 
 Builds have been successfully tested for:
-- Linux: i686, x86_64, arm64
+- Linux: i686, x86_64, arm64, riscv64, s390x
 - FreeBSD: x86_64, arm64, powerpc64
 - NetBSD: x86_64, sparc64
 - OpenBSD: x86_64
@@ -39,8 +39,11 @@ This requires a C++11 compatible toolchain (`g++`, `clang++`, ...) and a suitabl
 
 Download the latest source tarball from the
 [releases page](https://github.com/smartmontools/smartmontools/releases).
+Older releases are still available at
+[SourceForge](https://sourceforge.net/projects/smartmontools/files/smartmontools/).
 
 ```
+curl -L -O https://github.com/smartmontools/smartmontools/releases/download/RELEASE_TAG/smartmontools-VERSION.tar.gz
 tar -xzf smartmontools-VERSION.tar.gz
 cd smartmontools-VERSION
 ./configure
@@ -90,9 +93,15 @@ echo /dev/sda | sudo src/smartd -B lib/drivedb.h -c - -q onecheck
 ```
 
 Note: if shared libraries are enabled (see `--enable-shared` below), the executables in
-`src` are stubs.
+`src` are wrappers.
 These run the real executables from `src/.libs` and ensure that the correct shared
 `libsmartmon` library from `lib/.libs` is loaded.
+The wrappers provide two extra options:
+
+```
+src/smartctl --lt-debug # print debug info before running smartctl
+src/smartctl --lt-dump-script > src/smartctl.sh # create a wrapper shell script
+```
 
 ## Build examples
 
@@ -102,13 +111,13 @@ These run the real executables from `src/.libs` and ensure that the correct shar
 ./configure --help
 ```
 
-### Reduce verbosity of build
+### Reduce verbosity of current build
 
 ```
 make V=0
 ```
 
-Or:
+### Reduce verbosity of all builds
 
 ```
 ./configure --enable-silent-rules
@@ -129,7 +138,7 @@ Or with absolute path names:
 ```
 mkdir /tmp/build-config1
 cd /tmp/build-config1
-/path/to/smartmontools-src/configure [OPTION...]
+/path/to/smartmontools-VERSION/configure [OPTION...]
 make
 ```
 
@@ -141,7 +150,7 @@ This allows to handle multiple configurations simultaneously.
 make DESTDIR=/tmp/test-install install
 ```
 
-Note: `DESTDIR` must be an an absolute path.
+Note: `DESTDIR` must be an absolute path.
 
 ### Uninstall
 
@@ -204,12 +213,20 @@ make bin-dist
 
 Note: this is not compatible with `--enable-shared`.
 
-### Use `clang++` instead of `c++/g++` and create a *CLang Static Analyzer* report
+### Use `clang++` instead of `c++/g++`
 
 ```
 ./configure CC=clang CXX=clang++
-util/clang-scan-build.sh -f clang-report.tar.gz make
 ```
+
+### Create a *CLang Static Analyzer* report
+
+```
+util/clang-scan-build.sh make
+```
+
+Open `clang-report/DATE-TIME/index.html` in browser.
+The directory does not exist if nothing has been reported.
 
 ### Use `gmake` instead of `make`
 
@@ -317,6 +334,22 @@ cd build-vc
 make clean-vc # distclean-vc # maintainer-clean-vc
 ```
 
+### Build some new `libsmartmon` example
+
+```
+mkdir build
+cd build
+../configure
+make
+cd src/examples
+editor some-new-example.cpp
+./make.sh some-new-example # Windows/Cygwin: some-new-example.exe
+./some-new-example --some-option /dev/sda
+```
+
+This would also work on a copy of the `build/src/examples` directory because the `make.sh`
+script uses absolute path names to adjust the `make` variables.
+
 ## Installed files and related `./configure` options
 
 The following list shows the directories and files which are usually installed by default and
@@ -393,11 +426,14 @@ sudo /usr/local/sbin/smartctl -x /dev/sda
 sudo /usr/local/sbin/smartctl -j -x /dev/sda
 ```
 
-Add non-JSON output as `{"smartctl": {"output": ["..."]}}` array:
+### Print diagnostic information in JSON format with embedded original format
 
 ```
 sudo /usr/local/sbin/smartctl --json=o -x /dev/sda
 ```
+
+The lines of the original non-JSON output appear in the JSON array
+`{"smartctl": {"output": ["..."]}}`.
 
 ### Print diagnostic information in YAML format
 
