@@ -23,7 +23,7 @@ jobs:
           fetch-tags: true
 
       - name: Set environment
-        run: src/getversion.sh -g >> $GITHUB_ENV
+        run: util/getversion.sh -g >> $GITHUB_ENV
 
       - run: ./autogen.sh
 

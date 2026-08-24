@@ -31,7 +31,7 @@ jobs:
       - name: Setting environment variables
         id: set-env
         run: |
-          src/getversion.sh -g >> $GITHUB_ENV
+          util/getversion.sh -g >> $GITHUB_ENV
           cat $GITHUB_ENV | tee $GITHUB_OUTPUT
 
       - name: Creating src.tar.gz

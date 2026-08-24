@@ -508,6 +508,7 @@
     <ClInclude Include="smartmon\version.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\..\include\Makefile.am" />
     <None Include="..\..\..\include\smartmon\config.h.in" />
     <None Include="..\..\..\lib\Makefile.am" />
   </ItemGroup>

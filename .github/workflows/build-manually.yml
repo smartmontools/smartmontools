@@ -56,7 +56,7 @@ jobs:
 
       - name: Build
         run: |
-          version_sh=$(src/getversion.sh -s) && eval "${version_sh}" &&
+          version_sh=$(util/getversion.sh -s) && eval "${version_sh}" &&
           ./autogen.sh && mkdir build && cd build &&
           ../configure SOURCE_DATE_EPOCH=$((SMARTMONTOOLS_GIT_REV_EPOCH + 1)) &&
           make dist &&
@@ -90,7 +90,7 @@ jobs:
         run: |
           distfile=$(ls -d smartmontools-*.tar.gz) && test "$(echo "$distfile" | wc -l)" = 1 &&
           tar -xf "$distfile" && distdir=${distfile%-*-g*.tar.gz} &&
-          version_sh=$("$distdir/src/getversion.sh" -s) && eval "${version_sh}" &&
+          version_sh=$("$distdir/util/getversion.sh" -s) && eval "${version_sh}" &&
           cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
           ../configure --with-build-info='(GHA/${{ github.event.inputs.suffix }})' \
             ${{ github.event.inputs.cfg-options }} \
@@ -130,7 +130,7 @@ jobs:
         run: |
           distfile=$(ls -d smartmontools-*.tar.gz) && test "$(echo "$distfile" | wc -l)" = 1 &&
           tar -xf "$distfile" && distdir=${distfile%-*-g*.tar.gz} &&
-          version_sh=$("$distdir/src/getversion.sh" -s) && eval "${version_sh}" &&
+          version_sh=$("$distdir/util/getversion.sh" -s) && eval "${version_sh}" &&
           cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
           ../configure --with-build-info='(GHA/${{ github.event.inputs.suffix }})' \
             ${{ github.event.inputs.cfg-options }} \
@@ -169,13 +169,13 @@ jobs:
         run: |
           distfile=$(ls -d smartmontools-*.tar.gz) && test "$(echo "$distfile" | wc -l)" = 1 &&
           tar -xf "$distfile" && distdir=${distfile%-*-g*.tar.gz} &&
-          version_sh=$("$distdir/src/getversion.sh" -s) && eval "${version_sh}" &&
+          version_sh=$("$distdir/util/getversion.sh" -s) && eval "${version_sh}" &&
           cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
           ../configure --with-build-info='(GHA/clang/${{ github.event.inputs.suffix }})' \
             CC=clang CXX=clang++ \
             ${{ github.event.inputs.cfg-options }} \
             SOURCE_DATE_EPOCH=$((SMARTMONTOOLS_GIT_REV_EPOCH + 1)) &&
-          ../src/clang-scan-build.sh \
+          ../util/clang-scan-build.sh \
             -f "../../smartmontools-ubuntu-x86_64-clang-report-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" \
             make ${{ github.event.inputs.make-options }} &&
           make check &&
@@ -218,13 +218,13 @@ jobs:
         run: |
           distfile=$(ls -d smartmontools-*.tar.gz) && test "$(echo "$distfile" | wc -l)" = 1 &&
           tar -xf "$distfile" && distdir=${distfile%-*-g*.tar.gz} &&
-          version_sh=$("$distdir/src/getversion.sh" -s) && eval "${version_sh}" &&
+          version_sh=$("$distdir/util/getversion.sh" -s) && eval "${version_sh}" &&
           cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
           ../configure --with-build-info='(GHA/clang/${{ github.event.inputs.suffix }})' \
             CC=clang CXX=clang++ \
             ${{ github.event.inputs.cfg-options }} \
             SOURCE_DATE_EPOCH=$((SMARTMONTOOLS_GIT_REV_EPOCH + 1)) &&
-          ../src/clang-scan-build.sh \
+          ../util/clang-scan-build.sh \
             -f "../../smartmontools-ubuntu-arm64-clang-report-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" \
             make ${{ github.event.inputs.make-options }} &&
           make check &&
@@ -264,7 +264,7 @@ jobs:
         run: |
           distfile=$(ls -d smartmontools-*.tar.gz) && test "$(echo "$distfile" | wc -l)" = 1 &&
           tar -xf "$distfile" && distdir=${distfile%-*-g*.tar.gz} &&
-          version_sh=$("$distdir/src/getversion.sh" -s) && eval "${version_sh}" &&
+          version_sh=$("$distdir/util/getversion.sh" -s) && eval "${version_sh}" &&
           cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
           ../configure --with-build-info='(GHA/${{ github.event.inputs.suffix }})' \
             ${{ github.event.inputs.cfg-options }} \
@@ -302,7 +302,7 @@ jobs:
           export LD_LIBRARY_PATH=/usr/osxcross/lib &&
           distfile=$(ls -d smartmontools-*.tar.gz) && test "$(echo "$distfile" | wc -l)" = 1 &&
           tar -xf "$distfile" && distdir=${distfile%-*-g*.tar.gz} &&
-          version_sh=$("$distdir/src/getversion.sh" -s) && eval "${version_sh}" &&
+          version_sh=$("$distdir/util/getversion.sh" -s) && eval "${version_sh}" &&
           cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
           ../configure --build=$(../config.guess) --host=x86_64-apple-darwin20.4 \
             --with-build-info='(GHA/${{ github.event.inputs.suffix }})' \
@@ -367,7 +367,7 @@ jobs:
         run: |
           distfile=$(ls -d smartmontools-*.tar.gz) && test "$(echo "$distfile" | wc -l)" = 1 &&
           tar -xf "$distfile" && distdir=${distfile%-*-g*.tar.gz} &&
-          version_sh=$("$distdir/src/getversion.sh" -s) && eval "${version_sh}" &&
+          version_sh=$("$distdir/util/getversion.sh" -s) && eval "${version_sh}" &&
           cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
           target="-target x86_64-unknown-freebsd14 --sysroot=/opt/cross-freebsd-14/" &&
           target="$target -isystem /opt/cross-freebsd-14/usr/include/c++/v1" &&
@@ -402,7 +402,7 @@ jobs:
         run: |
           distfile=$(ls -d smartmontools-*.tar.gz) && test "$(echo "$distfile" | wc -l)" = 1 &&
           tar -xf "$distfile" && distdir=${distfile%-*-g*.tar.gz} &&
-          version_sh=$("$distdir/src/getversion.sh" -s) && eval "${version_sh}" &&
+          version_sh=$("$distdir/util/getversion.sh" -s) && eval "${version_sh}" &&
           cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
           target="-target x86_64-unknown-freebsd15 --sysroot=/opt/cross-freebsd-15/" &&
           target="$target -isystem /opt/cross-freebsd-15/usr/include/c++/v1" &&
@@ -493,7 +493,7 @@ jobs:
         run: |
           distfile=$(ls -d smartmontools-*.tar.gz) && test "$(echo "$distfile" | wc -l)" = 1 &&
           tar -xf "$distfile" && distdir=${distfile%-*-g*.tar.gz} &&
-          version_sh=$("$distdir/src/getversion.sh" -s) && eval "${version_sh}" &&
+          version_sh=$("$distdir/util/getversion.sh" -s) && eval "${version_sh}" &&
           cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
           ../configure --build=$(../config.guess) --host=x86_64-w64-mingw32 \
             --with-build-info='(GHA/${{ github.event.inputs.suffix }})' \
@@ -588,7 +588,7 @@ jobs:
         run: |
           distfile=$(ls -d smartmontools-*.tar.gz) && test "$(echo "$distfile" | wc -l)" = 1 &&
           tar -xf "$distfile" && distdir=${distfile%-*-g*.tar.gz} &&
-          version_sh=$("$distdir/src/getversion.sh" -s) && eval "${version_sh}" &&
+          version_sh=$("$distdir/util/getversion.sh" -s) && eval "${version_sh}" &&
           cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
           ../configure --build=$(../config.guess) --host=x86_64-pc-cygwin \
             --with-build-info='(GHA/${{ github.event.inputs.suffix }})' \
@@ -635,7 +635,7 @@ jobs:
           export PATH="/opt/os2emx/bin:$PATH" &&
           distfile=$(ls -d smartmontools-*.tar.gz) && test "$(echo "$distfile" | wc -l)" = 1 &&
           tar -xf "$distfile" && distdir=${distfile%-*-g*.tar.gz} &&
-          version_sh=$("$distdir/src/getversion.sh" -s) && eval "${version_sh}" &&
+          version_sh=$("$distdir/util/getversion.sh" -s) && eval "${version_sh}" &&
           cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
           ../configure --build=$(../config.guess) --host=i686-pc-os2-emx \
             --with-build-info='(GHA/${{ github.event.inputs.suffix }})' \

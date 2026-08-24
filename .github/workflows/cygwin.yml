@@ -35,7 +35,7 @@ jobs:
       - name: Set environment
         run: |
           export PATH=/usr/bin:$(cygpath ${SYSTEMROOT})/system32 && uname -a &&
-          echo "PATH=$PATH" >> $GITHUB_ENV && src/getversion.sh -g >> $GITHUB_ENV
+          echo "PATH=$PATH" >> $GITHUB_ENV && util/getversion.sh -g >> $GITHUB_ENV
         shell: bash --noprofile --norc -e -o igncr '{0}'
 
       - run: ./autogen.sh
@@ -62,7 +62,7 @@ jobs:
           mkdir build-clang && cd build-clang &&
           ../configure --with-build-info='(GHA/Cygwin)' CC=clang CXX=clang++ \
             SOURCE_DATE_EPOCH=$((SMARTMONTOOLS_GIT_REV_EPOCH + 1)) &&
-          ../src/clang-scan-build.sh \
+          ../util/clang-scan-build.sh \
             -f "smartmontools-cygwin-clang-report-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" \
             make -j &&
           make check &&

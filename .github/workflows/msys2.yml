@@ -43,7 +43,7 @@ jobs:
 
       - name: Build (${{matrix.env}})
         run: |
-          version_sh=$(src/getversion.sh -s) && eval "${version_sh}" &&
+          version_sh=$(util/getversion.sh -s) && eval "${version_sh}" &&
           ./autogen.sh && mkdir build && cd build &&
           ../configure --with-build-info='(GHA/MSYS2)' --enable-static-link \
             SOURCE_DATE_EPOCH=$((SMARTMONTOOLS_GIT_REV_EPOCH + 1)) &&

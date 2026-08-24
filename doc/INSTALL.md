@@ -208,7 +208,7 @@ Note: this is not compatible with `--enable-shared`.
 
 ```
 ./configure CC=clang CXX=clang++
-src/clang-scan-build.sh -f clang-report.tar.gz make
+util/clang-scan-build.sh -f clang-report.tar.gz make
 ```
 
 ### Use `gmake` instead of `make`

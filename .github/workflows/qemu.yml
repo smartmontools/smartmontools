@@ -37,7 +37,7 @@ jobs:
 
       - name: Build
         run: |
-          version_sh=$(src/getversion.sh -s) && eval "${version_sh}" &&
+          version_sh=$(util/getversion.sh -s) && eval "${version_sh}" &&
           ./autogen.sh && mkdir build && cd build &&
           ../configure SOURCE_DATE_EPOCH=$((SMARTMONTOOLS_GIT_REV_EPOCH + 1)) &&
           make dist &&
@@ -69,7 +69,7 @@ jobs:
             distfile=$(ls -d smartmontools-*.tar.gz) &&
             test "$(echo "$distfile" | wc -l | tr -d ' ')" = 1 &&
             tar -xf "$distfile" && distdir=${distfile%-*-g*.tar.gz} &&
-            version_sh=$("$distdir/src/getversion.sh" -s) && eval "${version_sh}" &&
+            version_sh=$("$distdir/util/getversion.sh" -s) && eval "${version_sh}" &&
             cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
             ../configure --with-build-info='(GHA/qemu)' &&
             make -j4 && make check &&
@@ -104,7 +104,7 @@ jobs:
             distfile=$(ls -d smartmontools-*.tar.gz) &&
             test "$(echo "$distfile" | wc -l | tr -d ' ')" = 1 &&
             tar -xf "$distfile" && distdir=${distfile%-*-g*.tar.gz} &&
-            version_sh=$("$distdir/src/getversion.sh" -s) && eval "${version_sh}" &&
+            version_sh=$("$distdir/util/getversion.sh" -s) && eval "${version_sh}" &&
             cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
             ../configure --with-build-info='(GHA/x86_64)' &&
             make -j4 && make check &&
@@ -140,7 +140,7 @@ jobs:
             distfile=$(ls -d smartmontools-*.tar.gz) &&
             test "$(echo "$distfile" | wc -l | tr -d ' ')" = 1 &&
             tar -xf "$distfile" && distdir=${distfile%-*-g*.tar.gz} &&
-            version_sh=$("$distdir/src/getversion.sh" -s) && eval "${version_sh}" &&
+            version_sh=$("$distdir/util/getversion.sh" -s) && eval "${version_sh}" &&
             cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
             ../configure --with-build-info='(GHA/x86_64)' &&
             make -j4 && make check &&
@@ -174,7 +174,7 @@ jobs:
             distfile=$(ls -d smartmontools-*.tar.gz) &&
             test "$(echo "$distfile" | wc -l | tr -d ' ')" = 1 &&
             tar -xf "$distfile" && distdir=${distfile%-*-g*.tar.gz} &&
-            version_sh=$("$distdir/src/getversion.sh" -s) && eval "${version_sh}" &&
+            version_sh=$("$distdir/util/getversion.sh" -s) && eval "${version_sh}" &&
             cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
             ../configure --with-build-info='(GHA/qemu)' &&
             make -j4 && make check &&
@@ -210,7 +210,7 @@ jobs:
             distfile=$(ls -d smartmontools-*.tar.gz) &&
             test "$(echo "$distfile" | wc -l | tr -d ' ')" = 1 &&
             tar -xf "$distfile" && distdir=${distfile%-*-g*.tar.gz} &&
-            version_sh=$("$distdir/src/getversion.sh" -s) && eval "${version_sh}" &&
+            version_sh=$("$distdir/util/getversion.sh" -s) && eval "${version_sh}" &&
             cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
             ../configure --with-build-info='(GHA/qemu)' &&
             make -j4 && make check &&
@@ -244,7 +244,7 @@ jobs:
             distfile=$(ls -d smartmontools-*.tar.gz) &&
             test "$(echo "$distfile" | wc -l | tr -d ' ')" = 1 &&
             tar -xzf "$distfile" && distdir=${distfile%-*-g*.tar.gz} &&
-            version_sh=$("$distdir/src/getversion.sh" -s) && eval "${version_sh}" &&
+            version_sh=$("$distdir/util/getversion.sh" -s) && eval "${version_sh}" &&
             cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
             ../configure --with-build-info='(GHA/qemu)' &&
             make -j4 && make check &&
@@ -279,7 +279,7 @@ jobs:
             distfile=$(ls -d smartmontools-*.tar.gz) &&
             test "$(echo "$distfile" | wc -l | tr -d ' ')" = 1 &&
             tar -xf "$distfile" && distdir=${distfile%-*-g*.tar.gz} &&
-            version_sh=$("$distdir/src/getversion.sh" -s) && eval "${version_sh}" &&
+            version_sh=$("$distdir/util/getversion.sh" -s) && eval "${version_sh}" &&
             cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
             ../configure --with-build-info='(GHA/qemu)' \
               MAKE=gmake OBJCOPY=gobjcopy \
@@ -316,7 +316,7 @@ jobs:
             distfile=$(ls -d smartmontools-*.tar.gz) &&
             test "$(echo "$distfile" | wc -l | tr -d ' ')" = 1 &&
             tar -xf "$distfile" && distdir=${distfile%-*-g*.tar.gz} &&
-            version_sh=$("$distdir/src/getversion.sh" -s) && eval "${version_sh}" &&
+            version_sh=$("$distdir/util/getversion.sh" -s) && eval "${version_sh}" &&
             cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
             ../configure --with-build-info='(GHA/qemu)' \
               MAKE=gmake OBJCOPY=gobjcopy \
@@ -356,7 +356,7 @@ jobs:
             distfile=$(ls -d smartmontools-*.tar.gz) &&
             test "$(echo "$distfile" | wc -l | tr -d ' ')" = 1 &&
             tar -xf "$distfile" && distdir=${distfile%-*-g*.tar.gz} &&
-            version_sh=$("$distdir/src/getversion.sh" -s) && eval "${version_sh}" &&
+            version_sh=$("$distdir/util/getversion.sh" -s) && eval "${version_sh}" &&
             cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
             ../configure --with-build-info='(GHA/qemu)' \
               SOURCE_DATE_EPOCH=$((SMARTMONTOOLS_GIT_REV_EPOCH + 1)) &&
@@ -395,7 +395,7 @@ jobs:
             distfile=$(ls -d smartmontools-*.tar.gz) &&
             test "$(echo "$distfile" | wc -l | tr -d ' ')" = 1 &&
             tar -xf "$distfile" && distdir=${distfile%-*-g*.tar.gz} &&
-            version_sh=$("$distdir/src/getversion.sh" -s) && eval "${version_sh}" &&
+            version_sh=$("$distdir/util/getversion.sh" -s) && eval "${version_sh}" &&
             cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
             ../configure --with-build-info='(GHA/qemu)' \
               SOURCE_DATE_EPOCH=$((SMARTMONTOOLS_GIT_REV_EPOCH + 1)) &&

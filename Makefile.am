@@ -5,6 +5,11 @@
 
 ACLOCAL_AMFLAGS = -I m4
 
+# Suppress 'echo' if './configure --enable-silent-rules' or 'make V=0' is used.
+# Variables AM_V_* are provided by automake >= 1.13.
+ECHO_V = ! $(AM_V_P) || echo
+ECHO_V_GEN = @$(AM_V_P) || echo '  GEN      $@'; $(ECHO_V)
+
 doc_DATA = \
         doc/AUTHORS \
         doc/CHANGELOG.md \
@@ -35,12 +40,18 @@ EXTRA_DIST = \
         doc/old/ChangeLog-5.0-6.0.txt \
         doc/old/ChangeLog-7.0-7.5.txt \
         drivedb/drivedb.h \
+        util/clang-scan-build.sh \
+        util/cppcheck.sh \
+        util/getversion.sh \
+        util/pe32edit.sh \
         $(doc_DATA) \
         $(docold_DATA) \
         $(examplescripts_DATA) \
         $(examplescripts_SCRIPTS)
 
 CLEANFILES = \
+        cppcheck.txt \
+        shellcheck.txt \
         smartmontools-$(PACKAGE_VERSION).tar \
         smartmontools-$(PACKAGE_VERSION)-bin.tar
 
@@ -66,10 +77,14 @@ MAINTAINERCLEANFILES = \
 
 SUBDIRS = include lib src
 
+# Avoid automake warning: '.PHONY was already defined in condition ...'
+phony = bin-dist cppcheck shellcheck
+.PHONY: $(phony)
+
 #
 # Additional targets in '*/Makefile.am'
 #
-SRC_TARGETS = clean-examples cppcheck htmlman pdfman shellcheck uninstall-examples
+SRC_TARGETS = clean-examples htmlman pdfman uninstall-examples
 INC_SRC_TARGETS =
 LIB_SRC_TARGETS = examples install-examples
 
@@ -83,9 +98,7 @@ if OS_DARWIN
 LIB_SRC_TARGETS += install-darwin install-darwin-cleanup
 endif
 
-# Avoid automake warning: '.PHONY was already defined in condition ...'
-phony = bin-dist $(SRC_TARGETS) $(INC_SRC_TARGETS) $(LIB_SRC_TARGETS)
-.PHONY: $(phony)
+phony += $(SRC_TARGETS) $(INC_SRC_TARGETS) $(LIB_SRC_TARGETS)
 
 $(SRC_TARGETS) $(INC_SRC_TARGETS) $(LIB_SRC_TARGETS):
 	@case ' $(INC_SRC_TARGETS) $(LIB_SRC_TARGETS) ' in *\ $@\ *) \
@@ -99,7 +112,7 @@ $(SRC_TARGETS) $(INC_SRC_TARGETS) $(LIB_SRC_TARGETS):
 # Add version information to distribution directory
 dist-hook:
 	$(MAKE) -C include smartmon/version.sh
-	cp include/smartmon/version.sh $(distdir)/src/dist-version.sh
+	cp include/smartmon/version.sh $(distdir)/util/dist-version.sh
 
 if REPRODUCIBLE_BUILD
 # Override the builtin 'dist-*' rules to create reproducible tarballs
@@ -155,3 +168,34 @@ bin-dist:
 	  echo "touch -d '$(source_date_iso)' $(bin_distfile)"; \
 	  touch -d '$(source_date_iso)' $(bin_distfile); fi
 	rm -rf $(bin_distdir) $(bin_distdir).tar
+
+# Create cppcheck report
+cppcheck: cppcheck.txt
+
+CPPCHECKFLAGS=
+cppcheck.txt:
+	$(AM_V_GEN)$(srcdir)/util/cppcheck.sh $(CPPCHECKFLAGS) > $@
+
+# Create shellcheck report
+shellcheck: shellcheck.txt
+
+SHELLCHECK = shellcheck
+SHELLCHECKFLAGS =
+shellscripts = \
+    $(srcdir)/autogen.sh \
+    $(srcdir)/util/clang-scan-build.sh \
+    $(srcdir)/util/cppcheck.sh \
+    $(srcdir)/util/getversion.sh \
+    $(srcdir)/util/pe32edit.sh \
+    src/smartd_warning.sh \
+    src/update-smart-drivedb
+
+shellcheck.txt: $(shellscripts)
+	$(ECHO_V_GEN) '  $(SHELLCHECK) $(SHELLCHECKFLAGS) $(shellscripts) > $@'
+	@$(SHELLCHECK) $(SHELLCHECKFLAGS) $(shellscripts) > $@ || \
+	if [ $$? = 1 ]; then echo "$@: issues found"; else rm -f $@; exit 1; fi
+
+src/smartd_warning.sh: src/smartd_warning.sh.in
+	make -C src smartd_warning.sh
+src/update-smart-drivedb: src/update-smart-drivedb.in
+	make -C src update-smart-drivedb

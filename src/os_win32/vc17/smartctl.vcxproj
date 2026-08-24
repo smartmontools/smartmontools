@@ -489,11 +489,14 @@
   <ItemGroup>
     <None Include="..\..\..\COPYING" />
     <None Include="..\..\..\doc\CHANGELOG.md" />
+    <None Include="..\..\..\doc\INSTALL.md" />
     <None Include="..\..\..\README.md" />
-    <None Include="..\..\getversion.sh" />
+    <None Include="..\..\..\util\clang-scan-build.sh" />
+    <None Include="..\..\..\util\cppcheck.sh" />
+    <None Include="..\..\..\util\getversion.sh" />
+    <None Include="..\..\..\util\pe32edit.sh" />
     <None Include="..\..\update-smart-drivedb.8.in" />
     <None Include="..\installer.nsi" />
-    <None Include="..\..\Doxyfile" />
     <None Include="..\..\Makefile.am" />
     <None Include="..\..\smartctl.8.in" />
     <None Include="..\..\update-smart-drivedb.in" />

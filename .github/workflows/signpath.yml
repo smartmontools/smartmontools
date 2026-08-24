@@ -26,7 +26,7 @@ jobs:
         run: |
           export SOURCE_DATE_EPOCH=$(git log -1 --format="%at") &&
           SOURCE_DATE_EPOCH=$((SOURCE_DATE_EPOCH + 1)) &&
-          VERSION=$(src/getversion.sh -n) &&
+          VERSION=$(util/getversion.sh -n) &&
           ./autogen.sh && mkdir build && cd build &&
           ../configure --build=$(../config.guess) --host=i686-w64-mingw32 \
             --with-build-info='(GHA/signpath)' --enable-static-link \
@@ -88,7 +88,7 @@ jobs:
 
       - name: Rebuild installer
         run: |
-          VERSION=$(src/getversion.sh -n) &&
+          VERSION=$(util/getversion.sh -n) &&
           rm -v build/src/smartmontools-win32-setup-${VERSION}.exe &&
           mv -v signed-binaries/uninst-smartmontools.exe build/src &&
           mv -v signed-binaries/*.exe build64/src/smartmontools-*.win64/bin &&

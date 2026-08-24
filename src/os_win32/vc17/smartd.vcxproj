@@ -456,9 +456,13 @@
     <None Include="..\..\..\configure.ac" />
     <None Include="..\..\..\COPYING" />
     <None Include="..\..\..\doc\CHANGELOG.md" />
+    <None Include="..\..\..\doc\INSTALL.md" />
     <None Include="..\..\..\Makefile.am" />
     <None Include="..\..\..\README.md" />
-    <None Include="..\..\getversion.sh" />
+    <None Include="..\..\..\util\clang-scan-build.sh" />
+    <None Include="..\..\..\util\cppcheck.sh" />
+    <None Include="..\..\..\util\getversion.sh" />
+    <None Include="..\..\..\util\pe32edit.sh" />
     <None Include="..\..\smartd_warning.sh.in" />
     <None Include="..\..\update-smart-drivedb.8.in" />
     <None Include="..\installer.nsi" />
@@ -504,7 +508,6 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release-static|x64'">$(IntDir)syslogevt.rc;$(IntDir)msg00001.bin;syslogevt.h;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release-static|ARM64'">$(IntDir)syslogevt.rc;$(IntDir)msg00001.bin;syslogevt.h;%(Outputs)</Outputs>
     </CustomBuild>
-    <None Include="..\..\Doxyfile" />
     <None Include="..\..\Makefile.am" />
     <None Include="..\..\smartd.8.in" />
     <None Include="..\..\smartd.conf.5.in" />

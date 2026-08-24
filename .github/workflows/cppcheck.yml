@@ -18,10 +18,10 @@ jobs:
           fetch-tags: true
       - name: Run cppcheck
         run: |
-          VERSION=$(src/getversion.sh -n) &&
+          VERSION=$(util/getversion.sh -n) &&
           DEST="smartmontools-cppcheck-$VERSION.txt" &&
           echo "Creating $DEST..." &&
-          src/cppcheck.sh -j6 -q | tee "$DEST"
+          util/cppcheck.sh -j6 -q | tee "$DEST"
       - name: Upload artifact
         uses: actions/upload-artifact@v7
         with:

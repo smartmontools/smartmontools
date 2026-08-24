@@ -228,9 +228,6 @@ uninstall-smartd_conf:
 smartdscript_SCRIPTS = smartd_warning.sh
 
 EXTRA_DIST = \
-        clang-scan-build.sh \
-        cppcheck.sh \
-        getversion.sh \
         smartd.initd.in \
         smartd.cygwin.initd.in \
         smartd.freebsd.initd.in \
@@ -248,7 +245,6 @@ EXTRA_DIST = \
         os_darwin/pkg/root/usr/local/sbin/smart-pkg-uninstall \
         os_win32/default.manifest \
         os_win32/installer.nsi \
-        os_win32/pe32edit.sh \
         os_win32/runcmd.c \
         os_win32/smartd_mailer.ps1 \
         os_win32/smartd_mailer.conf.sample.ps1 \
@@ -260,10 +256,8 @@ EXTRA_DIST = \
         $(doc_DATA)
 
 CLEANFILES = \
-        cppcheck.txt \
         com.smartmontools.smartd.plist \
         config.log \
-        shellcheck.txt \
         smartd.8 \
         smartd.1m \
         smartd.8.html \
@@ -510,7 +504,7 @@ FIXHTML = sed -e '1s,^Content-type.*,,' \
               -e 's,<A HREF="mailto:[^s][^m][^a][^"]*">\([^<]*\)</A>,\1,g' \
               -e '/^Time: [012][0-9]:[0-5][0-9]:[0-5][0-9] [^<]*$$/d'
 
-phony += cppcheck htmlman pdfman shellcheck
+phony += htmlman pdfman
 
 htmlman: smartctl.8.html smartd.8.html smartd.conf.5.html update-smart-drivedb.8.html
 
@@ -668,35 +662,6 @@ check-smartctl:
 endif
 
 check: $(check)
-
-# Create cppcheck report
-cppcheck: cppcheck.txt
-
-CPPCHECKFLAGS=
-cppcheck.txt: $(smartctl_SOURCES) $(EXTRA_smartctl_SOURCES) \
-              $(smartd_SOURCES) $(EXTRA_smartd_SOURCES)
-	$(srcdir)/cppcheck.sh $(CPPCHECKFLAGS) > $@
-
-# Create shellcheck report
-shellcheck: shellcheck.txt
-
-SHELLCHECK = shellcheck
-SHELLCHECKFLAGS =
-SHELLSCRIPTS = \
-    $(top_srcdir)/autogen.sh \
-    $(srcdir)/clang-scan-build.sh \
-    $(srcdir)/cppcheck.sh \
-    $(srcdir)/do_release \
-    $(srcdir)/getversion.sh \
-    $(srcdir)/os_win32/pe32edit.sh \
-    smartd_warning.sh \
-    update-smart-drivedb
-
-shellcheck.txt: $(SHELLSCRIPTS)
-	$(ECHO_V_GEN) '  $(SHELLCHECK) $(SHELLCHECKFLAGS) $(SHELLSCRIPTS) > $@'
-	@$(SHELLCHECK) $(SHELLCHECKFLAGS) $(SHELLSCRIPTS) > $@ || \
-	if [ $$? = 1 ]; then echo "$@: issues found"; else rm -f $@; exit 1; fi
-
 
 if OS_WIN32_MINGW
 # Windows resources
@@ -904,7 +869,7 @@ $(distdir_win32).stamp: Makefile $(BINFILES_WIN32) $(DOCFILES_WIN32)
 	done && \
 	if [ -n '$(SOURCE_DATE_EPOCH)' ]; then \
 	  for exe in $(distdir_win32)/bin/*.exe; do \
-	    vrun $(srcdir)/os_win32/pe32edit.sh -t $(SOURCE_DATE_EPOCH) $$exe || exit 1; \
+	    vrun $(top_srcdir)/util/pe32edit.sh -t $(SOURCE_DATE_EPOCH) $$exe || exit 1; \
 	  done; \
 	fi && \
 	$(ECHO_V) ' $$(MD5_SHA1_SHA256_SUM) *.exe *.cmd *.ps1 > $(distdir_win32)/doc/checksums$(win_bits).txt' && \
@@ -924,7 +889,7 @@ smartctl-nc.exe: smartctl.exe
 	$(AM_V_GEN)
 	@rm -f $@
 	$(AM_V_at)cp -p smartctl.exe $@.tmp
-	$(AM_V_at)$(srcdir)/os_win32/pe32edit.sh -s 2 $@.tmp
+	$(AM_V_at)$(top_srcdir)/util/pe32edit.sh -s 2 $@.tmp
 	$(AM_V_at)mv -f $@.tmp $@
 
 # Build runcmd?.exe and wtssendmsg.exe

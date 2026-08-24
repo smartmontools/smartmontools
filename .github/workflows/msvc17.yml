@@ -64,7 +64,7 @@ jobs:
           ./autogen.sh && mkdir build && cd build &&
           ../configure --build=$(../config.guess) --host=x86_64-w64-mingw32 &&
           make config-vc && make distdir &&
-          version=$(../src/getversion.sh -n) &&
+          version=$(../util/getversion.sh -n) &&
           mv -v smartmontools-*.* smartmontools &&
           mv -v ../src/os_win32/vc17 smartmontools/src/os_win32 &&
           mv -v smartmontools "smartmontools-$version" &&

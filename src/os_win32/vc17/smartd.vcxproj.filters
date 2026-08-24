@@ -19,6 +19,9 @@
     <Filter Include="os_win32\vc\smartmon">
       <UniqueIdentifier>{2fae3e18-6bff-4ed1-833e-b9d8ab6e105d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="util">
+      <UniqueIdentifier>{419b106a-e020-49ab-a4d6-cf0306f34477}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\daemon_win32.cpp">
@@ -68,7 +71,6 @@
     <None Include="..\installer.nsi">
       <Filter>os_win32</Filter>
     </None>
-    <None Include="..\..\Doxyfile" />
     <None Include="..\..\Makefile.am" />
     <None Include="..\..\smartd.8.in" />
     <None Include="..\..\smartd.conf.5.in" />
@@ -109,7 +111,21 @@
       <Filter>os_win32</Filter>
     </None>
     <None Include="..\..\update-smart-drivedb.8.in" />
-    <None Include="..\..\getversion.sh" />
+    <None Include="..\..\..\util\clang-scan-build.sh">
+      <Filter>util</Filter>
+    </None>
+    <None Include="..\..\..\util\cppcheck.sh">
+      <Filter>util</Filter>
+    </None>
+    <None Include="..\..\..\util\getversion.sh">
+      <Filter>util</Filter>
+    </None>
+    <None Include="..\..\..\util\pe32edit.sh">
+      <Filter>util</Filter>
+    </None>
+    <None Include="..\..\..\doc\INSTALL.md">
+      <Filter>doc</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="smartd_res.rc">

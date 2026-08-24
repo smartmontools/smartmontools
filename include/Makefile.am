@@ -37,12 +37,12 @@ smartmon/smartmon_config.h: ../config.h Makefile
 
 # Get version info
 smartmon/version.h: smartmon/version.sh
-	$(AM_V_GEN)$(top_srcdir)/src/getversion.sh -i < smartmon/version.sh > $@.tmp
+	$(AM_V_GEN)$(top_srcdir)/util/getversion.sh -i < smartmon/version.sh > $@.tmp
 	$(AM_V_at)mv -f $@.tmp $@
 
-smartmon/version.sh: ../src/getversion.sh ../config.h Makefile
+smartmon/version.sh: ../util/getversion.sh ../config.h Makefile
 	$(AM_V_at)$(MKDIR_P) smartmon
-	$(AM_V_GEN)$(top_srcdir)/src/getversion.sh -s > $@.tmp
+	$(AM_V_GEN)$(top_srcdir)/util/getversion.sh -s > $@.tmp
 	$(AM_V_at)mv -f $@.tmp $@
 	@if $(AM_V_P); then cat $@; fi
 
