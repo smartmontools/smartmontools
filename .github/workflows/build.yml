@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Create smartmontools dist
     outputs:
-      SOURCE_DATE_EPOCH: ${{ steps.set-env.outputs.SMARTMONTOOLS_GIT_REV_EPOCH }}
+      SOURCE_DATE_EPOCH: ${{ steps.set-env.outputs.SOURCE_DATE_EPOCH }}
       SMARTMONTOOLS_PKG_VER: ${{ steps.set-env.outputs.SMARTMONTOOLS_PKG_VER }}
       SMARTMONTOOLS_GIT_VER_FNAME: ${{ steps.set-env.outputs.SMARTMONTOOLS_GIT_VER_FNAME }}
 
@@ -22,27 +22,32 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
-          # Provide at least the commit log since last release for 'getversion.sh'.
-          # 'git clone --shallow-since=2025-04-29' would be sufficient but this is
+          # Provide at least the commit log sufficient for 'git-set-mtime.sh'.
+          # 'git clone --shallow-since=2011-06-15' would be sufficient but this is
           # not supported by 'actions/checkout@v6'.
-          fetch-depth: 800
+          fetch-depth: 3500
           # Include (future) release tags for 'getversion.sh'
           fetch-tags: true
       - name: Setting environment variables
         id: set-env
         run: |
-          util/getversion.sh -g >> $GITHUB_ENV
+          version_sh=$(util/getversion.sh -s) && eval "${version_sh}" &&
+          SOURCE_DATE_EPOCH=$((SMARTMONTOOLS_GIT_REV_EPOCH + 1)) &&
+          echo SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} >> $GITHUB_ENV &&
+          echo SMARTMONTOOLS_PKG_VER=${SMARTMONTOOLS_PKG_VER} >> $GITHUB_ENV &&
+          echo SMARTMONTOOLS_GIT_VER_FNAME=${SMARTMONTOOLS_GIT_VER_FNAME} >> $GITHUB_ENV &&
           cat $GITHUB_ENV | tee $GITHUB_OUTPUT
 
       - name: Creating src.tar.gz
         run: |
+          util/git-set-mtime.sh -f -q &&
           ./autogen.sh --force &&
           mkdir build && cd build &&
-          ../configure SOURCE_DATE_EPOCH=${SMARTMONTOOLS_GIT_REV_EPOCH} &&
+          ../configure SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH} &&
           make dist && tar -tvzf "smartmontools-${SMARTMONTOOLS_PKG_VER}.tar.gz" &&
           mkdir artifacts &&
-          echo ${SMARTMONTOOLS_GIT_REV_EPOCH} > artifacts/SOURCE_DATE_EPOCH &&
-          touch -d @${SMARTMONTOOLS_GIT_REV_EPOCH} artifacts/SOURCE_DATE_EPOCH &&
+          echo ${SOURCE_DATE_EPOCH} > artifacts/SOURCE_DATE_EPOCH &&
+          touch -d @${SOURCE_DATE_EPOCH} artifacts/SOURCE_DATE_EPOCH &&
           mv smartmontools-${SMARTMONTOOLS_PKG_VER}.tar.gz artifacts/smartmontools-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz
 
       - name: Upload artifacts

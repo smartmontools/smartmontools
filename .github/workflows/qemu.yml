@@ -28,15 +28,16 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
-          # Provide at least the commit log since last release for 'getversion.sh'.
-          # 'git clone --shallow-since=2025-04-29' would be sufficient but this is
+          # Provide at least the commit log sufficient for 'git-set-mtime.sh'.
+          # 'git clone --shallow-since=2011-06-15' would be sufficient but this is
           # not supported by 'actions/checkout@v6'.
-          fetch-depth: 800
+          fetch-depth: 3500
           # Include (future) release tags for 'getversion.sh'
           fetch-tags: true
 
       - name: Build
         run: |
+          util/git-set-mtime.sh -f -q &&
           version_sh=$(util/getversion.sh -s) && eval "${version_sh}" &&
           ./autogen.sh && mkdir build && cd build &&
           ../configure SOURCE_DATE_EPOCH=$((SMARTMONTOOLS_GIT_REV_EPOCH + 1)) &&

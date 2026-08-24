@@ -186,6 +186,7 @@ shellscripts = \
     $(srcdir)/util/clang-scan-build.sh \
     $(srcdir)/util/cppcheck.sh \
     $(srcdir)/util/getversion.sh \
+    $(srcdir)/util/git-set-mtime.sh \
     $(srcdir)/util/pe32edit.sh \
     src/smartd_warning.sh \
     src/update-smart-drivedb
