@@ -208,6 +208,21 @@ extern unsigned char ata_debugmode;
 // Suppress serial number?
 extern bool dont_print_serial_number;
 
+/// Call ATA pass-through and print debug info if requested.
+bool ata_pass_through(ata_device * device, const ata_cmd_in & in, ata_cmd_out & out);
+
+/// Call ATA pass-through and print debug info if requested.
+/// Variant without output parameters.
+bool ata_pass_through(ata_device * device, const ata_cmd_in & in);
+
+/// Print debug information for ATA pass-through input.
+void ata_print_debug_info(const ata_cmd_in & in, const char * devname, bool dump);
+
+/// Print debug information for ATA pass-through output.
+void ata_print_debug_info(const ata_cmd_in & in, const ata_cmd_out & out,
+                          const smart_device::error_info & err, bool dump,
+                          long long duration_usec);
+
 // Get information from drive
 int ata_read_identity(ata_device * device, ata_identify_device & id,
                       bool fix_swapped_id = false);
@@ -241,6 +256,11 @@ bool ataReadLogExt(ata_device * device, unsigned char logaddr,
 // Read SMART Log page(s)
 bool ataReadSmartLog(ata_device * device, unsigned char logaddr,
                      void * data, unsigned nsectors);
+
+/// Write SMART Log page(s).
+bool ata_write_smart_log(ata_device * device, uint8_t logaddr,
+                         const void * data, uint8_t nsectors);
+
 // Read SMART Extended Comprehensive Error Log
 bool ataReadExtErrorLog(ata_device * device, ata_smart_exterrlog * log,
                         unsigned page, unsigned nsectors, firmwarebug_defs firmwarebugs);
@@ -271,6 +291,8 @@ int ataEnableAutoOffline (ata_device * device);
 int ataDisableAutoOffline (ata_device * device);
 
 /* S.M.A.R.T. test commands */
+bool ata_smart_self_test(ata_device * device, uint8_t testtype);
+
 int ataSmartTest(ata_device * device, int testtype, bool force,
                  const ata_selective_selftest_args & args,
                  const ata_smart_values * sv, uint64_t num_sectors);
@@ -456,20 +478,6 @@ bool parse_firmwarebug_def(const char * opt, firmwarebug_defs & firmwarebugs);
 
 // Return a string of valid argument words for parse_firmwarebug_def()
 const char * get_valid_firmwarebug_args();
-
-
-// These are two of the functions that are defined in os_*.c and need
-// to be ported to get smartmontools onto another OS.
-// Moved to C++ interface
-//int ata_command_interface(int device, smart_command_set command, int select, char *data);
-//int escalade_command_interface(int fd, int escalade_port, int escalade_type, smart_command_set command, int select, char *data);
-//int marvell_command_interface(int device, smart_command_set command, int select, char *data);
-//int highpoint_command_interface(int device, smart_command_set command, int select, char *data);
-//int areca_command_interface(int fd, int disknum, smart_command_set command, int select, char *data);
-
-
-// This function is exported to give low-level capability
-int smartcommandhandler(ata_device * device, smart_command_set command, int select, char *data);
 
 // Get capacity and sector sizes from IDENTIFY data
 struct ata_size_info

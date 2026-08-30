@@ -14,16 +14,14 @@
 #include "config.h"
 #define __STDC_FORMAT_MACROS 1 // enable PRI* for C++
 
-#include <inttypes.h>
-#include <stdio.h>
-#include <string.h>
-#include <errno.h>
-#include <stdlib.h>
-#include <ctype.h>
-
 #include <smartmon/atacmds.h>
+#include <smartmon/hexdump.h>
 #include <smartmon/knowndrives.h>  // get_default_attr_defs()
 #include <smartmon/utility.h>
+
+#include <errno.h>
+#include <inttypes.h>
+
 #include "dev_ata_cmd_set.h" // for parsed_ata_device
 
 namespace smartmon {
@@ -34,17 +32,6 @@ unsigned char ata_debugmode = 0;
 // Suppress serial number?
 // (also used in scsiprint.cpp)
 bool dont_print_serial_number = false;
-
-
-#define SMART_CYL_LOW  0x4F
-#define SMART_CYL_HI   0xC2
-
-// SMART RETURN STATUS yields SMART_CYL_HI,SMART_CYL_LOW to indicate drive
-// is healthy and SRET_STATUS_HI_EXCEEDED,SRET_STATUS_MID_EXCEEDED to
-// indicate that a threshold exceeded condition has been detected.
-// Those values (byte pairs) are placed in ATA register "LBA 23:8".
-#define SRET_STATUS_HI_EXCEEDED 0x2C
-#define SRET_STATUS_MID_EXCEEDED 0xF4
 
 static lib_ata_hook the_lib_ata_hook;
 static lib_ata_hook * current_lib_ata_hook = &the_lib_ata_hook;
@@ -377,270 +364,122 @@ static const char * preg(const ata_register & r, char (& buf)[8])
   return buf;
 }
 
-static void print_regs(const char * prefix, const ata_in_regs & r, const char * suffix = "\n")
+static void print_regs(const char * prefix, const ata_in_regs_48bit & r,
+  const char * suffix = "")
 {
-  char bufs[7][8];
-  lib_printf("%s FR=%s, SC=%s, LL=%s, LM=%s, LH=%s, DEV=%s, CMD=%s%s", prefix,
-    preg(r.features, bufs[0]), preg(r.sector_count, bufs[1]), preg(r.lba_low, bufs[2]),
-    preg(r.lba_mid, bufs[3]), preg(r.lba_high, bufs[4]), preg(r.device, bufs[5]),
-    preg(r.command, bufs[6]), suffix);
+  char bufs[11][8];
+  if (!r.is_48bit_cmd())
+    lib_printf("%s FR=%s, SC=%s, LH=%s LM=%s LL=%s, DEV=%s, CMD=%s%s", prefix,
+      preg(r.features, bufs[0]), preg(r.sector_count, bufs[1]),
+      preg(r.lba_high, bufs[2]), preg(r.lba_mid, bufs[3]), preg(r.lba_low, bufs[4]),
+      preg(r.device, bufs[5]), preg(r.command, bufs[6]), suffix);
+  else
+    lib_printf("%s FR=%s, SC=%s %s, LBA48=%s %s %s, LH=%s LM=%s LL=%s, DEV=%s, CMD=%s%s", prefix,
+      preg(r.features, bufs[0]), preg(r.prev.sector_count, bufs[1]), preg(r.sector_count, bufs[2]),
+      preg(r.prev.lba_high, bufs[3]), preg(r.prev.lba_mid, bufs[4]), preg(r.prev.lba_low, bufs[5]),
+      preg(r.lba_high, bufs[6]), preg(r.lba_mid, bufs[7]), preg(r.lba_low, bufs[8]),
+      preg(r.device, bufs[9]), preg(r.command, bufs[10]), suffix);
 }
 
-static void print_regs(const char * prefix, const ata_out_regs & r, const char * suffix = "\n")
+static void print_regs(const char * prefix, const ata_out_regs_48bit & r, bool is_48bit_cmd,
+  const char * suffix = "")
 {
-  char bufs[7][8];
-  lib_printf("%sERR=%s, SC=%s, LL=%s, LM=%s, LH=%s, DEV=%s, STS=%s%s", prefix,
-    preg(r.error, bufs[0]), preg(r.sector_count, bufs[1]), preg(r.lba_low, bufs[2]),
-    preg(r.lba_mid, bufs[3]), preg(r.lba_high, bufs[4]), preg(r.device, bufs[5]),
-    preg(r.status, bufs[6]), suffix);
+  char bufs[11][8];
+  if (!is_48bit_cmd)
+    lib_printf("%sERR=%s, SC=%s, LH=%s, LM=%s, LL=%s, DEV=%s, STS=%s%s", prefix,
+      preg(r.error, bufs[0]), preg(r.sector_count, bufs[1]),
+      preg(r.lba_high, bufs[2]), preg(r.lba_mid, bufs[3]), preg(r.lba_low, bufs[4]),
+      preg(r.device, bufs[5]), preg(r.status, bufs[6]), suffix);
+  else
+    lib_printf("%sERR=%s, SC=%s %s, LBA48=%s %s %s, LH=%s LM=%s LL=%s, DEV=%s, STS=%s%s", prefix,
+      preg(r.error, bufs[0]), preg(r.prev.sector_count, bufs[1]), preg(r.sector_count, bufs[2]),
+      preg(r.prev.lba_high, bufs[3]), preg(r.prev.lba_mid, bufs[4]), preg(r.prev.lba_low, bufs[5]),
+      preg(r.lba_high, bufs[6]), preg(r.lba_mid, bufs[7]), preg(r.lba_low, bufs[8]),
+      preg(r.device, bufs[9]), preg(r.status, bufs[10]), suffix);
 }
 
-static void prettyprint(const unsigned char *p, const char *name){
-  lib_printf("\n===== [%s] DATA START (BASE-16) =====\n", name);
-  for (int i=0; i<512; i+=16, p+=16)
-#define P(n) (' ' <= p[n] && p[n] <= '~' ? (int)p[n] : '.')
-    // print complete line to avoid slow tty output and extra lines in syslog.
-    lib_printf("%03d-%03d: %02x %02x %02x %02x %02x %02x %02x %02x "
-                          "%02x %02x %02x %02x %02x %02x %02x %02x"
-                          " |%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c|"
-         "%c",
-         i, i+16-1,
-         p[ 0], p[ 1], p[ 2], p[ 3], p[ 4], p[ 5], p[ 6], p[ 7],
-         p[ 8], p[ 9], p[10], p[11], p[12], p[13], p[14], p[15], 
-         P( 0), P( 1), P( 2), P( 3), P( 4), P( 5), P( 6), P( 7),
-         P( 8), P( 9), P(10), P(11), P(12), P(13), P(14), P(15),
-         '\n');
-#undef P
-  lib_printf("===== [%s] DATA END (512 Bytes) =====\n\n", name);
+// Print debug information for ATA pass-through input.
+void ata_print_debug_info(const ata_cmd_in & in, const char * devname, bool dump)
+{
+  lib_printf(" [ATA call: device='%s', command='%s', size=%u\n", devname,
+    look_up_ata_command(in.in_regs.command, in.in_regs.features), in.size);
+
+  print_regs("  Input:  ", in.in_regs,
+    (in.direction==ata_cmd_in::data_in  ? " IN"  :
+     in.direction==ata_cmd_in::data_out ? " OUT" : ""));
+
+  if (in.direction == ata_cmd_in::data_out && dump) {
+    lib_printf("\n");
+    hexdump_options opts = hexdump_options_canonical;
+    opts.prefix = "  ";
+    opts.offset_max = 1;
+    hexdump([](const char * str){lib_printf("%s", str);}, in.buffer, in.size, opts);
+    lib_printf(" ");
+  }
+  lib_printf("]\n");
 }
 
-// This function provides the pretty-print reporting for SMART
-// commands: it implements the various -r "reporting" options for ATA
-// ioctls.
-int smartcommandhandler(ata_device * device, smart_command_set command, int select, char *data){
-  // TODO: Rework old stuff below
-  // This conditional is true for commands that return data
-  int getsdata=(command==PIDENTIFY || 
-                command==IDENTIFY || 
-                command==READ_LOG || 
-                command==READ_THRESHOLDS || 
-                command==READ_VALUES ||
-                command==CHECK_POWER_MODE);
+// Print debug information for ATA pass-through output.
+void ata_print_debug_info(const ata_cmd_in & in, const ata_cmd_out & out,
+  const smart_device::error_info & err, bool dump, long long duration_usec)
+{
+  if (duration_usec > 0)
+    lib_printf(" [Duration: %.6fs]\n", duration_usec / 1000000.0);
 
-  int sendsdata=(command==WRITE_LOG);
-  
-  // If reporting is enabled, say what the command will be before it's executed
-  if (ata_debugmode) {
-          // conditional is true for commands that use parameters
-          int usesparam=(command==READ_LOG || 
-                         command==AUTO_OFFLINE || 
-                         command==AUTOSAVE || 
-                         command==IMMEDIATE_OFFLINE ||
-                         command==WRITE_LOG);
-                  
-    lib_printf("\nREPORT-IOCTL: Device=%s Command=%s", device->get_dev_name(), commandstrings[command]);
-    if (usesparam)
-      lib_printf(" InputParameter=%d\n", select);
-    else
+  if (err.no) {
+    lib_printf(" [ATA call failed: %s (errno=%d)", err.msg.c_str(), err.no);
+    if (out.out_regs.is_set())
+      print_regs("\n  Output: ", out.out_regs, in.in_regs.is_48bit_cmd());
+  }
+  else {
+    lib_printf(" [ATA call succeeded");
+    if (in.out_needed.is_set() || out.out_regs.is_set())
+      print_regs("\n  Output: ", out.out_regs, in.in_regs.is_48bit_cmd());
+    if (in.direction == ata_cmd_in::data_in && dump) {
       lib_printf("\n");
-  }
-  
-  if ((getsdata || sendsdata) && !data){
-    lib_printf("REPORT-IOCTL: Unable to execute command %s : data destination address is NULL\n", commandstrings[command]);
-    return -1;
-  }
-  
-  // The reporting is cleaner, and we will find coding bugs faster, if
-  // the commands that failed clearly return empty (zeroed) data
-  // structures
-  if (getsdata) {
-    if (command==CHECK_POWER_MODE)
-      data[0]=0;
-    else
-      memset(data, '\0', 512);
-  }
-
-
-  // if requested, pretty-print the input data structure
-  if (ata_debugmode > 1 && sendsdata)
-    //lib_printf("REPORT-IOCTL: Device=%s Command=%s\n", device->get_dev_name(), commandstrings[command]);
-    prettyprint((unsigned char *)data, commandstrings[command]);
-
-  // now execute the command
-  int retval = -1;
-  {
-    ata_cmd_in in;
-    // Set common register values
-    switch (command) {
-      default: // SMART commands
-        in.in_regs.command = ATA_SMART_CMD;
-        in.in_regs.lba_high = SMART_CYL_HI; in.in_regs.lba_mid = SMART_CYL_LOW;
-        break;
-      case IDENTIFY: case PIDENTIFY: case CHECK_POWER_MODE: // Non SMART commands
-        break;
-    }
-    // Set specific values
-    switch (command) {
-      case IDENTIFY:
-        in.in_regs.command = ATA_IDENTIFY_DEVICE;
-        in.set_data_in(data, 1);
-        break;
-      case PIDENTIFY:
-        in.in_regs.command = ATA_IDENTIFY_PACKET_DEVICE;
-        in.set_data_in(data, 1);
-        break;
-      case CHECK_POWER_MODE:
-        in.in_regs.command = ATA_CHECK_POWER_MODE;
-        in.out_needed.sector_count = true; // Powermode returned here
-        break;
-      case READ_VALUES:
-        in.in_regs.features = ATA_SMART_READ_VALUES;
-        in.set_data_in(data, 1);
-        break;
-      case READ_THRESHOLDS:
-        in.in_regs.features = ATA_SMART_READ_THRESHOLDS;
-        in.in_regs.lba_low = 1; // TODO: CORRECT ???
-        in.set_data_in(data, 1);
-        break;
-      case READ_LOG:
-        in.in_regs.features = ATA_SMART_READ_LOG_SECTOR;
-        in.in_regs.lba_low = select;
-        in.set_data_in(data, 1);
-        break;
-      case WRITE_LOG:
-        in.in_regs.features = ATA_SMART_WRITE_LOG_SECTOR;
-        in.in_regs.lba_low = select;
-        in.set_data_out(data, 1);
-        break;
-      case ENABLE:
-        in.in_regs.features = ATA_SMART_ENABLE;
-        in.in_regs.lba_low = 1; // TODO: CORRECT ???
-        break;
-      case DISABLE:
-        in.in_regs.features = ATA_SMART_DISABLE;
-        in.in_regs.lba_low = 1;  // TODO: CORRECT ???
-        break;
-      case STATUS_CHECK:
-        in.out_needed.lba_high = in.out_needed.lba_mid = true; // Status returned here
-        /* FALLTHRU */
-      case STATUS:
-        in.in_regs.features = ATA_SMART_STATUS;
-        break;
-      case AUTO_OFFLINE:
-        in.in_regs.features = ATA_SMART_AUTO_OFFLINE;
-        in.in_regs.sector_count = select;  // Caution: Non-DATA command!
-        break;
-      case AUTOSAVE:
-        in.in_regs.features = ATA_SMART_AUTOSAVE;
-        in.in_regs.sector_count = select;  // Caution: Non-DATA command!
-        break;
-      case IMMEDIATE_OFFLINE:
-        in.in_regs.features = ATA_SMART_IMMEDIATE_OFFLINE;
-        in.in_regs.lba_low = select;
-        break;
-      default:
-        lib_printf("Unrecognized command %d in smartcommandhandler()\n"
-                   "Please contact " PACKAGE_BUGREPORT "\n", command);
-        device->set_err(ENOSYS);
-        return -1;
-    }
-
-    if (ata_debugmode)
-      print_regs(" Input:  ", in.in_regs,
-        (in.direction==ata_cmd_in::data_in ? " IN\n":
-         in.direction==ata_cmd_in::data_out ? " OUT\n":"\n"));
-
-    ata_cmd_out out;
-
-    auto start_usec = (ata_debugmode ? get_timer_usec() : -1);
-
-    bool ok = device->ata_pass_through(in, out);
-
-    if (start_usec >= 0) {
-      auto duration_usec = get_timer_usec() - start_usec;
-      if (duration_usec > 0)
-        lib_printf(" [Duration: %.6fs]\n", duration_usec / 1000000.0);
-    }
-
-    if (ata_debugmode && out.out_regs.is_set())
-      print_regs(" Output: ", out.out_regs);
-
-    if (ok) switch (command) {
-      default:
-        retval = 0;
-        break;
-      case CHECK_POWER_MODE:
-        if (out.out_regs.sector_count.is_set()) {
-          data[0] = out.out_regs.sector_count;
-          retval = 0;
-        }
-        else {
-          lib_printf("CHECK POWER MODE: incomplete response, ATA output registers missing\n");
-          device->set_err(ENOSYS);
-          retval = -1;
-        }
-        break;
-      case STATUS_CHECK:
-        // Cyl low and Cyl high unchanged means "Good SMART status"
-        if ((out.out_regs.lba_high == SMART_CYL_HI) &&
-            (out.out_regs.lba_mid == SMART_CYL_LOW))
-          retval = 0;
-        // These values mean "Bad SMART status"
-        else if ((out.out_regs.lba_high == SRET_STATUS_HI_EXCEEDED) &&
-                 (out.out_regs.lba_mid == SRET_STATUS_MID_EXCEEDED))
-          retval = 1;
-        else if (out.out_regs.lba_mid == SMART_CYL_LOW) {
-          retval = 0;
-          if (ata_debugmode)
-            lib_printf("SMART STATUS RETURN: half healthy response sequence, "
-                       "probable SAT/USB truncation\n");
-          } else if (out.out_regs.lba_mid == SRET_STATUS_MID_EXCEEDED) {
-          retval = 1;
-          if (ata_debugmode)
-            lib_printf("SMART STATUS RETURN: half unhealthy response sequence, "
-                       "probable SAT/USB truncation\n");
-        }
-        else if (!out.out_regs.is_set()) {
-          device->set_err(ENOSYS, "Incomplete response, ATA output registers missing");
-          retval = -1;
-        }
-        else {
-          // We haven't gotten output that makes sense; print out some debugging info
-          lib_printf("SMART Status command failed\n");
-          lib_printf("Please get assistance from %s\n", PACKAGE_URL);
-          lib_printf("Register values returned from SMART Status command are:\n");
-          print_regs(" ", out.out_regs);
-          device->set_err(ENOSYS, "Invalid ATA output register values");
-          retval = -1;
-        }
-        break;
+      hexdump_options opts = hexdump_options_canonical;
+      opts.prefix = "  ";
+      opts.offset_max = 1;
+      hexdump([](const char * str){lib_printf("%s", str);}, in.buffer, in.size, opts);
+      lib_printf(" ");
     }
   }
+  lib_printf("]\n");
+}
 
-  // If requested, invalidate serial number before any printing is done
-  if ((command == IDENTIFY || command == PIDENTIFY) && !retval && dont_print_serial_number)
-    invalidate_serno( reinterpret_cast<ata_identify_device *>(data) );
+// Call ATA pass-through and print debug info if requested.
+bool ata_pass_through(ata_device * device, const ata_cmd_in & in, ata_cmd_out & out)
+{
+  if (ata_debugmode)
+    ata_print_debug_info(in, device->get_info_name(), (ata_debugmode > 1));
 
-  // If reporting is enabled, say what output was produced by the command
-  if (ata_debugmode) {
-    if (retval && device->get_errno())
-      lib_printf("REPORT-IOCTL: Device=%s Command=%s returned %d errno=%d [%s]\n",
-           device->get_dev_name(), commandstrings[command], retval,
-           device->get_errno(), device->get_errmsg());
-    else
-      lib_printf("REPORT-IOCTL: Device=%s Command=%s returned %d\n",
-           device->get_dev_name(), commandstrings[command], retval);
-    
-    // if requested, pretty-print the output data structure
-    if (ata_debugmode > 1 && getsdata) {
-      if (command==CHECK_POWER_MODE)
-	lib_printf("Sector Count Register (BASE-16): %02x\n", (unsigned char)(*data));
-      else
-	prettyprint((unsigned char *)data, commandstrings[command]);
-    }
-  }
+  long long start_usec = (ata_debugmode ? get_timer_usec() : -1);
 
-  return retval;
+  bool ok = device->ata_pass_through(in, out);
+
+  long long duration_usec = (start_usec >= 0 ? get_timer_usec() - start_usec : -1);
+
+  if (!ok && !(device->get_errno() && *device->get_errmsg()))
+    device->set_err(EIO, "Missing error information");
+
+  if (   dont_print_serial_number && ok && in.size >= 512
+      && (   in.in_regs.command == ATA_IDENTIFY_DEVICE
+          || in.in_regs.command == ATA_IDENTIFY_PACKET_DEVICE))
+    // Identify (packet) device: invalidate serial number
+    invalidate_serno(reinterpret_cast<ata_identify_device *>(in.buffer));
+
+  if (ata_debugmode)
+    ata_print_debug_info(in, out, (!ok ? device->get_err() : smart_device::error_info{}),
+      (ata_debugmode > 1), duration_usec);
+  return ok;
+}
+
+// Call ATA pass-through and print debug info if requested.
+// Variant without output parameters.
+bool ata_pass_through(ata_device * device, const ata_cmd_in & in)
+{
+  ata_cmd_out out;
+  return ata_pass_through(device, in, out);
 }
 
 // Get capacity and sector sizes from IDENTIFY data
@@ -719,37 +558,41 @@ unsigned char checksum(const void * data)
 //   FFh device is in Active mode or Idle mode.
 
 int ataCheckPowerMode(ata_device * device) {
-  unsigned char result;
 
-  if ((smartcommandhandler(device, CHECK_POWER_MODE, 0, (char *)&result)))
+  ata_cmd_in in{ATA_CHECK_POWER_MODE};
+  in.out_needed.sector_count = true;
+
+  ata_cmd_out out;
+  if (!ata_pass_through(device, in, out))
     return -1;
 
-  return (int)result;
+  if (!out.out_regs.sector_count.is_set()) {
+    if (ata_debugmode)
+      lib_printf("CHECK POWER MODE: incomplete response, ATA output registers missing\n");
+    device->set_err(ENOSYS);
+    return -1;
+  }
+  return out.out_regs.sector_count;
 }
 
 // Issue a no-data ATA command with optional sector count register value
 bool ata_nodata_command(ata_device * device, unsigned char command,
                         int sector_count /* = -1 */)
 {
-  ata_cmd_in in;
-  in.in_regs.command = command;
+  ata_cmd_in in{command};
   if (sector_count >= 0)
     in.in_regs.sector_count = sector_count;
-
-  return device->ata_pass_through(in);
+  return ata_pass_through(device, in);
 }
 
 // Issue SET FEATURES command with optional sector count register value
 bool ata_set_features(ata_device * device, unsigned char features,
                       int sector_count /* = -1 */)
 {
-  ata_cmd_in in;
-  in.in_regs.command = ATA_SET_FEATURES;
-  in.in_regs.features = features;
+  ata_cmd_in in{ATA_SET_FEATURES, features};
   if (sector_count >= 0)
     in.in_regs.sector_count = sector_count;
-
-  return device->ata_pass_through(in);
+  return ata_pass_through(device, in);
 }
 
 // Reads current Device Identity info (512 bytes) into ID.  Returns 0
@@ -764,11 +607,15 @@ int ata_read_identity(ata_device * device, ata_identify_device & id,
   // See if device responds either to IDENTIFY DEVICE or IDENTIFY
   // PACKET DEVICE
   bool packet = false;
-  if ((smartcommandhandler(device, IDENTIFY, 0, (char *)&id))){
+  ata_cmd_in in{ATA_IDENTIFY_DEVICE};
+  in.set_data_in(&id, 1);
+  if (!ata_pass_through(device, in)) {
     smart_device::error_info err = device->get_err();
-    if (smartcommandhandler(device, PIDENTIFY, 0, (char *)&id)){
+
+    in.in_regs.command = ATA_IDENTIFY_PACKET_DEVICE;
+    if (!ata_pass_through(device, in)) {
       device->set_err(err);
-      return -1; 
+      return -1;
     }
     packet = true;
   }
@@ -892,10 +739,11 @@ int ataIsSmartEnabled(const ata_identify_device * drive)
 
 // Reads SMART attributes into *data
 int ataReadSmartValues(ata_device * device, struct ata_smart_values *data){
-  
-  if (smartcommandhandler(device, READ_VALUES, 0, (char *)data)){
+
+  ata_cmd_in in{ATA_SMART_CMD, ATA_SMART_READ_VALUES};
+  in.set_data_in(data, 1);
+  if (!ata_pass_through(device, in))
     return -1;
-  }
 
   // compute checksum
   if (checksum(data))
@@ -913,27 +761,23 @@ static void fixsamsungselftestlog(ata_smart_selftestlog * data)
 {
   // bytes 508/509 (numbered from 0) swapped (swap of self-test index
   // with one byte of reserved.
-  byteswap_array_16_inplace(&data->mostrecenttest, 2);
+  std::swap(data->mostrecenttest, data->reserved[0]);
 
   // LBA low register (here called 'selftestnumber", containing
   // information about the TYPE of the self-test) is byte swapped with
   // Self-test execution status byte.  These are bytes N, N+1 in the
   // entries.
   for (int i = 0; i < 21; i++)
-    byteswap_array_16_inplace(&data->selftest_struct[i].selftestnumber, 2);
-
-  return;
+    std::swap(data->selftest_struct[i].selftestnumber, data->selftest_struct[i].selfteststatus);
 }
 
 // Reads the Self Test Log (log #6)
 int ataReadSelfTestLog (ata_device * device, ata_smart_selftestlog * data,
                         firmwarebug_defs firmwarebugs)
 {
-
   // get data from device
-  if (smartcommandhandler(device, READ_LOG, 0x06, (char *)data)){
+  if (!ataReadSmartLog(device, 0x06, data, 1))
     return -1;
-  }
 
   // compute its checksum, and issue a warning if needed
   if (checksum(data))
@@ -981,15 +825,12 @@ bool ataReadExtSelfTestLog(ata_device * device, ata_smart_extselftestlog * log,
 bool ataWriteLogExt(ata_device * device, unsigned char logaddr,
                     unsigned page, void * data, unsigned nsectors)
 {
-  ata_cmd_in in;
-  in.in_regs.command      = ATA_WRITE_LOG_EXT;
-  in.set_data_out(data, nsectors);
-  in.in_regs.lba_low      = logaddr;
-  in.in_regs.lba_mid_16   = page;
+  ata_cmd_in in{ATA_WRITE_LOG_EXT};
+  in.in_regs.lba_low    = logaddr;
+  in.in_regs.lba_mid_16 = page;
   in.set_data_out(data, nsectors);
 
-  ata_cmd_out out;
-  if (!device->ata_pass_through(in, out)) { // TODO: Debug output
+  if (!ata_pass_through(device, in)) {
     if (nsectors <= 1) {
       lib_printf("ATA_WRITE_LOG_EXT (addr=0x%02x, page=%u, n=%u) failed: %s\n",
            logaddr, page, nsectors, device->get_errmsg());
@@ -1013,14 +854,11 @@ bool ataReadLogExt(ata_device * device, unsigned char logaddr,
                    unsigned char features, unsigned page,
                    void * data, unsigned nsectors)
 {
-  ata_cmd_in in;
-  in.in_regs.command      = ATA_READ_LOG_EXT;
-  in.in_regs.features     = features; // log specific
+  ata_cmd_in in{ATA_READ_LOG_EXT, features};
+  in.in_regs.lba_low    = logaddr;
+  in.in_regs.lba_mid_16 = page;
   in.set_data_in_48bit(data, nsectors);
-  in.in_regs.lba_low      = logaddr;
-  in.in_regs.lba_mid_16   = page;
-
-  if (!device->ata_pass_through(in)) { // TODO: Debug output
+  if (!ata_pass_through(device, in)) {
     if (nsectors <= 1) {
       lib_printf("ATA_READ_LOG_EXT (addr=0x%02x:0x%02x, page=%u, n=%u) failed: %s\n",
            logaddr, features, page, nsectors, device->get_errmsg());
@@ -1044,28 +882,27 @@ bool ataReadLogExt(ata_device * device, unsigned char logaddr,
 bool ataReadSmartLog(ata_device * device, unsigned char logaddr,
                      void * data, unsigned nsectors)
 {
-  ata_cmd_in in;
-  in.in_regs.command  = ATA_SMART_CMD;
-  in.in_regs.features = ATA_SMART_READ_LOG_SECTOR;
+  ata_cmd_in in{ATA_SMART_CMD, ATA_SMART_READ_LOG_SECTOR};
+  in.in_regs.lba_low = logaddr;
   in.set_data_in(data, nsectors);
-  in.in_regs.lba_high = SMART_CYL_HI;
-  in.in_regs.lba_mid  = SMART_CYL_LOW;
-  in.in_regs.lba_low  = logaddr;
-
-  if (!device->ata_pass_through(in)) { // TODO: Debug output
-    lib_printf("ATA_SMART_READ_LOG failed: %s\n", device->get_errmsg());
-    return false;
-  }
-  return true;
+  return ata_pass_through(device, in);
 }
 
-
+// Write SMART Log page(s).
+bool ata_write_smart_log(ata_device * device, uint8_t logaddr,
+                         const void * data, uint8_t nsectors)
+{
+  ata_cmd_in in{ATA_SMART_CMD, ATA_SMART_WRITE_LOG_SECTOR};
+  in.in_regs.lba_low = logaddr;
+  in.set_data_out(data, nsectors);
+  return ata_pass_through(device, in);
+}
 
 // Reads the SMART or GPL Log Directory (log #0)
 int ataReadLogDirectory(ata_device * device, ata_smart_log_directory * data, bool gpl)
 {
   if (!gpl) { // SMART Log directory
-    if (smartcommandhandler(device, READ_LOG, 0x00, (char *)data))
+    if (!ataReadSmartLog(device, 0x00, data, 1))
       return -1;
   }
   else { // GP Log directory
@@ -1083,9 +920,8 @@ int ataReadLogDirectory(ata_device * device, ata_smart_log_directory * data, boo
 int ataReadSelectiveSelfTestLog(ata_device * device, struct ata_selective_self_test_log *data){
   
   // get data from device
-  if (smartcommandhandler(device, READ_LOG, 0x09, (char *)data)){
+  if (!ataReadSmartLog(device, 0x09, data, 1))
     return -1;
-  }
    
   // compute its checksum, and issue a warning if needed
   if (checksum(data))
@@ -1258,7 +1094,7 @@ int ataWriteSelectiveSelfTestLog(ata_device * device, ata_selective_selftest_arg
   ata_if_be_byteswap_inplace(*data);
 
   // write new selective self-test log
-  if (smartcommandhandler(device, WRITE_LOG, 0x09, (char *)data)){
+  if (!ata_write_smart_log(device, 0x09, data, 1)) {
     lib_printf("Write Selective Self-test Log failed: %s\n", device->get_errmsg());
     return -3;
   }
@@ -1300,9 +1136,8 @@ int ataReadErrorLog (ata_device * device, ata_smart_errorlog *data,
 {
   
   // get data from device
-  if (smartcommandhandler(device, READ_LOG, 0x01, (char *)data)){
+  if (!ataReadSmartLog(device, 0x01, data, 1))
     return -1;
-  }
   
   // compute its checksum, and issue a warning if needed
   if (checksum(data))
@@ -1364,13 +1199,12 @@ bool ataReadExtErrorLog(ata_device * device, ata_smart_exterrlog * log,
 
 
 int ataReadSmartThresholds (ata_device * device, struct ata_smart_thresholds_pvt *data){
-  
-  // get data from device
-  if (smartcommandhandler(device, READ_THRESHOLDS, 0, (char *)data)){
+
+  ata_cmd_in in{ATA_SMART_CMD, ATA_SMART_READ_THRESHOLDS};
+  in.set_data_in(data, 1);
+  if (!ata_pass_through(device, in))
     return -1;
-  }
   
-  // compute its checksum, and issue a warning if needed
   if (checksum(data))
     checksumwarning("SMART Attribute Thresholds Structure");
   
@@ -1381,33 +1215,25 @@ int ataReadSmartThresholds (ata_device * device, struct ata_smart_thresholds_pvt
 }
 
 int ataEnableSmart (ata_device * device ){
-  if (smartcommandhandler(device, ENABLE, 0, NULL)){
-    return -1;
-  }
-  return 0;
+  ata_cmd_in in{ATA_SMART_CMD, ATA_SMART_ENABLE};
+  return (ata_pass_through(device, in) ? 0 : -1);
 }
 
 int ataDisableSmart (ata_device * device ){
-  
-  if (smartcommandhandler(device, DISABLE, 0, NULL)){
-    return -1;
-  }  
-  return 0;
+  ata_cmd_in in{ATA_SMART_CMD, ATA_SMART_DISABLE};
+  return (ata_pass_through(device, in) ? 0 : -1);
 }
 
 int ataEnableAutoSave(ata_device * device){
-  if (smartcommandhandler(device, AUTOSAVE, 241, NULL)){
-    return -1;
-  }
-  return 0;
+  ata_cmd_in in{ATA_SMART_CMD, ATA_SMART_AUTOSAVE};
+  in.in_regs.sector_count = 0xf1; // Caution: Non-DATA command!
+  return (ata_pass_through(device, in) ? 0 : -1);
 }
 
 int ataDisableAutoSave(ata_device * device){
-  
-  if (smartcommandhandler(device, AUTOSAVE, 0, NULL)){
-    return -1;
-  }
-  return 0;
+  ata_cmd_in in{ATA_SMART_CMD, ATA_SMART_AUTOSAVE};
+  in.in_regs.sector_count = 0; // Caution: Non-DATA command!
+  return (ata_pass_through(device, in) ? 0 : -1);
 }
 
 // In *ALL* ATA standards the Enable/Disable AutoOffline command is
@@ -1417,20 +1243,18 @@ int ataDisableAutoSave(ata_device * device){
 int ataEnableAutoOffline (ata_device * device){
   
   /* timer hard coded to 4 hours */  
-  if (smartcommandhandler(device, AUTO_OFFLINE, 248, NULL)){
-    return -1;
-  }
-  return 0;
+  ata_cmd_in in{ATA_SMART_CMD, ATA_SMART_AUTO_OFFLINE};
+  in.in_regs.sector_count = 0xf8; // Caution: Non-DATA command!
+  return (ata_pass_through(device, in) ? 0 : -1);
 }
 
 // Another Obsolete Command.  See comments directly above, associated
 // with the corresponding Enable command.
 int ataDisableAutoOffline (ata_device * device){
   
-  if (smartcommandhandler(device, AUTO_OFFLINE, 0, NULL)){
-    return -1;
-  }
-  return 0;
+  ata_cmd_in in{ATA_SMART_CMD, ATA_SMART_AUTO_OFFLINE};
+  in.in_regs.sector_count = 0; // Caution: Non-DATA command!
+  return (ata_pass_through(device, in) ? 0 : -1);
 }
 
 // If SMART is enabled, supported, and working, then this call is
@@ -1438,18 +1262,53 @@ int ataDisableAutoOffline (ata_device * device){
 // regardless of whether the disk's SMART status is 'healthy' or
 // 'failing'.
 int ataDoesSmartWork(ata_device * device){
-  int retval=smartcommandhandler(device, STATUS, 0, NULL);
-
-  if (-1 == retval)
-    return 0;
-
-  return 1;
+  ata_cmd_in in{ATA_SMART_CMD, ATA_SMART_STATUS};
+  return (ata_pass_through(device, in) ? 1 : 0);
 }
 
 // This function uses a different interface (DRIVE_TASK) than the
 // other commands in this file.
 int ataSmartStatus2(ata_device * device){
-  return smartcommandhandler(device, STATUS_CHECK, 0, NULL);  
+  ata_cmd_in in{ATA_SMART_CMD, ATA_SMART_STATUS};
+  in.out_needed.lba_high = in.out_needed.lba_mid = true; // Status returned here
+
+  ata_cmd_out out;
+  if (!ata_pass_through(device, in, out))
+    return -1;
+
+  // Cyl low and Cyl high unchanged means "Good SMART status"
+  if (out.out_regs.lba_high == ATA_SMART_CMD_LBA_HIGH && out.out_regs.lba_mid == ATA_SMART_CMD_LBA_MID)
+    return 0;
+  // These values mean "Bad SMART status"
+  if (   out.out_regs.lba_high == ATA_SMART_FAILED_LBA_HIGH
+      && out.out_regs.lba_mid == ATA_SMART_FAILED_LBA_MID)
+    return 1;
+  if (out.out_regs.lba_mid == ATA_SMART_CMD_LBA_MID) {
+    if (ata_debugmode)
+      lib_printf("SMART STATUS RETURN: half healthy response sequence, "
+                 "probable SAT/USB truncation\n");
+    return 0;
+  }
+  if (out.out_regs.lba_mid == ATA_SMART_FAILED_LBA_MID) {
+    if (ata_debugmode)
+      lib_printf("SMART STATUS RETURN: half unhealthy response sequence, "
+                 "probable SAT/USB truncation\n");
+    return 1;
+  }
+  if (!out.out_regs.is_set()) {
+    device->set_err(ENOSYS, "Incomplete response, ATA output registers missing");
+    return -1;
+  }
+  device->set_err(ENOSYS, "Invalid ATA output register values: LBA_HI=0x%02x, LBA_MID=0x%02x",
+                  out.out_regs.lba_high.val(), out.out_regs.lba_mid.val());
+  return -1;
+}
+
+bool ata_smart_self_test(ata_device * device, uint8_t testtype)
+{
+  ata_cmd_in in{ATA_SMART_CMD, ATA_SMART_IMMEDIATE_OFFLINE};
+  in.in_regs.lba_low = testtype;
+  return ata_pass_through(device, in);
 }
 
 // This is the way to execute ALL tests: offline, short self-test,
@@ -1525,7 +1384,7 @@ int ataSmartTest(ata_device * device, int testtype, bool force,
   }
   
   // Now send the command to test
-  if (smartcommandhandler(device, IMMEDIATE_OFFLINE, testtype, NULL)) {
+  if (!ata_smart_self_test(device, testtype)) {
     if (!(cap && device->get_errno() == EIO)) {
       lib_printf("Command \"%s\" failed: %s\n", cmdmsg, device->get_errmsg());
       return -1;
@@ -2039,7 +1898,7 @@ int ataReadSCTStatus(ata_device * device, ata_sct_status_response * sts)
 {
   // read SCT status via SMART log 0xe0
   memset(sts, 0, sizeof(*sts));
-  if (smartcommandhandler(device, READ_LOG, 0xe0, (char *)sts)){
+  if (!ataReadSmartLog(device, 0xe0, sts, 1)) {
     lib_printf("Read SCT Status failed: %s\n", device->get_errmsg());
     return -1;
   }
@@ -2079,14 +1938,14 @@ int ataReadSCTTempHist(ata_device * device, ata_sct_temperature_history_table * 
   ata_if_be_byteswap_inplace(cmd);
 
   // write command via SMART log page 0xe0
-  if (smartcommandhandler(device, WRITE_LOG, 0xe0, (char *)&cmd)){
+  if (!ata_write_smart_log(device, 0xe0, &cmd, 1)) {
     lib_printf("Write SCT Data Table failed: %s\n", device->get_errmsg());
     return -1;
   }
 
   // read SCT data via SMART log page 0xe1
   memset(tmh, 0, sizeof(*tmh));
-  if (smartcommandhandler(device, READ_LOG, 0xe1, (char *)tmh)){
+  if (!ataReadSmartLog(device, 0xe1, tmh, 1)) {
     lib_printf("Read SCT Data Table failed: %s\n", device->get_errmsg());
     return -1;
   }
@@ -2136,11 +1995,7 @@ static int ataGetSetSCTFeatureControl(ata_device * device, unsigned short featur
   ata_if_be_byteswap_inplace(cmd);
 
   // write command via SMART log page 0xe0
-  // TODO: Debug output
-  ata_cmd_in in;
-  in.in_regs.command = ATA_SMART_CMD;
-  in.in_regs.lba_high = SMART_CYL_HI; in.in_regs.lba_mid = SMART_CYL_LOW;
-  in.in_regs.features = ATA_SMART_WRITE_LOG_SECTOR;
+  ata_cmd_in in{ATA_SMART_CMD, ATA_SMART_WRITE_LOG_SECTOR};
   in.in_regs.lba_low = 0xe0;
   in.set_data_out(&cmd, 1);
 
@@ -2149,7 +2004,7 @@ static int ataGetSetSCTFeatureControl(ata_device * device, unsigned short featur
     in.out_needed.sector_count = in.out_needed.lba_low = true;
 
   ata_cmd_out out;
-  if (!device->ata_pass_through(in, out)) {
+  if (!ata_pass_through(device, in, out)) {
     lib_printf("Write SCT (%cet) Feature Control Command failed: %s\n",
       (!set ? 'G' : 'S'), device->get_errmsg());
     return -1;
@@ -2210,7 +2065,7 @@ int ataSetSCTTempInterval(ata_device * device, unsigned interval, bool persisten
   ata_if_be_byteswap_inplace(cmd);
 
   // write command via SMART log page 0xe0
-  if (smartcommandhandler(device, WRITE_LOG, 0xe0, (char *)&cmd)){
+  if (!ata_write_smart_log(device, 0xe0, &cmd, 1)){
     lib_printf("Write SCT Feature Control Command failed: %s\n", device->get_errmsg());
     return -1;
   }
@@ -2267,11 +2122,7 @@ static int ataGetSetSCTErrorRecoveryControltime(ata_device * device, unsigned ty
   ata_if_be_byteswap_inplace(cmd);
 
   // write command via SMART log page 0xe0
-  // TODO: Debug output
-  ata_cmd_in in;
-  in.in_regs.command = ATA_SMART_CMD;
-  in.in_regs.lba_high = SMART_CYL_HI; in.in_regs.lba_mid = SMART_CYL_LOW;
-  in.in_regs.features = ATA_SMART_WRITE_LOG_SECTOR;
+  ata_cmd_in in{ATA_SMART_CMD, ATA_SMART_WRITE_LOG_SECTOR};
   in.in_regs.lba_low = 0xe0;
   in.set_data_out(&cmd, 1);
 
@@ -2280,7 +2131,7 @@ static int ataGetSetSCTErrorRecoveryControltime(ata_device * device, unsigned ty
     in.out_needed.sector_count = in.out_needed.lba_low = true;
 
   ata_cmd_out out;
-  if (!device->ata_pass_through(in, out)) {
+  if (!ata_pass_through(device, in, out)) {
     lib_printf("Write SCT (%cet) Error Recovery Control Command failed: %s\n",
       (!set ? 'G' : 'S'), device->get_errmsg());
     return -1;

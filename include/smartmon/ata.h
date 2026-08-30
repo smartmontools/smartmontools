@@ -62,6 +62,17 @@ namespace smartmon {
 // Subcommand)
 #define ATA_SMART_AUTO_OFFLINE          0xdb
 
+// LBA_MID/HIGH (CYLINDER_LOW/HIGH, LBA 23:8) register values for ATA_SMART_CMD.
+enum {
+  // Required as input for each ATA_SMART_CMD.
+  // Also returned by SMART_STATUS to indicate a "good" status.
+  ATA_SMART_CMD_LBA_MID               = 0x4f,
+  ATA_SMART_CMD_LBA_HIGH              = 0xc2,
+  // Returned by SMART_STATUS to indicate a "failed" status.
+  ATA_SMART_FAILED_LBA_MID            = 0xf4,
+  ATA_SMART_FAILED_LBA_HIGH           = 0x2c
+};
+
 // Sector Number values for ATA_SMART_IMMEDIATE_OFFLINE Subcommand
 #define OFFLINE_FULL_SCAN               0
 #define SHORT_SELF_TEST                 1

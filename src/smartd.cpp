@@ -3658,10 +3658,9 @@ static int DoATASelfTest(const dev_config & cfg, dev_state & state, ata_device *
   }
 
   // execute the test, and return status
-  int retval = smartcommandhandler(device, IMMEDIATE_OFFLINE, dotest, nullptr);
-  if (retval) {
+  if (!ata_smart_self_test(device, dotest)) {
     PrintOut(LOG_CRIT, "Device: %s, execute %sTest failed.\n", name, testname);
-    return retval;
+    return 1;
   }
 
   // Report recent test start to do_disable_standby_check()

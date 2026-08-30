@@ -3,7 +3,7 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2008-25 Christian Franke
+ * Copyright (C) 2008-26 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -138,10 +138,23 @@ ata_out_regs_48bit::ata_out_regs_48bit()
 }
 
 ata_cmd_in::ata_cmd_in()
-: direction(no_data),
-  buffer(0),
-  size(0)
 {
+}
+
+ata_cmd_in::ata_cmd_in(uint8_t command)
+: ata_cmd_in()
+{
+  in_regs.command = command;
+  if (command == ATA_SMART_CMD) {
+    in_regs.lba_mid = ATA_SMART_CMD_LBA_MID;
+    in_regs.lba_high = ATA_SMART_CMD_LBA_HIGH;
+  }
+}
+
+ata_cmd_in::ata_cmd_in(uint8_t command, uint8_t features)
+: ata_cmd_in(command)
+{
+  in_regs.features = features;
 }
 
 ata_cmd_out::ata_cmd_out()

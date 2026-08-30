@@ -3,7 +3,7 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2008-25 Christian Franke
+ * Copyright (C) 2008-26 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -471,9 +471,9 @@ struct ata_cmd_in
 {
   ata_in_regs_48bit in_regs;  ///< Input registers
   ata_out_regs_flags out_needed; ///< True if output register value needed
-  enum { no_data = 0, data_in, data_out } direction; ///< I/O direction
-  void * buffer; ///< Pointer to data buffer
-  unsigned size; ///< Size of buffer
+  enum { no_data = 0, data_in, data_out } direction = no_data; ///< I/O direction
+  void * buffer = nullptr; ///< Pointer to data buffer
+  unsigned size = 0; ///< Size of buffer
 
   /// Prepare for 28-bit DATA IN command
   void set_data_in(void * buf, unsigned nsectors)
@@ -504,6 +504,8 @@ struct ata_cmd_in
     }
 
   ata_cmd_in();
+  explicit ata_cmd_in(uint8_t command);
+  ata_cmd_in(uint8_t command, uint8_t features);
 };
 
 /// ATA pass through output parameters
