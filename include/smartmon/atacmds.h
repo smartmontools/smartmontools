@@ -293,10 +293,6 @@ int ataDisableAutoOffline (ata_device * device);
 /* S.M.A.R.T. test commands */
 bool ata_smart_self_test(ata_device * device, uint8_t testtype);
 
-int ataSmartTest(ata_device * device, int testtype, bool force,
-                 const ata_selective_selftest_args & args,
-                 const ata_smart_values * sv, uint64_t num_sectors);
-
 int ataWriteSelectiveSelfTestLog(ata_device * device, ata_selective_selftest_args & args,
                                  const ata_smart_values * sv, uint64_t num_sectors,
                                  const ata_selective_selftest_args * prev_spans = 0);

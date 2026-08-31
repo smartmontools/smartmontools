@@ -3430,6 +3430,94 @@ static void print_standby_timer(const char * msg, int timer, const ata_identify_
     pout("%s%d (%02d:%02d:%02d%s%s)\n", msg, timer, hours, minutes, seconds, s2, s3);
 }
 
+// Start all types of self-tests.
+static bool start_smart_selftest(ata_device * device, uint8_t testtype, bool force,
+                                const ata_selective_selftest_args & selargs,
+                                const ata_smart_values & sv, uint64_t num_sectors)
+{
+  // Set up strings that describe the type of test
+  bool cap = !!(testtype & CAPTIVE_MASK);
+  const char * captive;
+  if (cap)
+    captive="captive";
+  else
+    captive="off-line";
+
+  bool select = false;
+  const char * type;
+  if (testtype==OFFLINE_FULL_SCAN)
+    type="off-line";
+  else  if (testtype==SHORT_SELF_TEST || testtype==SHORT_CAPTIVE_SELF_TEST)
+    type="Short self-test";
+  else if (testtype==EXTEND_SELF_TEST || testtype==EXTEND_CAPTIVE_SELF_TEST)
+    type="Extended self-test";
+  else if (testtype==CONVEYANCE_SELF_TEST || testtype==CONVEYANCE_CAPTIVE_SELF_TEST)
+    type="Conveyance self-test";
+  else if ((select=(testtype==SELECTIVE_SELF_TEST || testtype==SELECTIVE_CAPTIVE_SELF_TEST)))
+    type="Selective self-test";
+  else
+    type = nullptr;
+
+  // Check whether another test is already running
+  if (type && (sv.self_test_exec_status >> 4) == 0xf) {
+    if (!force) {
+      pout("Can't start self-test without aborting current test (%d0%% remaining),\n"
+           "%srun 'smartctl -X' to abort test.\n",
+        sv.self_test_exec_status & 0x0f,
+        (!select ? "add '-t force' option to override, or " : ""));
+      return false;
+    }
+  }
+  else
+    force = false;
+
+  // If doing a selective self-test, first use WRITE_LOG to write the
+  // selective self-test log.
+  ata_selective_selftest_args selargs_io = selargs; // filled with info about actual spans
+  int retval;
+  if (select && (retval = ataWriteSelectiveSelfTestLog(device, selargs_io, &sv, num_sectors))) {
+    if (retval==-4)
+      pout("Can't start selective self-test without aborting current test: use '-X' option to smartctl.\n");
+    return false;
+  }
+
+  //  Print ouf message that we are sending the command to test
+  char cmdmsg[128];
+  if (testtype==ABORT_SELF_TEST)
+    snprintf(cmdmsg, sizeof(cmdmsg), "Abort SMART off-line mode self-test routine");
+  else if (!type)
+    snprintf(cmdmsg, sizeof(cmdmsg), "SMART EXECUTE OFF-LINE IMMEDIATE subcommand 0x%02x", testtype);
+  else
+    snprintf(cmdmsg, sizeof(cmdmsg), "Execute SMART %s routine immediately in %s mode", type, captive);
+  pout("Sending command: \"%s\".\n",cmdmsg);
+
+  if (select) {
+    int i;
+    pout("SPAN         STARTING_LBA           ENDING_LBA\n");
+    for (i = 0; i < selargs_io.num_spans; i++)
+      pout("   %d %20" PRId64 " %20" PRId64 "\n", i,
+        selargs_io.span[i].start,
+        selargs_io.span[i].end);
+  }
+
+  // Now send the command to test
+  if (!ata_smart_self_test(device, testtype)) {
+    if (!(cap && device->get_errno() == EIO)) {
+      pout("Command \"%s\" failed: %s\n", cmdmsg, device->get_errmsg());
+      return false;
+    }
+  }
+
+  // Since the command succeeded, tell user
+  if (testtype==ABORT_SELF_TEST)
+    pout("Self-testing aborted!\n");
+  else {
+    pout("Drive command \"%s\" successful.\n", cmdmsg);
+    if (type)
+      pout("Testing has begun%s.\n", (force ? " (previous test aborted)" : ""));
+  }
+  return true;
+}
 
 int ataPrintMain (ata_device * device, const ata_print_options & options)
 {
@@ -4709,10 +4797,9 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
     break; // Vendor specific type
   }
 
-  // Now do the test.  Note ataSmartTest prints its own error/success
-  // messages
-  if (ataSmartTest(device, options.smart_selftest_type, options.smart_selftest_force,
-                   options.smart_selective_args, &smartval, sizes.sectors            ))
+  // Now do the test.
+  if (!start_smart_selftest(device, options.smart_selftest_type, options.smart_selftest_force,
+                            options.smart_selective_args, smartval, sizes.sectors             ))
     failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
   else {  
     // Tell user how long test will take to complete.  This is tricky
