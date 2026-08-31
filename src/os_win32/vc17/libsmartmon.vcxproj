@@ -86,6 +86,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-static|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-static|ARM64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="..\..\..\lib\dev_parse_debug.cpp" />
     <ClCompile Include="..\..\..\lib\farmcmds.cpp" />
     <ClCompile Include="..\..\..\lib\hexdump.cpp" />
     <ClCompile Include="..\..\..\lib\json.cpp" />
