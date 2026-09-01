@@ -7145,7 +7145,7 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "USB: ; JMicron",
     "0x152d:0x0583", // USB->SATA adapter using default id of JMS583 (see below)
-    "0x(0414|3202|9128)",
+    "0x(0205|0414|3202|9128)", // 0x9128: Wavlink Dual Bay Docking Station
     "",
     "-d sat"
   },
