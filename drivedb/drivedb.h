@@ -6448,23 +6448,11 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d usbjmicron"
   },
-  { "USB: LaCie Rugged Triple Interface; ",
-    "0x059f:0x100c",
-    "", // 0x0001
-    "",
-    "-d sat"
-  },
   { "USB: LaCie Desktop Hard Drive;",
     "0x059f:0x1010",
     "",
     "",
     "-d usbsunplus"
-  },
-  { "USB: LaCie Desktop Hard Drive; ",
-    "0x059f:0x101[68]", // 0x1016: SAMSUNG HD103UJ
-    "", // 0x0001
-    "",
-    "-d sat"
   },
   { "USB: LaCie Desktop Hard Drive; JMicron",
     "0x059f:0x1019",
@@ -6484,58 +6472,21 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d usbjmicron"
   },
-  { "USB: LaCie hard disk; ",
-    "0x059f:0x1029",
-    "", // 0x0100
-    "",
-    "-d sat"
-  },
-  { "USB: Lacie rikiki; JMicron",
+  { "USB: LaCie rikiki; JMicron",
     "0x059f:0x102a",
     "",
     "",
     "-d usbjmicron,x"
   },
-  { "USB: LaCie D2 USB3; LucidPort USB300 ",
-    "0x059f:0x103d",
-    "",
-    "",
-    "-d sat"
-  },
-  { "USB: LaCie rikiki USB 3.0; ",
-    "0x059f:0x10(49|57)",
-    "",
-    "",
-    "-d sat"
-  },
-  { "USB: LaCie minimus USB 3.0; ",
-    "0x059f:0x104a",
-    "",
-    "",
-    "-d sat"
-  },
-  { "USB: LaCie Rugged Mini USB 3.0; ",
-    "0x059f:0x1051",
-    "", // 0x0000
-    "",
-    "-d sat"
-  },
-  { "USB: LaCie P9230 (LAC302002); ",
-    "0x059f:0x1053",
-    "", // 0x0000
-    "",
-    "-d sat"
-  },
-  { "USB: LaCie Rugged Mini HDD; ",
-    "0x059f:0x106b",
-    "",
-    "",
-    "-d sat"
-  },
-  { "USB: LaCie; ", // 0x1070: ASMedia 1053 ?
-    "0x059f:0x10(6f|7[05]|b8)", // 0x0x10b8: d2 PROFESSIONAL
-    "", // 6f/70/b8=0x0001, 75=0x0000
-    "",
+  { "USB: LaCie; ",
+    "0x059f:0x10(0c|1[68]|29|3d|4[9a]|5[137]|6[bf]|7[05]|91|b8)",
+    "", // 0x100c (0x0001): Rugged Triple Interface,
+    "", // 0x1016 (0x0001): Desktop HDD (SAMSUNG HD103UJ), 0x1018: Desktop HDD,
+        // 0x1029 (0x0100): HDD, 0x103d: d2 (LucidPort USB300), 0x1049: Rikiki,
+        // 0x104a: Minimus, 0x1051 (0x0000): Rugged Mini,
+        // 0x1053 (0x0000): P9230 (LAC302002), 0x1057: Rikiki, 0x106b: Rugged Mini,
+        // 0x106f (0x0001), 0x1070 (0x0001): (ASMedia 1053 ?), 0x1075 (0x0000),
+        // 0x1091 (0x1001): 2.5" HDD "Porsche" series, 0x10b8 (0x0001): d2 PROFESSIONAL
     "-d sat"
   },
   // In-System Design
