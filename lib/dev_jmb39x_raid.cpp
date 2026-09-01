@@ -763,7 +763,7 @@ bool jmb39x_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & /* out
     // JMB39x truncates data to 464 bytes (512 - 32 header - 16 footer).
     // Prevent checksum warning
     if (supported > 1)
-      ((uint8_t *)in.buffer)[512-1] -= checksum(in.buffer);
+      reinterpret_cast<uint8_t *>(in.buffer)[512-1] -= ata_checksum(in.buffer);
 
     // For self-test log (lba_low 0x06), fix the mostrecenttest index at byte 508.
     if (   in.in_regs.command == ATA_SMART_CMD

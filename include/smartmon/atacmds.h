@@ -227,109 +227,114 @@ void ata_print_debug_info(const ata_cmd_in & in, const ata_cmd_out & out,
 int ata_read_identity(ata_device * device, ata_identify_device & id,
                       bool fix_swapped_id = false);
 
-int ataCheckPowerMode(ata_device * device);
+int ata_check_power_mode(ata_device * device);
 
 // Issue a no-data ATA command with optional sector count register value
-bool ata_nodata_command(ata_device * device, unsigned char command, int sector_count = -1);
+bool ata_nodata_command(ata_device * device, uint8_t command);
+bool ata_nodata_command(ata_device * device, uint8_t command, uint8_t sector_count);
 
 // Issue SET FEATURES command with optional sector count register value
-bool ata_set_features(ata_device * device, unsigned char features, int sector_count = -1);
+bool ata_set_features(ata_device * device, uint8_t features);
+bool ata_set_features(ata_device * device, uint8_t features, uint8_t sector_count);
 
 /* Read S.M.A.R.T information from drive */
-int ataReadSmartValues(ata_device * device,struct ata_smart_values *);
-int ataReadSmartThresholds(ata_device * device, struct ata_smart_thresholds_pvt *);
-int ataReadErrorLog (ata_device * device, ata_smart_errorlog *data,
-                     firmwarebug_defs firmwarebugs);
-int ataReadSelfTestLog(ata_device * device, ata_smart_selftestlog * data,
-                       firmwarebug_defs firmwarebugs);
-int ataReadSelectiveSelfTestLog(ata_device * device, struct ata_selective_self_test_log *data);
-int ataReadLogDirectory(ata_device * device, ata_smart_log_directory *, bool gpl);
-
-// Write GP Log page(s)
-bool ataWriteLogExt(ata_device * device, unsigned char logaddr,
-                    unsigned page, void * data, unsigned nsectors);
+bool ata_read_smart_data(ata_device * device, ata_smart_values & data);
+bool ata_read_smart_thresholds(ata_device * device, ata_smart_thresholds_pvt & thr);
+bool ata_read_smart_error_log (ata_device * device, ata_smart_errorlog & log,
+  firmwarebug_defs firmwarebugs);
+bool ata_read_smart_self_test_log(ata_device * device, ata_smart_selftestlog & log,
+  firmwarebug_defs firmwarebugs);
+bool ata_read_smart_selective_self_test_log(ata_device * device,
+  ata_selective_self_test_log & log);
+bool ata_read_log_directory(ata_device * device, ata_smart_log_directory & log, bool gpl);
 
 // Read GP Log page(s)
-bool ataReadLogExt(ata_device * device, unsigned char logaddr,
-                   unsigned char features, unsigned page,
-                   void * data, unsigned nsectors);
+bool ata_read_log_ext(ata_device * device, uint8_t logaddr, uint8_t features, uint16_t page,
+  void * log, uint16_t nsectors);
+
+// Write GP Log page(s)
+bool ata_write_log_ext(ata_device * device, uint8_t logaddr, uint16_t page, const void * log,
+  uint16_t nsectors);
+
 // Read SMART Log page(s)
-bool ataReadSmartLog(ata_device * device, unsigned char logaddr,
-                     void * data, unsigned nsectors);
+bool ata_read_smart_log(ata_device * device, uint8_t logaddr, void * log, uint8_t nsectors);
 
 /// Write SMART Log page(s).
-bool ata_write_smart_log(ata_device * device, uint8_t logaddr,
-                         const void * data, uint8_t nsectors);
+bool ata_write_smart_log(ata_device * device, uint8_t logaddr, const void * log, uint8_t nsectors);
 
 // Read SMART Extended Comprehensive Error Log
-bool ataReadExtErrorLog(ata_device * device, ata_smart_exterrlog * log,
-                        unsigned page, unsigned nsectors, firmwarebug_defs firmwarebugs);
+bool ata_read_smart_ext_comp_error_log(ata_device * device, ata_smart_exterrlog * log,
+  uint16_t page, uint16_t nsectors, firmwarebug_defs firmwarebugs);
+
 // Read SMART Extended Self-test Log
-bool ataReadExtSelfTestLog(ata_device * device, ata_smart_extselftestlog * log,
-                           unsigned nsectors);
+bool ata_read_smart_ext_self_test_log(ata_device * device, ata_smart_extselftestlog * log,
+  uint16_t nsectors);
 
 // Read SCT information
-int ataReadSCTStatus(ata_device * device, ata_sct_status_response * sts);
-int ataReadSCTTempHist(ata_device * device, ata_sct_temperature_history_table * tmh,
-                       ata_sct_status_response * sts);
+bool ata_read_sct_status(ata_device * device, ata_sct_status_response & sts);
+bool ata_read_sct_temperature_history(ata_device * device, ata_sct_temperature_history_table & tmh,
+  ata_sct_status_response & sts);
 // Set SCT temperature logging interval
-int ataSetSCTTempInterval(ata_device * device, unsigned interval, bool persistent);
+bool ata_set_sct_temperature_interval(ata_device * device, uint16_t interval, bool persistent);
 
 // Get/Set SCT Error Recovery Control
-int ataGetSCTErrorRecoveryControltime(ata_device * device, unsigned type, unsigned short & time_limit, bool power_on);
-int ataSetSCTErrorRecoveryControltime(ata_device * device, unsigned type, unsigned short time_limit, bool power_on, bool mfg_default);
-
+bool ata_get_sct_erc_time(ata_device * device, uint16_t type, uint16_t & time_limit,
+  bool power_on);
+bool ata_set_sct_erc_time(ata_device * device, uint16_t type, uint16_t time_limit,
+  bool power_on, bool mfg_default);
 
 /* Enable/Disable SMART on device */
-int ataEnableSmart (ata_device * device);
-int ataDisableSmart (ata_device * device);
-int ataEnableAutoSave(ata_device * device);
-int ataDisableAutoSave(ata_device * device);
+bool ata_enable_smart(ata_device * device, bool enable = true);
+bool ata_enable_smart_auto_save(ata_device * device, bool enable = true);
 
 /* Automatic Offline Testing */
-int ataEnableAutoOffline (ata_device * device);
-int ataDisableAutoOffline (ata_device * device);
+bool ata_enable_smart_auto_offline(ata_device * device, bool enable = true);
 
 /* S.M.A.R.T. test commands */
 bool ata_smart_self_test(ata_device * device, uint8_t testtype);
 
-int ataWriteSelectiveSelfTestLog(ata_device * device, ata_selective_selftest_args & args,
-                                 const ata_smart_values * sv, uint64_t num_sectors,
-                                 const ata_selective_selftest_args * prev_spans = 0);
+/// Read/write selective self-test log to prepare a selective self-test.
+/// Return 1 on success, 0 if a test is already running or  -1 on error.
+int ata_prepare_selective_self_test(ata_device * device, ata_selective_selftest_args & args,
+  const ata_smart_values & sv, uint64_t num_sectors,
+  const ata_selective_selftest_args * prev_spans = nullptr);
 
 // Get World Wide Name (WWN) fields.
 // Return NAA field or -1 if WWN is unsupported.
-int ata_get_wwn(const ata_identify_device * id, unsigned & oui, uint64_t & unique_id);
+int ata_get_wwn(const ata_identify_device & id, uint32_t & oui, uint64_t & unique_id);
 
 // Get nominal media rotation rate.
 // Returns: 0 = not reported, 1 = SSD, >1 = HDD rpm, < 0 = -(Unknown value)
-int ata_get_rotation_rate(const ata_identify_device * id);
+int ata_get_rotation_rate(const ata_identify_device & id);
 
 // If SMART supported, this is guaranteed to return 1 if SMART is enabled, else 0.
-int ataDoesSmartWork(ata_device * device);
+bool ata_is_smart_status_working(ata_device * device);
 
 // returns 1 if SMART supported, 0 if not supported or can't tell
-int ataSmartSupport(const ata_identify_device * drive);
+int ata_is_smart_supported(const ata_identify_device & id);
 
 // Return values:
 //  1: Write Cache Reordering enabled
 //  2: Write Cache Reordering disabled
 // -1: error
-int ataGetSetSCTWriteCacheReordering(ata_device * device, bool enable, bool persistent, bool set);
+int ata_get_set_sct_write_cache_reordering(ata_device * device, bool enable, bool persistent,
+  bool set);
 
 // Return values:
 // 1: Write cache controlled by ATA Set Features command
 // 2: Force enable write cache
 // 3: Force disable write cache
-int ataGetSetSCTWriteCache(ata_device * device, unsigned short state, bool persistent, bool set);
+int ata_get_set_sct_write_cache(ata_device * device, uint16_t state, bool persistent, bool set);
 
 // Return values:
 //  1: SMART enabled
 //  0: SMART disabled
 // -1: can't tell if SMART is enabled -- try issuing ataDoesSmartWork command to see
-int ataIsSmartEnabled(const ata_identify_device * drive);
+int ata_is_smart_enabled(const ata_identify_device & id);
 
-int ataSmartStatus2(ata_device * device);
+/// Issue SMART STATUS command and check the result.
+/// Return 0 if "good" status, 1 if "failed" status and -1 on error.
+int ata_get_smart_status(ata_device * device);
 
 // Get reference to modify word N from `ata_identify_device.words*[]` arrays.
 // Does not compile for the other fields.
@@ -365,53 +370,54 @@ static inline const uint16_t & ata_get_id_word(const ata_identify_device & id)
   return ata_set_id_word<N>(const_cast<ata_identify_device &>(id));
 }
 
-bool isSmartErrorLogCapable(const ata_smart_values * data, const ata_identify_device * identity);
+bool ata_is_smart_error_log_capable(const ata_smart_values & data, const ata_identify_device & id);
 
-bool isSmartTestLogCapable(const ata_smart_values * data, const ata_identify_device * identity);
+bool ata_is_smart_self_test_log_capable(const ata_smart_values & data, const ata_identify_device & id);
 
-bool isGeneralPurposeLoggingCapable(const ata_identify_device * identity);
+bool ata_is_gp_log_capable(const ata_identify_device & id);
 
 // SMART self-test capability is also indicated in bit 1 of DEVICE
 // IDENTIFY word 87 (if top two bits of word 87 match pattern 01).
 // However this was only introduced in ATA-6 (but self-test log was in
 // ATA-5).
-inline bool isSupportExecuteOfflineImmediate(const ata_smart_values *data)
-  { return !!(data->offline_data_collection_capability & 0x01); }
+static inline bool ata_is_offline_immediate_capable(const ata_smart_values & data)
+  { return !!(data.offline_data_collection_capability & 0x01); }
 
 // TODO: Remove uses of this check.  Bit 1 is vendor specific since ATA-4.
 // Automatic timer support was only documented for very old IBM drives
 // (for example IBM Travelstar 40GNX).
-inline bool isSupportAutomaticTimer(const ata_smart_values * data)
-  { return !!(data->offline_data_collection_capability & 0x02); }
+static inline bool ata_is_automatic_timer_capable(const ata_smart_values & data)
+  { return !!(data.offline_data_collection_capability & 0x02); }
 
-inline bool isSupportOfflineAbort(const ata_smart_values *data)
-  { return !!(data->offline_data_collection_capability & 0x04); }
+static inline bool ata_is_offline_abort_capable(const ata_smart_values & data)
+  { return !!(data.offline_data_collection_capability & 0x04); }
 
-inline bool isSupportOfflineSurfaceScan(const ata_smart_values * data)
-  { return !!(data->offline_data_collection_capability & 0x08); }
+static inline bool ata_is_offline_surface_scan_capable(const ata_smart_values & data)
+  { return !!(data.offline_data_collection_capability & 0x08); }
 
-inline bool isSupportSelfTest(const ata_smart_values * data)
-  { return !!(data->offline_data_collection_capability & 0x10); }
+static inline bool ata_is_self_test_capable(const ata_smart_values & data)
+  { return !!(data.offline_data_collection_capability & 0x10); }
 
-inline bool isSupportConveyanceSelfTest(const ata_smart_values * data)
-  { return !!(data->offline_data_collection_capability & 0x20); }
+static inline bool ata_is_conveyance_self_test_capable(const ata_smart_values & data)
+  { return !!(data.offline_data_collection_capability & 0x20); }
 
-inline bool isSupportSelectiveSelfTest(const ata_smart_values * data)
-  { return !!(data->offline_data_collection_capability & 0x40); }
+static inline bool ata_is_selective_self_test_capable(const ata_smart_values & data)
+  { return !!(data.offline_data_collection_capability & 0x40); }
 
-inline bool isSCTCapable(const ata_identify_device *drive)
-  { return !!(ata_get_id_word<206>(*drive) & 0x01); } // 0x01 = SCT support
+static inline bool ata_is_sct_capable(const ata_identify_device & id)
+  { return !!(ata_get_id_word<206>(id) & 0x01); } // 0x01 = SCT support
 
-inline bool isSCTErrorRecoveryControlCapable(const ata_identify_device *drive)
-  { return ((ata_get_id_word<206>(*drive) & 0x09) == 0x09); } // 0x08 = SCT Error Recovery Control support
+static inline bool ata_is_sct_erc_capable(const ata_identify_device & id)
+  { return ((ata_get_id_word<206>(id) & 0x09) == 0x09); } // 0x08 = SCT Error Recovery Control support
 
-inline bool isSCTFeatureControlCapable(const ata_identify_device *drive)
-  { return ((ata_get_id_word<206>(*drive) & 0x11) == 0x11); } // 0x10 = SCT Feature Control support
+static inline bool ata_is_sct_feature_control_capable(const ata_identify_device & id)
+  { return ((ata_get_id_word<206>(id) & 0x11) == 0x11); } // 0x10 = SCT Feature Control support
 
-inline bool isSCTDataTableCapable(const ata_identify_device *drive)
-  { return ((ata_get_id_word<206>(*drive) & 0x21) == 0x21); } // 0x20 = SCT Data Table support
+static inline bool ata_is_sct_data_table_capable(const ata_identify_device & id)
+  { return ((ata_get_id_word<206>(id) & 0x21) == 0x21); } // 0x20 = SCT Data Table support
 
-int TestTime(const ata_smart_values * data, int testtype);
+/// Return estimated time (minimum polling interval in minutes) for a self-test of type TESTTYPE.
+int ata_get_smart_self_test_minutes(const ata_smart_values & data, uint8_t testtype);
 
 // Attribute state
 enum ata_attr_state
@@ -487,12 +493,13 @@ struct ata_size_info
 
 void ata_get_size_info(const ata_identify_device * id, ata_size_info & sizes);
 
-// Utility routines.
-unsigned char checksum(const void * data);
+/// Calculate or check the checksum of 512 byte ATA sector.
+/// Returns 0 if correct.
+uint8_t ata_checksum(const void * data);
 
 // Returns the name of the command (and possibly sub-command) with the given
 // command code and feature register values.
-const char * look_up_ata_command(unsigned char c_code, unsigned char f_reg);
+const char * ata_get_command_name(uint8_t command, uint8_t features);
 
 // Byteswap strings in identify_device data.
 void ata_byteswap_id_strings_inplace(ata_identify_device & id, bool all = true);

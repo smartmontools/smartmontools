@@ -77,7 +77,7 @@ bool ataReadFarmLog(ata_device* device, ataFarmLog& farmLog, unsigned nsectors) 
     // Reset the current FARM log page
     uint64_t currentFarmLogPage[FARM_PAGE_SIZE / FARM_ATTRIBUTE_SIZE] = { };
     // Read the desired quantity of sectors from the current page into the buffer
-    bool readSuccessful = ataReadLogExt(device, 0xA6, 0, page * FARM_SECTORS_PER_PAGE, pageBuffer, numSectorsToRead);
+    bool readSuccessful = ata_read_log_ext(device, 0xA6, 0, page * FARM_SECTORS_PER_PAGE, pageBuffer, numSectorsToRead);
     if (!readSuccessful)
       return device->set_err(EIO, "Read FARM Log page %u: %s", page, device->get_errmsg());
     // Read the page from the buffer, one attribute (8 bytes) at a time

@@ -2042,7 +2042,7 @@ static int read_ata_error_count(ata_device * device, const char * name,
 {
   if (!extended) {
     ata_smart_errorlog log;
-    if (ataReadErrorLog(device, &log, firmwarebugs)){
+    if (!ata_read_smart_error_log(device, log, firmwarebugs)) {
       PrintOut(LOG_INFO,"Device: %s, Read Summary SMART Error Log failed\n",name);
       return -1;
     }
@@ -2050,7 +2050,7 @@ static int read_ata_error_count(ata_device * device, const char * name,
   }
   else {
     ata_smart_exterrlog logx;
-    if (!ataReadExtErrorLog(device, &logx, 0, 1 /*first sector only*/, firmwarebugs)) {
+    if (!ata_read_smart_ext_comp_error_log(device, &logx, 0, 1 /*first sector only*/, firmwarebugs)) {
       PrintOut(LOG_INFO,"Device: %s, Read Extended Comprehensive SMART Error Log failed\n",name);
       return -1;
     }
@@ -2068,7 +2068,7 @@ static int check_ata_self_test_log(ata_device * device, const char * name,
   struct ata_smart_selftestlog log;
 
   hour = 0;
-  if (ataReadSelfTestLog(device, &log, firmwarebugs)){
+  if (!ata_read_smart_self_test_log(device, log, firmwarebugs)) {
     PrintOut(LOG_INFO,"Device: %s, Read SMART Self Test Log Failed\n",name);
     return -1;
   }
@@ -2281,13 +2281,13 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
   ata_size_info sizes;
   ata_get_size_info(&drive, sizes);
   state.num_sectors = sizes.sectors;
-  cfg.dev_rpm = ata_get_rotation_rate(&drive);
+  cfg.dev_rpm = ata_get_rotation_rate(drive);
 
   char wwn[64]; wwn[0] = 0;
-  unsigned oui = 0; uint64_t unique_id = 0;
-  int naa = ata_get_wwn(&drive, oui, unique_id);
+  uint32_t oui = 0; uint64_t unique_id = 0;
+  int naa = ata_get_wwn(drive, oui, unique_id);
   if (naa >= 0)
-    snprintf(wwn, sizeof(wwn), "WWN:%x-%06x-%09" PRIx64 ", ", naa, oui, unique_id);
+    snprintf(wwn, sizeof(wwn), "WWN:%x-%06x-%09" PRIx64 ", ", naa, (unsigned)oui, unique_id);
 
   // Format device id string for warning emails
   char cap[32];
@@ -2350,7 +2350,7 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
   }
 
   // see if drive supports SMART
-  supported=ataSmartSupport(&drive);
+  supported = ata_is_smart_supported(drive);
   if (supported!=1) {
     if (supported==0)
       // drive does NOT support SMART
@@ -2370,11 +2370,11 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
     }
   }
   
-  if (ataEnableSmart(atadev)) {
+  if (!ata_enable_smart(atadev)) {
     // Enable SMART command has failed
     PrintOut(LOG_INFO,"Device: %s, could not enable SMART capability\n",name);
 
-    if (ataIsSmartEnabled(&drive) <= 0) {
+    if (ata_is_smart_enabled(drive) <= 0) {
       if (!cfg.permissive) {
         PrintOut(LOG_INFO, "Device: %s, to proceed anyway, use '-T permissive' Directive.\n", name);
         CloseDevice(atadev, name);
@@ -2389,7 +2389,7 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
   
   // disable device attribute autosave...
   if (cfg.autosave==1) {
-    if (ataDisableAutoSave(atadev))
+    if (!ata_enable_smart_auto_save(atadev, false))
       PrintOut(LOG_INFO,"Device: %s, could not disable SMART Attribute Autosave.\n",name);
     else
       PrintOut(LOG_INFO,"Device: %s, disabled SMART Attribute Autosave.\n",name);
@@ -2397,14 +2397,14 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
 
   // or enable device attribute autosave
   if (cfg.autosave==2) {
-    if (ataEnableAutoSave(atadev))
+    if (!ata_enable_smart_auto_save(atadev))
       PrintOut(LOG_INFO,"Device: %s, could not enable SMART Attribute Autosave.\n",name);
     else
       PrintOut(LOG_INFO,"Device: %s, enabled SMART Attribute Autosave.\n",name);
   }
 
   // capability check: SMART status
-  if (cfg.smartcheck && ataSmartStatus2(atadev) == -1) {
+  if (cfg.smartcheck && ata_get_smart_status(atadev) == -1) {
     PrintOut(LOG_INFO,"Device: %s, not capable of SMART Health Status check\n",name);
     cfg.smartcheck = false;
   }
@@ -2424,7 +2424,7 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
       || cfg.tempdiff        || cfg.tempinfo || cfg.tempcrit
       || cfg.curr_pending_id || cfg.offl_pending_id         ) {
 
-    if (ataReadSmartValues(atadev, &state.smartval)) {
+    if (!ata_read_smart_data(atadev, state.smartval)) {
       PrintOut(LOG_INFO, "Device: %s, Read SMART Values failed\n", name);
       cfg.usagefailed = cfg.prefail = cfg.usage = false;
       cfg.tempdiff = cfg.tempinfo = cfg.tempcrit = 0;
@@ -2432,7 +2432,7 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
     }
     else {
       smart_val_ok = true;
-      if (ataReadSmartThresholds(atadev, &state.smartthres)) {
+      if (!ata_read_smart_thresholds(atadev, state.smartthres)) {
         PrintOut(LOG_INFO, "Device: %s, Read SMART Thresholds failed%s\n",
                  name, (cfg.usagefailed ? ", ignoring -f Directive" : ""));
         cfg.usagefailed = false;
@@ -2488,10 +2488,10 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
       PrintOut(LOG_INFO,"Device: %s, could not %s SMART Automatic Offline Testing.\n",name, what);
     else {
       // if command appears unsupported, issue a warning...
-      if (!isSupportAutomaticTimer(&state.smartval))
+      if (!ata_is_automatic_timer_capable(state.smartval))
         PrintOut(LOG_INFO,"Device: %s, SMART Automatic Offline Testing unsupported...\n",name);
       // ... but then try anyway
-      if ((cfg.autoofflinetest==1)?ataDisableAutoOffline(atadev):ataEnableAutoOffline(atadev))
+      if (!ata_enable_smart_auto_offline(atadev, (cfg.autoofflinetest == 2)))
         PrintOut(LOG_INFO,"Device: %s, %s SMART Automatic Offline Testing failed.\n", name, what);
       else
         PrintOut(LOG_INFO,"Device: %s, %sd SMART Automatic Offline Testing.\n", name, what);
@@ -2502,15 +2502,15 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
   ata_smart_log_directory smart_logdir, gp_logdir;
   bool smart_logdir_ok = false, gp_logdir_ok = false;
 
-  if (   isGeneralPurposeLoggingCapable(&drive)
+  if (   ata_is_gp_log_capable(drive)
       && (cfg.errorlog || cfg.selftest)
       && !cfg.firmwarebugs.is_set(BUG_NOLOGDIR)) {
-      if (!ataReadLogDirectory(atadev, &smart_logdir, false))
+      if (ata_read_log_directory(atadev, smart_logdir, false))
         smart_logdir_ok = true;
   }
 
   if (cfg.xerrorlog && !cfg.firmwarebugs.is_set(BUG_NOLOGDIR)) {
-    if (!ataReadLogDirectory(atadev, &gp_logdir, true))
+    if (ata_read_log_directory(atadev, gp_logdir, true))
       gp_logdir_ok = true;
   }
 
@@ -2520,7 +2520,7 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
     int errcnt = 0; unsigned hour = 0;
     if (!(   cfg.permissive
           || ( smart_logdir_ok && smart_logdir.entry[0x06-1].numsectors)
-          || (!smart_logdir_ok && smart_val_ok && isSmartTestLogCapable(&state.smartval, &drive)))) {
+          || (!smart_logdir_ok && smart_val_ok && ata_is_smart_self_test_log_capable(state.smartval, drive)))) {
       PrintOut(LOG_INFO, "Device: %s, no SMART Self-test Log, ignoring -l selftest (override with -T permissive)\n", name);
       cfg.selftest = false;
     }
@@ -2539,8 +2539,9 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
   if (cfg.errorlog) {
     int errcnt1;
     if (!(   cfg.permissive
-          || ( smart_logdir_ok && smart_logdir.entry[0x01-1].numsectors)
-          || (!smart_logdir_ok && smart_val_ok && isSmartErrorLogCapable(&state.smartval, &drive)))) {
+          || (    smart_logdir_ok && smart_logdir.entry[0x01-1].numsectors)
+          || (   !smart_logdir_ok && smart_val_ok
+              && ata_is_smart_error_log_capable(state.smartval, drive))    )) {
       PrintOut(LOG_INFO, "Device: %s, no SMART Error Log, ignoring -l error (override with -T permissive)\n", name);
       cfg.errorlog = false;
     }
@@ -2588,7 +2589,7 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
 
   // capabilities check -- does it support powermode?
   if (cfg.powermode) {
-    int powermode = ataCheckPowerMode(atadev);
+    int powermode = ata_check_power_mode(atadev);
     
     if (-1 == powermode) {
       PrintOut(LOG_CRIT, "Device: %s, no ATA CHECK POWER STATUS support, ignoring -n Directive\n", name);
@@ -2609,12 +2610,12 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
 
   if (cfg.set_aam)
     format_set_result_msg(msg, "AAM", (cfg.set_aam > 0 ?
-      ata_set_features(atadev, ATA_ENABLE_AAM, cfg.set_aam-1) :
+      ata_set_features(atadev, ATA_ENABLE_AAM, cfg.set_aam - 1) :
       ata_set_features(atadev, ATA_DISABLE_AAM)), cfg.set_aam, true);
 
   if (cfg.set_apm)
     format_set_result_msg(msg, "APM", (cfg.set_apm > 0 ?
-      ata_set_features(atadev, ATA_ENABLE_APM, cfg.set_apm-1) :
+      ata_set_features(atadev, ATA_ENABLE_APM, cfg.set_apm - 1) :
       ata_set_features(atadev, ATA_DISABLE_APM)), cfg.set_apm, true);
 
   if (cfg.set_lookahead)
@@ -2644,14 +2645,14 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
 
   // set SCT Error Recovery Control if requested
   if (cfg.sct_erc_set) {
-    if (!isSCTErrorRecoveryControlCapable(&drive))
+    if (!ata_is_sct_erc_capable(drive))
       PrintOut(LOG_INFO, "Device: %s, no SCT Error Recovery Control support, ignoring -l scterc\n",
                name);
     else if (locked)
       PrintOut(LOG_INFO, "Device: %s, no SCT support if ATA Security is LOCKED, ignoring -l scterc\n",
                name);
-    else if (   ataSetSCTErrorRecoveryControltime(atadev, 1, cfg.sct_erc_readtime, false, false )
-             || ataSetSCTErrorRecoveryControltime(atadev, 2, cfg.sct_erc_writetime, false, false))
+    else if (!(   ata_set_sct_erc_time(atadev, 1, cfg.sct_erc_readtime,  false, false)
+               && ata_set_sct_erc_time(atadev, 2, cfg.sct_erc_writetime, false, false)))
       PrintOut(LOG_INFO, "Device: %s, set of SCT Error Recovery Control failed\n", name);
     else
       PrintOut(LOG_INFO, "Device: %s, SCT Error Recovery Control set to: Read: %u, Write: %u\n",
@@ -3564,7 +3565,7 @@ static int DoATASelfTest(const dev_config & cfg, dev_state & state, ata_device *
   // Read current smart data and check status/capability
   // TODO: Reuse smart data already read in ATACheckDevice()
   struct ata_smart_values data;
-  if (ataReadSmartValues(device, &data) || !(data.offline_data_collection_capability)) {
+  if (!ata_read_smart_data(device, data) || !(data.offline_data_collection_capability)) {
     PrintOut(LOG_CRIT, "Device: %s, not capable of Offline or Self-Testing.\n", name);
     return 1;
   }
@@ -3575,28 +3576,28 @@ static int DoATASelfTest(const dev_config & cfg, dev_state & state, ata_device *
   switch (testtype) {
   case 'O':
     testname="Offline Immediate ";
-    if (isSupportExecuteOfflineImmediate(&data))
+    if (ata_is_offline_immediate_capable(data))
       dotest=OFFLINE_FULL_SCAN;
     else
       state.not_cap_offline = true;
     break;
   case 'C':
     testname="Conveyance Self-";
-    if (isSupportConveyanceSelfTest(&data))
+    if (ata_is_conveyance_self_test_capable(data))
       dotest=CONVEYANCE_SELF_TEST;
     else
       state.not_cap_conveyance = true;
     break;
   case 'S':
     testname="Short Self-";
-    if (isSupportSelfTest(&data))
+    if (ata_is_self_test_capable(data))
       dotest=SHORT_SELF_TEST;
     else
       state.not_cap_short = true;
     break;
   case 'L':
     testname="Long Self-";
-    if (isSupportSelfTest(&data))
+    if (ata_is_self_test_capable(data))
       dotest=EXTEND_SELF_TEST;
     else
       state.not_cap_long = true;
@@ -3604,7 +3605,7 @@ static int DoATASelfTest(const dev_config & cfg, dev_state & state, ata_device *
 
   case 'c': case 'n': case 'r':
     testname = "Selective Self-";
-    if (isSupportSelectiveSelfTest(&data)) {
+    if (ata_is_selective_self_test_capable(data)) {
       dotest = SELECTIVE_SELF_TEST;
       switch (testtype) {
         case 'c': mode = SEL_CONT; break;
@@ -3643,7 +3644,7 @@ static int DoATASelfTest(const dev_config & cfg, dev_state & state, ata_device *
     prev_args.num_spans = 1;
     prev_args.span[0].start = state.selective_test_last_start;
     prev_args.span[0].end   = state.selective_test_last_end;
-    if (ataWriteSelectiveSelfTestLog(device, selargs, &data, state.num_sectors, &prev_args)) {
+    if (ata_prepare_selective_self_test(device, selargs, data, state.num_sectors, &prev_args) <= 0) {
       PrintOut(LOG_CRIT, "Device: %s, prepare %sTest failed\n", name, testname);
       return 1;
     }
@@ -3909,13 +3910,13 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
   // alone if it is in idle or sleeping mode.  In this case check the
   // power mode and exit without check if needed
   if (cfg.powermode && !state.powermodefail) {
-    int dontcheck=0, powermode=ataCheckPowerMode(atadev);
+    int dontcheck = 0, powermode = ata_check_power_mode(atadev);
     const char * mode = 0;
     if (0 <= powermode && powermode < 0xff) {
       // wait for possible spin up and check again
       int powermode2;
       sleep(5);
-      powermode2 = ataCheckPowerMode(atadev);
+      powermode2 = ata_check_power_mode(atadev);
       if (powermode2 > powermode)
         PrintOut(LOG_INFO, "Device: %s, CHECK POWER STATUS spins up disk (0x%02x -> 0x%02x)\n", name, powermode, powermode2);
       powermode = powermode2;
@@ -4010,7 +4011,7 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
 
   // check smart status
   if (cfg.smartcheck) {
-    int status=ataSmartStatus2(atadev);
+    int status = ata_get_smart_status(atadev);
     state.smart_health_status = (status == 1) ? -1 : (status == 0) ? 1 : 0;
     if (status==-1){
       PrintOut(LOG_INFO,"Device: %s, not capable of SMART self-check\n",name);
@@ -4032,7 +4033,7 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
 
     // Read current attribute values.
     ata_smart_values curval;
-    if (ataReadSmartValues(atadev, &curval)){
+    if (!ata_read_smart_data(atadev, curval)) {
       PrintOut(LOG_CRIT, "Device: %s, failed to read SMART Attribute Data\n", name);
       MailWarning(cfg, state, 6, "Device: %s, failed to read SMART Attribute Data", name);
       state.must_write = true;

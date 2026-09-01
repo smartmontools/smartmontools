@@ -173,7 +173,7 @@ static bool iprop_switch_routed_drive(ata_device * device, int drive_select)
 {
   // Declare a log page buffer and initialize it with what is on the drive currently
   iprop_internal_log write_payload;
-  if (!ataReadLogExt(device, LOG_C0, 0, 0, &write_payload, 1))
+  if (!ata_read_log_ext(device, LOG_C0, 0, 0, &write_payload, 1))
     return device->set_err(EIO, "intelliprop: Initial Read Log failed: %s", device->get_errmsg());
 
   // Check the returned data is good
@@ -216,12 +216,12 @@ static bool iprop_switch_routed_drive(ata_device * device, int drive_select)
     return device->set_err(EIO, "intelliprop: Re-calculated log crc(0x%04X) is invalid!", crc_check2);
 
   // Apply the Write LOG
-  if (!ataWriteLogExt(device, LOG_C0, 0, &write_payload, 1))
+  if (!ata_write_log_ext(device, LOG_C0, 0, &write_payload, 1))
     return device->set_err(EIO, "intelliprop: Write Log failed: %s", device->get_errmsg());
 
   // Check that the Write LOG was applied
   iprop_internal_log check_payload;
-  if (!ataReadLogExt(device, LOG_C0, 0, 0, &check_payload, 1))
+  if (!ata_read_log_ext(device, LOG_C0, 0, 0, &check_payload, 1))
     return device->set_err(EIO, "intelliprop: Secondary Read Log failed: %s", device->get_errmsg());
 
   if (check_payload.drive_select != write_payload.drive_select) {

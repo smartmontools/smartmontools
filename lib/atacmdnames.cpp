@@ -4,7 +4,7 @@
  * Home page of code is: https://www.smartmontools.org
  *
  * Copyright (C) 2003-08 Philip Williams
- * Copyright (C) 2012-19 Christian Franke
+ * Copyright (C) 2012-26 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -305,11 +305,11 @@ SMARTMON_STATIC_ASSERT(sizeof(command_table) == 256 * sizeof(command_table[0]));
    simply returns the corresponding entry in the command_table array, but for
    others the value of the feature register specifies a subcommand or
    distinguishes commands. */
-const char *look_up_ata_command(unsigned char c_code, unsigned char f_reg) {
-
-  switch (c_code) {
+const char * ata_get_command_name(uint8_t command, uint8_t features)
+{
+  switch (command) {
   case 0x00:  /* NOP */
-    switch (f_reg) {
+    switch (features) {
     case 0x00:
       return "NOP [Abort queued commands]";
     case 0x01:
@@ -318,7 +318,7 @@ const char *look_up_ata_command(unsigned char c_code, unsigned char f_reg) {
       return "NOP [Reserved subcommand] [OBS-ACS-2]";
     }
   case 0x92:  /* DOWNLOAD MICROCODE */
-    switch (f_reg) {
+    switch (features) {
     case 0x01:
       return "DOWNLOAD MICROCODE [Temporary] [OBS-8]";
     case 0x03:
@@ -333,7 +333,7 @@ const char *look_up_ata_command(unsigned char c_code, unsigned char f_reg) {
       return "DOWNLOAD MICROCODE [Reserved subcommand]";
     }
   case 0xB0:  /* SMART */
-    switch (f_reg) {
+    switch (features) {
     case 0xD0:
       return "SMART READ DATA";
     case 0xD1:
@@ -359,13 +359,13 @@ const char *look_up_ata_command(unsigned char c_code, unsigned char f_reg) {
     case 0xDB:
       return "SMART EN/DISABLE AUTO OFFLINE [NS (SFF-8035i)]";
     default:
-        if (f_reg >= 0xE0)
+        if (features >= 0xE0)
           return "SMART [Vendor specific subcommand]";
         else
           return "SMART [Reserved subcommand]";
     }
   case 0xB1:  /* DEVICE CONFIGURATION */
-    switch (f_reg) {
+    switch (features) {
     case 0xC0:
       return "DEVICE CONFIGURATION RESTORE [OBS-ACS-3]";
     case 0xC1:
@@ -378,7 +378,7 @@ const char *look_up_ata_command(unsigned char c_code, unsigned char f_reg) {
       return "DEVICE CONFIGURATION [Reserved subcommand] [OBS-ACS-3]";
     }
   case 0xEF:  /* SET FEATURES */
-    switch (f_reg) {
+    switch (features) {
     case 0x01:
       return "SET FEATURES [Enable 8-bit PIO] [OBS-3]"; // Now CFA
     case 0x02:
@@ -476,13 +476,13 @@ const char *look_up_ata_command(unsigned char c_code, unsigned char f_reg) {
     case 0xE0:
       return "SET FEATURES [Vendor specific] [OBS-7]";
     default:
-      if (f_reg >= 0xF0)
+      if (features >= 0xF0)
         return "SET FEATURES [Reserved for CFA]";
       else
         return "SET FEATURES [Reserved subcommand]";
     }
   case 0xF9:  /* SET MAX */
-    switch (f_reg) {
+    switch (features) {
     case 0x00:
       return "SET MAX ADDRESS [OBS-6]";
     case 0x01:
@@ -497,7 +497,7 @@ const char *look_up_ata_command(unsigned char c_code, unsigned char f_reg) {
       return "SET MAX [Reserved subcommand] [OBS-ACS-3]";
     }
   default:
-    return command_table[c_code];
+    return command_table[command];
   }
 }
 
