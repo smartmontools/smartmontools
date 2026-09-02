@@ -4619,7 +4619,7 @@ const drive_settings builtin_knowndrives[] = {
     // https://www.farnell.com/datasheets/1852757.pdf
     // TOSHIBA THNSFJ256GCSU/JULA1102
     // TOSHIBA THNSFJ256GDNU A/JYLA1102
-    "TOSHIBA THNS[NF]J(060|128|256|512)G[BCAM8VD][SCN][TU].*",
+    "TOSHIBA THNS[NF]J(060|128|256|512)G[BCAM8VD][SCN][TUY].*",
     "", "",
     "-v 167,raw48,SSD_Protect_Mode "
     "-v 168,raw48,SATA_PHY_Error_Count "
