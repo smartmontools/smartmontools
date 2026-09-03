@@ -405,8 +405,11 @@ darwin_usb_scsi_device::darwin_usb_scsi_device(smart_interface * intf,
 
 darwin_usb_scsi_device::~darwin_usb_scsi_device()
 {
-  if (m_handle)
-    darwin_usb_close(m_handle);
+  if (m_handle) {
+    int err = 0;
+    std::string errmsg;
+    darwin_usb_close(m_handle, err, errmsg);
+  }
 }
 
 bool darwin_usb_scsi_device::is_open() const
@@ -433,8 +436,12 @@ bool darwin_usb_scsi_device::close()
 {
   if (!m_handle)
     return true;
-  darwin_usb_close(m_handle);
+  int err = 0;
+  std::string errmsg;
+  bool ok = darwin_usb_close(m_handle, err, errmsg);
   m_handle = 0;
+  if (!ok)
+    return set_err(err ? err : EIO, "%s", errmsg.c_str());
   return true;
 }
 

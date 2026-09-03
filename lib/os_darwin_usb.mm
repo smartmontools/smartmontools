@@ -25,6 +25,7 @@
 
 #include <dispatch/dispatch.h>
 
+#import <DiskArbitration/DiskArbitration.h>
 #import <Foundation/Foundation.h>
 #import <IOKit/IOBSD.h>
 #import <IOKit/IOKitLib.h>
@@ -44,8 +45,18 @@ enum darwin_usb_transport {
   darwin_usb_transport_uasp
 };
 
+struct darwin_mounted_volume
+{
+  std::string volume_uuid;
+  std::string media_uuid;
+  std::string bsd_name;
+  std::string mount_path;
+};
+
 struct darwin_usb_handle
 {
+  DASessionRef disk_session;
+  std::vector<darwin_mounted_volume> mounted_volumes;
   IOUSBHostDevice * device;
   IOUSBHostInterface * interface;
   IOUSBHostPipe * bulk_in;
@@ -317,6 +328,355 @@ static void get_whole_disk_names(io_service_t device,
   }
   IOObjectRelease(iterator);
   names.assign(unique_names.begin(), unique_names.end());
+}
+
+static std::string cf_string_to_string(CFStringRef value)
+{
+  if (!value)
+    return std::string();
+  CFIndex length = CFStringGetMaximumSizeForEncoding(CFStringGetLength(value),
+    kCFStringEncodingUTF8) + 1;
+  if (length <= 1)
+    return std::string();
+  std::vector<char> buffer((size_t)length);
+  if (!CFStringGetCString(value, &buffer[0], length, kCFStringEncodingUTF8))
+    return std::string();
+  return std::string(&buffer[0]);
+}
+
+static std::string description_uuid(CFDictionaryRef description,
+  CFStringRef key)
+{
+  CFTypeRef value = CFDictionaryGetValue(description, key);
+  if (!value || CFGetTypeID(value) != CFUUIDGetTypeID())
+    return std::string();
+  CFStringRef text = CFUUIDCreateString(kCFAllocatorDefault, (CFUUIDRef)value);
+  std::string result = cf_string_to_string(text);
+  if (text)
+    CFRelease(text);
+  return result;
+}
+
+static std::string description_string(CFDictionaryRef description,
+  CFStringRef key)
+{
+  CFTypeRef value = CFDictionaryGetValue(description, key);
+  if (!value || CFGetTypeID(value) != CFStringGetTypeID())
+    return std::string();
+  return cf_string_to_string((CFStringRef)value);
+}
+
+static std::string description_path(CFDictionaryRef description)
+{
+  CFTypeRef value = CFDictionaryGetValue(description,
+    kDADiskDescriptionVolumePathKey);
+  if (!value || CFGetTypeID(value) != CFURLGetTypeID())
+    return std::string();
+  UInt8 buffer[PATH_MAX] = {};
+  if (!CFURLGetFileSystemRepresentation((CFURLRef)value, true, buffer,
+      sizeof(buffer)))
+    return std::string();
+  return std::string((const char *)buffer);
+}
+
+static bool get_mounted_volumes(io_service_t device, DASessionRef session,
+  std::vector<darwin_mounted_volume> & volumes, std::string & error_message)
+{
+  volumes.clear();
+  io_iterator_t iterator = MACH_PORT_NULL;
+  if (IORegistryEntryCreateIterator(device, kIOServicePlane,
+      kIORegistryIterateRecursively, &iterator) != KERN_SUCCESS) {
+    error_message = "unable to enumerate USB media for mount state";
+    return false;
+  }
+
+  std::set<std::string> identifiers;
+  io_service_t service = MACH_PORT_NULL;
+  while ((service = IOIteratorNext(iterator))) {
+    if (!IOObjectConformsTo(service, kIOMediaClass)) {
+      IOObjectRelease(service);
+      continue;
+    }
+
+    DADiskRef disk = DADiskCreateFromIOMedia(kCFAllocatorDefault, session,
+      service);
+    IOObjectRelease(service);
+    if (!disk)
+      continue;
+    CFDictionaryRef description = DADiskCopyDescription(disk);
+    CFRelease(disk);
+    if (!description)
+      continue;
+
+    darwin_mounted_volume volume;
+    volume.mount_path = description_path(description);
+    if (volume.mount_path.empty()) {
+      CFRelease(description);
+      continue;
+    }
+    if (volume.mount_path == "/") {
+      CFRelease(description);
+      IOObjectRelease(iterator);
+      error_message = "refusing to detach a USB device containing the root volume";
+      return false;
+    }
+
+    volume.volume_uuid = description_uuid(description,
+      kDADiskDescriptionVolumeUUIDKey);
+    volume.media_uuid = description_uuid(description,
+      kDADiskDescriptionMediaUUIDKey);
+    volume.bsd_name = description_string(description,
+      kDADiskDescriptionMediaBSDNameKey);
+    CFRelease(description);
+
+    const std::string identifier = !volume.volume_uuid.empty()
+      ? std::string("volume:") + volume.volume_uuid
+      : (!volume.media_uuid.empty()
+          ? std::string("media:") + volume.media_uuid : std::string());
+    if (identifier.empty()) {
+      IOObjectRelease(iterator);
+      error_message = std::string("cannot safely restore mounted volume '")
+        + volume.bsd_name + "' because it has no persistent UUID";
+      return false;
+    }
+    if (identifiers.insert(identifier).second)
+      volumes.push_back(volume);
+  }
+  IOObjectRelease(iterator);
+  return true;
+}
+
+struct da_operation
+{
+  dispatch_semaphore_t semaphore;
+  DAReturn status;
+  std::string message;
+};
+
+static da_operation * new_da_operation()
+{
+  da_operation * operation = new da_operation;
+  operation->semaphore = dispatch_semaphore_create(0);
+  operation->status = kDAReturnNotReady;
+  return operation;
+}
+
+static void delete_da_operation(da_operation * operation)
+{
+  if (!operation)
+    return;
+#if !__has_feature(objc_arc)
+  dispatch_release(operation->semaphore);
+#endif
+  delete operation;
+}
+
+static void da_operation_callback(DADiskRef, DADissenterRef dissenter,
+  void * context)
+{
+  da_operation * operation = (da_operation *)context;
+  operation->status = dissenter
+    ? DADissenterGetStatus(dissenter) : kDAReturnSuccess;
+  if (dissenter)
+    operation->message = cf_string_to_string(
+      DADissenterGetStatusString(dissenter));
+  dispatch_semaphore_signal(operation->semaphore);
+}
+
+static bool wait_da_operation(da_operation * operation, const char * action,
+  std::string & error_message)
+{
+  dispatch_time_t deadline = dispatch_time(DISPATCH_TIME_NOW,
+    30LL * NSEC_PER_SEC);
+  if (dispatch_semaphore_wait(operation->semaphore, deadline)) {
+    // Disk Arbitration owns the callback context until it completes.  Keep the
+    // small context alive instead of risking a late-callback use-after-free.
+    error_message = std::string(action) + " timed out";
+    return false;
+  }
+  const DAReturn status = operation->status;
+  const std::string message = operation->message;
+  delete_da_operation(operation);
+  if (status == kDAReturnSuccess)
+    return true;
+  char status_text[32];
+  snprintf(status_text, sizeof(status_text), "0x%08x", (unsigned)status);
+  error_message = std::string(action) + " failed (" + status_text + ")";
+  if (!message.empty())
+    error_message += std::string(": ") + message;
+  return false;
+}
+
+static bool unmount_whole_disk(DASessionRef session, const std::string & name,
+  std::string & error_message)
+{
+  DADiskRef disk = DADiskCreateFromBSDName(kCFAllocatorDefault, session,
+    name.c_str());
+  if (!disk) {
+    error_message = std::string("unable to create Disk Arbitration object for '")
+      + name + "'";
+    return false;
+  }
+  da_operation * operation = new_da_operation();
+  DADiskUnmount(disk, kDADiskUnmountOptionWhole, da_operation_callback,
+    operation);
+  CFRelease(disk);
+  return wait_da_operation(operation, "whole-disk unmount", error_message);
+}
+
+static bool volume_matches(CFDictionaryRef description,
+  const darwin_mounted_volume & volume)
+{
+  if (!volume.volume_uuid.empty()
+      && description_uuid(description, kDADiskDescriptionVolumeUUIDKey)
+        == volume.volume_uuid)
+    return true;
+  return !volume.media_uuid.empty()
+    && description_uuid(description, kDADiskDescriptionMediaUUIDKey)
+      == volume.media_uuid;
+}
+
+static const std::string & volume_identifier(
+  const darwin_mounted_volume & volume)
+{
+  return !volume.volume_uuid.empty() ? volume.volume_uuid : volume.media_uuid;
+}
+
+static DADiskRef find_volume(DASessionRef session,
+  const darwin_mounted_volume & volume, bool & mounted)
+{
+  mounted = false;
+  io_iterator_t iterator = MACH_PORT_NULL;
+  if (IOServiceGetMatchingServices(kIOMainPortDefault,
+      IOServiceMatching(kIOMediaClass), &iterator) != KERN_SUCCESS)
+    return 0;
+
+  DADiskRef result = 0;
+  io_service_t service = MACH_PORT_NULL;
+  while ((service = IOIteratorNext(iterator))) {
+    DADiskRef disk = DADiskCreateFromIOMedia(kCFAllocatorDefault, session,
+      service);
+    IOObjectRelease(service);
+    if (!disk)
+      continue;
+    CFDictionaryRef description = DADiskCopyDescription(disk);
+    if (description && volume_matches(description, volume)) {
+      mounted = !description_path(description).empty();
+      result = disk;
+      CFRelease(description);
+      break;
+    }
+    if (description)
+      CFRelease(description);
+    CFRelease(disk);
+  }
+  IOObjectRelease(iterator);
+  return result;
+}
+
+static bool mount_volume(DASessionRef session, DADiskRef disk,
+  const darwin_mounted_volume & volume, std::string & error_message)
+{
+  CFURLRef path = CFURLCreateFromFileSystemRepresentation(kCFAllocatorDefault,
+    (const UInt8 *)volume.mount_path.c_str(), volume.mount_path.size(), true);
+  if (!path) {
+    error_message = std::string("unable to restore mount path '")
+      + volume.mount_path + "'";
+    return false;
+  }
+  da_operation * operation = new_da_operation();
+  DADiskMount(disk, path, kDADiskMountOptionDefault, da_operation_callback,
+    operation);
+  CFRelease(path);
+  return wait_da_operation(operation, "volume remount", error_message);
+}
+
+static bool restore_mounted_volumes(DASessionRef session,
+  const std::vector<darwin_mounted_volume> & volumes,
+  std::string & error_message)
+{
+  bool ok = true;
+  std::string errors;
+  for (std::vector<darwin_mounted_volume>::const_iterator it = volumes.begin();
+      it != volumes.end(); ++it) {
+    DADiskRef disk = 0;
+    bool mounted = false;
+    for (unsigned attempt = 0; attempt < 100 && !disk; ++attempt) {
+      disk = find_volume(session, *it, mounted);
+      if (!disk)
+        usleep(100000);
+    }
+    std::string error;
+    if (!disk)
+      error = std::string("volume did not reappear: ")
+        + volume_identifier(*it);
+    else if (!mounted && !mount_volume(session, disk, *it, error)) {
+      // Preserve the detailed Disk Arbitration error.
+    }
+    if (disk)
+      CFRelease(disk);
+    if (!error.empty()) {
+      ok = false;
+      if (!errors.empty())
+        errors += "; ";
+      errors += error;
+    }
+  }
+  if (!ok)
+    error_message = errors;
+  return ok;
+}
+
+static bool prepare_mounted_volumes(io_service_t service,
+  DASessionRef session, std::vector<darwin_mounted_volume> & volumes,
+  std::string & error_message)
+{
+  std::vector<std::string> whole_disks;
+  get_whole_disk_names(service, whole_disks);
+  if (whole_disks.empty()) {
+    error_message = "USB storage device has no whole-disk IOMedia";
+    return false;
+  }
+  if (!get_mounted_volumes(service, session, volumes, error_message))
+    return false;
+  if (volumes.empty())
+    return true;
+
+  for (std::vector<std::string>::const_iterator it = whole_disks.begin();
+      it != whole_disks.end(); ++it) {
+    if (!unmount_whole_disk(session, *it, error_message)) {
+      std::string restore_error;
+      if (!restore_mounted_volumes(session, volumes, restore_error))
+        error_message += std::string("; restore failed: ") + restore_error;
+      return false;
+    }
+  }
+
+  std::vector<darwin_mounted_volume> remaining;
+  if (!get_mounted_volumes(service, session, remaining, error_message)) {
+    const std::string inspect_error = error_message;
+    std::string restore_error;
+    error_message = inspect_error;
+    if (!restore_mounted_volumes(session, volumes, restore_error))
+      error_message += std::string("; restore failed: ") + restore_error;
+    return false;
+  }
+  if (!remaining.empty()) {
+    error_message = "one or more USB volumes remained mounted after unmount";
+    std::string restore_error;
+    if (!restore_mounted_volumes(session, volumes, restore_error))
+      error_message += std::string("; restore failed: ") + restore_error;
+    return false;
+  }
+  return true;
+}
+
+static void release_disk_session(DASessionRef session)
+{
+  if (!session)
+    return;
+  DASessionSetDispatchQueue(session, 0);
+  CFRelease(session);
 }
 
 static bool get_device_info(io_service_t service,
@@ -1338,6 +1698,25 @@ darwin_usb_handle * darwin_usb_open(const char * selector, int & error_number,
     uint64_t registry_id = 0;
     IORegistryEntryGetRegistryEntryID(service, &registry_id);
 
+    DASessionRef disk_session = DASessionCreate(kCFAllocatorDefault);
+    if (!disk_session) {
+      IOObjectRelease(service);
+      error_number = EIO;
+      error_message = "unable to create Disk Arbitration session";
+      return 0;
+    }
+    DASessionSetDispatchQueue(disk_session,
+      dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0));
+
+    std::vector<darwin_mounted_volume> mounted_volumes;
+    if (!prepare_mounted_volumes(service, disk_session, mounted_volumes,
+        error_message)) {
+      IOObjectRelease(service);
+      release_disk_session(disk_session);
+      error_number = EBUSY;
+      return 0;
+    }
+
     NSError * ns_error = nil;
     IOUSBHostDevice * device = [[IOUSBHostDevice alloc]
       initWithIOService:service
@@ -1347,9 +1726,16 @@ darwin_usb_handle * darwin_usb_open(const char * selector, int & error_number,
       interestHandler:nil];
     IOObjectRelease(service);
     if (!device) {
+      std::string restore_error;
+      bool restored = restore_mounted_volumes(disk_session, mounted_volumes,
+        restore_error);
+      release_disk_session(disk_session);
       error_number = EBUSY;
       error_message = std::string("unable to capture USB device: ")
         + ns_error_string(ns_error);
+      if (!restored)
+        error_message += std::string("; volume restore failed: ")
+          + restore_error;
       return 0;
     }
 
@@ -1360,11 +1746,20 @@ darwin_usb_handle * darwin_usb_open(const char * selector, int & error_number,
     if (!interface) {
       [device destroy];
       [device release];
+      std::string restore_error;
+      bool restored = restore_mounted_volumes(disk_session, mounted_volumes,
+        restore_error);
+      release_disk_session(disk_session);
       error_number = ENODEV;
+      if (!restored)
+        error_message += std::string("; volume restore failed: ")
+          + restore_error;
       return 0;
     }
 
     darwin_usb_handle * handle = new darwin_usb_handle;
+    handle->disk_session = disk_session;
+    handle->mounted_volumes.swap(mounted_volumes);
     handle->device = device;
     handle->interface = interface;
     handle->bulk_in = nil;
@@ -1385,15 +1780,23 @@ darwin_usb_handle * darwin_usb_open(const char * selector, int & error_number,
     if (transport == darwin_usb_transport_bot
         && !copy_bot_pipes(interface, handle->bulk_in, handle->bulk_out,
           error_message)) {
-      darwin_usb_close(handle);
+      std::string open_error = error_message, close_error;
+      int close_errno = 0;
+      if (!darwin_usb_close(handle, close_errno, close_error))
+        open_error += std::string("; volume restore failed: ") + close_error;
       error_number = ENODEV;
+      error_message = open_error;
       return 0;
     }
     if (transport == darwin_usb_transport_uasp) {
       if (!copy_uas_pipes(interface, handle->uas_command, handle->uas_status,
           handle->uas_data_in, handle->uas_data_out, error_message)) {
-        darwin_usb_close(handle);
+        std::string open_error = error_message, close_error;
+        int close_errno = 0;
+        if (!darwin_usb_close(handle, close_errno, close_error))
+          open_error += std::string("; volume restore failed: ") + close_error;
         error_number = ENODEV;
+        error_message = open_error;
         return 0;
       }
       try_enable_uas_streams(handle);
@@ -1402,10 +1805,13 @@ darwin_usb_handle * darwin_usb_open(const char * selector, int & error_number,
   }
 }
 
-void darwin_usb_close(darwin_usb_handle * handle)
+bool darwin_usb_close(darwin_usb_handle * handle, int & error_number,
+  std::string & error_message)
 {
+  error_number = 0;
+  error_message.clear();
   if (!handle)
-    return;
+    return true;
   @autoreleasepool {
     disable_uas_streams(handle);
     release_uas_pipes(handle->uas_command, handle->uas_status,
@@ -1425,7 +1831,15 @@ void darwin_usb_close(darwin_usb_handle * handle)
       [handle->device release];
     }
   }
+  bool restored = restore_mounted_volumes(handle->disk_session,
+    handle->mounted_volumes, error_message);
+  release_disk_session(handle->disk_session);
   delete handle;
+  if (!restored) {
+    error_number = EIO;
+    return false;
+  }
+  return true;
 }
 
 const char * darwin_usb_transport_name(const darwin_usb_handle * handle)

@@ -796,7 +796,7 @@ case "${host}" in
     ;;
   *-*-darwin*)
     os_deps='os_darwin.lo os_darwin_usb.lo'
-    os_libs='-framework CoreFoundation -framework Foundation -framework IOKit -framework IOUSBHost'
+    os_libs='-framework CoreFoundation -framework DiskArbitration -framework Foundation -framework IOKit -framework IOUSBHost'
     os_darwin=yes
     os_man_filter=Darwin
     ;;

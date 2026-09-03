@@ -63,9 +63,10 @@ const char * darwin_usb_protocol_name(darwin_usb_protocol protocol);
 darwin_usb_handle * darwin_usb_open(const char * selector, int & error_number,
   std::string & error_message);
 
-// Destroying the captured device resets it and lets macOS match its drivers
-// again.  This function is safe to call only with a non-null handle.
-void darwin_usb_close(darwin_usb_handle * handle);
+// Destroying the captured device resets it, lets macOS match its drivers again,
+// and restores volumes that were mounted before capture.
+bool darwin_usb_close(darwin_usb_handle * handle, int & error_number,
+  std::string & error_message);
 
 // Stable diagnostic name for the active wire protocol.
 const char * darwin_usb_transport_name(const darwin_usb_handle * handle);
