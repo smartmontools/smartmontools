@@ -17,7 +17,9 @@
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
+#include <set>
 #include <string>
+#include <vector>
 
 #include <unistd.h>
 
@@ -26,6 +28,7 @@
 #import <Foundation/Foundation.h>
 #import <IOKit/IOBSD.h>
 #import <IOKit/IOKitLib.h>
+#import <IOKit/storage/IOMedia.h>
 #import <IOKit/usb/USBSpec.h>
 #import <IOUSBHost/IOUSBHost.h>
 
@@ -200,6 +203,234 @@ static io_service_t resolve_selector(const char * selector, std::string & error)
   if (!usb_device)
     error = "selected service is not attached to an IOUSBHostDevice";
   return usb_device;
+}
+
+static CFTypeRef copy_registry_property(io_service_t service, const char * key)
+{
+  CFStringRef property_key = CFStringCreateWithCString(kCFAllocatorDefault,
+    key, kCFStringEncodingUTF8);
+  if (!property_key)
+    return 0;
+  CFTypeRef value = IORegistryEntryCreateCFProperty(service, property_key,
+    kCFAllocatorDefault, 0);
+  CFRelease(property_key);
+  return value;
+}
+
+static bool get_registry_number(io_service_t service, const char * key,
+  uint32_t & value)
+{
+  CFTypeRef property = copy_registry_property(service, key);
+  if (!property)
+    return false;
+  int64_t number = 0;
+  const bool ok = CFGetTypeID(property) == CFNumberGetTypeID()
+    && CFNumberGetValue((CFNumberRef)property, kCFNumberSInt64Type, &number)
+    && number >= 0 && number <= UINT32_MAX;
+  CFRelease(property);
+  if (ok)
+    value = (uint32_t)number;
+  return ok;
+}
+
+static bool get_registry_boolean(io_service_t service, const char * key)
+{
+  CFTypeRef property = copy_registry_property(service, key);
+  if (!property)
+    return false;
+  const bool value = CFGetTypeID(property) == CFBooleanGetTypeID()
+    && CFBooleanGetValue((CFBooleanRef)property);
+  CFRelease(property);
+  return value;
+}
+
+static std::string get_registry_string(io_service_t service, const char * key)
+{
+  CFTypeRef property = copy_registry_property(service, key);
+  if (!property)
+    return std::string();
+  char buffer[1024] = {};
+  const bool ok = CFGetTypeID(property) == CFStringGetTypeID()
+    && CFStringGetCString((CFStringRef)property, buffer, sizeof(buffer),
+      kCFStringEncodingUTF8);
+  CFRelease(property);
+  return ok ? std::string(buffer) : std::string();
+}
+
+static darwin_usb_protocol get_mass_storage_protocol(io_service_t device)
+{
+  io_iterator_t iterator = MACH_PORT_NULL;
+  if (IORegistryEntryCreateIterator(device, kIOServicePlane,
+      kIORegistryIterateRecursively, &iterator) != KERN_SUCCESS)
+    return darwin_usb_protocol_none;
+
+  darwin_usb_protocol protocol = darwin_usb_protocol_none;
+  io_service_t service = MACH_PORT_NULL;
+  while ((service = IOIteratorNext(iterator))) {
+    if (!IOObjectConformsTo(service, "IOUSBHostInterface")) {
+      IOObjectRelease(service);
+      continue;
+    }
+
+    uint32_t interface_class = 0, interface_subclass = 0,
+      interface_protocol = 0;
+    const bool scsi_storage =
+      get_registry_number(service, kUSBInterfaceClass, interface_class)
+      && get_registry_number(service, kUSBInterfaceSubClass,
+        interface_subclass)
+      && get_registry_number(service, kUSBInterfaceProtocol,
+        interface_protocol)
+      && interface_class == kUSBMassStorageInterfaceClass
+      && interface_subclass == kUSBMassStorageSCSISubClass;
+    IOObjectRelease(service);
+    if (!scsi_storage)
+      continue;
+    if (interface_protocol == 0x62) {
+      protocol = darwin_usb_protocol_uasp;
+      break;
+    }
+    if (interface_protocol == 0x50)
+      protocol = darwin_usb_protocol_bot;
+  }
+  IOObjectRelease(iterator);
+  return protocol;
+}
+
+static void get_whole_disk_names(io_service_t device,
+  std::vector<std::string> & names)
+{
+  io_iterator_t iterator = MACH_PORT_NULL;
+  if (IORegistryEntryCreateIterator(device, kIOServicePlane,
+      kIORegistryIterateRecursively, &iterator) != KERN_SUCCESS)
+    return;
+
+  std::set<std::string> unique_names;
+  io_service_t service = MACH_PORT_NULL;
+  while ((service = IOIteratorNext(iterator))) {
+    if (IOObjectConformsTo(service, kIOMediaClass)
+        && get_registry_boolean(service, kIOMediaWholeKey)) {
+      std::string name = get_registry_string(service, kIOBSDNameKey);
+      if (!name.empty())
+        unique_names.insert(std::string("/dev/") + name);
+    }
+    IOObjectRelease(service);
+  }
+  IOObjectRelease(iterator);
+  names.assign(unique_names.begin(), unique_names.end());
+}
+
+static bool get_device_info(io_service_t service,
+  darwin_usb_device_info & info)
+{
+  info = darwin_usb_device_info();
+  info.protocol = get_mass_storage_protocol(service);
+  if (info.protocol == darwin_usb_protocol_none)
+    return false;
+
+  IORegistryEntryGetRegistryEntryID(service, &info.registry_id);
+  uint32_t number = 0;
+  if (get_registry_number(service, kUSBVendorID, number))
+    info.vendor_id = (uint16_t)number;
+  if (get_registry_number(service, kUSBProductID, number))
+    info.product_id = (uint16_t)number;
+  if (get_registry_number(service, kUSBDeviceReleaseNumber, number))
+    info.device_version = (uint16_t)number;
+  info.vendor_name = get_registry_string(service, kUSBVendorString);
+  info.product_name = get_registry_string(service, kUSBProductString);
+  info.serial_number = get_registry_string(service, kUSBSerialNumberString);
+  return true;
+}
+
+bool darwin_usb_get_device_info(const char * selector,
+  darwin_usb_device_info & info, int & error_number,
+  std::string & error_message)
+{
+  error_number = 0;
+  error_message.clear();
+  if (!validate_selector_syntax(selector, error_message)) {
+    error_number = EINVAL;
+    return false;
+  }
+
+  io_service_t service = resolve_selector(selector, error_message);
+  if (!service) {
+    error_number = ENODEV;
+    return false;
+  }
+  const bool ok = get_device_info(service, info);
+  if (ok) {
+    const char * value = selector;
+    if (!strncmp(value, "usbraw:", 7))
+      value += 7;
+    value = strip_bsd_device_path(value);
+    if (is_whole_disk_name(value))
+      info.device_name = std::string("/dev/") + value;
+    else {
+      std::vector<std::string> names;
+      get_whole_disk_names(service, names);
+      if (names.size() == 1)
+        info.device_name = names[0];
+    }
+  }
+  IOObjectRelease(service);
+  if (!ok) {
+    error_number = ENODEV;
+    error_message = "selected USB device has no supported SCSI mass-storage interface";
+  }
+  return ok;
+}
+
+bool darwin_usb_scan_devices(std::vector<darwin_usb_device_info> & devices,
+  int & error_number, std::string & error_message)
+{
+  devices.clear();
+  error_number = 0;
+  error_message.clear();
+
+  io_iterator_t iterator = MACH_PORT_NULL;
+  kern_return_t kr = IOServiceGetMatchingServices(kIOMainPortDefault,
+    IOServiceMatching(kIOUSBHostDeviceClassName), &iterator);
+  if (kr != KERN_SUCCESS) {
+    error_number = EIO;
+    error_message = "unable to enumerate IOUSBHostDevice services";
+    return false;
+  }
+
+  io_service_t service = MACH_PORT_NULL;
+  while ((service = IOIteratorNext(iterator))) {
+    darwin_usb_device_info base_info;
+    if (get_device_info(service, base_info)) {
+      std::vector<std::string> names;
+      get_whole_disk_names(service, names);
+      for (std::vector<std::string>::const_iterator it = names.begin();
+          it != names.end(); ++it) {
+        darwin_usb_device_info info = base_info;
+        info.device_name = *it;
+        devices.push_back(info);
+      }
+    }
+    IOObjectRelease(service);
+  }
+  IOObjectRelease(iterator);
+
+  std::sort(devices.begin(), devices.end(),
+    [](const darwin_usb_device_info & lhs,
+       const darwin_usb_device_info & rhs) {
+      return lhs.device_name < rhs.device_name;
+    });
+  return true;
+}
+
+const char * darwin_usb_protocol_name(darwin_usb_protocol protocol)
+{
+  switch (protocol) {
+    case darwin_usb_protocol_bot:
+      return "BOT";
+    case darwin_usb_protocol_uasp:
+      return "UASP";
+    default:
+      return "unknown";
+  }
 }
 
 static IOUSBHostInterface * find_mass_storage_interface(IOUSBHostDevice * device,

@@ -11,7 +11,9 @@
 #ifndef SMARTMON_OS_DARWIN_USB_H
 #define SMARTMON_OS_DARWIN_USB_H
 
+#include <cstdint>
 #include <string>
+#include <vector>
 
 namespace smartmon {
 
@@ -21,9 +23,39 @@ namespace os_darwin {
 
 struct darwin_usb_handle;
 
+enum darwin_usb_protocol
+{
+  darwin_usb_protocol_none,
+  darwin_usb_protocol_bot,
+  darwin_usb_protocol_uasp
+};
+
+struct darwin_usb_device_info
+{
+  std::string device_name;
+  std::string vendor_name;
+  std::string product_name;
+  std::string serial_number;
+  uint64_t registry_id;
+  uint16_t vendor_id;
+  uint16_t product_id;
+  uint16_t device_version;
+  darwin_usb_protocol protocol;
+};
+
 // Return true for the Darwin disk names accepted by the raw USB backend and
 // for its explicit usbraw selector namespace.
 bool darwin_usb_is_device_name(const char * selector);
+
+// Read USB identity and mass-storage protocol information without capturing
+// the device.  scan returns one entry per whole IOMedia descendant.
+bool darwin_usb_get_device_info(const char * selector,
+  darwin_usb_device_info & info, int & error_number,
+  std::string & error_message);
+bool darwin_usb_scan_devices(std::vector<darwin_usb_device_info> & devices,
+  int & error_number, std::string & error_message);
+
+const char * darwin_usb_protocol_name(darwin_usb_protocol protocol);
 
 // Resolve a Darwin whole-disk name or explicit usbraw selector, capture the
 // complete USB device, and locate its active SCSI mass-storage interface.
