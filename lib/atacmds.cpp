@@ -380,7 +380,7 @@ static void print_regs(const char * prefix, const ata_out_regs_48bit & r, bool i
 // Print debug information for ATA pass-through input.
 void ata_print_debug_info(const ata_cmd_in & in, const char * devname, bool dump)
 {
-  lib_printf(" [ATA call: device='%s', command='%s', size=%u\n", devname,
+  lib_printf(" [ATA call: device='%s', command='%s', size=0x%04x\n", devname,
     ata_get_command_name(in.in_regs.command, in.in_regs.features), in.size);
 
   print_regs("  Input:  ", in.in_regs,
