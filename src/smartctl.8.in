@@ -90,7 +90,17 @@ Long forms are also available: please use \*(Aq\-h\*(Aq to see some examples.
 .Sp
 There is NVMe support based on the NVMeSMARTLib API in OSX.
 .Sp
-Note that Darwin SCSI support is not yet implemented.
+General Darwin SCSI pass-through is not implemented.  With an explicit
+\*(Aq\-d scsi\*(Aq, \*(Aq\-d sat\*(Aq, or supported \*(Aq\-d snt*\*(Aq type,
+this experimental branch uses the normal whole-disk forms above for raw USB
+mass-storage access.  The Darwin-specific names \fBusbraw:diskN\fP and
+\fBusbraw:REGISTRY_ID\fP are also available for explicit raw access and stable
+I/O Registry selection.  Normal device-type autodetection never selects this
+transport.
+.Sp
+The transport uses IOUSBHost DeviceCapture, requires root, and temporarily
+detaches the complete USB device from macOS.  Unmount all volumes on the device
+before use.
 .Sp
 Use the OS X SAT SMART Driver to access SMART data on SAT capable USB and
 Firewire devices (see INSTALL file).
@@ -517,6 +527,29 @@ bridge.
 See also \*(Aq\-d sntasmedia\*(Aq for the \*(Aq/sat\*(Aq suffix.
 .Sp
 .\" %ENDIF NOT OS Darwin
+.\" %IF OS Darwin
+.I scsi
+\- the device type is SCSI for Darwin whole-disk or experimental \fBUSBRAW\fP
+device names described above.  Only the read-oriented command allowlist
+implemented by the raw USB transport is accepted.
+.Sp
+.I sat[,12|16]
+\- the device is a SATA disk behind a USB bridge selected with a Darwin
+whole-disk or experimental \fBUSBRAW\fP device name.  The raw transport
+supports BOT and UASP at queue depth 1 and captures the complete USB device for
+the duration of the command.
+.Sp
+.I sntasmedia[/sat]
+.TQ
+.I sntjmicron[,NSID][/sat]
+.TQ
+.I sntrealtek[/sat]
+\- the device is an NVMe disk behind the corresponding USB-to-NVMe bridge and
+is selected with a Darwin whole-disk or experimental \fBUSBRAW\fP device name.
+Only Identify and Get Log Page paths are admitted by the raw transport.  Bridge
+and hardware validation is required before relying on this feature.
+.Sp
+.\" %ENDIF OS Darwin
 .\" %IF OS Linux
 .I marvell
 \- [Linux only] (deprecated and subject to remove).

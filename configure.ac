@@ -41,6 +41,15 @@ AC_ARG_VAR(MAKENSIS, [NSIS compiler command])
 
 AC_CANONICAL_HOST
 
+# The Darwin raw USB backend uses IOUSBHost, whose public API is Objective-C.
+# Keep the Objective-C++ compiler check Darwin-only so other platforms do not
+# gain a new build dependency.
+case "$host_os" in
+  darwin*)
+    AC_PROG_OBJCXX
+    ;;
+esac
+
 # Some make targets are incompatible with cross-compiling.
 # Note: Don't use 'test "$cross_compiling" = "yes"' because it may be "maybe".
 res=yes
@@ -786,8 +795,8 @@ case "${host}" in
     os_man_filter=Windows
     ;;
   *-*-darwin*)
-    os_deps='os_darwin.lo'
-    os_libs='-framework CoreFoundation -framework IOKit'
+    os_deps='os_darwin.lo os_darwin_usb.lo'
+    os_libs='-framework CoreFoundation -framework Foundation -framework IOKit -framework IOUSBHost'
     os_darwin=yes
     os_man_filter=Darwin
     ;;

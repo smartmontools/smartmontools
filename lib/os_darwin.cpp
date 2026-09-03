@@ -5,6 +5,7 @@
  *
  * Copyright (C) 2004-8 Geoffrey Keating <geoffk@geoffk.org>
  * Copyright (C) 2014 Alex Samorukov <samm@os2.kiev.ua>
+ * Copyright (C) 2026 PeratX <peratx@itxtech.org>
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -34,6 +35,7 @@
 #include <smartmon/nvmecmds.h>
 #include <smartmon/utility.h>
 #include "os_darwin.h"
+#include "os_darwin_usb.h"
 #include <smartmon/dev_interface.h>
 
 namespace smartmon {
@@ -374,6 +376,80 @@ protected:
   // virtual int ata_command_interface(smart_command_set command, int select, char * data);
 };
 
+/////////////////////////////////////////////////////////////////////////////
+/// Raw USB SCSI transport using IOUSBHost DeviceCapture.
+
+class darwin_usb_scsi_device
+: public /*implements*/ scsi_device
+{
+public:
+  darwin_usb_scsi_device(smart_interface * intf, const char * dev_name,
+    const char * req_type);
+  virtual ~darwin_usb_scsi_device();
+
+  virtual bool is_open() const override;
+  virtual bool open() override;
+  virtual bool close() override;
+  virtual bool scsi_pass_through(scsi_cmnd_io * iop) override;
+
+private:
+  darwin_usb_handle * m_handle;
+};
+
+darwin_usb_scsi_device::darwin_usb_scsi_device(smart_interface * intf,
+  const char * dev_name, const char * req_type)
+: smart_device(intf, dev_name, "scsi", req_type),
+  m_handle(0)
+{
+}
+
+darwin_usb_scsi_device::~darwin_usb_scsi_device()
+{
+  if (m_handle)
+    darwin_usb_close(m_handle);
+}
+
+bool darwin_usb_scsi_device::is_open() const
+{
+  return !!m_handle;
+}
+
+bool darwin_usb_scsi_device::open()
+{
+  if (m_handle)
+    return true;
+
+  int err = 0;
+  std::string errmsg;
+  m_handle = darwin_usb_open(get_dev_name(), err, errmsg);
+  if (!m_handle)
+    return set_err(err ? err : EIO, "%s", errmsg.c_str());
+  set_info().info_name = strprintf("%s [USB %s]", get_dev_name(),
+    darwin_usb_transport_name(m_handle));
+  return true;
+}
+
+bool darwin_usb_scsi_device::close()
+{
+  if (!m_handle)
+    return true;
+  darwin_usb_close(m_handle);
+  m_handle = 0;
+  return true;
+}
+
+bool darwin_usb_scsi_device::scsi_pass_through(scsi_cmnd_io * iop)
+{
+  if (!m_handle)
+    return set_err(EBADF, "raw USB device is not open");
+
+  int err = 0;
+  std::string errmsg;
+  if (!darwin_usb_scsi_pass_through(m_handle, iop, err, errmsg))
+    return set_err(err ? err : EIO, "%s", errmsg.c_str());
+  return true;
+}
+
 darwin_ata_device::darwin_ata_device(smart_interface * intf, const char * dev_name, const char * req_type)
 : smart_device(intf, dev_name, "ata", req_type),
   darwin_smart_device("ATA")
@@ -621,9 +697,11 @@ ata_device * darwin_smart_interface::get_ata_device(const char * name, const cha
   return new darwin_ata_device(this, name, type);
 }
 
-scsi_device * darwin_smart_interface::get_scsi_device(const char *, const char *)
+scsi_device * darwin_smart_interface::get_scsi_device(const char * name, const char * type)
 {
-  return 0; // scsi devices are not supported [yet]
+  if (!darwin_usb_is_device_name(name))
+    return 0; // The system SCSI stack still has no general pass-through API.
+  return new darwin_usb_scsi_device(this, name, type);
 }
 
 nvme_device * darwin_smart_interface::get_nvme_device(const char * name, const char * type,
@@ -634,6 +712,9 @@ nvme_device * darwin_smart_interface::get_nvme_device(const char * name, const c
 
 smart_device * darwin_smart_interface::autodetect_smart_device(const char * name)
 { // TODO - refactor as a function
+  if (!strncmp(name, "usbraw:", 7))
+    return new darwin_usb_scsi_device(this, name, "");
+
   // Acceptable device names are:
   // /dev/disk*
   // /dev/rdisk*

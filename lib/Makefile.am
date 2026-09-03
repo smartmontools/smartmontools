@@ -17,6 +17,10 @@ AM_CPPFLAGS = \
         -DSMARTMONTOOLS_SYSCONFDIR='"$(sysconfdir)"' \
          -I ../include -I$(top_srcdir)/include
 
+# Keep Objective-C++ Darwin code under the same language and warning policy as
+# the rest of the C++ backend.  The .mm source is not built on other systems.
+AM_OBJCXXFLAGS = $(CXXFLAGS) -fblocks
+
 if ENABLE_DRIVEDB
 AM_CPPFLAGS += -DSMARTMONTOOLS_DRIVEDBDIR='"$(drivedbdir)"'
 endif
@@ -77,6 +81,8 @@ libsmartmon_la_DEPENDENCIES = $(os_deps)
 EXTRA_libsmartmon_la_SOURCES = \
         os_darwin.cpp \
         os_darwin.h \
+        os_darwin_usb.h \
+        os_darwin_usb.mm \
         os_linux.cpp \
         os_linux.h \
         os_freebsd.cpp \
