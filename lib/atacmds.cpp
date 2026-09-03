@@ -325,7 +325,7 @@ static void invalidate_serno(ata_identify_device & id)
   uint8_t * b = reinterpret_cast<uint8_t *>(id.wwn);
   for (i = 0; i < sizeof(id.wwn); i++) {
     sum +=  b[i];
-    sum -= (b[i] = 0x00);
+    sum -= (b[i] = 0xff);
   }
 
   if (id.signature == 0xa5)

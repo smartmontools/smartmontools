@@ -73,7 +73,7 @@ static bool nvme_pass_through(nvme_device * device, const nvme_cmd_in & in,
     else if (in.cdw10 == 0x00 && in.size >= sizeof(nvme_id_ns)) {
       // Identify namespace: Invalidate IEEE EUI-64
       nvme_id_ns & id_ns = *reinterpret_cast<nvme_id_ns *>(in.buffer);
-      memset(id_ns.eui64, 0x00, sizeof(id_ns.eui64));
+      memset(id_ns.eui64, 0xff, sizeof(id_ns.eui64));
     }
   }
 
