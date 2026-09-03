@@ -394,6 +394,11 @@ Note: This is not the case in SCSI debug output.
 [NEW EXPERIMENTAL SMARTCTL 7.5 FEATURE]
 The Serial Number and World Wide Name from the FARM log (see
 \*(Aq\-l farm\*(Aq below) are also suppressed, except for the debug output.
+.br
+[NVMe: NEW EXPERIMENTAL SMARTCTL 8.0 FEATURE]
+The trailing unique part of the NVM Subsystem Qualified Name (SUBNQN) field
+of the Identify Controller data structure is also invalidated in the NVMe
+debug output.
 .TP
 .B \-d TYPE, \-\-device=TYPE
 Specifies the type of the device.

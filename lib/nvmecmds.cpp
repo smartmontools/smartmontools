@@ -23,6 +23,23 @@ namespace smartmon {
 // Print NVMe debug messages?
 unsigned char nvme_debugmode = 0;
 
+// SUBNQN (NVMe >= 1.2.1) contains a unique ID (serial number, uuid, ...)
+static void invalidate_subnqn(char (& subnqn)[256])
+{
+  // Section 4.5 of NVM Express Base Specification Revision 2.0c, October 4, 2022
+  subnqn[sizeof(subnqn) - 1] = '\0';
+  unsigned i = 0;
+  // Keep non-unique prefix
+  regular_expression::match_range r[1]{};
+  if (regular_expression(
+        "^nqn\\.[0-9]{4}-[0-9]{2}\\.[0-9A-Za-z][-.0-9A-Za-z]+:(nvme[.:]|uuid:)?"
+      ).execute(subnqn, r) && r[0].rm_eo > 0                                  )
+    i = (unsigned)r[0].rm_eo;
+  // Invalidate rest but keep mandatory null termination
+  if (i < sizeof(subnqn) - 1)
+    memset(subnqn + i, 'X', sizeof(subnqn) - 1 - i);
+}
+
 // Call NVMe pass-through and print debug info if requested.
 static bool nvme_pass_through(nvme_device * device, const nvme_cmd_in & in,
   nvme_cmd_out & out)
@@ -48,9 +65,10 @@ static bool nvme_pass_through(nvme_device * device, const nvme_cmd_in & in,
 
   if (dont_print_serial_number && ok && in.opcode == nvme_admin_identify) {
     if (in.cdw10 == 0x01 && in.size >= sizeof(nvme_id_ctrl)) {
-      // Identify controller: Invalidate serial number
+      // Identify controller: Invalidate serial number and subsystem qualified name
       nvme_id_ctrl & id_ctrl = *reinterpret_cast<nvme_id_ctrl *>(in.buffer);
       memset(id_ctrl.sn, 'X', sizeof(id_ctrl.sn));
+      invalidate_subnqn(id_ctrl.subnqn);
     }
     else if (in.cdw10 == 0x00 && in.size >= sizeof(nvme_id_ns)) {
       // Identify namespace: Invalidate IEEE EUI-64
