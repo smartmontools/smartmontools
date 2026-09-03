@@ -2279,7 +2279,7 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
   format_char_array(firmware, drive.fw_rev);
 
   ata_size_info sizes;
-  ata_get_size_info(&drive, sizes);
+  ata_get_size_info(drive, sizes);
   state.num_sectors = sizes.sectors;
   cfg.dev_rpm = ata_get_rotation_rate(drive);
 

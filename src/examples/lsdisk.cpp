@@ -47,7 +47,7 @@ static int identify(smartmon::ata_device * dev)
     return dev_error(dev, "ata_read_identity() failed");
 
   smartmon::ata_size_info sizes;
-  smartmon::ata_get_size_info(&id, sizes);
+  smartmon::ata_get_size_info(id, sizes);
   char cap[32]{};
   if (sizes.capacity)
     smartmon::format_capacity(cap, sizeof(cap), sizes.capacity);

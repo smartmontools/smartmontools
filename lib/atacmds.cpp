@@ -462,22 +462,22 @@ bool ata_pass_through(ata_device * device, const ata_cmd_in & in)
 }
 
 // Get capacity and sector sizes from IDENTIFY data
-void ata_get_size_info(const ata_identify_device * id, ata_size_info & sizes)
+void ata_get_size_info(const ata_identify_device & id, ata_size_info & sizes)
 {
   sizes.sectors = sizes.capacity = 0;
   sizes.log_sector_size = sizes.phy_sector_size = 0;
   sizes.log_sector_offset = 0;
 
   // Return if no LBA support
-  if (!(ata_get_id_word<49>(*id) & 0x0200))
+  if (!(ata_get_id_word<49>(id) & 0x0200))
     return;
 
   // Determine 28-bit LBA capacity
-  uint32_t lba28 = uile32_to_uint(id->user_sectors_28);
+  uint32_t lba28 = uile32_to_uint(id.user_sectors_28);
 
   // Determine 48-bit LBA capacity if supported
-  uint64_t lba48 = ((id->command_set_2 & 0xc400) == 0x4400
-                    ? uile64_to_uint(id->user_sectors_48) : 0);
+  uint64_t lba48 = ((id.command_set_2 & 0xc400) == 0x4400
+                    ? uile64_to_uint(id.user_sectors_48) : 0);
 
   // Return if capacity unknown (ATAPI CD/DVD)
   if (!(lba28 || lba48))
@@ -485,27 +485,27 @@ void ata_get_size_info(const ata_identify_device * id, ata_size_info & sizes)
 
   // In some cases, 'user_sectors_48' is limited to 32bit (2TiB - 512B) and
   // the real value is provided in 'user_sectors_ext'.
-  uint64_t lba_ext = ((ata_get_id_word<69>(*id) & 0x0004)
-                      ? uile64_to_uint(id->user_sectors_ext) : 0);
+  uint64_t lba_ext = ((ata_get_id_word<69>(id) & 0x0004)
+                      ? uile64_to_uint(id.user_sectors_ext) : 0);
   if (lba_ext > lba48)
     lba48 = lba_ext;
 
   // Determine sector sizes
   sizes.log_sector_size = sizes.phy_sector_size = 512;
 
-  uint16_t word106 = ata_get_id_word<106>(*id);
+  uint16_t word106 = ata_get_id_word<106>(id);
   if ((word106 & 0xc000) == 0x4000) {
     // Long Logical/Physical Sectors (LLS/LPS) ?
     if (word106 & 0x1000)
       // Logical sector size is specified in 16-bit words
       sizes.log_sector_size = sizes.phy_sector_size =
-        ((ata_get_id_word<118>(*id) << 16) | ata_get_id_word<117>(*id)) << 1;
+        ((ata_get_id_word<118>(id) << 16) | ata_get_id_word<117>(id)) << 1;
 
     if (word106 & 0x2000)
       // Physical sector size is multiple of logical sector size
       sizes.phy_sector_size <<= (word106 & 0x0f);
 
-    uint16_t word209 = ata_get_id_word<209>(*id);
+    uint16_t word209 = ata_get_id_word<209>(id);
     if ((word209 & 0xc000) == 0x4000)
       sizes.log_sector_offset = (word209 & 0x3fff) * sizes.log_sector_size;
   }

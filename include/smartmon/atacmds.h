@@ -491,7 +491,7 @@ struct ata_size_info
   unsigned log_sector_offset;
 };
 
-void ata_get_size_info(const ata_identify_device * id, ata_size_info & sizes);
+void ata_get_size_info(const ata_identify_device & id, ata_size_info & sizes);
 
 /// Calculate or check the checksum of 512 byte ATA sector.
 /// Returns 0 if correct.

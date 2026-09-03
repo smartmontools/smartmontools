@@ -3713,7 +3713,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
 
   // Get capacity, sector sizes and rotation rate
   ata_size_info sizes;
-  ata_get_size_info(&drive, sizes);
+  ata_get_size_info(drive, sizes);
   int rpm = ata_get_rotation_rate(drive);
 
   // Print ATA IDENTIFY info if requested
