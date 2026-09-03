@@ -2658,8 +2658,8 @@ bool win_tw_cli_device::open()
   unsigned long nblocks = 0; // "Capacity = N.N GB (N Blocks)"
   sscanf(findstr(buffer, "Capacity = "), "%*[^(\r\n](%lu", &nblocks);
   if (nblocks) {
-    ata_set_id_word<49>(*id) = 0x0200; // size valid
-    id->user_sectors_28 = uint_to_uile32(nblocks);
+    id->capabilities_1  = 0x0200; // LBA size valid
+    id->user_sectors_28 = nblocks;
   }
   id->command_set_1 = 0x0001; id->command_set_2 = 0x4000; // SMART supported, words 82,83 valid
   id->cfs_enabled_1 = 0x0001; id->cfs_enabled_3 = 0x4000; // SMART enabled, words 85,87 valid

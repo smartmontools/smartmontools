@@ -2327,8 +2327,7 @@ static int ATADeviceScan(dev_config & cfg, dev_state & state, ata_device * atade
   }
 
   // Check for ATA Security LOCK
-  uint16_t word128 = ata_get_id_word<128>(drive);
-  bool locked = ((word128 & 0x0007) == 0x0007); // LOCKED|ENABLED|SUPPORTED
+  bool locked = ((drive.security_status & 0x0007) == 0x0007); // LOCKED|ENABLED|SUPPORTED
   if (locked)
     PrintOut(LOG_INFO, "Device: %s, ATA Security is **LOCKED**\n", name);
 

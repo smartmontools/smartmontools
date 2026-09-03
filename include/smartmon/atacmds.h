@@ -336,40 +336,6 @@ int ata_is_smart_enabled(const ata_identify_device & id);
 /// Return 0 if "good" status, 1 if "failed" status and -1 on error.
 int ata_get_smart_status(ata_device * device);
 
-// Get reference to modify word N from `ata_identify_device.words*[]` arrays.
-// Does not compile for the other fields.
-template <int N>
-static inline uint16_t & ata_set_id_word(ata_identify_device & id)
-{
-  SMARTMON_STATIC_ASSERT(   (  0 <= N && N <=   9) || ( 20 <= N && N <=  22)
-                         || ( 47 <= N && N <=  59) || ( 62 <= N && N <=  79)
-                         || ( 88 <= N && N <=  99) || (104 <= N && N <= 169)
-                         || (174 <= N && N <= 229) || (234 <= N && N <= 255));
-  if (N < 20)
-    return id.words000_009[N];
-  else if (N < 47)
-    return id.words020_022[N -  20];
-  else if (N < 62)
-    return id.words047_059[N -  47];
-  else if (N < 88)
-    return id.words062_079[N -  62];
-  else if (N < 104)
-    return id.words088_099[N -  88];
-  else if (N < 174)
-    return id.words104_169[N - 104];
-  else if (N < 234)
-    return id.words174_229[N - 174];
-  else
-    return id.words234_255[N - 234];
-}
-
-// Get const reference to word N from `ata_identify_device.words*[]` arrays.
-template <int N>
-static inline const uint16_t & ata_get_id_word(const ata_identify_device & id)
-{
-  return ata_set_id_word<N>(const_cast<ata_identify_device &>(id));
-}
-
 bool ata_is_smart_error_log_capable(const ata_smart_values & data, const ata_identify_device & id);
 
 bool ata_is_smart_self_test_log_capable(const ata_smart_values & data, const ata_identify_device & id);
@@ -405,16 +371,16 @@ static inline bool ata_is_selective_self_test_capable(const ata_smart_values & d
   { return !!(data.offline_data_collection_capability & 0x40); }
 
 static inline bool ata_is_sct_capable(const ata_identify_device & id)
-  { return !!(ata_get_id_word<206>(id) & 0x01); } // 0x01 = SCT support
+  { return !!(id.sct_capabilities & 0x01); } // 0x01 = SCT support
 
 static inline bool ata_is_sct_erc_capable(const ata_identify_device & id)
-  { return ((ata_get_id_word<206>(id) & 0x09) == 0x09); } // 0x08 = SCT Error Recovery Control support
+  { return ((id.sct_capabilities & 0x09) == 0x09); } // 0x08 = SCT Error Recovery Control support
 
 static inline bool ata_is_sct_feature_control_capable(const ata_identify_device & id)
-  { return ((ata_get_id_word<206>(id) & 0x11) == 0x11); } // 0x10 = SCT Feature Control support
+  { return ((id.sct_capabilities & 0x11) == 0x11); } // 0x10 = SCT Feature Control support
 
 static inline bool ata_is_sct_data_table_capable(const ata_identify_device & id)
-  { return ((ata_get_id_word<206>(id) & 0x21) == 0x21); } // 0x20 = SCT Data Table support
+  { return ((id.sct_capabilities & 0x21) == 0x21); } // 0x20 = SCT Data Table support
 
 /// Return estimated time (minimum polling interval in minutes) for a self-test of type TESTTYPE.
 int ata_get_smart_self_test_minutes(const ata_smart_values & data, uint8_t testtype);

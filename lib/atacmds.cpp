@@ -313,25 +313,23 @@ const char * get_valid_firmwarebug_args()
 
 
 // Invalidate serial number and WWN and adjust checksum in IDENTIFY data
-static void invalidate_serno(ata_identify_device * id)
+static void invalidate_serno(ata_identify_device & id)
 {
-  unsigned char sum = 0;
+  uint8_t sum = 0;
   unsigned i;
-  for (i = 0; i < sizeof(id->serial_no); i++) {
-    sum += id->serial_no[i]; sum -= id->serial_no[i] = 'X';
-  }
-  unsigned char * b = (unsigned char *)id;
-  for (i = 2*108; i < 2*112; i++) { // words108-111: WWN
-    sum += b[i]; sum -= b[i] = 0x00;
+  for (i = 0; i < sizeof(id.serial_no); i++) {
+    sum +=  id.serial_no[i];
+    sum -= (id.serial_no[i] = 'X');
   }
 
-  uint16_t & word255 = ata_set_id_word<255>(*id);
-  if /*constexpr*/(byteorder_is_big_endian)
-    byteswap_inplace(word255);
-  if ((word255 & 0x00ff) == 0x00a5)
-    word255 += sum << 8;
-  if /*constexpr*/(byteorder_is_big_endian)
-    byteswap_inplace(word255);
+  uint8_t * b = reinterpret_cast<uint8_t *>(id.wwn);
+  for (i = 0; i < sizeof(id.wwn); i++) {
+    sum +=  b[i];
+    sum -= (b[i] = 0x00);
+  }
+
+  if (id.signature == 0xa5)
+    id.checksum += sum;
 }
 
 static const char * preg(const ata_register & r, char (& buf)[8])
@@ -445,7 +443,7 @@ bool ata_pass_through(ata_device * device, const ata_cmd_in & in, ata_cmd_out & 
       && (   in.in_regs.command == ATA_IDENTIFY_DEVICE
           || in.in_regs.command == ATA_IDENTIFY_PACKET_DEVICE))
     // Identify (packet) device: invalidate serial number
-    invalidate_serno(reinterpret_cast<ata_identify_device *>(in.buffer));
+    invalidate_serno(*reinterpret_cast<ata_identify_device *>(in.buffer));
 
   if (ata_debugmode)
     ata_print_debug_info(in, out, (!ok ? device->get_err() : smart_device::error_info{}),
@@ -464,57 +462,48 @@ bool ata_pass_through(ata_device * device, const ata_cmd_in & in)
 // Get capacity and sector sizes from IDENTIFY data
 void ata_get_size_info(const ata_identify_device & id, ata_size_info & sizes)
 {
-  sizes.sectors = sizes.capacity = 0;
-  sizes.log_sector_size = sizes.phy_sector_size = 0;
-  sizes.log_sector_offset = 0;
-
+  sizes = {};
   // Return if no LBA support
-  if (!(ata_get_id_word<49>(id) & 0x0200))
+  if (!(id.capabilities_1 & 0x0200))
     return;
 
-  // Determine 28-bit LBA capacity
-  uint32_t lba28 = uile32_to_uint(id.user_sectors_28);
-
   // Determine 48-bit LBA capacity if supported
-  uint64_t lba48 = ((id.command_set_2 & 0xc400) == 0x4400
-                    ? uile64_to_uint(id.user_sectors_48) : 0);
+  uint64_t user_sectors_48 = ((id.command_set_2 & 0xc400) == 0x4400
+                              ? uile64_to_uint(id.user_sectors_48) : 0);
 
   // Return if capacity unknown (ATAPI CD/DVD)
-  if (!(lba28 || lba48))
+  if (!(id.user_sectors_28 || user_sectors_48))
     return;
 
   // In some cases, 'user_sectors_48' is limited to 32bit (2TiB - 512B) and
   // the real value is provided in 'user_sectors_ext'.
-  uint64_t lba_ext = ((ata_get_id_word<69>(id) & 0x0004)
-                      ? uile64_to_uint(id.user_sectors_ext) : 0);
-  if (lba_ext > lba48)
-    lba48 = lba_ext;
+  uint64_t user_sectors_ext = ((id.additional_support & 0x0004)
+                               ? uile64_to_uint(id.user_sectors_ext) : 0);
+  if (user_sectors_ext > user_sectors_48)
+    user_sectors_48 = user_sectors_ext;
 
   // Determine sector sizes
   sizes.log_sector_size = sizes.phy_sector_size = 512;
 
-  uint16_t word106 = ata_get_id_word<106>(id);
-  if ((word106 & 0xc000) == 0x4000) {
+  if ((id.phy_log_sector_size & 0xc000) == 0x4000) {
     // Long Logical/Physical Sectors (LLS/LPS) ?
-    if (word106 & 0x1000)
+    if (id.phy_log_sector_size & 0x1000)
       // Logical sector size is specified in 16-bit words
-      sizes.log_sector_size = sizes.phy_sector_size =
-        ((ata_get_id_word<118>(id) << 16) | ata_get_id_word<117>(id)) << 1;
+      sizes.log_sector_size = sizes.phy_sector_size = uile32_to_uint(id.log_sector_size) << 1;
 
-    if (word106 & 0x2000)
+    if (id.phy_log_sector_size & 0x2000)
       // Physical sector size is multiple of logical sector size
-      sizes.phy_sector_size <<= (word106 & 0x0f);
+      sizes.phy_sector_size <<= (id.phy_log_sector_size & 0x0f);
 
-    uint16_t word209 = ata_get_id_word<209>(id);
-    if ((word209 & 0xc000) == 0x4000)
-      sizes.log_sector_offset = (word209 & 0x3fff) * sizes.log_sector_size;
+    if ((id.log_sector_align & 0xc000) == 0x4000)
+      sizes.log_sector_offset = (id.log_sector_align & 0x3fff) * sizes.log_sector_size;
   }
 
-  // Some early 4KiB LLS disks (Samsung N3U-3) return bogus lba28 value
-  if (lba48 >= lba28 || (lba48 && sizes.log_sector_size > 512))
-    sizes.sectors = lba48;
+  // Some early 4KiB LLS disks (Samsung N3U-3) return bogus user_sectors_28 value
+  if (user_sectors_48 >= id.user_sectors_28 || (user_sectors_48 && sizes.log_sector_size > 512))
+    sizes.sectors = user_sectors_48;
   else
-    sizes.sectors = lba28;
+    sizes.sectors = id.user_sectors_28;
 
   sizes.capacity = sizes.sectors * sizes.log_sector_size;
 }
@@ -639,13 +628,12 @@ int ata_read_identity(ata_device * device, ata_identify_device & id,
   // 0040h = Alternate value turns on ATA device while zeroing all retired bits
 
   // Assume ATA if IDENTIFY DEVICE returns CompactFlash Signature
-  uint16_t word000 = ata_get_id_word<0>(id);
-  if (!packet && word000 == 0x848a)
+  if (!packet && id.general_config == 0x848a)
     return 0;
 
   // If this is a PACKET DEVICE, return device type
-  if (word000 & 0x8000)
-    return 1 + ((word000 >> 8) & 0x1f);
+  if (id.general_config & 0x8000)
+    return 1 + ((id.general_config >> 8) & 0x1f);
   
   // Not a PACKET DEVICE
   return 0;
@@ -657,20 +645,14 @@ int ata_read_identity(ata_device * device, ata_identify_device & id,
 // (WWN was introduced in ATA/ATAPI-7 and is mandatory since ATA8-ACS Revision 3b)
 int ata_get_wwn(const ata_identify_device & id, uint32_t & oui, uint64_t & unique_id)
 {
-  // Don't use word 84 to be compatible with some older ATA-7 disks
- uint16_t word087 = id.cfs_enabled_3;
-  if ((word087 & 0xc100) != 0x4100)
+  // Don't use id.command_set_3 to be compatible with some older ATA-7 disks
+  if ((id.cfs_enabled_3 & 0xc100) != 0x4100)
     return -1; // word not valid or WWN support bit 8 not set
 
-  uint16_t word108 = ata_get_id_word<108>(id);
-  uint16_t word109 = ata_get_id_word<109>(id);
-  uint16_t word110 = ata_get_id_word<110>(id);
-  uint16_t word111 = ata_get_id_word<111>(id);
-
-  oui = ((word108 & 0x0fff) << 12) | (word109 >> 4);
-  unique_id = ((uint64_t)(word109 & 0xf) << 32)
-            | (unsigned)((word110 << 16) | word111);
-  return (word108 >> 12);
+  oui = (uint32_t)(id.wwn[0] & 0x0fff) << 12 | id.wwn[1] >> 4;
+  unique_id = (uint64_t)(id.wwn[1] & 0x000f) << 32
+            | (uint64_t)id.wwn[2] << 16 | id.wwn[3];
+  return id.wwn[0] >> 12;
 }
 
 // Get nominal media rotation rate.
@@ -679,15 +661,14 @@ int ata_get_rotation_rate(const ata_identify_device & id)
 {
   // Table 37 of T13/1699-D (ATA8-ACS) Revision 6a, September 6, 2008
   // Table A.31 of T13/2161-D (ACS-3) Revision 3b, August 25, 2012
-  uint16_t word217 = ata_get_id_word<217>(id);
-  if (word217 == 0x0000 || word217 == 0xffff)
+  if (id.rotation_rate == 0x0000 || id.rotation_rate == 0xffff)
     return 0;
-  else if (word217 == 0x0001)
+  else if (id.rotation_rate == 0x0001)
     return 1;
-  else if (word217 > 0x0400)
-    return word217;
+  else if (id.rotation_rate > 0x0400)
+    return id.rotation_rate;
   else
-    return -(int)word217;
+    return -(int)id.rotation_rate;
 }
 
 // returns 1 if SMART supported, 0 if SMART unsupported, -1 if can't tell
@@ -2054,6 +2035,7 @@ void ata_byteswap_id_strings_inplace(ata_identify_device & id, bool all /* = tru
   if (!all)
     return;
   byteswap_array_16_inplace(id.add_product_id);
+  byteswap_array_16_inplace(id.media_serial_no);
 }
 
 // Byteswap all aligned integers on Big Endian platforms, otherwise do nothing.
@@ -2062,13 +2044,40 @@ void ata_if_be_byteswap_inplace(ata_identify_device & id)
   if /*constexpr*/(!byteorder_is_big_endian)
     return;
 
-  byteswap_array_inplace(id.words000_009);
+  byteswap_inplace(id.general_config);
+  byteswap_inplace(id.obsolete_001);
+  byteswap_inplace(id.specific_config);
+  byteswap_array_inplace(id.obsolete_003_006);
+  byteswap_array_inplace(id.reserved_007_008_cfa);
+  byteswap_inplace(id.obsolete_009);
   // serial_no: ata_byteswap_id_strings_inplace()
-  byteswap_array_inplace(id.words020_022);
+  byteswap_array_inplace(id.obsolete_020_022);
   // fw_rev:    ata_byteswap_id_strings_inplace()
   // model:     ata_byteswap_id_strings_inplace()
-  byteswap_array_inplace(id.words047_059);
-  byteswap_array_inplace(id.words062_079);
+  byteswap_inplace(id.rd_wr_multi_support);
+  byteswap_inplace(id.tc_feature_set_options);
+  byteswap_inplace(id.capabilities_1);
+  byteswap_inplace(id.capabilities_2);
+  byteswap_array_inplace(id.obsolete_051_052);
+  byteswap_inplace(id.field_validity);
+  byteswap_array_inplace(id.obsolete_054_058);
+  byteswap_inplace(id.sanitize_rd_wr_multi);
+  byteswap_inplace(id.user_sectors_28);
+  byteswap_inplace(id.obsolete_062);
+  byteswap_inplace(id.dma_multi_modes);
+  byteswap_inplace(id.pio_modes);
+  byteswap_inplace(id.dma_multi_cycle_min_ns);
+  byteswap_inplace(id.dma_multi_cycle_rec_ns);
+  byteswap_inplace(id.pio_cycle_no_fl_min_ns);
+  byteswap_inplace(id.pio_cycle_iordy_min_ns);
+  byteswap_inplace(id.additional_support);
+  byteswap_inplace(id.reserved_070);
+  byteswap_array_inplace(id.reserved_071_074_atapi);
+  byteswap_inplace(id.queue_depth);
+  byteswap_inplace(id.sata_capabilities_1);
+  byteswap_inplace(id.sata_capabilities_2);
+  byteswap_inplace(id.sata_features_supported);
+  byteswap_inplace(id.sata_features_enabled);
   byteswap_inplace(id.minor_rev_num);
   byteswap_inplace(id.major_rev_num);
   byteswap_inplace(id.command_set_1);
@@ -2077,11 +2086,54 @@ void ata_if_be_byteswap_inplace(ata_identify_device & id)
   byteswap_inplace(id.cfs_enabled_1);
   byteswap_inplace(id.cfs_enabled_2);
   byteswap_inplace(id.cfs_enabled_3);
-  byteswap_array_inplace(id.words088_099);
-  byteswap_array_inplace(id.words104_169);
+  byteswap_inplace(id.udma_modes);
+  byteswap_inplace(id.sec_erase_unit_time);
+  byteswap_inplace(id.sec_enh_erase_unit_time);
+  byteswap_inplace(id.apm_level);
+  byteswap_inplace(id.master_password_id);
+  byteswap_inplace(id.pata_hw_reset_result);
+  byteswap_inplace(id.aam_level);
+  byteswap_inplace(id.strm_min_req_size);
+  byteswap_inplace(id.strm_trnfr_time_dma);
+  byteswap_inplace(id.strm_acc_latency);
+  byteswap_inplace(id.strm_perf_granularity);
+  byteswap_inplace(id.strm_trnfr_time_pio);
+  byteswap_inplace(id.ds_mgmt_range_max_blks);
+  byteswap_inplace(id.phy_log_sector_size);
+  byteswap_inplace(id.iso7779_seek_delay);
+  byteswap_array_inplace(id.wwn);
+  byteswap_array_inplace(id.reserved_112_115);
+  byteswap_inplace(id.reserved_116_tlc);
+  byteswap_inplace(id.command_set_4);
+  byteswap_inplace(id.cfs_enabled_4);
+  byteswap_array_inplace(id.reserved_121_124);
+  byteswap_array_inplace(id.reserved_125_126_atapi);
+  byteswap_inplace(id.rm_media_status);
+  byteswap_inplace(id.security_status);
+  byteswap_array_inplace(id.vendor_129_159);
+  byteswap_inplace(id.cfa_power_mode);
+  byteswap_array_inplace(id.reserved_161_167_cfa);
+  byteswap_inplace(id.form_factor);
+  byteswap_inplace(id.dataset_management);
   // add_product_id: ata_byteswap_id_strings_inplace()
-  byteswap_array_inplace(id.words174_229);
-  byteswap_array_inplace(id.words234_255);
+  byteswap_array_inplace(id.reserved_174_175);
+  byteswap_inplace(id.sct_capabilities);
+  byteswap_array_inplace(id.reserved_207_208);
+  byteswap_inplace(id.log_sector_align);
+  byteswap_inplace(id.wr_rd_vr_count_mode_3);
+  byteswap_inplace(id.wr_rd_vr_count_mode_2);
+  byteswap_inplace(id.nv_cache_capabilities);
+  byteswap_inplace(id.rotation_rate);
+  byteswap_inplace(id.reserved_218);
+  byteswap_inplace(id.nv_cache_options);
+  byteswap_inplace(id.write_read_verify_mode);
+  byteswap_inplace(id.reserved_221);
+  byteswap_inplace(id.transport_maj_version);
+  byteswap_inplace(id.transport_min_version);
+  byteswap_inplace(id.dl_mcode_3_min_blocks);
+  byteswap_inplace(id.dl_mcode_3_max_blocks);
+  byteswap_array_inplace(id.reserved_224_229);
+  byteswap_array_inplace(id.reserved_236_254);
 }
 
 void ata_if_be_byteswap_inplace(ata_smart_values & val)

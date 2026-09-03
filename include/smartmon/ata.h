@@ -89,18 +89,43 @@ enum {
 // Maximum allowed number of SMART Attributes
 #define NUMBER_ATA_SMART_ATTRIBUTES     30
 
-// IDENTIFY DEVICE data (incomplete)
-// The 'words*[]' should be accessed with 'ata_[gs]et_id_word<N>(id)'.
+// IDENTIFY DEVICE data
 // Table 57 of T13/BSR INCITS 574 (ACS-6) Revision 13, April 17, 2025
 struct ata_identify_device {
-  uint16_t  words000_009[10];
+  uint16_t  general_config;           // 0: general configuration
+  uint16_t  obsolete_001;
+  uint16_t  specific_config;          // 2: specific configuration
+  uint16_t  obsolete_003_006[4];
+  uint16_t  reserved_007_008_cfa[2];
+  uint16_t  obsolete_009;
   uint8_t   serial_no[20];            // 10-19: serial number
-  uint16_t  words020_022[3];
+  uint16_t  obsolete_020_022[3];
   uint8_t   fw_rev[8];                // 23-26: firmware revision
   uint8_t   model[40];                // 27-46: model "number"
-  uint16_t  words047_059[13];
-  uile32_t  user_sectors_28;          // 60-61: user addressable logical sectors for 28-bit commands
-  uint16_t  words062_079[18];
+  uint16_t  rd_wr_multi_support;      // 47: READ/WRITE MULTIPLE support [OBS-ACS-4]
+  uint16_t  tc_feature_set_options;   // 48: trusted computing feature set options
+  uint16_t  capabilities_1;           // 49: capabilities
+  uint16_t  capabilities_2;           // 50: capabilities
+  uint16_t  obsolete_051_052[2];
+  uint16_t  field_validity;           // 53: field validity / free-fall control
+  uint16_t  obsolete_054_058[5];
+  uint16_t  sanitize_rd_wr_multi;     // 59: sanitize device - READ/WRITE MULTIPLE support
+  uint32_t  user_sectors_28;          // 60-61: user addressable logical sectors for 28-bit commands
+  uint16_t  obsolete_062;
+  uint16_t  dma_multi_modes;          // 63: multiword DMA modes
+  uint16_t  pio_modes;                // 64: PIO modes
+  uint16_t  dma_multi_cycle_min_ns;   // 65: minimum multiword DMA cycle time per word in ns
+  uint16_t  dma_multi_cycle_rec_ns;   // 66: recommended multiword DMA cycle time in ns
+  uint16_t  pio_cycle_no_fl_min_ns;   // 67: Minimum PIO cycle time without flow control in ns
+  uint16_t  pio_cycle_iordy_min_ns;   // 68: Minimum PIO cycle time with IORDY flow control in ns
+  uint16_t  additional_support;       // 69: additional support
+  uint16_t  reserved_070;
+  uint16_t  reserved_071_074_atapi[4];
+  uint16_t  queue_depth;              // 75: queue depth
+  uint16_t  sata_capabilities_1;      // 76: Serial ATA capabilities
+  uint16_t  sata_capabilities_2;      // 77: Serial ATA additional capabilities
+  uint16_t  sata_features_supported;  // 78: Serial ATA features supported
+  uint16_t  sata_features_enabled;    // 79: Serial ATA features enabled
   uint16_t  major_rev_num;            // 80: major version number
   uint16_t  minor_rev_num;            // 81: minor version number
   uint16_t  command_set_1;            // 82: commands and feature sets supported
@@ -109,13 +134,61 @@ struct ata_identify_device {
   uint16_t  cfs_enabled_1;            // 85: commands and feature sets supported or enabled
   uint16_t  cfs_enabled_2;            // 86: commands and feature sets supported or enabled
   uint16_t  cfs_enabled_3;            // 87: commands and feature sets supported or enabled
-  uint16_t  words088_099[12];
+  uint16_t  udma_modes;               // 88: Ultra DMA modes
+  uint16_t  sec_erase_unit_time;      // 89: SECURITY ERASE UNIT time
+  uint16_t  sec_enh_erase_unit_time;  // 90: ENHANCED SECURITY ERASE UNIT tim
+  uint16_t  apm_level;                // 91: current APM level
+  uint16_t  master_password_id;       // 92: master password identifier
+  uint16_t  pata_hw_reset_result;     // 93: hardware reset result (PATA)
+  uint16_t  aam_level;                // 94: AAM level [OBS-ACS-2]
+  uint16_t  strm_min_req_size;        // 95: stream minimum request size
+  uint16_t  strm_trnfr_time_dma;      // 96: streaming transfer time - DMA
+  uint16_t  strm_acc_latency;         // 97: streaming access latency - DMA and PIO
+  uint32_t  strm_perf_granularity;    // 98-99: streaming performance granularity
   uile64_t  user_sectors_48;          // 100-103: user addressable logical sectors for 48-bit commands
-  uint16_t  words104_169[66];
+  uint16_t  strm_trnfr_time_pio;      // 104: streaming transfer time - PIO
+  uint16_t  ds_mgmt_range_max_blks;   // 105: max blocks of LBA range entries per DS MANAGEMENT cmd
+  uint16_t  phy_log_sector_size;      // 106: physical sector size / logical sector size
+  uint16_t  iso7779_seek_delay;       // 107: inter-seek delay for ISO 7779 acoustic testing
+  uint16_t  wwn[4];                   // 108-111: world wide name
+  uint16_t  reserved_112_115[4];
+  uint16_t  reserved_116_tlc;
+  uile32_t  log_sector_size;          // 117-118: logical sector_size
+  uint16_t  command_set_4;            // 119: commands and feature sets supported
+  uint16_t  cfs_enabled_4;            // 120: commands and feature sets supported or enabled
+  uint16_t  reserved_121_124[4];
+  uint16_t  reserved_125_126_atapi[2];
+  uint16_t  rm_media_status;          // 127: removable media status notification [OBS-8]
+  uint16_t  security_status;          // 128: security status
+  uint16_t  vendor_129_159[31];       // 129-159: vendor specific
+  uint16_t  cfa_power_mode;           // 160: CFA power mode
+  uint16_t  reserved_161_167_cfa[7];
+  uint16_t  form_factor;              // 168: nominal form factor
+  uint16_t  dataset_management;       // 169: DATA SET MANAGEMENT command support
   uint8_t   add_product_id[8];        // 170-173: additional product identifier
-  uint16_t  words174_229[56];
+  uint16_t  reserved_174_175[2];
+  uint8_t   media_serial_no[60];      // 176-205: current media serial number
+  uint16_t  sct_capabilities;         // 206: SCT command transport capabilities
+  uint16_t  reserved_207_208[2];
+  uint16_t  log_sector_align;         // 209: alignment of logical sectors
+  uint32_t  wr_rd_vr_count_mode_3;    // 210-211 write-read-verify sector count mode 3
+  uint32_t  wr_rd_vr_count_mode_2;    // 212-213 write-read-verify sector count mode 2
+  uint16_t  nv_cache_capabilities;    // 214: non volatile cache capabilities [OBS-ACS-3]
+  uile32_t  nv_cache_size;            // 215-216: non volatile size in logical blocks [OBS-ACS-3]
+  uint16_t  rotation_rate;            // 217: nominal rotation rate
+  uint16_t  reserved_218;
+  uint16_t  nv_cache_options;         // 219: non volatile cache options [OBS-ACS-3]
+  uint16_t  write_read_verify_mode;   // 220: write-read-verify mode
+  uint16_t  reserved_221;
+  uint16_t  transport_maj_version;    // 222: transport major version number
+  uint16_t  transport_min_version;    // 223: transport minor version number
+  uint16_t  reserved_224_229[6];
   uile64_t  user_sectors_ext;         // 230-233: extended number of user addressable logical sectors
-  uint16_t  words234_255[22];
+  uint16_t  dl_mcode_3_min_blocks;    // 234: minimum blocks per DOWNLOAD MICROCODE mode 3 command
+  uint16_t  dl_mcode_3_max_blocks;    // 235: maximum blocks per DOWNLOAD MICROCODE mode 3 command
+  uint16_t  reserved_236_254[19];
+  uint8_t   signature;                // 255 LSB: 0xa5 if checksum is set
+  uint8_t   checksum;                 // 255 MSB: checksum
 };
 SMARTMON_ASSERT_SIZEOF(ata_identify_device, 512);
 
