@@ -626,7 +626,29 @@ protected:
 
   virtual smart_device * autodetect_smart_device(const char * name) override;
 
+private:
+  smart_device * get_usb_smart_device(const char * name,
+    const darwin_usb_device_info & info, const char * type);
 };
+
+static bool is_supported_darwin_usb_type(const char * type)
+{
+  if (!type)
+    return false;
+  if (str_starts_with(type, "sat") && (!type[3] || type[3] == ','))
+    return true;
+
+  static const char * const snt_types[] = {
+    "sntasmedia", "sntjmicron", "sntrealtek"
+  };
+  for (unsigned i = 0; i < sizeof(snt_types) / sizeof(snt_types[0]); ++i) {
+    const size_t length = strlen(snt_types[i]);
+    if (!strncmp(type, snt_types[i], length)
+        && (!type[length] || type[length] == ',' || type[length] == '/'))
+      return true;
+  }
+  return false;
+}
 
 /////////////////////////////////////////////////////////////////////////////
 /// NVMe support
@@ -717,10 +739,38 @@ nvme_device * darwin_smart_interface::get_nvme_device(const char * name, const c
   return new darwin_nvme_device(this, name, type, nsid);
 }
 
+smart_device * darwin_smart_interface::get_usb_smart_device(const char * name,
+  const darwin_usb_device_info & info, const char * type)
+{
+  const char * usbtype = type;
+  if (!usbtype || !*usbtype) {
+    usbtype = get_usb_dev_type_by_id(info.vendor_id, info.product_id,
+      info.device_version);
+    if (!is_supported_darwin_usb_type(usbtype)) {
+      // A standard SAT INQUIRY is safe for an unknown or unsupported bridge.
+      // Vendor-specific SNT commands are selected only from the drive database.
+      clear_err();
+      usbtype = "sat,auto";
+    }
+  }
+
+  scsi_device * scsidev = new darwin_usb_scsi_device(this, name, "");
+  if (!strcmp(usbtype, "scsi"))
+    return scsidev;
+  return get_scsi_passthrough_device(usbtype, scsidev);
+}
+
 smart_device * darwin_smart_interface::autodetect_smart_device(const char * name)
 { // TODO - refactor as a function
+  darwin_usb_device_info usb_info;
+  int usb_error = 0;
+  std::string usb_error_message;
+  if (darwin_usb_get_device_info(name, usb_info, usb_error,
+      usb_error_message))
+    return get_usb_smart_device(name, usb_info, 0);
   if (!strncmp(name, "usbraw:", 7))
-    return new darwin_usb_scsi_device(this, name, "");
+    return set_err_np(usb_error ? usb_error : ENODEV, "%s",
+      usb_error_message.c_str());
 
   // Acceptable device names are:
   // /dev/disk*
@@ -802,6 +852,26 @@ bool darwin_smart_interface::scan_smart_devices(smart_device_list & devlist,
   if (pattern) {
     set_err(EINVAL, "DEVICESCAN with pattern not implemented yet");
     return false;
+  }
+
+  const bool scan_usb = !type || !strcmp(type, "scsi")
+    || is_supported_darwin_usb_type(type);
+  if (scan_usb) {
+    std::vector<darwin_usb_device_info> usb_devices;
+    int usb_error = 0;
+    std::string usb_error_message;
+    if (!darwin_usb_scan_devices(usb_devices, usb_error, usb_error_message))
+      return set_err(usb_error ? usb_error : EIO, "%s",
+        usb_error_message.c_str());
+
+    for (std::vector<darwin_usb_device_info>::const_iterator it =
+        usb_devices.begin(); it != usb_devices.end(); ++it) {
+      smart_device * dev = get_usb_smart_device(it->device_name.c_str(), *it,
+        type);
+      if (!dev)
+        return false;
+      devlist.push_back(dev);
+    }
   }
 
   // Make namelists

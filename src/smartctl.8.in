@@ -95,12 +95,21 @@ General Darwin SCSI pass-through is not implemented.  With an explicit
 this experimental branch uses the normal whole-disk forms above for raw USB
 mass-storage access.  The Darwin-specific names \fBusbraw:diskN\fP and
 \fBusbraw:REGISTRY_ID\fP are also available for explicit raw access and stable
-I/O Registry selection.  Normal device-type autodetection never selects this
-transport.
+I/O Registry selection.  Device-type autodetection consults the drive database
+for known SAT and SNT bridges.  Unknown bridges use non-vendor-specific
+\*(Aq\-d sat,auto\*(Aq detection; an explicit \*(Aq\-d snt*\*(Aq is still
+required for an unknown USB to NVMe bridge.
 .Sp
 The transport uses IOUSBHost DeviceCapture, requires root, and temporarily
-detaches the complete USB device from macOS.  Unmount all volumes on the device
-before use.
+detaches the complete USB device from macOS.  Mounted volumes are unmounted
+before capture without using a forced unmount and are restored when the device
+is closed.  Capture is refused if a mounted volume cannot be identified safely
+for restoration.
+.Sp
+The normal \*(Aq\-\-scan\*(Aq operation discovers BOT and UASP devices without
+capturing them or changing mount state.  \*(Aq\-\-scan\-open\*(Aq opens each
+device and therefore performs the temporary unmount, capture, and restore
+lifecycle described above.
 .Sp
 Use the OS X SAT SMART Driver to access SMART data on SAT capable USB and
 Firewire devices (see INSTALL file).
