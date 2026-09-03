@@ -574,8 +574,8 @@ static DADiskRef find_volume(DASessionRef session,
   return result;
 }
 
-static bool mount_volume(DASessionRef session, DADiskRef disk,
-  const darwin_mounted_volume & volume, std::string & error_message)
+static bool mount_volume(DADiskRef disk, const darwin_mounted_volume & volume,
+  std::string & error_message)
 {
   CFURLRef path = CFURLCreateFromFileSystemRepresentation(kCFAllocatorDefault,
     (const UInt8 *)volume.mount_path.c_str(), volume.mount_path.size(), true);
@@ -610,7 +610,7 @@ static bool restore_mounted_volumes(DASessionRef session,
     if (!disk)
       error = std::string("volume did not reappear: ")
         + volume_identifier(*it);
-    else if (!mounted && !mount_volume(session, disk, *it, error)) {
+    else if (!mounted && !mount_volume(disk, *it, error)) {
       // Preserve the detailed Disk Arbitration error.
     }
     if (disk)
