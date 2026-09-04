@@ -1876,6 +1876,12 @@ const drive_settings builtin_knowndrives[] = {
     "-v 243,raw48,NAND_Writes_32MiB " // S3510/3610
     "-F xerrorlba" // tested with SSDSC2BB600G4/D2010355
   },
+  { "", // HPE VK-series SATA SSD (OEM/controller unidentified), tested with VK000480GXNZA/HPG1
+    "VK000480GXNZA",
+    "HPG1",
+    "",
+    "-v 173,raw48,Media_Wearout_Indicator "
+  },
   { "Intel SSD Pro 5400s Series", // Tested with SSDSC2KF480H6/LSF036P,
       // INTEL SSDSC2KF256H6 SATA 256GB/LBFD16N
     "INTEL SSDSC[2K]KF((120|180|240|256|360|480|512)H|010X)6( .*)?",
