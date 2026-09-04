@@ -30,6 +30,10 @@
 
 #include "config.h"
 
+#include <algorithm>
+#include <array>
+#include <memory>
+
 #include <smartmon/atacmds.h>
 #include <smartmon/scsicmds.h>
 #include <smartmon/nvmecmds.h>
@@ -393,13 +397,15 @@ public:
   virtual bool scsi_pass_through(scsi_cmnd_io * iop) override;
 
 private:
-  darwin_usb_handle * m_handle;
+  darwin_usb_scsi_device(const darwin_usb_scsi_device &) = delete;
+  void operator=(const darwin_usb_scsi_device &) = delete;
+
+  darwin_usb_handle * m_handle = nullptr;
 };
 
 darwin_usb_scsi_device::darwin_usb_scsi_device(smart_interface * intf,
   const char * dev_name, const char * req_type)
-: smart_device(intf, dev_name, "scsi", req_type),
-  m_handle(0)
+: smart_device(intf, dev_name, "scsi", req_type)
 {
 }
 
@@ -439,7 +445,7 @@ bool darwin_usb_scsi_device::close()
   int err = 0;
   std::string errmsg;
   bool ok = darwin_usb_close(m_handle, err, errmsg);
-  m_handle = 0;
+  m_handle = nullptr;
   if (!ok)
     return set_err(err ? err : EIO, "%s", errmsg.c_str());
   return true;
@@ -629,6 +635,7 @@ protected:
 private:
   smart_device * get_usb_smart_device(const char * name,
     const darwin_usb_device_info & info, const char * type);
+  bool scan_usb_smart_devices(smart_device_list & devlist, const char * type);
 };
 
 static bool is_supported_darwin_usb_type(const char * type)
@@ -638,16 +645,15 @@ static bool is_supported_darwin_usb_type(const char * type)
   if (str_starts_with(type, "sat") && (!type[3] || type[3] == ','))
     return true;
 
-  static const char * const snt_types[] = {
+  static const std::array<std::string, 3> snt_types = {{
     "sntasmedia", "sntjmicron", "sntrealtek"
-  };
-  for (unsigned i = 0; i < sizeof(snt_types) / sizeof(snt_types[0]); ++i) {
-    const size_t length = strlen(snt_types[i]);
-    if (!strncmp(type, snt_types[i], length)
-        && (!type[length] || type[length] == ',' || type[length] == '/'))
-      return true;
-  }
-  return false;
+  }};
+  return std::any_of(snt_types.begin(), snt_types.end(),
+    [type](const std::string & snt_type) {
+      const size_t length = snt_type.size();
+      return !strncmp(type, snt_type.c_str(), length)
+        && (!type[length] || type[length] == ',' || type[length] == '/');
+    });
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -729,8 +735,10 @@ ata_device * darwin_smart_interface::get_ata_device(const char * name, const cha
 scsi_device * darwin_smart_interface::get_scsi_device(const char * name, const char * type)
 {
   if (!darwin_usb_is_device_name(name))
-    return 0; // The system SCSI stack still has no general pass-through API.
-  return new darwin_usb_scsi_device(this, name, type);
+    return nullptr; // The system SCSI stack still has no general pass-through API.
+  std::unique_ptr<scsi_device> dev(
+    new darwin_usb_scsi_device(this, name, type));
+  return dev.release();
 }
 
 nvme_device * darwin_smart_interface::get_nvme_device(const char * name, const char * type,
@@ -754,10 +762,11 @@ smart_device * darwin_smart_interface::get_usb_smart_device(const char * name,
     }
   }
 
-  scsi_device * scsidev = new darwin_usb_scsi_device(this, name, "");
+  std::unique_ptr<scsi_device> scsidev(
+    new darwin_usb_scsi_device(this, name, ""));
   if (!strcmp(usbtype, "scsi"))
-    return scsidev;
-  return get_scsi_passthrough_device(usbtype, scsidev);
+    return scsidev.release();
+  return get_scsi_passthrough_device(usbtype, scsidev.release());
 }
 
 smart_device * darwin_smart_interface::autodetect_smart_device(const char * name)
@@ -767,7 +776,7 @@ smart_device * darwin_smart_interface::autodetect_smart_device(const char * name
   std::string usb_error_message;
   if (darwin_usb_get_device_info(name, usb_info, usb_error,
       usb_error_message))
-    return get_usb_smart_device(name, usb_info, 0);
+    return get_usb_smart_device(name, usb_info, nullptr);
   if (!strncmp(name, "usbraw:", 7))
     return set_err_np(usb_error ? usb_error : ENODEV, "%s",
       usb_error_message.c_str());
@@ -846,6 +855,27 @@ static void free_devnames(char * * devnames, int numdevs)
   free(devnames);
 }
 
+bool darwin_smart_interface::scan_usb_smart_devices(
+  smart_device_list & devlist, const char * type)
+{
+  std::vector<darwin_usb_device_info> usb_devices;
+  int usb_error = 0;
+  std::string usb_error_message;
+  if (!darwin_usb_scan_devices(usb_devices, usb_error, usb_error_message))
+    return set_err(usb_error ? usb_error : EIO, "%s",
+      usb_error_message.c_str());
+
+  for (std::vector<darwin_usb_device_info>::const_iterator it =
+      usb_devices.begin(); it != usb_devices.end(); ++it) {
+    smart_device * dev = get_usb_smart_device(it->device_name.c_str(), *it,
+      type);
+    if (!dev)
+      return false;
+    devlist.push_back(dev);
+  }
+  return true;
+}
+
 bool darwin_smart_interface::scan_smart_devices(smart_device_list & devlist,
   const char * type, const char * pattern /*= 0*/)
 {
@@ -856,23 +886,8 @@ bool darwin_smart_interface::scan_smart_devices(smart_device_list & devlist,
 
   const bool scan_usb = !type || !strcmp(type, "scsi")
     || is_supported_darwin_usb_type(type);
-  if (scan_usb) {
-    std::vector<darwin_usb_device_info> usb_devices;
-    int usb_error = 0;
-    std::string usb_error_message;
-    if (!darwin_usb_scan_devices(usb_devices, usb_error, usb_error_message))
-      return set_err(usb_error ? usb_error : EIO, "%s",
-        usb_error_message.c_str());
-
-    for (std::vector<darwin_usb_device_info>::const_iterator it =
-        usb_devices.begin(); it != usb_devices.end(); ++it) {
-      smart_device * dev = get_usb_smart_device(it->device_name.c_str(), *it,
-        type);
-      if (!dev)
-        return false;
-      devlist.push_back(dev);
-    }
-  }
+  if (scan_usb && !scan_usb_smart_devices(devlist, type))
+    return false;
 
   // Make namelists
   char * * atanames = 0; int numata = 0;

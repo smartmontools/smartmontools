@@ -23,11 +23,11 @@ namespace os_darwin {
 
 struct darwin_usb_handle;
 
-enum darwin_usb_protocol
+enum class darwin_usb_protocol
 {
-  darwin_usb_protocol_none,
-  darwin_usb_protocol_bot,
-  darwin_usb_protocol_uasp
+  none,
+  bot,
+  uasp
 };
 
 struct darwin_usb_device_info

@@ -273,9 +273,9 @@ static darwin_usb_protocol get_mass_storage_protocol(io_service_t device)
   io_iterator_t iterator = MACH_PORT_NULL;
   if (IORegistryEntryCreateIterator(device, kIOServicePlane,
       kIORegistryIterateRecursively, &iterator) != KERN_SUCCESS)
-    return darwin_usb_protocol_none;
+    return darwin_usb_protocol::none;
 
-  darwin_usb_protocol protocol = darwin_usb_protocol_none;
+  darwin_usb_protocol protocol = darwin_usb_protocol::none;
   io_service_t service = MACH_PORT_NULL;
   while ((service = IOIteratorNext(iterator))) {
     if (!IOObjectConformsTo(service, "IOUSBHostInterface")) {
@@ -297,11 +297,11 @@ static darwin_usb_protocol get_mass_storage_protocol(io_service_t device)
     if (!scsi_storage)
       continue;
     if (interface_protocol == 0x62) {
-      protocol = darwin_usb_protocol_uasp;
+      protocol = darwin_usb_protocol::uasp;
       break;
     }
     if (interface_protocol == 0x50)
-      protocol = darwin_usb_protocol_bot;
+      protocol = darwin_usb_protocol::bot;
   }
   IOObjectRelease(iterator);
   return protocol;
@@ -684,7 +684,7 @@ static bool get_device_info(io_service_t service,
 {
   info = darwin_usb_device_info();
   info.protocol = get_mass_storage_protocol(service);
-  if (info.protocol == darwin_usb_protocol_none)
+  if (info.protocol == darwin_usb_protocol::none)
     return false;
 
   IORegistryEntryGetRegistryEntryID(service, &info.registry_id);
@@ -784,9 +784,9 @@ bool darwin_usb_scan_devices(std::vector<darwin_usb_device_info> & devices,
 const char * darwin_usb_protocol_name(darwin_usb_protocol protocol)
 {
   switch (protocol) {
-    case darwin_usb_protocol_bot:
+    case darwin_usb_protocol::bot:
       return "BOT";
-    case darwin_usb_protocol_uasp:
+    case darwin_usb_protocol::uasp:
       return "UASP";
     default:
       return "unknown";
