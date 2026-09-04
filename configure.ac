@@ -42,13 +42,9 @@ AC_ARG_VAR(MAKENSIS, [NSIS compiler command])
 AC_CANONICAL_HOST
 
 # The Darwin raw USB backend uses IOUSBHost, whose public API is Objective-C.
-# Keep the Objective-C++ compiler check Darwin-only so other platforms do not
-# gain a new build dependency.
-case "$host_os" in
-  darwin*)
-    AC_PROG_OBJCXX
-    ;;
-esac
+# Automake requires this macro to be invoked unconditionally when a Makefile.am
+# contains Objective-C++ sources, even though the source is built on Darwin only.
+AC_PROG_OBJCXX
 
 # Some make targets are incompatible with cross-compiling.
 # Note: Don't use 'test "$cross_compiling" = "yes"' because it may be "maybe".

@@ -1651,12 +1651,16 @@ static bool read_only_scsi_command_is_allowed(const scsi_cmnd_io * iop)
     case 0x12: // INQUIRY
     case 0x1a: // MODE SENSE(6)
     case 0x25: // READ CAPACITY(10)
-    case 0x4d: // LOG SENSE
     case 0x5a: // MODE SENSE(10)
     case 0x9e: // SERVICE ACTION IN(16), including READ CAPACITY(16)
     case 0xa0: // REPORT LUNS
     case 0xa3: // MAINTENANCE IN, including REPORT SUPPORTED OPERATION CODES
       return iop->dxfer_dir == DXFER_FROM_DEVICE;
+    case 0x4d: // LOG SENSE(10)
+      // SP may save log parameters.  The current callers use neither SP nor
+      // PPC, so only their standard read form needs to cross this seam.
+      return iop->cmnd_len == 10 && iop->cmnd[1] == 0
+        && iop->dxfer_dir == DXFER_FROM_DEVICE;
     case SAT_ATA_PASSTHROUGH_12:
       if (iop->cmnd_len >= 2 && (iop->cmnd[1] & 0x80))
         return jmicron_nvme_read_command_is_allowed(iop);
