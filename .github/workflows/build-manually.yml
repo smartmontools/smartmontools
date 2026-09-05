@@ -348,9 +348,12 @@ jobs:
         run: |
           echo "DYLD_LIBRARY_PATH=$(pwd)/usr/local/lib" | tee $GITHUB_ENV
 
-      - name: Run smartctl -V
+      - name: Check Darwin binaries
         run: |
+          lipo -verify_arch arm64 x86_64 usr/local/sbin/smartctl
+          lipo -verify_arch arm64 x86_64 usr/local/sbin/smartd
           usr/local/sbin/smartctl -V
+          usr/local/sbin/smartd -V
 
   build-freebsd-14:
     if: ${{ contains(github.event.inputs.platforms, 'freebsd-14') }}
