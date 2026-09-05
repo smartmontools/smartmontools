@@ -3,7 +3,7 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2008-21 Christian Franke
+ * Copyright (C) 2008-26 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -38,6 +38,9 @@ public:
   virtual bool owns(const smart_device * dev) const override;
 
   virtual void release(const smart_device * dev) override;
+
+protected:
+  void attach_base(smart_device * dev);
 
 private:
   smart_device * m_tunnel_base_dev;
@@ -85,6 +88,12 @@ public:
 
   const tunnel_device_type * get_tunnel_dev() const
     { return m_tunnel_dev; }
+
+  void attach(tunnel_device_type * dev)
+    {
+      attach_base(dev);
+      m_tunnel_dev = dev;
+    }
 
 private:
   tunnel_device_type * m_tunnel_dev;

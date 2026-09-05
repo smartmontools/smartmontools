@@ -317,6 +317,15 @@ void tunnelled_device_base::release(const smart_device * dev)
     m_tunnel_base_dev = 0;
 }
 
+void tunnelled_device_base::attach_base(smart_device * dev)
+{
+  if (m_tunnel_base_dev) {
+    if (m_tunnel_base_dev != dev)
+      delete dev;
+    throw std::logic_error("tunnelled_device<>::attach(): previous device object not released");
+  }
+  m_tunnel_base_dev = dev;
+}
 
 /////////////////////////////////////////////////////////////////////////////
 // smart_interface
