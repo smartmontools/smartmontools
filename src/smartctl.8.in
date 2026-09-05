@@ -93,9 +93,14 @@ There is NVMe support based on the NVMeSMARTLib API in OSX.
 General Darwin SCSI pass-through is not implemented.  With an explicit
 \*(Aq\-d scsi\*(Aq, \*(Aq\-d sat\*(Aq, or supported \*(Aq\-d snt*\*(Aq type,
 this experimental branch uses the normal whole-disk forms above for raw USB
-mass-storage access.  The Darwin-specific names \fBusbraw:diskN\fP and
+mass-storage access.  Device-type autodetection prefers an available native
+SMART driver before trying raw USB.  The Darwin-specific names \fBusbraw:diskN\fP and
 \fBusbraw:REGISTRY_ID\fP are also available for explicit raw access and stable
-I/O Registry selection.  Device-type autodetection consults the drive database
+I/O Registry selection for the current connection.  Repeated opens bind to
+the original USB registry ID; if it disappears, a new scan is required.
+Raw access is limited to one storage interface and one whole disk whose LUN
+can be verified as zero.  Composite devices and ambiguous or multiple LUNs
+are not supported.  Device-type autodetection consults the drive database
 for known SAT and SNT bridges.  Unknown bridges use non-vendor-specific
 \*(Aq\-d sat,auto\*(Aq detection; an explicit \*(Aq\-d snt*\*(Aq is still
 required for an unknown USB to NVMe bridge.

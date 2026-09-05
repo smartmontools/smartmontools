@@ -388,7 +388,7 @@ class darwin_usb_scsi_device
 {
 public:
   darwin_usb_scsi_device(smart_interface * intf, const char * dev_name,
-    const char * req_type);
+    const char * req_type, uint64_t registry_id = 0);
   virtual ~darwin_usb_scsi_device();
 
   virtual bool is_open() const override;
@@ -401,11 +401,12 @@ private:
   void operator=(const darwin_usb_scsi_device &) = delete;
 
   darwin_usb_handle * m_handle = nullptr;
+  uint64_t m_registry_id;
 };
 
 darwin_usb_scsi_device::darwin_usb_scsi_device(smart_interface * intf,
-  const char * dev_name, const char * req_type)
-: smart_device(intf, dev_name, "scsi", req_type)
+  const char * dev_name, const char * req_type, uint64_t registry_id)
+: smart_device(intf, dev_name, "scsi", req_type), m_registry_id(registry_id)
 {
 }
 
@@ -430,7 +431,7 @@ bool darwin_usb_scsi_device::open()
 
   int err = 0;
   std::string errmsg;
-  m_handle = darwin_usb_open(get_dev_name(), err, errmsg);
+  m_handle = darwin_usb_open(get_dev_name(), m_registry_id, err, errmsg);
   if (!m_handle)
     return set_err(err ? err : EIO, "%s", errmsg.c_str());
   set_info().info_name = strprintf("%s [USB %s]", get_dev_name(),
@@ -763,90 +764,59 @@ smart_device * darwin_smart_interface::get_usb_smart_device(const char * name,
   }
 
   std::unique_ptr<scsi_device> scsidev(
-    new darwin_usb_scsi_device(this, name, ""));
+    new darwin_usb_scsi_device(this, name, "", info.registry_id));
   if (!strcmp(usbtype, "scsi"))
     return scsidev.release();
   return get_scsi_passthrough_device(usbtype, scsidev.release());
 }
 
 smart_device * darwin_smart_interface::autodetect_smart_device(const char * name)
-{ // TODO - refactor as a function
+{
+  const bool explicit_raw = !strncmp(name, "usbraw:", 7);
+  if (!explicit_raw) {
+    // Prefer native SMART drivers, including third-party SAT drivers.  A USB
+    // ancestor alone must not turn their non-disruptive access into capture.
+    const char * bsd_name = nullptr;
+    if (!strncmp(name, "/dev/rdisk", 10))
+      bsd_name = name + 6;
+    else if (!strncmp(name, "/dev/disk", 9))
+      bsd_name = name + 5;
+    else if (!strncmp(name, "disk", 4))
+      bsd_name = name;
+    io_service_t service = bsd_name
+      ? IOServiceGetMatchingService(MACH_PORT_NULL,
+          IOBSDNameMatching(MACH_PORT_NULL, 0, bsd_name))
+      : IORegistryEntryFromPath(MACH_PORT_NULL, name);
+    if (!service)
+      return nullptr;
+    while (service) {
+      const bool ata = is_smart_capable(service, "ATA");
+      const bool nvme = !ata && is_smart_capable(service, "NVME");
+      io_service_t parent = MACH_PORT_NULL;
+      if (!ata && !nvme)
+        IORegistryEntryGetParentEntry(service, kIOServicePlane, &parent);
+      IOObjectRelease(service);
+      if (ata)
+        return new darwin_ata_device(this, name, "");
+      if (nvme)
+        return new darwin_nvme_device(this, name, "", 0);
+      service = parent;
+    }
+  }
+
   darwin_usb_device_info usb_info;
   int usb_error = 0;
   std::string usb_error_message;
-  if (darwin_usb_get_device_info(name, usb_info, usb_error,
-      usb_error_message))
+  if (darwin_usb_get_device_info(name, usb_info, usb_error, usb_error_message))
     return get_usb_smart_device(name, usb_info, nullptr);
-  if (!strncmp(name, "usbraw:", 7))
+  if (explicit_raw)
     return set_err_np(usb_error ? usb_error : ENODEV, "%s",
       usb_error_message.c_str());
 
-  // Acceptable device names are:
-  // /dev/disk*
-  // /dev/rdisk*
-  // disk*
-  // IOService:*
-  // IODeviceTree:*
-  const char *devname = NULL;
-  io_object_t disk;
-  
-  if (strncmp (name, "/dev/rdisk", 10) == 0)
-    devname = name + 6;
-  else if (strncmp (name, "/dev/disk", 9) == 0)
-    devname = name + 5;
-  else if (strncmp (name, "disk", 4) == 0)
-    // allow user to just say 'disk0'
-    devname = name;
-  // Find the device. This part should be the same for the NVMe and ATA
-  if (devname) {
-      CFMutableDictionaryRef matcher;
-      matcher = IOBSDNameMatching (kIOMasterPortDefault, 0, devname);
-      disk = IOServiceGetMatchingService (kIOMasterPortDefault, matcher);
-  }
-  else {
-      disk = IORegistryEntryFromPath (kIOMasterPortDefault, name);
-  }
-  if (! disk) {
-      return 0;
-  }
-  io_registry_entry_t tmpdisk=disk;
-  
-  
-  while (! is_smart_capable (tmpdisk, "ATA"))
-    {
-      IOReturn err;
-      io_object_t prevdisk = tmpdisk;
-
-      // Find this device's parent and try again.
-      err = IORegistryEntryGetParentEntry (tmpdisk, kIOServicePlane, &tmpdisk);
-      if (err != kIOReturnSuccess || ! tmpdisk)
-      {
-        IOObjectRelease (prevdisk);
-        break;
-      }
-    }
-    if (tmpdisk)
-      return new darwin_ata_device(this, name, "");
-    tmpdisk=disk;
-    while (! is_smart_capable (tmpdisk, "NVME"))
-      {
-        IOReturn err;
-        io_object_t prevdisk = tmpdisk;
-
-        // Find this device's parent and try again.
-        err = IORegistryEntryGetParentEntry (tmpdisk, kIOServicePlane, &tmpdisk);
-        if (err != kIOReturnSuccess || ! tmpdisk)
-        {
-          IOObjectRelease (prevdisk);
-          break;
-        }
-      }  
-    if (tmpdisk)
-      return new darwin_nvme_device(this, name, "", 0);
-
-  // try ATA as a last option, for compatibility
+  // Preserve the legacy ATA fallback for devices without a native SMART key.
   return new darwin_ata_device(this, name, "");
 }
+
 
 static void free_devnames(char * * devnames, int numdevs)
 {

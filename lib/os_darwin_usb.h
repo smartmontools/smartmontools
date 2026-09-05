@@ -33,13 +33,11 @@ enum class darwin_usb_protocol
 struct darwin_usb_device_info
 {
   std::string device_name;
-  std::string vendor_name;
-  std::string product_name;
-  std::string serial_number;
   uint64_t registry_id;
   uint16_t vendor_id;
   uint16_t product_id;
   uint16_t device_version;
+  uint8_t interface_number;
   darwin_usb_protocol protocol;
 };
 
@@ -48,19 +46,21 @@ struct darwin_usb_device_info
 bool darwin_usb_is_device_name(const char * selector);
 
 // Read USB identity and mass-storage protocol information without capturing
-// the device.  scan returns one entry per whole IOMedia descendant.
+// the device.  Only one storage interface with one whole disk on a verified
+// LUN 0 is supported.  Ambiguous or composite devices are excluded.
 bool darwin_usb_get_device_info(const char * selector,
   darwin_usb_device_info & info, int & error_number,
   std::string & error_message);
 bool darwin_usb_scan_devices(std::vector<darwin_usb_device_info> & devices,
   int & error_number, std::string & error_message);
 
-const char * darwin_usb_protocol_name(darwin_usb_protocol protocol);
-
 // Resolve a Darwin whole-disk name or explicit usbraw selector, capture the
 // complete USB device, and locate its active SCSI mass-storage interface.
 // Capture intentionally detaches the normal macOS drivers until close.
-darwin_usb_handle * darwin_usb_open(const char * selector, int & error_number,
+// registry_id pins a device object to its first selection.  A vanished ID
+// requires a rescan; it must never fall back to a potentially reused diskN.
+darwin_usb_handle * darwin_usb_open(const char * selector, uint64_t & registry_id,
+  int & error_number,
   std::string & error_message);
 
 // Destroying the captured device resets it, lets macOS match its drivers again,

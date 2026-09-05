@@ -30,6 +30,7 @@
 #import <IOKit/IOBSD.h>
 #import <IOKit/IOKitLib.h>
 #import <IOKit/storage/IOMedia.h>
+#import <IOKit/storage/IOStorageProtocolCharacteristics.h>
 #import <IOKit/usb/USBSpec.h>
 #import <IOUSBHost/IOUSBHost.h>
 
@@ -71,7 +72,6 @@ struct darwin_usb_handle
   bool uas_streams_enabled;
   bool transport_failed;
   darwin_usb_transport transport;
-  uint64_t registry_id;
   uint8_t interface_number;
   uint32_t next_tag;
 };
@@ -278,43 +278,39 @@ static std::string get_registry_string(io_service_t service, const char * key)
   return ok ? std::string(buffer) : std::string();
 }
 
-static darwin_usb_protocol get_mass_storage_protocol(io_service_t device)
+static darwin_usb_protocol get_mass_storage_protocol(io_service_t device,
+  uint8_t & interface_number)
 {
   io_iterator_t iterator = MACH_PORT_NULL;
-  if (IORegistryEntryCreateIterator(device, kIOServicePlane,
-      kIORegistryIterateRecursively, &iterator) != KERN_SUCCESS)
+  // Only direct interfaces belong to this device.  Recursing here would also
+  // discover disks behind a hub and incorrectly treat the hub as storage.
+  if (IORegistryEntryGetChildIterator(device, kIOServicePlane, &iterator)
+      != KERN_SUCCESS)
     return darwin_usb_protocol::none;
-
+  unsigned interfaces = 0;
   darwin_usb_protocol protocol = darwin_usb_protocol::none;
-  io_service_t service = MACH_PORT_NULL;
+  io_service_t service;
   while ((service = IOIteratorNext(iterator))) {
-    if (!IOObjectConformsTo(service, "IOUSBHostInterface")) {
-      IOObjectRelease(service);
-      continue;
+    if (IOObjectConformsTo(service, "IOUSBHostInterface")) {
+      ++interfaces;
+      uint32_t cls = 0, subcls = 0, wire = 0, number = 0;
+      if (get_registry_number(service, kUSBInterfaceClass, cls)
+          && get_registry_number(service, kUSBInterfaceSubClass, subcls)
+          && get_registry_number(service, kUSBInterfaceProtocol, wire)
+          && get_registry_number(service, kUSBInterfaceNumber, number)
+          && cls == kUSBMassStorageInterfaceClass
+          && subcls == kUSBMassStorageSCSISubClass && number <= 255) {
+        interface_number = (uint8_t)number;
+        if (wire == 0x50)
+          protocol = darwin_usb_protocol::bot;
+        else if (wire == 0x62)
+          protocol = darwin_usb_protocol::uasp;
+      }
     }
-
-    uint32_t interface_class = 0, interface_subclass = 0,
-      interface_protocol = 0;
-    const bool scsi_storage =
-      get_registry_number(service, kUSBInterfaceClass, interface_class)
-      && get_registry_number(service, kUSBInterfaceSubClass,
-        interface_subclass)
-      && get_registry_number(service, kUSBInterfaceProtocol,
-        interface_protocol)
-      && interface_class == kUSBMassStorageInterfaceClass
-      && interface_subclass == kUSBMassStorageSCSISubClass;
     IOObjectRelease(service);
-    if (!scsi_storage)
-      continue;
-    if (interface_protocol == 0x62) {
-      protocol = darwin_usb_protocol::uasp;
-      break;
-    }
-    if (interface_protocol == 0x50)
-      protocol = darwin_usb_protocol::bot;
   }
   IOObjectRelease(iterator);
-  return protocol;
+  return interfaces == 1 ? protocol : darwin_usb_protocol::none;
 }
 
 static void get_whole_disk_names(io_service_t device,
@@ -689,15 +685,53 @@ static void release_disk_session(DASessionRef session)
   CFRelease(session);
 }
 
+static bool is_lun_zero(const std::string & name)
+{
+  io_service_t service = IOServiceGetMatchingService(MACH_PORT_NULL,
+    IOBSDNameMatching(MACH_PORT_NULL, 0, strip_bsd_device_path(name.c_str())));
+  bool found = false;
+  while (service) {
+    CFTypeRef properties = copy_registry_property(service,
+      kIOPropertyProtocolCharacteristicsKey);
+    if (properties && CFGetTypeID(properties) == CFDictionaryGetTypeID()) {
+      CFTypeRef value = CFDictionaryGetValue((CFDictionaryRef)properties,
+        CFSTR(kIOPropertySCSILogicalUnitNumberKey));
+      int64_t lun = -1;
+      if (value && CFGetTypeID(value) == CFNumberGetTypeID()
+          && CFNumberGetValue((CFNumberRef)value, kCFNumberSInt64Type, &lun)) {
+        found = (lun == 0);
+        CFRelease(properties);
+        IOObjectRelease(service);
+        return found;
+      }
+    }
+    if (properties)
+      CFRelease(properties);
+    io_service_t parent = MACH_PORT_NULL;
+    if (!IOObjectConformsTo(service, "IOUSBHostInterface"))
+      IORegistryEntryGetParentEntry(service, kIOServicePlane, &parent);
+    IOObjectRelease(service);
+    service = parent;
+  }
+  return false;
+}
+
 static bool get_device_info(io_service_t service,
   darwin_usb_device_info & info)
 {
   info = darwin_usb_device_info();
-  info.protocol = get_mass_storage_protocol(service);
+  info.protocol = get_mass_storage_protocol(service, info.interface_number);
   if (info.protocol == darwin_usb_protocol::none)
     return false;
 
-  IORegistryEntryGetRegistryEntryID(service, &info.registry_id);
+  std::vector<std::string> names;
+  get_whole_disk_names(service, names);
+  if (names.size() != 1 || !is_lun_zero(names[0]))
+    return false;
+  info.device_name = names[0];
+  if (IORegistryEntryGetRegistryEntryID(service, &info.registry_id)
+      != KERN_SUCCESS || !info.registry_id)
+    return false;
   uint32_t number = 0;
   if (get_registry_number(service, kUSBVendorID, number))
     info.vendor_id = (uint16_t)number;
@@ -705,9 +739,6 @@ static bool get_device_info(io_service_t service,
     info.product_id = (uint16_t)number;
   if (get_registry_number(service, kUSBDeviceReleaseNumber, number))
     info.device_version = (uint16_t)number;
-  info.vendor_name = get_registry_string(service, kUSBVendorString);
-  info.product_name = get_registry_string(service, kUSBProductString);
-  info.serial_number = get_registry_string(service, kUSBSerialNumberString);
   return true;
 }
 
@@ -734,24 +765,10 @@ bool darwin_usb_get_device_info(const char * selector,
     return false;
   }
   const bool ok = get_device_info(service, info);
-  if (ok) {
-    const char * value = selector;
-    if (!strncmp(value, "usbraw:", 7))
-      value += 7;
-    value = strip_bsd_device_path(value);
-    if (is_whole_disk_name(value))
-      info.device_name = std::string("/dev/") + value;
-    else {
-      std::vector<std::string> names;
-      get_whole_disk_names(service, names);
-      if (names.size() == 1)
-        info.device_name = names[0];
-    }
-  }
   IOObjectRelease(service);
   if (!ok) {
     error_number = ENODEV;
-    error_message = "selected USB device has no supported SCSI mass-storage interface";
+    error_message = "raw USB requires a single storage interface and a single whole disk with a verified LUN 0";
   }
   return ok;
 }
@@ -777,16 +794,8 @@ bool darwin_usb_scan_devices(std::vector<darwin_usb_device_info> & devices,
   io_service_t service = MACH_PORT_NULL;
   while ((service = IOIteratorNext(iterator))) {
     darwin_usb_device_info base_info;
-    if (get_device_info(service, base_info)) {
-      std::vector<std::string> names;
-      get_whole_disk_names(service, names);
-      for (std::vector<std::string>::const_iterator it = names.begin();
-          it != names.end(); ++it) {
-        darwin_usb_device_info info = base_info;
-        info.device_name = *it;
-        devices.push_back(info);
-      }
-    }
+    if (get_device_info(service, base_info))
+      devices.push_back(base_info);
     IOObjectRelease(service);
   }
   IOObjectRelease(iterator);
@@ -799,86 +808,51 @@ bool darwin_usb_scan_devices(std::vector<darwin_usb_device_info> & devices,
   return true;
 }
 
-const char * darwin_usb_protocol_name(darwin_usb_protocol protocol)
-{
-  switch (protocol) {
-    case darwin_usb_protocol::bot:
-      return "BOT";
-    case darwin_usb_protocol::uasp:
-      return "UASP";
-    default:
-      return "unknown";
-  }
-}
-
 static IOUSBHostInterface * find_mass_storage_interface(IOUSBHostDevice * device,
-  darwin_usb_transport & transport, uint8_t & interface_number,
-  std::string & error)
+  uint8_t interface_number, darwin_usb_transport & transport, std::string & error)
 {
   io_iterator_t iterator = MACH_PORT_NULL;
-  kern_return_t kr = IORegistryEntryCreateIterator([device ioService],
-    kIOServicePlane, kIORegistryIterateRecursively, &iterator);
-  if (kr != KERN_SUCCESS) {
+  if (IORegistryEntryGetChildIterator([device ioService], kIOServicePlane,
+      &iterator) != KERN_SUCCESS) {
     error = "unable to enumerate captured USB interfaces";
     return nil;
   }
-
-  IOUSBHostInterface * bot_interface = nil;
-  uint8_t bot_interface_number = 0;
-  io_service_t service = MACH_PORT_NULL;
+  IOUSBHostInterface * result = nil;
+  io_service_t service;
   while ((service = IOIteratorNext(iterator))) {
-    if (!IOObjectConformsTo(service, "IOUSBHostInterface")) {
-      IOObjectRelease(service);
-      continue;
+    uint32_t number = 0;
+    bool selected = IOObjectConformsTo(service, "IOUSBHostInterface")
+      && get_registry_number(service, kUSBInterfaceNumber, number)
+      && number == interface_number;
+    if (selected) {
+      NSError * ns_error = nil;
+      result = [[IOUSBHostInterface alloc] initWithIOService:service
+        options:IOUSBHostObjectInitOptionsNone queue:nil error:&ns_error
+        interestHandler:nil];
+      if (!result)
+        error = ns_error_string(ns_error);
     }
-
-    NSError * ns_error = nil;
-    IOUSBHostInterface * candidate = [[IOUSBHostInterface alloc]
-      initWithIOService:service
-      options:IOUSBHostObjectInitOptionsNone
-      queue:nil
-      error:&ns_error
-      interestHandler:nil];
     IOObjectRelease(service);
-    if (!candidate)
-      continue;
-
-    const IOUSBInterfaceDescriptor * descriptor = [candidate interfaceDescriptor];
-    if (!descriptor || descriptor->bInterfaceClass != kUSBMassStorageInterfaceClass
-        || descriptor->bInterfaceSubClass != kUSBMassStorageSCSISubClass) {
-      [candidate destroy];
-      [candidate release];
-      continue;
-    }
-
-    if (descriptor->bInterfaceProtocol == 0x62) {
-      if (bot_interface) {
-        [bot_interface destroy];
-        [bot_interface release];
-      }
-      transport = darwin_usb_transport_uasp;
-      interface_number = descriptor->bInterfaceNumber;
-      IOObjectRelease(iterator);
-      return candidate;
-    }
-    if (descriptor->bInterfaceProtocol == 0x50 && !bot_interface) {
-      bot_interface = candidate;
-      bot_interface_number = descriptor->bInterfaceNumber;
-      continue;
-    }
-
-    [candidate destroy];
-    [candidate release];
+    if (selected)
+      break;
   }
   IOObjectRelease(iterator);
-
-  if (bot_interface) {
-    transport = darwin_usb_transport_bot;
-    interface_number = bot_interface_number;
-    return bot_interface;
+  if (result) {
+    const IOUSBInterfaceDescriptor * descriptor = [result interfaceDescriptor];
+    if (descriptor && descriptor->bInterfaceNumber == interface_number
+        && descriptor->bInterfaceClass == kUSBMassStorageInterfaceClass
+        && descriptor->bInterfaceSubClass == kUSBMassStorageSCSISubClass
+        && (descriptor->bInterfaceProtocol == 0x50
+            || descriptor->bInterfaceProtocol == 0x62)) {
+      transport = descriptor->bInterfaceProtocol == 0x62
+        ? darwin_usb_transport_uasp : darwin_usb_transport_bot;
+      return result;
+    }
+    [result destroy];
+    [result release];
   }
-
-  error = "captured device has no active SCSI-transparent BOT or UASP interface";
+  if (error.empty())
+    error = "selected USB storage interface changed during capture";
   return nil;
 }
 
@@ -1693,7 +1667,8 @@ static bool read_only_scsi_command_is_allowed(const scsi_cmnd_io * iop)
   }
 }
 
-darwin_usb_handle * darwin_usb_open(const char * selector, int & error_number,
+darwin_usb_handle * darwin_usb_open(const char * selector, uint64_t & registry_id,
+  int & error_number,
   std::string & error_message)
 {
   error_number = 0;
@@ -1716,14 +1691,28 @@ darwin_usb_handle * darwin_usb_open(const char * selector, int & error_number,
   }
 
   @autoreleasepool {
+    std::string pinned_selector;
+    if (registry_id) {
+      char text[40];
+      snprintf(text, sizeof(text), "usbraw:%llu", (unsigned long long)registry_id);
+      pinned_selector = text;
+      selector = pinned_selector.c_str();
+    }
     io_service_t service = resolve_selector(selector, error_message);
     if (!service) {
       error_number = ENODEV;
+      if (registry_id)
+        error_message += "; original USB device is unavailable, rescan required";
       return 0;
     }
-
-    uint64_t registry_id = 0;
-    IORegistryEntryGetRegistryEntryID(service, &registry_id);
+    darwin_usb_device_info info;
+    if (!get_device_info(service, info)) {
+      IOObjectRelease(service);
+      error_number = ENOTSUP;
+      error_message = "raw USB requires a single storage interface and a single whole disk with a verified LUN 0";
+      return 0;
+    }
+    registry_id = info.registry_id;
 
     DASessionRef disk_session = DASessionCreate(kCFAllocatorDefault);
     if (!disk_session) {
@@ -1767,9 +1756,9 @@ darwin_usb_handle * darwin_usb_open(const char * selector, int & error_number,
     }
 
     darwin_usb_transport transport = darwin_usb_transport_none;
-    uint8_t interface_number = 0;
+    const uint8_t interface_number = info.interface_number;
     IOUSBHostInterface * interface = find_mass_storage_interface(device,
-      transport, interface_number, error_message);
+      interface_number, transport, error_message);
     if (!interface) {
       [device destroy];
       [device release];
@@ -1801,7 +1790,6 @@ darwin_usb_handle * darwin_usb_open(const char * selector, int & error_number,
     handle->uas_streams_enabled = false;
     handle->transport_failed = false;
     handle->transport = transport;
-    handle->registry_id = registry_id;
     handle->interface_number = interface_number;
     handle->next_tag = 0;
     if (transport == darwin_usb_transport_bot
