@@ -96,11 +96,14 @@ if OS_DARWIN
 libsmartmon_la_LIBADD += $(os_libs)
 
 if !REALLY_CROSS_COMPILING
-check_PROGRAMS = os_darwin_scan_test
+check_PROGRAMS = os_darwin_scan_test os_darwin_usb_test
 TESTS = $(check_PROGRAMS)
 os_darwin_scan_test_SOURCES = tests/os_darwin_scan_test.cpp os_darwin.cpp
 os_darwin_scan_test_CPPFLAGS = $(AM_CPPFLAGS)
 os_darwin_scan_test_LDADD = libsmartmon.la $(os_libs)
+os_darwin_usb_test_SOURCES = tests/os_darwin_usb_test.mm
+os_darwin_usb_test_LDADD = libsmartmon.la $(os_libs)
+os_darwin_usb_test_LINK = $(CXXLINK) $(os_darwin_usb_test_LDFLAGS)
 endif
 endif
 

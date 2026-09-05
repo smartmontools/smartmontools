@@ -108,9 +108,11 @@ required for an unknown USB to NVMe bridge.
 The transport requires macOS 10.15 or later and root privileges.  It uses
 IOUSBHost DeviceCapture and temporarily
 detaches the complete USB device from macOS.  Mounted volumes are unmounted
-before capture without using a forced unmount and are restored when the device
-is closed.  Capture is refused if a mounted volume cannot be identified safely
-for restoration.
+before capture without using a forced unmount.  Closing the device attempts
+to restore them; a failure is reported and sets exit status bit 1.
+An unmount timeout may complete after the error has been reported; verify
+volume mount state before continuing.  Capture is refused if a mounted
+volume cannot be identified safely for restoration.
 .Sp
 Raw USB devices are never included in the default \*(Aq\-\-scan\*(Aq,
 \*(Aq\-\-scan\-open\*(Aq, or \fBsmartd\fP DEVICESCAN results.
@@ -2559,7 +2561,7 @@ may also be returned for SCSI disks.
 Command line did not parse.
 .TP
 .B Bit 1:
-Device open failed, device did not return an IDENTIFY DEVICE structure,
+Device open or close failed, device did not return an IDENTIFY DEVICE structure,
 or device is in a low-power mode (see \*(Aq\-n\*(Aq option above).
 .TP
 .B Bit 2:

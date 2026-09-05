@@ -11,6 +11,7 @@
 #include "config.h"
 
 #include <algorithm>
+#include <memory>
 #include <cerrno>
 #include <climits>
 #include <cstdio>
@@ -48,15 +49,29 @@ enum darwin_usb_transport {
 
 struct darwin_mounted_volume
 {
+  uint64_t usb_registry_id = 0;
   std::string volume_uuid;
   std::string media_uuid;
   std::string bsd_name;
   std::string mount_path;
 };
 
+struct darwin_disk_session
+{
+  DASessionRef ref;
+  explicit darwin_disk_session(DASessionRef value) : ref(value) { }
+  ~darwin_disk_session()
+  {
+    DASessionSetDispatchQueue(ref, nullptr);
+    CFRelease(ref);
+  }
+};
+
+typedef std::shared_ptr<darwin_disk_session> disk_session_ptr;
+
 struct darwin_usb_handle
 {
-  DASessionRef disk_session;
+  disk_session_ptr disk_session;
   std::vector<darwin_mounted_volume> mounted_volumes;
   IOUSBHostDevice * device;
   IOUSBHostInterface * interface;
@@ -385,10 +400,16 @@ static std::string description_path(CFDictionaryRef description)
   return std::string((const char *)buffer);
 }
 
-static bool get_mounted_volumes(io_service_t device, DASessionRef session,
+static bool get_mounted_volumes(io_service_t device, const disk_session_ptr & session,
   std::vector<darwin_mounted_volume> & volumes, std::string & error_message)
 {
   volumes.clear();
+  uint64_t usb_registry_id = 0;
+  if (IORegistryEntryGetRegistryEntryID(device, &usb_registry_id)
+      != KERN_SUCCESS || !usb_registry_id) {
+    error_message = "unable to identify the USB device for volume restoration";
+    return false;
+  }
   io_iterator_t iterator = MACH_PORT_NULL;
   if (IORegistryEntryCreateIterator(device, kIOServicePlane,
       kIORegistryIterateRecursively, &iterator) != KERN_SUCCESS) {
@@ -404,17 +425,24 @@ static bool get_mounted_volumes(io_service_t device, DASessionRef session,
       continue;
     }
 
-    DADiskRef disk = DADiskCreateFromIOMedia(kCFAllocatorDefault, session,
+    DADiskRef disk = DADiskCreateFromIOMedia(kCFAllocatorDefault, session->ref,
       service);
     IOObjectRelease(service);
-    if (!disk)
-      continue;
+    if (!disk) {
+      IOObjectRelease(iterator);
+      error_message = "unable to inspect USB media mount state";
+      return false;
+    }
     CFDictionaryRef description = DADiskCopyDescription(disk);
     CFRelease(disk);
-    if (!description)
-      continue;
+    if (!description) {
+      IOObjectRelease(iterator);
+      error_message = "unable to read USB media mount state";
+      return false;
+    }
 
     darwin_mounted_volume volume;
+    volume.usb_registry_id = usb_registry_id;
     volume.mount_path = description_path(description);
     if (volume.mount_path.empty()) {
       CFRelease(description);
@@ -454,78 +482,66 @@ static bool get_mounted_volumes(io_service_t device, DASessionRef session,
 
 struct da_operation
 {
+  disk_session_ptr session;
   dispatch_semaphore_t semaphore;
-  DAReturn status;
+  DAReturn status = kDAReturnNotReady;
   std::string message;
+
+  explicit da_operation(const disk_session_ptr & owner) : session(owner),
+    semaphore(dispatch_semaphore_create(0)) { }
+  ~da_operation() { dispatch_release(semaphore); }
 };
 
-static da_operation * new_da_operation()
-{
-  da_operation * operation = new da_operation;
-  operation->semaphore = dispatch_semaphore_create(0);
-  operation->status = kDAReturnNotReady;
-  return operation;
-}
-
-static void delete_da_operation(da_operation * operation)
-{
-  if (!operation)
-    return;
-#if !__has_feature(objc_arc)
-  dispatch_release(operation->semaphore);
-#endif
-  delete operation;
-}
+typedef std::shared_ptr<da_operation> da_operation_ptr;
 
 static void da_operation_callback(DADiskRef, DADissenterRef dissenter,
   void * context)
 {
-  da_operation * operation = (da_operation *)context;
-  operation->status = dissenter
+  // Disk Arbitration takes a C context, so explicitly own the callback's
+  // shared reference until it arrives, including after the waiter times out.
+  std::unique_ptr<da_operation_ptr> owner((da_operation_ptr *)context);
+  da_operation & operation = **owner;
+  operation.status = dissenter
     ? DADissenterGetStatus(dissenter) : kDAReturnSuccess;
   if (dissenter)
-    operation->message = cf_string_to_string(
-      DADissenterGetStatusString(dissenter));
-  dispatch_semaphore_signal(operation->semaphore);
+    operation.message = cf_string_to_string(DADissenterGetStatusString(dissenter));
+  dispatch_semaphore_signal(operation.semaphore);
 }
 
-static bool wait_da_operation(da_operation * operation, const char * action,
-  std::string & error_message)
+static bool wait_da_operation(const da_operation_ptr & operation,
+  const char * action, std::string & error_message)
 {
-  dispatch_time_t deadline = dispatch_time(DISPATCH_TIME_NOW,
-    30LL * NSEC_PER_SEC);
+  dispatch_time_t deadline = dispatch_time(DISPATCH_TIME_NOW, 30LL * NSEC_PER_SEC);
   if (dispatch_semaphore_wait(operation->semaphore, deadline)) {
-    // Disk Arbitration owns the callback context until it completes.  Keep the
-    // small context alive instead of risking a late-callback use-after-free.
-    error_message = std::string(action) + " timed out";
+    // There is no Disk Arbitration cancellation API.  Do not capture a device
+    // after an indeterminate unmount, and do not claim rollback is complete.
+    error_message = std::string(action)
+      + " timed out; the operation may still complete, verify the volume mount state";
     return false;
   }
-  const DAReturn status = operation->status;
-  const std::string message = operation->message;
-  delete_da_operation(operation);
-  if (status == kDAReturnSuccess)
+  if (operation->status == kDAReturnSuccess)
     return true;
   char status_text[32];
-  snprintf(status_text, sizeof(status_text), "0x%08x", (unsigned)status);
+  snprintf(status_text, sizeof(status_text), "0x%08x", (unsigned)operation->status);
   error_message = std::string(action) + " failed (" + status_text + ")";
-  if (!message.empty())
-    error_message += std::string(": ") + message;
+  if (!operation->message.empty())
+    error_message += std::string(": ") + operation->message;
   return false;
 }
 
-static bool unmount_whole_disk(DASessionRef session, const std::string & name,
+static bool unmount_whole_disk(const disk_session_ptr & session, const std::string & name,
   std::string & error_message)
 {
-  DADiskRef disk = DADiskCreateFromBSDName(kCFAllocatorDefault, session,
+  DADiskRef disk = DADiskCreateFromBSDName(kCFAllocatorDefault, session->ref,
     name.c_str());
   if (!disk) {
     error_message = std::string("unable to create Disk Arbitration object for '")
       + name + "'";
     return false;
   }
-  da_operation * operation = new_da_operation();
+  da_operation_ptr operation = std::make_shared<da_operation>(session);
   DADiskUnmount(disk, kDADiskUnmountOptionWhole, da_operation_callback,
-    operation);
+    new da_operation_ptr(operation));
   CFRelease(disk);
   return wait_da_operation(operation, "whole-disk unmount", error_message);
 }
@@ -533,10 +549,9 @@ static bool unmount_whole_disk(DASessionRef session, const std::string & name,
 static bool volume_matches(CFDictionaryRef description,
   const darwin_mounted_volume & volume)
 {
-  if (!volume.volume_uuid.empty()
-      && description_uuid(description, kDADiskDescriptionVolumeUUIDKey)
-        == volume.volume_uuid)
-    return true;
+  if (!volume.volume_uuid.empty())
+    return description_uuid(description, kDADiskDescriptionVolumeUUIDKey)
+      == volume.volume_uuid;
   return !volume.media_uuid.empty()
     && description_uuid(description, kDADiskDescriptionMediaUUIDKey)
       == volume.media_uuid;
@@ -548,7 +563,7 @@ static const std::string & volume_identifier(
   return !volume.volume_uuid.empty() ? volume.volume_uuid : volume.media_uuid;
 }
 
-static DADiskRef find_volume(DASessionRef session,
+static DADiskRef find_volume(const disk_session_ptr & session,
   const darwin_mounted_volume & volume, bool & mounted)
 {
   mounted = false;
@@ -560,7 +575,17 @@ static DADiskRef find_volume(DASessionRef session,
   DADiskRef result = 0;
   io_service_t service = MACH_PORT_NULL;
   while ((service = IOIteratorNext(iterator))) {
-    DADiskRef disk = DADiskCreateFromIOMedia(kCFAllocatorDefault, session,
+    io_service_t usb_device = find_usb_device_ancestor(service);
+    uint64_t registry_id = 0;
+    if (usb_device) {
+      IORegistryEntryGetRegistryEntryID(usb_device, &registry_id);
+      IOObjectRelease(usb_device);
+    }
+    if (!registry_id || registry_id != volume.usb_registry_id) {
+      IOObjectRelease(service);
+      continue;
+    }
+    DADiskRef disk = DADiskCreateFromIOMedia(kCFAllocatorDefault, session->ref,
       service);
     IOObjectRelease(service);
     if (!disk)
@@ -580,7 +605,8 @@ static DADiskRef find_volume(DASessionRef session,
   return result;
 }
 
-static bool mount_volume(DADiskRef disk, const darwin_mounted_volume & volume,
+static bool mount_volume(const disk_session_ptr & session, DADiskRef disk,
+  const darwin_mounted_volume & volume,
   std::string & error_message)
 {
   CFURLRef path = CFURLCreateFromFileSystemRepresentation(kCFAllocatorDefault,
@@ -590,14 +616,14 @@ static bool mount_volume(DADiskRef disk, const darwin_mounted_volume & volume,
       + volume.mount_path + "'";
     return false;
   }
-  da_operation * operation = new_da_operation();
+  da_operation_ptr operation = std::make_shared<da_operation>(session);
   DADiskMount(disk, path, kDADiskMountOptionDefault, da_operation_callback,
-    operation);
+    new da_operation_ptr(operation));
   CFRelease(path);
   return wait_da_operation(operation, "volume remount", error_message);
 }
 
-static bool restore_mounted_volumes(DASessionRef session,
+static bool restore_mounted_volumes(const disk_session_ptr & session,
   const std::vector<darwin_mounted_volume> & volumes,
   std::string & error_message)
 {
@@ -616,7 +642,7 @@ static bool restore_mounted_volumes(DASessionRef session,
     if (!disk)
       error = std::string("volume did not reappear: ")
         + volume_identifier(*it);
-    else if (!mounted && !mount_volume(disk, *it, error)) {
+    else if (!mounted && !mount_volume(session, disk, *it, error)) {
       // Preserve the detailed Disk Arbitration error.
     }
     if (disk)
@@ -634,7 +660,7 @@ static bool restore_mounted_volumes(DASessionRef session,
 }
 
 static bool prepare_mounted_volumes(io_service_t service,
-  DASessionRef session, std::vector<darwin_mounted_volume> & volumes,
+  const disk_session_ptr & session, std::vector<darwin_mounted_volume> & volumes,
   std::string & error_message)
 {
   std::vector<std::string> whole_disks;
@@ -675,14 +701,6 @@ static bool prepare_mounted_volumes(io_service_t service,
     return false;
   }
   return true;
-}
-
-static void release_disk_session(DASessionRef session)
-{
-  if (!session)
-    return;
-  DASessionSetDispatchQueue(session, 0);
-  CFRelease(session);
 }
 
 static bool is_lun_zero(const std::string & name)
@@ -1225,45 +1243,32 @@ struct uas_async_transfer
   NSMutableData * data;
   dispatch_semaphore_t semaphore;
   IOUSBHostPipe * pipe;
-  IOReturn status;
-  NSUInteger bytes_transferred;
+  IOReturn status = kIOReturnNotReady;
+  NSUInteger bytes_transferred = 0;
+
+  uas_async_transfer(void * buffer, size_t length, bool input, IOUSBHostPipe * source)
+    : data(input ? [[NSMutableData alloc] initWithLength:length]
+                 : [[NSMutableData alloc] initWithBytes:buffer length:length]),
+      semaphore(dispatch_semaphore_create(0)), pipe([source retain]) { }
+  ~uas_async_transfer()
+  {
+    [data release];
+    [pipe release];
+    dispatch_release(semaphore);
+  }
 };
 
-static uas_async_transfer * new_uas_async_transfer(void * buffer,
-  size_t length, bool input, IOUSBHostPipe * pipe)
-{
-  uas_async_transfer * request = new uas_async_transfer;
-  request->data = input
-    ? [[NSMutableData alloc] initWithLength:length]
-    : [[NSMutableData alloc] initWithBytes:buffer length:length];
-  request->semaphore = dispatch_semaphore_create(0);
-  request->pipe = pipe;
-  request->status = kIOReturnNotReady;
-  request->bytes_transferred = 0;
-  return request;
-}
+typedef std::shared_ptr<uas_async_transfer> uas_transfer_ptr;
 
-static void delete_uas_async_transfer(uas_async_transfer * request)
-{
-  if (!request)
-    return;
-  [request->data release];
-#if !__has_feature(objc_arc)
-  dispatch_release(request->semaphore);
-#endif
-  delete request;
-}
-
-static uas_async_transfer * enqueue_uas_pipe_transfer(IOUSBHostPipe * pipe,
+static uas_transfer_ptr enqueue_uas_pipe_transfer(IOUSBHostPipe * pipe,
   void * buffer, size_t length, bool input, unsigned timeout,
   std::string & error_message)
 {
-  uas_async_transfer * request = new_uas_async_transfer(buffer, length, input,
-    pipe);
+  uas_transfer_ptr request = std::make_shared<uas_async_transfer>(buffer, length,
+    input, pipe);
   NSError * ns_error = nil;
   BOOL ok = [pipe enqueueIORequestWithData:request->data
-    completionTimeout:(timeout ? timeout : 60)
-    error:&ns_error
+    completionTimeout:(timeout ? timeout : 60) error:&ns_error
     completionHandler:^(IOReturn status, NSUInteger bytes_transferred) {
       request->status = status;
       request->bytes_transferred = bytes_transferred;
@@ -1271,20 +1276,18 @@ static uas_async_transfer * enqueue_uas_pipe_transfer(IOUSBHostPipe * pipe,
     }];
   if (!ok) {
     error_message = ns_error_string(ns_error);
-    delete_uas_async_transfer(request);
-    return 0;
+    return uas_transfer_ptr();
   }
   return request;
 }
 
-static uas_async_transfer * enqueue_uas_stream_transfer(IOUSBHostStream * stream,
+static uas_transfer_ptr enqueue_uas_stream_transfer(IOUSBHostStream * stream,
   void * buffer, size_t length, bool input, std::string & error_message)
 {
-  uas_async_transfer * request = new_uas_async_transfer(buffer, length, input,
-    [stream hostPipe]);
+  uas_transfer_ptr request = std::make_shared<uas_async_transfer>(buffer, length,
+    input, [stream hostPipe]);
   NSError * ns_error = nil;
-  BOOL ok = [stream enqueueIORequestWithData:request->data
-    error:&ns_error
+  BOOL ok = [stream enqueueIORequestWithData:request->data error:&ns_error
     completionHandler:^(IOReturn status, NSUInteger bytes_transferred) {
       request->status = status;
       request->bytes_transferred = bytes_transferred;
@@ -1292,22 +1295,24 @@ static uas_async_transfer * enqueue_uas_stream_transfer(IOUSBHostStream * stream
     }];
   if (!ok) {
     error_message = ns_error_string(ns_error);
-    delete_uas_async_transfer(request);
-    return 0;
+    return uas_transfer_ptr();
   }
   return request;
 }
 
-static void cancel_uas_async_transfer(uas_async_transfer * request)
+static bool cancel_uas_async_transfer(const uas_transfer_ptr & request)
 {
-  if (!request)
-    return;
-  [request->pipe abortWithOption:IOUSBHostAbortOptionSynchronous error:nil];
-  dispatch_semaphore_wait(request->semaphore, DISPATCH_TIME_FOREVER);
-  delete_uas_async_transfer(request);
+  if (!request || !dispatch_semaphore_wait(request->semaphore, DISPATCH_TIME_NOW))
+    return true;
+  // A failed or stalled synchronous abort must not turn a command timeout
+  // into an unbounded wait.  The completion block keeps its buffers alive.
+  if (![request->pipe abortWithOption:IOUSBHostAbortOptionAsynchronous error:nil])
+    return false;
+  return !dispatch_semaphore_wait(request->semaphore,
+    dispatch_time(DISPATCH_TIME_NOW, 5LL * NSEC_PER_SEC));
 }
 
-static bool finish_uas_async_transfer(uas_async_transfer * request,
+static bool finish_uas_async_transfer(const uas_transfer_ptr & request,
   void * buffer, size_t length, bool input, unsigned timeout,
   size_t & transferred, std::string & error_message)
 {
@@ -1315,22 +1320,18 @@ static bool finish_uas_async_transfer(uas_async_transfer * request,
   dispatch_time_t deadline = dispatch_time(DISPATCH_TIME_NOW,
     (int64_t)timeout_seconds * NSEC_PER_SEC);
   if (dispatch_semaphore_wait(request->semaphore, deadline)) {
-    [request->pipe abortWithOption:IOUSBHostAbortOptionSynchronous error:nil];
-    dispatch_semaphore_wait(request->semaphore, DISPATCH_TIME_FOREVER);
-    error_message = "UASP transfer timed out";
-    delete_uas_async_transfer(request);
+    const bool cancelled = cancel_uas_async_transfer(request);
+    error_message = cancelled ? "UASP transfer timed out"
+      : "UASP transfer timed out; cancellation did not complete";
     return false;
   }
-
   transferred = std::min(length, (size_t)request->bytes_transferred);
   if (input && transferred)
     memcpy(buffer, [request->data bytes], transferred);
-  IOReturn status = request->status;
-  delete_uas_async_transfer(request);
-  if (status != kIOReturnSuccess) {
+  if (request->status != kIOReturnSuccess) {
     char buffer_text[80];
     snprintf(buffer_text, sizeof(buffer_text),
-      "UASP transfer failed with IOReturn 0x%08x", (unsigned)status);
+      "UASP transfer failed with IOReturn 0x%08x", (unsigned)request->status);
     error_message = buffer_text;
     return false;
   }
@@ -1384,10 +1385,10 @@ static bool parse_uas_status(const uint8_t * status, size_t status_length,
 
 static void abort_uas_transport(darwin_usb_handle * handle)
 {
-  [handle->uas_command abortWithOption:IOUSBHostAbortOptionSynchronous error:nil];
-  [handle->uas_status abortWithOption:IOUSBHostAbortOptionSynchronous error:nil];
-  [handle->uas_data_in abortWithOption:IOUSBHostAbortOptionSynchronous error:nil];
-  [handle->uas_data_out abortWithOption:IOUSBHostAbortOptionSynchronous error:nil];
+  [handle->uas_command abortWithOption:IOUSBHostAbortOptionAsynchronous error:nil];
+  [handle->uas_status abortWithOption:IOUSBHostAbortOptionAsynchronous error:nil];
+  [handle->uas_data_in abortWithOption:IOUSBHostAbortOptionAsynchronous error:nil];
+  [handle->uas_data_out abortWithOption:IOUSBHostAbortOptionAsynchronous error:nil];
   handle->transport_failed = true;
 }
 
@@ -1396,7 +1397,7 @@ static bool uas_execute_with_streams(darwin_usb_handle * handle,
   int & error_number, std::string & error_message)
 {
   uint8_t status_iu[16 + 0xff] = {};
-  uas_async_transfer * status_request = enqueue_uas_stream_transfer(
+  uas_transfer_ptr status_request = enqueue_uas_stream_transfer(
     handle->uas_status_stream, status_iu, sizeof(status_iu), true,
     error_message);
   if (!status_request) {
@@ -1404,7 +1405,7 @@ static bool uas_execute_with_streams(darwin_usb_handle * handle,
     return false;
   }
 
-  uas_async_transfer * data_request = 0;
+  uas_transfer_ptr data_request;
   if (iop->dxfer_len) {
     IOUSBHostStream * stream = (iop->dxfer_dir == DXFER_FROM_DEVICE
       ? handle->uas_data_in_stream : handle->uas_data_out_stream);
@@ -1446,7 +1447,11 @@ static bool uas_execute_with_streams(darwin_usb_handle * handle,
   if (!data_request)
     return true;
   if (iop->scsi_status) {
-    cancel_uas_async_transfer(data_request);
+    if (!cancel_uas_async_transfer(data_request)) {
+      error_number = EIO;
+      error_message = "UASP data cancellation did not complete";
+      return false;
+    }
     iop->resid = (int)iop->dxfer_len;
     return true;
   }
@@ -1467,7 +1472,7 @@ static bool uas_execute_without_streams(darwin_usb_handle * handle,
   int & error_number, std::string & error_message)
 {
   uint8_t first_iu[16 + 0xff] = {};
-  uas_async_transfer * status_request = enqueue_uas_pipe_transfer(
+  uas_transfer_ptr status_request = enqueue_uas_pipe_transfer(
     handle->uas_status, first_iu, sizeof(first_iu), true, iop->timeout,
     error_message);
   if (!status_request) {
@@ -1512,7 +1517,7 @@ static bool uas_execute_without_streams(darwin_usb_handle * handle,
   }
 
   uint8_t final_iu[16 + 0xff] = {};
-  uas_async_transfer * final_status_request = enqueue_uas_pipe_transfer(
+  uas_transfer_ptr final_status_request = enqueue_uas_pipe_transfer(
     handle->uas_status, final_iu, sizeof(final_iu), true, iop->timeout,
     error_message);
   if (!final_status_request) {
@@ -1714,21 +1719,21 @@ darwin_usb_handle * darwin_usb_open(const char * selector, uint64_t & registry_i
     }
     registry_id = info.registry_id;
 
-    DASessionRef disk_session = DASessionCreate(kCFAllocatorDefault);
-    if (!disk_session) {
+    DASessionRef session_ref = DASessionCreate(kCFAllocatorDefault);
+    if (!session_ref) {
       IOObjectRelease(service);
       error_number = EIO;
       error_message = "unable to create Disk Arbitration session";
       return 0;
     }
-    DASessionSetDispatchQueue(disk_session,
+    disk_session_ptr disk_session = std::make_shared<darwin_disk_session>(session_ref);
+    DASessionSetDispatchQueue(session_ref,
       dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0));
 
     std::vector<darwin_mounted_volume> mounted_volumes;
     if (!prepare_mounted_volumes(service, disk_session, mounted_volumes,
         error_message)) {
       IOObjectRelease(service);
-      release_disk_session(disk_session);
       error_number = EBUSY;
       return 0;
     }
@@ -1745,7 +1750,6 @@ darwin_usb_handle * darwin_usb_open(const char * selector, uint64_t & registry_i
       std::string restore_error;
       bool restored = restore_mounted_volumes(disk_session, mounted_volumes,
         restore_error);
-      release_disk_session(disk_session);
       error_number = EBUSY;
       error_message = std::string("unable to capture USB device: ")
         + ns_error_string(ns_error);
@@ -1765,7 +1769,6 @@ darwin_usb_handle * darwin_usb_open(const char * selector, uint64_t & registry_i
       std::string restore_error;
       bool restored = restore_mounted_volumes(disk_session, mounted_volumes,
         restore_error);
-      release_disk_session(disk_session);
       error_number = ENODEV;
       if (!restored)
         error_message += std::string("; volume restore failed: ")
@@ -1848,7 +1851,6 @@ bool darwin_usb_close(darwin_usb_handle * handle, int & error_number,
   }
   bool restored = restore_mounted_volumes(handle->disk_session,
     handle->mounted_volumes, error_message);
-  release_disk_session(handle->disk_session);
   delete handle;
   if (!restored) {
     error_number = EIO;

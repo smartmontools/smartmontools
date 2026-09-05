@@ -412,11 +412,8 @@ darwin_usb_scsi_device::darwin_usb_scsi_device(smart_interface * intf,
 
 darwin_usb_scsi_device::~darwin_usb_scsi_device()
 {
-  if (m_handle) {
-    int err = 0;
-    std::string errmsg;
-    darwin_usb_close(m_handle, err, errmsg);
-  }
+  if (m_handle && !close())
+    lib_printf("%s: raw USB cleanup failed: %s\n", get_dev_name(), get_errmsg());
 }
 
 bool darwin_usb_scsi_device::is_open() const
