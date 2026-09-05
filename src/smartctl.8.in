@@ -100,16 +100,21 @@ for known SAT and SNT bridges.  Unknown bridges use non-vendor-specific
 \*(Aq\-d sat,auto\*(Aq detection; an explicit \*(Aq\-d snt*\*(Aq is still
 required for an unknown USB to NVMe bridge.
 .Sp
-The transport uses IOUSBHost DeviceCapture, requires root, and temporarily
+The transport requires macOS 10.15 or later and root privileges.  It uses
+IOUSBHost DeviceCapture and temporarily
 detaches the complete USB device from macOS.  Mounted volumes are unmounted
 before capture without using a forced unmount and are restored when the device
 is closed.  Capture is refused if a mounted volume cannot be identified safely
 for restoration.
 .Sp
-The normal \*(Aq\-\-scan\*(Aq operation discovers BOT and UASP devices without
-capturing them or changing mount state.  \*(Aq\-\-scan\-open\*(Aq opens each
-device and therefore performs the temporary unmount, capture, and restore
-lifecycle described above.
+Raw USB devices are never included in the default \*(Aq\-\-scan\*(Aq,
+\*(Aq\-\-scan\-open\*(Aq, or \fBsmartd\fP DEVICESCAN results.
+Use \*(Aq\-\-scan \-d usb\*(Aq to discover BOT and UASP devices without
+capturing them or changing mount state.  The explicit
+\*(Aq\-\-scan\-open \-d usb\*(Aq operation opens each device and therefore
+performs the temporary unmount, capture, and restore lifecycle described above.
+This transport is not suitable for continuous monitoring of mounted storage;
+see \fBsmartd.conf\fP(5).
 .Sp
 Use the OS X SAT SMART Driver to access SMART data on SAT capable USB and
 Firewire devices (see INSTALL file).
@@ -333,6 +338,13 @@ smartctl \-\-scan\-open \-\- \-a \-W 4,45,50 \-m admin@work > smartd.conf
 .Sp
 Multiple \*(Aq\-d TYPE\*(Aq options may be specified with
 \*(Aq\-\-scan[\-open]\*(Aq to combine the scan results of more than one TYPE.
+.\" %IF OS Darwin
+.Sp
+On Darwin, \*(Aq\-d usb\*(Aq explicitly enables discovery of devices using
+the experimental raw USB transport.  These devices are excluded from the
+default scan because opening one requires exclusive capture and temporarily
+unmounts its volumes.
+.\" %ENDIF OS Darwin
 .TP
 .B \-g NAME, \-\-get=NAME
 Get non-SMART device settings.  See \*(Aq\-s, \-\-set\*(Aq below for further

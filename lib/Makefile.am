@@ -94,6 +94,14 @@ if OS_DARWIN
 # Also record framework dependencies in the shared library.  In particular,
 # IOUSBHost must remain weakly linked when running on older macOS versions.
 libsmartmon_la_LIBADD += $(os_libs)
+
+if !REALLY_CROSS_COMPILING
+check_PROGRAMS = os_darwin_scan_test
+TESTS = $(check_PROGRAMS)
+os_darwin_scan_test_SOURCES = tests/os_darwin_scan_test.cpp os_darwin.cpp
+os_darwin_scan_test_CPPFLAGS = $(AM_CPPFLAGS)
+os_darwin_scan_test_LDADD = libsmartmon.la $(os_libs)
+endif
 endif
 
 EXTRA_libsmartmon_la_SOURCES = \

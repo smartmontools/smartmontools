@@ -635,7 +635,7 @@ protected:
 private:
   smart_device * get_usb_smart_device(const char * name,
     const darwin_usb_device_info & info, const char * type);
-  bool scan_usb_smart_devices(smart_device_list & devlist, const char * type);
+  bool scan_usb_smart_devices(smart_device_list & devlist);
 };
 
 static bool is_supported_darwin_usb_type(const char * type)
@@ -855,8 +855,7 @@ static void free_devnames(char * * devnames, int numdevs)
   free(devnames);
 }
 
-bool darwin_smart_interface::scan_usb_smart_devices(
-  smart_device_list & devlist, const char * type)
+bool darwin_smart_interface::scan_usb_smart_devices(smart_device_list & devlist)
 {
   std::vector<darwin_usb_device_info> usb_devices;
   int usb_error = 0;
@@ -868,7 +867,7 @@ bool darwin_smart_interface::scan_usb_smart_devices(
   for (std::vector<darwin_usb_device_info>::const_iterator it =
       usb_devices.begin(); it != usb_devices.end(); ++it) {
     smart_device * dev = get_usb_smart_device(it->device_name.c_str(), *it,
-      type);
+      nullptr);
     if (!dev)
       return false;
     devlist.push_back(dev);
@@ -884,10 +883,11 @@ bool darwin_smart_interface::scan_smart_devices(smart_device_list & devlist,
     return false;
   }
 
-  const bool scan_usb = !type || !strcmp(type, "scsi")
-    || is_supported_darwin_usb_type(type);
-  if (scan_usb && !scan_usb_smart_devices(devlist, type))
-    return false;
+  // Raw USB access captures the complete device and temporarily unmounts its
+  // volumes.  Never add these devices to default scans, even after the
+  // transport has been tested: smartd repeatedly opens scanned devices.
+  if (type && !strcmp(type, "usb"))
+    return scan_usb_smart_devices(devlist);
 
   // Make namelists
   char * * atanames = 0; int numata = 0;
