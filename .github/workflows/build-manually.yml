@@ -350,8 +350,8 @@ jobs:
 
       - name: Check Darwin binaries
         run: |
-          lipo -verify_arch arm64 x86_64 usr/local/sbin/smartctl
-          lipo -verify_arch arm64 x86_64 usr/local/sbin/smartd
+          lipo usr/local/sbin/smartctl -verify_arch arm64 x86_64
+          lipo usr/local/sbin/smartd -verify_arch arm64 x86_64
           usr/local/sbin/smartctl -V
           usr/local/sbin/smartd -V
 
