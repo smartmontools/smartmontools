@@ -90,6 +90,16 @@ static std::string ns_error_string(NSError * error)
   return text ? std::string([text UTF8String]) : "unknown IOUSBHost error";
 }
 
+// The framework is weakly linked so normal ATA/NVMe access still works on
+// systems predating IOUSBHost.  Do not resolve any of its symbols until this
+// check succeeds.
+static bool raw_usb_is_available()
+{
+  @autoreleasepool {
+    return NSClassFromString(@"IOUSBHostDevice") != nil;
+  }
+}
+
 static io_service_t find_usb_device_ancestor(io_service_t service)
 {
   io_registry_entry_t current = service;
@@ -186,10 +196,10 @@ static io_service_t resolve_selector(const char * selector, std::string & error)
   value = strip_bsd_device_path(value);
 
   if (is_whole_disk_name(value)) {
-    CFMutableDictionaryRef matching = IOBSDNameMatching(kIOMainPortDefault, 0,
+    CFMutableDictionaryRef matching = IOBSDNameMatching(MACH_PORT_NULL, 0,
       value);
     if (matching)
-      selected = IOServiceGetMatchingService(kIOMainPortDefault, matching);
+      selected = IOServiceGetMatchingService(MACH_PORT_NULL, matching);
     if (!selected) {
       error = std::string("no I/O Registry service found for '") + value + "'";
       return MACH_PORT_NULL;
@@ -202,7 +212,7 @@ static io_service_t resolve_selector(const char * selector, std::string & error)
       return MACH_PORT_NULL;
     }
     CFMutableDictionaryRef matching = IORegistryEntryIDMatching(registry_id);
-    selected = IOServiceGetMatchingService(kIOMainPortDefault, matching);
+    selected = IOServiceGetMatchingService(MACH_PORT_NULL, matching);
     if (!selected) {
       error = "no I/O Registry service found for the requested entry ID";
       return MACH_PORT_NULL;
@@ -547,7 +557,7 @@ static DADiskRef find_volume(DASessionRef session,
 {
   mounted = false;
   io_iterator_t iterator = MACH_PORT_NULL;
-  if (IOServiceGetMatchingServices(kIOMainPortDefault,
+  if (IOServiceGetMatchingServices(MACH_PORT_NULL,
       IOServiceMatching(kIOMediaClass), &iterator) != KERN_SUCCESS)
     return 0;
 
@@ -707,6 +717,12 @@ bool darwin_usb_get_device_info(const char * selector,
 {
   error_number = 0;
   error_message.clear();
+  if (!raw_usb_is_available()) {
+    error_number = ENOSYS;
+    error_message = "raw USB access requires macOS 10.15 or later with IOUSBHost";
+    return false;
+  }
+
   if (!validate_selector_syntax(selector, error_message)) {
     error_number = EINVAL;
     return false;
@@ -746,9 +762,11 @@ bool darwin_usb_scan_devices(std::vector<darwin_usb_device_info> & devices,
   devices.clear();
   error_number = 0;
   error_message.clear();
+  if (!raw_usb_is_available())
+    return true;
 
   io_iterator_t iterator = MACH_PORT_NULL;
-  kern_return_t kr = IOServiceGetMatchingServices(kIOMainPortDefault,
+  kern_return_t kr = IOServiceGetMatchingServices(MACH_PORT_NULL,
     IOServiceMatching(kIOUSBHostDeviceClassName), &iterator);
   if (kr != KERN_SUCCESS) {
     error_number = EIO;
@@ -1680,6 +1698,11 @@ darwin_usb_handle * darwin_usb_open(const char * selector, int & error_number,
 {
   error_number = 0;
   error_message.clear();
+  if (!raw_usb_is_available()) {
+    error_number = ENOSYS;
+    error_message = "raw USB access requires macOS 10.15 or later with IOUSBHost";
+    return 0;
+  }
 
   if (!validate_selector_syntax(selector, error_message)) {
     error_number = EINVAL;

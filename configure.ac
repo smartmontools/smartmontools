@@ -792,7 +792,17 @@ case "${host}" in
     ;;
   *-*-darwin*)
     os_deps='os_darwin.lo os_darwin_usb.lo'
-    os_libs='-framework CoreFoundation -framework DiskArbitration -framework Foundation -framework IOKit -framework IOUSBHost'
+    os_libs='-framework CoreFoundation -framework DiskArbitration -framework Foundation -framework IOKit -Wl,-weak_framework,IOUSBHost'
+    AC_LANG_PUSH([Objective C++])
+    save_OBJCXXFLAGS=$OBJCXXFLAGS
+    OBJCXXFLAGS="$CXXFLAGS $OBJCXXFLAGS -fblocks"
+    AC_MSG_CHECKING([for the IOUSBHost Objective-C API])
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#import <IOUSBHost/IOUSBHost.h>]],
+      [[IOUSBHostDevice * device = nil; [device destroy];]])],
+      [AC_MSG_RESULT([yes])],
+      [AC_MSG_FAILURE([Darwin raw USB support requires an SDK with IOUSBHost and an Objective-C++ compiler; set OBJCXX if necessary])])
+    OBJCXXFLAGS=$save_OBJCXXFLAGS
+    AC_LANG_POP([Objective C++])
     os_darwin=yes
     os_man_filter=Darwin
     ;;

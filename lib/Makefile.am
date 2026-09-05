@@ -21,6 +21,13 @@ AM_CPPFLAGS = \
 # the rest of the C++ backend.  The .mm source is not built on other systems.
 AM_OBJCXXFLAGS = $(CXXFLAGS) -fblocks
 
+# Automake does not add the libtool OBJCXX tag to its Objective-C++ compile
+# rule.  Compiler-name based tag inference is unreliable for cross compilers.
+LTOBJCXXCOMPILE = $(LIBTOOL) $(AM_V_lt) --tag=OBJCXX \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(OBJCXX) \
+	$(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) \
+	$(AM_OBJCXXFLAGS) $(OBJCXXFLAGS)
+
 if ENABLE_DRIVEDB
 AM_CPPFLAGS += -DSMARTMONTOOLS_DRIVEDBDIR='"$(drivedbdir)"'
 endif
@@ -77,6 +84,17 @@ libsmartmon_la_SOURCES = \
 
 libsmartmon_la_LIBADD = $(os_deps)
 libsmartmon_la_DEPENDENCIES = $(os_deps)
+
+# Listing the Darwin-only .mm file in EXTRA_*_SOURCES makes Automake select
+# its Objective-C++ link rule on every platform.  Keep this mixed-source
+# library on the configured C++ link driver and its explicit libtool tag.
+libsmartmon_la_LINK = $(CXXLINK) $(libsmartmon_la_LDFLAGS)
+
+if OS_DARWIN
+# Also record framework dependencies in the shared library.  In particular,
+# IOUSBHost must remain weakly linked when running on older macOS versions.
+libsmartmon_la_LIBADD += $(os_libs)
+endif
 
 EXTRA_libsmartmon_la_SOURCES = \
         os_darwin.cpp \
