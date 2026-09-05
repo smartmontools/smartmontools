@@ -21,9 +21,10 @@ AM_CPPFLAGS = \
 # the rest of the C++ backend.  The .mm source is not built on other systems.
 AM_OBJCXXFLAGS = $(CXXFLAGS) -fblocks
 
-# Automake does not add the libtool OBJCXX tag to its Objective-C++ compile
-# rule.  Compiler-name based tag inference is unreliable for cross compilers.
-LTOBJCXXCOMPILE = $(LIBTOOL) $(AM_V_lt) --tag=OBJCXX \
+# Automake does not add a libtool tag to its Objective-C++ compile rule.
+# Select a supported tag explicitly; compiler-name inference is unreliable
+# for cross compilers and some libtool releases do not support OBJCXX.
+LTOBJCXXCOMPILE = $(LIBTOOL) $(AM_V_lt) --tag=$(LIBTOOL_OBJCXX_TAG) \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(OBJCXX) \
 	$(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) \
 	$(AM_OBJCXXFLAGS) $(OBJCXXFLAGS)

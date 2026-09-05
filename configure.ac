@@ -45,6 +45,11 @@ AC_CANONICAL_HOST
 # Automake requires this macro to be invoked unconditionally when a Makefile.am
 # contains Objective-C++ sources, even though the source is built on Darwin only.
 AC_PROG_OBJCXX
+# Some libtool releases do not provide an Objective-C++ configuration.  Its
+# Darwin PIC/object rules can use the C++ tag while OBJCXX still compiles .mm.
+m4_ifdef([_LT_LANG_OBJCXX_CONFIG],
+  [AC_SUBST([LIBTOOL_OBJCXX_TAG], [OBJCXX])],
+  [AC_SUBST([LIBTOOL_OBJCXX_TAG], [CXX])])
 
 # Some make targets are incompatible with cross-compiling.
 # Note: Don't use 'test "$cross_compiling" = "yes"' because it may be "maybe".
