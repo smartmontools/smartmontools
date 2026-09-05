@@ -41,6 +41,16 @@ AC_ARG_VAR(MAKENSIS, [NSIS compiler command])
 
 AC_CANONICAL_HOST
 
+# The Darwin raw USB backend uses IOUSBHost, whose public API is Objective-C.
+# Automake requires this macro to be invoked unconditionally when a Makefile.am
+# contains Objective-C++ sources, even though the source is built on Darwin only.
+AC_PROG_OBJCXX
+# Some libtool releases do not provide an Objective-C++ configuration.  Its
+# Darwin PIC/object rules can use the C++ tag while OBJCXX still compiles .mm.
+m4_ifdef([_LT_LANG_OBJCXX_CONFIG],
+  [AC_SUBST([LIBTOOL_OBJCXX_TAG], [OBJCXX])],
+  [AC_SUBST([LIBTOOL_OBJCXX_TAG], [CXX])])
+
 # Some make targets are incompatible with cross-compiling.
 # Note: Don't use 'test "$cross_compiling" = "yes"' because it may be "maybe".
 res=yes
@@ -786,8 +796,18 @@ case "${host}" in
     os_man_filter=Windows
     ;;
   *-*-darwin*)
-    os_deps='os_darwin.lo'
-    os_libs='-framework CoreFoundation -framework IOKit'
+    os_deps='os_darwin.lo os_darwin_usb.lo'
+    os_libs='-framework CoreFoundation -framework DiskArbitration -framework Foundation -framework IOKit -Wl,-weak_framework,IOUSBHost'
+    AC_LANG_PUSH([Objective C++])
+    save_OBJCXXFLAGS=$OBJCXXFLAGS
+    OBJCXXFLAGS="$CXXFLAGS $OBJCXXFLAGS -fblocks"
+    AC_MSG_CHECKING([for the IOUSBHost Objective-C API])
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#import <IOUSBHost/IOUSBHost.h>]],
+      [[IOUSBHostDevice * device = nil; [device destroy];]])],
+      [AC_MSG_RESULT([yes])],
+      [AC_MSG_FAILURE([Darwin raw USB support requires an SDK with IOUSBHost and an Objective-C++ compiler; set OBJCXX if necessary])])
+    OBJCXXFLAGS=$save_OBJCXXFLAGS
+    AC_LANG_POP([Objective C++])
     os_darwin=yes
     os_man_filter=Darwin
     ;;

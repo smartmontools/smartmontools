@@ -17,6 +17,18 @@ AM_CPPFLAGS = \
         -DSMARTMONTOOLS_SYSCONFDIR='"$(sysconfdir)"' \
          -I ../include -I$(top_srcdir)/include
 
+# Keep Objective-C++ Darwin code under the same language and warning policy as
+# the rest of the C++ backend.  The .mm source is not built on other systems.
+AM_OBJCXXFLAGS = $(CXXFLAGS) -fblocks
+
+# Automake does not add a libtool tag to its Objective-C++ compile rule.
+# Select a supported tag explicitly; compiler-name inference is unreliable
+# for cross compilers and some libtool releases do not support OBJCXX.
+LTOBJCXXCOMPILE = $(LIBTOOL) $(AM_V_lt) --tag=$(LIBTOOL_OBJCXX_TAG) \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(OBJCXX) \
+	$(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) \
+	$(AM_OBJCXXFLAGS) $(OBJCXXFLAGS)
+
 if ENABLE_DRIVEDB
 AM_CPPFLAGS += -DSMARTMONTOOLS_DRIVEDBDIR='"$(drivedbdir)"'
 endif
@@ -74,9 +86,33 @@ libsmartmon_la_SOURCES = \
 libsmartmon_la_LIBADD = $(os_deps)
 libsmartmon_la_DEPENDENCIES = $(os_deps)
 
+# Listing the Darwin-only .mm file in EXTRA_*_SOURCES makes Automake select
+# its Objective-C++ link rule on every platform.  Keep this mixed-source
+# library on the configured C++ link driver and its explicit libtool tag.
+libsmartmon_la_LINK = $(CXXLINK) $(libsmartmon_la_LDFLAGS)
+
+if OS_DARWIN
+# Also record framework dependencies in the shared library.  In particular,
+# IOUSBHost must remain weakly linked when running on older macOS versions.
+libsmartmon_la_LIBADD += $(os_libs)
+
+if !REALLY_CROSS_COMPILING
+check_PROGRAMS = os_darwin_scan_test os_darwin_usb_test
+TESTS = $(check_PROGRAMS)
+os_darwin_scan_test_SOURCES = tests/os_darwin_scan_test.cpp os_darwin.cpp
+os_darwin_scan_test_CPPFLAGS = $(AM_CPPFLAGS)
+os_darwin_scan_test_LDADD = libsmartmon.la $(os_libs)
+os_darwin_usb_test_SOURCES = tests/os_darwin_usb_test.mm
+os_darwin_usb_test_LDADD = libsmartmon.la $(os_libs)
+os_darwin_usb_test_LINK = $(CXXLINK) $(os_darwin_usb_test_LDFLAGS)
+endif
+endif
+
 EXTRA_libsmartmon_la_SOURCES = \
         os_darwin.cpp \
         os_darwin.h \
+        os_darwin_usb.h \
+        os_darwin_usb.mm \
         os_linux.cpp \
         os_linux.h \
         os_freebsd.cpp \

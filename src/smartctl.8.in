@@ -90,7 +90,38 @@ Long forms are also available: please use \*(Aq\-h\*(Aq to see some examples.
 .Sp
 There is NVMe support based on the NVMeSMARTLib API in OSX.
 .Sp
-Note that Darwin SCSI support is not yet implemented.
+General Darwin SCSI pass-through is not implemented.  With an explicit
+\*(Aq\-d scsi\*(Aq, \*(Aq\-d sat\*(Aq, or supported \*(Aq\-d snt*\*(Aq type,
+this experimental branch uses the normal whole-disk forms above for raw USB
+mass-storage access.  Device-type autodetection prefers an available native
+SMART driver before trying raw USB.  The Darwin-specific names \fBusbraw:diskN\fP and
+\fBusbraw:REGISTRY_ID\fP are also available for explicit raw access and stable
+I/O Registry selection for the current connection.  Repeated opens bind to
+the original USB registry ID; if it disappears, a new scan is required.
+Raw access is limited to one storage interface and one whole disk whose LUN
+can be verified as zero.  Composite devices and ambiguous or multiple LUNs
+are not supported.  Device-type autodetection consults the drive database
+for known SAT and SNT bridges.  Unknown bridges use non-vendor-specific
+\*(Aq\-d sat,auto\*(Aq detection; an explicit \*(Aq\-d snt*\*(Aq is still
+required for an unknown USB to NVMe bridge.
+.Sp
+The transport requires macOS 10.15 or later and root privileges.  It uses
+IOUSBHost DeviceCapture and temporarily
+detaches the complete USB device from macOS.  Mounted volumes are unmounted
+before capture without using a forced unmount.  Closing the device attempts
+to restore them; a failure is reported and sets exit status bit 1.
+An unmount timeout may complete after the error has been reported; verify
+volume mount state before continuing.  Capture is refused if a mounted
+volume cannot be identified safely for restoration.
+.Sp
+Raw USB devices are never included in the default \*(Aq\-\-scan\*(Aq,
+\*(Aq\-\-scan\-open\*(Aq, or \fBsmartd\fP DEVICESCAN results.
+Use \*(Aq\-\-scan \-d usb\*(Aq to discover BOT and UASP devices without
+capturing them or changing mount state.  The explicit
+\*(Aq\-\-scan\-open \-d usb\*(Aq operation opens each device and therefore
+performs the temporary unmount, capture, and restore lifecycle described above.
+This transport is not suitable for continuous monitoring of mounted storage;
+see \fBsmartd.conf\fP(5).
 .Sp
 Use the OS X SAT SMART Driver to access SMART data on SAT capable USB and
 Firewire devices (see INSTALL file).
@@ -314,6 +345,13 @@ smartctl \-\-scan\-open \-\- \-a \-W 4,45,50 \-m admin@work > smartd.conf
 .Sp
 Multiple \*(Aq\-d TYPE\*(Aq options may be specified with
 \*(Aq\-\-scan[\-open]\*(Aq to combine the scan results of more than one TYPE.
+.\" %IF OS Darwin
+.Sp
+On Darwin, \*(Aq\-d usb\*(Aq explicitly enables discovery of devices using
+the experimental raw USB transport.  These devices are excluded from the
+default scan because opening one requires exclusive capture and temporarily
+unmounts its volumes.
+.\" %ENDIF OS Darwin
 .TP
 .B \-g NAME, \-\-get=NAME
 Get non-SMART device settings.  See \*(Aq\-s, \-\-set\*(Aq below for further
@@ -517,6 +555,29 @@ bridge.
 See also \*(Aq\-d sntasmedia\*(Aq for the \*(Aq/sat\*(Aq suffix.
 .Sp
 .\" %ENDIF NOT OS Darwin
+.\" %IF OS Darwin
+.I scsi
+\- the device type is SCSI for Darwin whole-disk or experimental \fBUSBRAW\fP
+device names described above.  Only the read-oriented command allowlist
+implemented by the raw USB transport is accepted.
+.Sp
+.I sat[,12|16]
+\- the device is a SATA disk behind a USB bridge selected with a Darwin
+whole-disk or experimental \fBUSBRAW\fP device name.  The raw transport
+supports BOT and UASP at queue depth 1 and captures the complete USB device for
+the duration of the command.
+.Sp
+.I sntasmedia[/sat]
+.TQ
+.I sntjmicron[,NSID][/sat]
+.TQ
+.I sntrealtek[/sat]
+\- the device is an NVMe disk behind the corresponding USB-to-NVMe bridge and
+is selected with a Darwin whole-disk or experimental \fBUSBRAW\fP device name.
+Only Identify and Get Log Page paths are admitted by the raw transport.  Bridge
+and hardware validation is required before relying on this feature.
+.Sp
+.\" %ENDIF OS Darwin
 .\" %IF OS Linux
 .I marvell
 \- [Linux only] (deprecated and subject to remove).
@@ -2500,7 +2561,7 @@ may also be returned for SCSI disks.
 Command line did not parse.
 .TP
 .B Bit 1:
-Device open failed, device did not return an IDENTIFY DEVICE structure,
+Device open or close failed, device did not return an IDENTIFY DEVICE structure,
 or device is in a low-power mode (see \*(Aq\-n\*(Aq option above).
 .TP
 .B Bit 2:

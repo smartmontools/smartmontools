@@ -5,6 +5,7 @@
  *
  * Copyright (C) 2004-8 Geoffrey Keating <geoffk@geoffk.org>
  * Copyright (C) 2014 Alex Samorukov <samm@os2.kiev.ua>
+ * Copyright (C) 2026 PeratX <peratx@itxtech.org>
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -29,11 +30,16 @@
 
 #include "config.h"
 
+#include <algorithm>
+#include <array>
+#include <memory>
+
 #include <smartmon/atacmds.h>
 #include <smartmon/scsicmds.h>
 #include <smartmon/nvmecmds.h>
 #include <smartmon/utility.h>
 #include "os_darwin.h"
+#include "os_darwin_usb.h"
 #include <smartmon/dev_interface.h>
 
 namespace smartmon {
@@ -374,6 +380,87 @@ protected:
   // virtual int ata_command_interface(smart_command_set command, int select, char * data);
 };
 
+/////////////////////////////////////////////////////////////////////////////
+/// Raw USB SCSI transport using IOUSBHost DeviceCapture.
+
+class darwin_usb_scsi_device
+: public /*implements*/ scsi_device
+{
+public:
+  darwin_usb_scsi_device(smart_interface * intf, const char * dev_name,
+    const char * req_type, uint64_t registry_id = 0);
+  virtual ~darwin_usb_scsi_device();
+
+  virtual bool is_open() const override;
+  virtual bool open() override;
+  virtual bool close() override;
+  virtual bool scsi_pass_through(scsi_cmnd_io * iop) override;
+
+private:
+  darwin_usb_scsi_device(const darwin_usb_scsi_device &) = delete;
+  void operator=(const darwin_usb_scsi_device &) = delete;
+
+  darwin_usb_handle * m_handle = nullptr;
+  uint64_t m_registry_id;
+};
+
+darwin_usb_scsi_device::darwin_usb_scsi_device(smart_interface * intf,
+  const char * dev_name, const char * req_type, uint64_t registry_id)
+: smart_device(intf, dev_name, "scsi", req_type), m_registry_id(registry_id)
+{
+}
+
+darwin_usb_scsi_device::~darwin_usb_scsi_device()
+{
+  if (m_handle && !close())
+    lib_printf("%s: raw USB cleanup failed: %s\n", get_dev_name(), get_errmsg());
+}
+
+bool darwin_usb_scsi_device::is_open() const
+{
+  return !!m_handle;
+}
+
+bool darwin_usb_scsi_device::open()
+{
+  if (m_handle)
+    return true;
+
+  int err = 0;
+  std::string errmsg;
+  m_handle = darwin_usb_open(get_dev_name(), m_registry_id, err, errmsg);
+  if (!m_handle)
+    return set_err(err ? err : EIO, "%s", errmsg.c_str());
+  set_info().info_name = strprintf("%s [USB %s]", get_dev_name(),
+    darwin_usb_transport_name(m_handle));
+  return true;
+}
+
+bool darwin_usb_scsi_device::close()
+{
+  if (!m_handle)
+    return true;
+  int err = 0;
+  std::string errmsg;
+  bool ok = darwin_usb_close(m_handle, err, errmsg);
+  m_handle = nullptr;
+  if (!ok)
+    return set_err(err ? err : EIO, "%s", errmsg.c_str());
+  return true;
+}
+
+bool darwin_usb_scsi_device::scsi_pass_through(scsi_cmnd_io * iop)
+{
+  if (!m_handle)
+    return set_err(EBADF, "raw USB device is not open");
+
+  int err = 0;
+  std::string errmsg;
+  if (!darwin_usb_scsi_pass_through(m_handle, iop, err, errmsg))
+    return set_err(err ? err : EIO, "%s", errmsg.c_str());
+  return true;
+}
+
 darwin_ata_device::darwin_ata_device(smart_interface * intf, const char * dev_name, const char * req_type)
 : smart_device(intf, dev_name, "ata", req_type),
   darwin_smart_device("ATA")
@@ -543,7 +630,29 @@ protected:
 
   virtual smart_device * autodetect_smart_device(const char * name) override;
 
+private:
+  smart_device * get_usb_smart_device(const char * name,
+    const darwin_usb_device_info & info, const char * type);
+  bool scan_usb_smart_devices(smart_device_list & devlist);
 };
+
+static bool is_supported_darwin_usb_type(const char * type)
+{
+  if (!type)
+    return false;
+  if (str_starts_with(type, "sat") && (!type[3] || type[3] == ','))
+    return true;
+
+  static const std::array<std::string, 3> snt_types = {{
+    "sntasmedia", "sntjmicron", "sntrealtek"
+  }};
+  return std::any_of(snt_types.begin(), snt_types.end(),
+    [type](const std::string & snt_type) {
+      const size_t length = snt_type.size();
+      return !strncmp(type, snt_type.c_str(), length)
+        && (!type[length] || type[length] == ',' || type[length] == '/');
+    });
+}
 
 /////////////////////////////////////////////////////////////////////////////
 /// NVMe support
@@ -621,9 +730,13 @@ ata_device * darwin_smart_interface::get_ata_device(const char * name, const cha
   return new darwin_ata_device(this, name, type);
 }
 
-scsi_device * darwin_smart_interface::get_scsi_device(const char *, const char *)
+scsi_device * darwin_smart_interface::get_scsi_device(const char * name, const char * type)
 {
-  return 0; // scsi devices are not supported [yet]
+  if (!darwin_usb_is_device_name(name))
+    return nullptr; // The system SCSI stack still has no general pass-through API.
+  std::unique_ptr<scsi_device> dev(
+    new darwin_usb_scsi_device(this, name, type));
+  return dev.release();
 }
 
 nvme_device * darwin_smart_interface::get_nvme_device(const char * name, const char * type,
@@ -632,80 +745,101 @@ nvme_device * darwin_smart_interface::get_nvme_device(const char * name, const c
   return new darwin_nvme_device(this, name, type, nsid);
 }
 
-smart_device * darwin_smart_interface::autodetect_smart_device(const char * name)
-{ // TODO - refactor as a function
-  // Acceptable device names are:
-  // /dev/disk*
-  // /dev/rdisk*
-  // disk*
-  // IOService:*
-  // IODeviceTree:*
-  const char *devname = NULL;
-  io_object_t disk;
-  
-  if (strncmp (name, "/dev/rdisk", 10) == 0)
-    devname = name + 6;
-  else if (strncmp (name, "/dev/disk", 9) == 0)
-    devname = name + 5;
-  else if (strncmp (name, "disk", 4) == 0)
-    // allow user to just say 'disk0'
-    devname = name;
-  // Find the device. This part should be the same for the NVMe and ATA
-  if (devname) {
-      CFMutableDictionaryRef matcher;
-      matcher = IOBSDNameMatching (kIOMasterPortDefault, 0, devname);
-      disk = IOServiceGetMatchingService (kIOMasterPortDefault, matcher);
-  }
-  else {
-      disk = IORegistryEntryFromPath (kIOMasterPortDefault, name);
-  }
-  if (! disk) {
-      return 0;
-  }
-  io_registry_entry_t tmpdisk=disk;
-  
-  
-  while (! is_smart_capable (tmpdisk, "ATA"))
-    {
-      IOReturn err;
-      io_object_t prevdisk = tmpdisk;
-
-      // Find this device's parent and try again.
-      err = IORegistryEntryGetParentEntry (tmpdisk, kIOServicePlane, &tmpdisk);
-      if (err != kIOReturnSuccess || ! tmpdisk)
-      {
-        IOObjectRelease (prevdisk);
-        break;
-      }
+smart_device * darwin_smart_interface::get_usb_smart_device(const char * name,
+  const darwin_usb_device_info & info, const char * type)
+{
+  const char * usbtype = type;
+  if (!usbtype || !*usbtype) {
+    usbtype = get_usb_dev_type_by_id(info.vendor_id, info.product_id,
+      info.device_version);
+    if (!is_supported_darwin_usb_type(usbtype)) {
+      // A standard SAT INQUIRY is safe for an unknown or unsupported bridge.
+      // Vendor-specific SNT commands are selected only from the drive database.
+      clear_err();
+      usbtype = "sat,auto";
     }
-    if (tmpdisk)
-      return new darwin_ata_device(this, name, "");
-    tmpdisk=disk;
-    while (! is_smart_capable (tmpdisk, "NVME"))
-      {
-        IOReturn err;
-        io_object_t prevdisk = tmpdisk;
+  }
 
-        // Find this device's parent and try again.
-        err = IORegistryEntryGetParentEntry (tmpdisk, kIOServicePlane, &tmpdisk);
-        if (err != kIOReturnSuccess || ! tmpdisk)
-        {
-          IOObjectRelease (prevdisk);
-          break;
-        }
-      }  
-    if (tmpdisk)
-      return new darwin_nvme_device(this, name, "", 0);
+  std::unique_ptr<scsi_device> scsidev(
+    new darwin_usb_scsi_device(this, name, "", info.registry_id));
+  if (!strcmp(usbtype, "scsi"))
+    return scsidev.release();
+  return get_scsi_passthrough_device(usbtype, scsidev.release());
+}
 
-  // try ATA as a last option, for compatibility
+smart_device * darwin_smart_interface::autodetect_smart_device(const char * name)
+{
+  const bool explicit_raw = !strncmp(name, "usbraw:", 7);
+  if (!explicit_raw) {
+    // Prefer native SMART drivers, including third-party SAT drivers.  A USB
+    // ancestor alone must not turn their non-disruptive access into capture.
+    const char * bsd_name = nullptr;
+    if (!strncmp(name, "/dev/rdisk", 10))
+      bsd_name = name + 6;
+    else if (!strncmp(name, "/dev/disk", 9))
+      bsd_name = name + 5;
+    else if (!strncmp(name, "disk", 4))
+      bsd_name = name;
+    io_service_t service = bsd_name
+      ? IOServiceGetMatchingService(MACH_PORT_NULL,
+          IOBSDNameMatching(MACH_PORT_NULL, 0, bsd_name))
+      : IORegistryEntryFromPath(MACH_PORT_NULL, name);
+    if (!service)
+      return nullptr;
+    while (service) {
+      const bool ata = is_smart_capable(service, "ATA");
+      const bool nvme = !ata && is_smart_capable(service, "NVME");
+      io_service_t parent = MACH_PORT_NULL;
+      if (!ata && !nvme)
+        IORegistryEntryGetParentEntry(service, kIOServicePlane, &parent);
+      IOObjectRelease(service);
+      if (ata)
+        return new darwin_ata_device(this, name, "");
+      if (nvme)
+        return new darwin_nvme_device(this, name, "", 0);
+      service = parent;
+    }
+  }
+
+  darwin_usb_device_info usb_info;
+  int usb_error = 0;
+  std::string usb_error_message;
+  if (darwin_usb_get_device_info(name, usb_info, usb_error, usb_error_message))
+    return get_usb_smart_device(name, usb_info, nullptr);
+  if (explicit_raw)
+    return set_err_np(usb_error ? usb_error : ENODEV, "%s",
+      usb_error_message.c_str());
+
+  // Preserve the legacy ATA fallback for devices without a native SMART key.
   return new darwin_ata_device(this, name, "");
 }
+
 
 static void free_devnames(char * * devnames, int numdevs)
 {
   for (int i = 0; i < numdevs; i++)
     free(devnames[i]);
   free(devnames);
+}
+
+bool darwin_smart_interface::scan_usb_smart_devices(smart_device_list & devlist)
+{
+  std::vector<darwin_usb_device_info> usb_devices;
+  int usb_error = 0;
+  std::string usb_error_message;
+  if (!darwin_usb_scan_devices(usb_devices, usb_error, usb_error_message))
+    return set_err(usb_error ? usb_error : EIO, "%s",
+      usb_error_message.c_str());
+
+  for (std::vector<darwin_usb_device_info>::const_iterator it =
+      usb_devices.begin(); it != usb_devices.end(); ++it) {
+    smart_device * dev = get_usb_smart_device(it->device_name.c_str(), *it,
+      nullptr);
+    if (!dev)
+      return false;
+    devlist.push_back(dev);
+  }
+  return true;
 }
 
 bool darwin_smart_interface::scan_smart_devices(smart_device_list & devlist,
@@ -715,6 +849,12 @@ bool darwin_smart_interface::scan_smart_devices(smart_device_list & devlist,
     set_err(EINVAL, "DEVICESCAN with pattern not implemented yet");
     return false;
   }
+
+  // Raw USB access captures the complete device and temporarily unmounts its
+  // volumes.  Never add these devices to default scans, even after the
+  // transport has been tested: smartd repeatedly opens scanned devices.
+  if (type && !strcmp(type, "usb"))
+    return scan_usb_smart_devices(devlist);
 
   // Make namelists
   char * * atanames = 0; int numata = 0;

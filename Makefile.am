@@ -75,6 +75,8 @@ MAINTAINERCLEANFILES = \
         $(srcdir)/m4/lt*.m4~ \
         $(srcdir)/missing
 
+MAINTAINERCLEANFILES += $(srcdir)/test-driver
+
 SUBDIRS = include lib src
 
 # Avoid automake warning: '.PHONY was already defined in condition ...'
