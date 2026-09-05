@@ -343,8 +343,8 @@ std::string smart_interface::get_valid_dev_types_str()
   // default
   std::string s =
     "ata, scsi[+TYPE], nvme[,NSID], sat[,auto][,N][+TYPE], usbasm1352r,N, usbcypress[,X], "
-    "usbjmicron[,p][,x][,N], usbprolific, usbsunplus[/sat], sntasmedia[/sat], "
-    "sntjmicron[,NSID][/sat], sntrealtek[/sat], jmb39x[-q[2]],N[,sLBA][,force][+TYPE], "
+    "usbjmicron[,p][,x][,N], usbprolific, usbsunplus, sntasmedia, sntjmicron[,NSID], "
+    "sntrealtek, snt*/sat, sat/snt*, jmb39x[-q[2]],N[,sLBA][,force][+TYPE], "
     "jms56x,N[,sLBA][,force][+TYPE]";
   // append custom
   std::string s2 = get_valid_custom_dev_types_str();
@@ -495,7 +495,7 @@ smart_device * smart_interface::get_smart_device(const char * name, const char *
     return get_sat_device(sattype.c_str(), basedev.release()->to_scsi());
   }
 
-  else if (str_starts_with(type, "snt")) {
+  else if (str_starts_with(type, "snt") || str_starts_with(type, "sat/snt")) {
     smart_device_auto_ptr basedev( get_smart_device(name, "scsi") );
     if (!basedev)
       return set_err_np(EINVAL, "Type '%s': %s", type, get_errmsg());
@@ -585,9 +585,8 @@ std::string smart_interface::get_valid_custom_dev_types_str()
 
 smart_device * smart_interface::get_scsi_passthrough_device(const char * type, scsi_device * scsidev)
 {
-  if (!strncmp(type, "snt", 3)) {
+  if (str_starts_with(type, "snt") || str_starts_with(type, "sat/snt"))
     return get_snt_device(type, scsidev);
-  }
 
   return get_sat_device(type, scsidev);
 }

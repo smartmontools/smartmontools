@@ -1,6 +1,6 @@
 .ig
 Copyright (C) 2002-10 Bruce Allen
-Copyright (C) 2004-25 Christian Franke
+Copyright (C) 2004-26 Christian Franke
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
@@ -429,27 +429,35 @@ PL2571/2771/2773/2775 USB to SATA bridge.
 \- this device type is for SATA disks that are behind a SunplusIT USB to SATA
 bridge.
 .Sp
-.I sntasmedia[/sat]
+.I sntasmedia
 \- this device type is for NVMe disks that are behind an ASMedia USB to NVMe
 bridge.
-.br
-[NEW EXPERIMENTAL SMARTD 7.5 FEATURE]
-If the \*(Aq/sat\*(Aq suffix is specified and the NVMe Identify Controller
-command fails, the device type is changed to \*(Aq\-d sat\*(Aq.
-This is useful for USB M.2 adapters which support NVMe and SATA devices.
 .Sp
-.I sntjmicron[,NSID][/sat]
+.I sntjmicron[,NSID]
 \- this device type is for NVMe disks that are behind a JMicron USB to NVMe
 bridge.
 The optional parameter NSID specifies the namespace id (in hex) passed
 to the driver.
 The default namespace id is the broadcast namespace id (0xffffffff).
-See also \*(Aq\-d sntasmedia\*(Aq for the \*(Aq/sat\*(Aq suffix.
 .Sp
-.I sntrealtek[/sat]
+.I sntrealtek
 \- this device type is for NVMe disks that are behind a Realtek USB to NVMe
 bridge.
-See also \*(Aq\-d sntasmedia\*(Aq for the \*(Aq/sat\*(Aq suffix.
+.Sp
+.I snt*/sat
+- [NEW EXPERIMENTAL SMARTCTL 7.5 FEATURE]
+if \*(Aq/sat\*(Aq is appended to any of the \*(Aq\-d snt*\*(Aq options
+above and the NVMe Identify Controller command fails, the device type is
+changed to \*(Aq\-d sat\*(Aq.
+This is useful for USB adapters which support NVMe and SATA devices.
+.Sp
+.I sat/snt*
+- [NEW EXPERIMENTAL SMARTCTL 8.0 FEATURE]
+if \*(Aqsat/\*(Aq is prepended to any of the \*(Aq\-d snt*\*(Aq options
+above and the ATA IDENTIFY command succeeds via SAT pass-through, the
+device type is changed to \*(Aq\-d sat\*(Aq.
+This is useful if checking NVMe first with \*(Aq\-d snt*/sat\*(Aq does not
+work.
 .Sp
 .\" %ENDIF NOT OS Darwin
 .\" %IF OS Linux

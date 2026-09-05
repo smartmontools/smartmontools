@@ -3,8 +3,8 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2020-25 Christian Franke
- * Copyright (C) 2018 Harry Mallon <hjmallon@gmail.com>
+ * Copyright (C) 2018    Harry Mallon <hjmallon@gmail.com>
+ * Copyright (C) 2020-26 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -12,11 +12,13 @@
 #include "config.h"
 
 #include <smartmon/dev_interface.h>
-#include "dev_tunnelled.h"
+#include <smartmon/atacmds.h>
 #include <smartmon/nvmecmds.h>
 #include <smartmon/scsicmds.h>
 #include <smartmon/sg_unaligned.h>
 #include <smartmon/utility.h>
+
+#include "dev_tunnelled.h"
 
 #include <errno.h>
 
@@ -35,15 +37,15 @@ class nvme_or_sat_device
   >
 {
 public:
-  nvme_or_sat_device(scsi_device * scsidev, unsigned nsid, bool maybe_sat);
+  nvme_or_sat_device(scsi_device * scsidev, unsigned nsid, int maybe_sat);
 
   virtual smart_device * autodetect_open() override;
 
 private:
-  bool m_maybe_sat;
+  int m_maybe_sat; // 0=no, 1=SAT first, 2=NVMe first
 };
 
-nvme_or_sat_device::nvme_or_sat_device(scsi_device * scsidev, unsigned nsid, bool maybe_sat)
+nvme_or_sat_device::nvme_or_sat_device(scsi_device * scsidev, unsigned nsid, int maybe_sat)
 : smart_device(never_called),
   tunnelled_device<nvme_device, scsi_device>(scsidev, nsid),
   m_maybe_sat(maybe_sat)
@@ -55,24 +57,45 @@ smart_device * nvme_or_sat_device::autodetect_open()
   if (!open() || !m_maybe_sat)
     return this;
 
-  // SAT not tried first because some USB bridges emulate ATA IDENTIFY via SAT
-  // if a NVMe device is connected.
-  // TODO: Preserve id_ctrl for next nvme_read_id_ctrl() call
-  nvme_id_ctrl id_ctrl{};
-  if (nvme_read_id_ctrl(this, id_ctrl)) {
-    // Some devices return success but no data if a SATA device is connected
-    if (nonempty(id_ctrl.mn, sizeof(id_ctrl.mn)))
-      return this;
+  // SAT should only be tried first if the USB bridge does not emulate
+  // ATA IDENTIFY via SAT if a NVMe device is connected.
+  scsi_device * scsidev = get_tunnel_dev();
+  std::unique_ptr<ata_device> satdev{};
+  if (m_maybe_sat == 1) {
+    // Try SAT first
+    satdev.reset(smi()->get_sat_device("sat", scsidev));
+    release(scsidev); // 'scsidev' is now owned by 'satdev'
+    // TODO: Preserve id for next ata_read_identity() call
+    ata_identify_device id{};
+    // TODO: Don't retry with IDENTIFY PACKED DEVICE
+    if (!(!ata_read_identity(satdev.get(), id) && nonempty(id.model, sizeof(id.model)))) {
+      // ATA IDENTIFY failed or is incomplete
+      satdev->release(scsidev);
+      attach(scsidev); // restore ownership
+      satdev.reset();
+    }
+  }
+  else { // m_maybe_sat == 2
+    // Try NVMe first
+    // TODO: Preserve id_ctrl for next nvme_read_id_ctrl() call
+    nvme_id_ctrl id_ctrl{};
+    if (!(nvme_read_id_ctrl(this, id_ctrl) && nonempty(id_ctrl.mn, sizeof(id_ctrl.mn)))) {
+      // NVMe Identify Controller failed or is incomplete
+      satdev.reset(smi()->get_sat_device("sat", scsidev));
+      release(scsidev); // 'scsidev' is now owned by 'satdev'
+    }
   }
 
-  // NVMe Identify Controller failed, use the already opened SCSI device for SAT.
-  // IMPORTANT for derived classes: this->close() not called before delete.
-  // TODO: preserve requested 'type'.
-  scsi_device * scsidev = get_tunnel_dev();
-  ata_device * satdev = smi()->get_sat_device("sat", scsidev);
-  release(scsidev); // 'scsidev' is now owned by 'satdev'
-  delete this;
-  return satdev;
+  if (satdev) {
+    // Switch to SAT
+    // TODO: preserve requested 'type'.
+    // IMPORTANT for derived classes: this->close() is not called before delete.
+    delete this;
+    return satdev.release();
+  }
+
+  // Keep NVMe
+  return this;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -83,7 +106,7 @@ class sntasmedia_device
 {
 public:
   sntasmedia_device(smart_interface * intf, scsi_device * scsidev,
-                    const char * req_type, unsigned nsid, bool maybe_sat);
+                    const char * req_type, unsigned nsid, int maybe_sat);
 
   virtual ~sntasmedia_device();
 
@@ -91,7 +114,7 @@ public:
 };
 
 sntasmedia_device::sntasmedia_device(smart_interface * intf, scsi_device * scsidev,
-                                     const char * req_type, unsigned nsid, bool maybe_sat)
+                                     const char * req_type, unsigned nsid, int maybe_sat)
 : smart_device(intf, scsidev->get_dev_name(), "sntasmedia", req_type),
   nvme_or_sat_device(scsidev, nsid, maybe_sat)
 {
@@ -172,7 +195,7 @@ class sntjmicron_device
 {
 public:
   sntjmicron_device(smart_interface * intf, scsi_device * scsidev,
-                    const char * req_type, unsigned nsid, bool maybe_sat);
+                    const char * req_type, unsigned nsid, int maybe_sat);
 
   virtual ~sntjmicron_device();
 
@@ -186,7 +209,7 @@ private:
 };
 
 sntjmicron_device::sntjmicron_device(smart_interface * intf, scsi_device * scsidev,
-                                     const char * req_type, unsigned nsid, bool maybe_sat)
+                                     const char * req_type, unsigned nsid, int maybe_sat)
 : smart_device(intf, scsidev->get_dev_name(), "sntjmicron", req_type),
   nvme_or_sat_device(scsidev, nsid, maybe_sat)
 {
@@ -352,7 +375,7 @@ class sntrealtek_device
 {
 public:
   sntrealtek_device(smart_interface * intf, scsi_device * scsidev,
-                    const char * req_type, unsigned nsid, bool maybe_sat);
+                    const char * req_type, unsigned nsid, int maybe_sat);
 
   virtual ~sntrealtek_device();
 
@@ -360,7 +383,7 @@ public:
 };
 
 sntrealtek_device::sntrealtek_device(smart_interface * intf, scsi_device * scsidev,
-                                     const char * req_type, unsigned nsid, bool maybe_sat)
+                                     const char * req_type, unsigned nsid, int maybe_sat)
 : smart_device(intf, scsidev->get_dev_name(), "sntrealtek", req_type),
   nvme_or_sat_device(scsidev, nsid, maybe_sat)
 {
@@ -432,14 +455,16 @@ nvme_device * smart_interface::get_snt_device(const char * type, scsi_device * s
   if (!scsidev)
     throw std::logic_error("smart_interface: get_snt_device() called with scsidev=0");
 
-  // Check for "snt*/sat"
-  bool maybe_sat = false;
+  // Check for "sat/snt*" or "snt*/sat"
   char snt_type[32];
-  snprintf(snt_type, sizeof(snt_type), "%s", type);
+  int maybe_sat = (str_starts_with(type, "sat/snt") ? 1 : 0);
+  snprintf(snt_type, sizeof(snt_type), "%s", type + (maybe_sat ? 4 : 0));
   int len = strlen(snt_type);
   if (len > 4 && !strcmp(snt_type + len - 4, "/sat")) {
-    snt_type[len -= 4] = 0;
-    maybe_sat = true;
+    if (maybe_sat)
+      return set_err_np(EINVAL, "Invalid 'sat/*/sat' in '%s'", type);
+    snt_type[len -= 4] = '\0';
+    maybe_sat = 2;
   }
 
   // Take temporary ownership of 'scsidev' to delete it on error
