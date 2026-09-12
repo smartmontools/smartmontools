@@ -388,7 +388,8 @@ class darwin_usb_scsi_device
 {
 public:
   darwin_usb_scsi_device(smart_interface * intf, const char * dev_name,
-    const char * req_type, uint64_t registry_id = 0);
+    const char * req_type, uint64_t registry_id = 0,
+    darwin_usb_protocol protocol = darwin_usb_protocol::none);
   virtual ~darwin_usb_scsi_device();
 
   virtual bool is_open() const override;
@@ -402,11 +403,14 @@ private:
 
   darwin_usb_handle * m_handle = nullptr;
   uint64_t m_registry_id;
+  darwin_usb_protocol m_protocol;
 };
 
 darwin_usb_scsi_device::darwin_usb_scsi_device(smart_interface * intf,
-  const char * dev_name, const char * req_type, uint64_t registry_id)
-: smart_device(intf, dev_name, "scsi", req_type), m_registry_id(registry_id)
+  const char * dev_name, const char * req_type, uint64_t registry_id,
+  darwin_usb_protocol protocol)
+: smart_device(intf, dev_name, "scsi", req_type), m_registry_id(registry_id),
+  m_protocol(protocol)
 {
 }
 
@@ -428,7 +432,7 @@ bool darwin_usb_scsi_device::open()
 
   int err = 0;
   std::string errmsg;
-  m_handle = darwin_usb_open(get_dev_name(), m_registry_id, err, errmsg);
+  m_handle = darwin_usb_open(get_dev_name(), m_registry_id, err, errmsg, m_protocol);
   if (!m_handle)
     return set_err(err ? err : EIO, "%s", errmsg.c_str());
   set_info().info_name = strprintf("%s [USB %s]", get_dev_name(),
@@ -630,6 +634,10 @@ protected:
 
   virtual smart_device * autodetect_smart_device(const char * name) override;
 
+  virtual smart_device * get_custom_smart_device(const char * name,
+    const char * type) override;
+  virtual std::string get_valid_custom_dev_types_str() override;
+
 private:
   smart_device * get_usb_smart_device(const char * name,
     const darwin_usb_device_info & info, const char * type);
@@ -737,6 +745,37 @@ scsi_device * darwin_smart_interface::get_scsi_device(const char * name, const c
   std::unique_ptr<scsi_device> dev(
     new darwin_usb_scsi_device(this, name, type));
   return dev.release();
+}
+
+smart_device * darwin_smart_interface::get_custom_smart_device(const char * name,
+  const char * type)
+{
+  // Keep bridge protocol/namespace parsing in the existing SAT/SNT factories.
+  // The suffix selects the USB wire protocol independently of the bridge.
+  const char * suffix = strstr(type, "+usb,");
+  if (!suffix)
+    return nullptr;
+  if (!darwin_usb_is_device_name(name))
+    return set_err_np(EINVAL, "USB transport selection requires a Darwin USB device name");
+  const std::string bridge_type(type, suffix - type);
+  if (!is_supported_darwin_usb_type(bridge_type.c_str()) && bridge_type != "scsi")
+    return set_err_np(EINVAL, "USB transport selection requires a SAT, SNT or SCSI device type");
+  darwin_usb_protocol protocol;
+  if (!strcmp(suffix, "+usb,bot"))
+    protocol = darwin_usb_protocol::bot;
+  else if (!strcmp(suffix, "+usb,uasp"))
+    protocol = darwin_usb_protocol::uasp;
+  else
+    return set_err_np(EINVAL, "USB transport must be 'bot' or 'uasp'");
+  scsi_device * scsidev = new darwin_usb_scsi_device(this, name, type, 0, protocol);
+  if (bridge_type == "scsi")
+    return scsidev;
+  return get_scsi_passthrough_device(bridge_type.c_str(), scsidev);
+}
+
+std::string darwin_smart_interface::get_valid_custom_dev_types_str()
+{
+  return "<sat|sntasmedia|sntjmicron[,NSID]|sntrealtek|scsi>+usb,<bot|uasp>";
 }
 
 nvme_device * darwin_smart_interface::get_nvme_device(const char * name, const char * type,

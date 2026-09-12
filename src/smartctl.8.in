@@ -105,7 +105,26 @@ for known SAT and SNT bridges.  Unknown bridges use non-vendor-specific
 \*(Aq\-d sat,auto\*(Aq detection; an explicit \*(Aq\-d snt*\*(Aq is still
 required for an unknown USB to NVMe bridge.
 .Sp
-The transport requires macOS 10.15 or later and root privileges.  It uses
+By default, raw USB uses the BOT or UASP protocol that macOS was using before
+capture.  It restores that protocol if capture resets the alternate setting.
+There is no automatic protocol fallback.  Append \*(Aq+usb,bot\*(Aq or
+\*(Aq+usb,uasp\*(Aq to a SAT, SNT, or SCSI device type to select a protocol
+explicitly, for example \*(Aq\-d sntjmicron+usb,uasp\*(Aq or
+\*(Aq\-d sntjmicron,0x1+usb,bot\*(Aq.  An unavailable protocol is an error.
+Use \*(Aq\-r ioctl,1\*(Aq to report the system and selected protocols;
+with JSON output, use \*(Aq\-\-json=o\*(Aq to retain this diagnostic text.
+.Sp
+JMS583 devices receive a synchronous START UNIT command after capture
+to wake the NVMe command path, independently of firmware version.
+The transport sends this command before the
+existing SNT Identify and SMART sequence.  No fixed startup delay is used;
+TEST UNIT READY alone is not proof that NVMe Identify will succeed.
+.Sp
+The transport requires macOS 10.15 or later and root privileges.  Run it
+from the logged-in user's session, for example with sudo in Terminal.
+On some macOS versions a root background service can capture the device
+but cannot open its USB interface.
+It uses
 IOUSBHost DeviceCapture and temporarily
 detaches the complete USB device from macOS.  Mounted volumes are unmounted
 before capture without using a forced unmount.  Closing the device attempts

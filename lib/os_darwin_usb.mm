@@ -36,6 +36,7 @@
 #import <IOUSBHost/IOUSBHost.h>
 
 #include <smartmon/scsicmds.h>
+#include <smartmon/utility.h>
 #include "os_darwin_usb.h"
 
 namespace smartmon {
@@ -49,7 +50,7 @@ enum darwin_usb_transport {
 
 struct darwin_mounted_volume
 {
-  uint64_t usb_registry_id = 0;
+  darwin_usb_device_info usb_identity = {};
   std::string volume_uuid;
   std::string media_uuid;
   std::string bsd_name;
@@ -73,6 +74,7 @@ struct darwin_usb_handle
 {
   disk_session_ptr disk_session;
   std::vector<darwin_mounted_volume> mounted_volumes;
+  bool jms583 = false;
   IOUSBHostDevice * device;
   IOUSBHostInterface * interface;
   IOUSBHostPipe * bulk_in;
@@ -102,7 +104,10 @@ static std::string ns_error_string(NSError * error)
   if (!error)
     return "unknown IOUSBHost error";
   NSString * text = [error localizedDescription];
-  return text ? std::string([text UTF8String]) : "unknown IOUSBHost error";
+  char code[40];
+  snprintf(code, sizeof(code), " (0x%08x)", (unsigned)[error code]);
+  return (text ? std::string([text UTF8String]) : "unknown IOUSBHost error")
+    + code;
 }
 
 // The framework is weakly linked so normal ATA/NVMe access still works on
@@ -365,6 +370,31 @@ static std::string cf_string_to_string(CFStringRef value)
   return std::string(&buffer[0]);
 }
 
+// A reset replaces registry IDs. Port and bridge identity scope the search;
+// volume UUIDs provide the media identity for mount restoration.
+static void get_usb_identity(io_service_t service, darwin_usb_device_info & info)
+{
+  IORegistryEntryGetRegistryEntryID(service, &info.registry_id);
+  uint32_t number = 0;
+  if (get_registry_number(service, kUSBVendorID, number))
+    info.vendor_id = (uint16_t)number;
+  if (get_registry_number(service, kUSBProductID, number))
+    info.product_id = (uint16_t)number;
+  if (get_registry_number(service, kUSBDeviceReleaseNumber, number))
+    info.device_version = (uint16_t)number;
+  get_registry_number(service, "locationID", info.location_id);
+  info.serial_number = get_registry_string(service, "USB Serial Number");
+}
+
+static bool same_usb_identity(const darwin_usb_device_info & a,
+  const darwin_usb_device_info & b)
+{
+  return a.location_id && a.location_id == b.location_id
+    && a.vendor_id == b.vendor_id && a.product_id == b.product_id
+    && a.device_version == b.device_version
+    && a.serial_number == b.serial_number;
+}
+
 static std::string description_uuid(CFDictionaryRef description,
   CFStringRef key)
 {
@@ -404,9 +434,9 @@ static bool get_mounted_volumes(io_service_t device, const disk_session_ptr & se
   std::vector<darwin_mounted_volume> & volumes, std::string & error_message)
 {
   volumes.clear();
-  uint64_t usb_registry_id = 0;
-  if (IORegistryEntryGetRegistryEntryID(device, &usb_registry_id)
-      != KERN_SUCCESS || !usb_registry_id) {
+  darwin_usb_device_info usb_identity = {};
+  get_usb_identity(device, usb_identity);
+  if (!usb_identity.registry_id || !usb_identity.location_id) {
     error_message = "unable to identify the USB device for volume restoration";
     return false;
   }
@@ -442,7 +472,7 @@ static bool get_mounted_volumes(io_service_t device, const disk_session_ptr & se
     }
 
     darwin_mounted_volume volume;
-    volume.usb_registry_id = usb_registry_id;
+    volume.usb_identity = usb_identity;
     volume.mount_path = description_path(description);
     if (volume.mount_path.empty()) {
       CFRelease(description);
@@ -576,12 +606,12 @@ static DADiskRef find_volume(const disk_session_ptr & session,
   io_service_t service = MACH_PORT_NULL;
   while ((service = IOIteratorNext(iterator))) {
     io_service_t usb_device = find_usb_device_ancestor(service);
-    uint64_t registry_id = 0;
+    darwin_usb_device_info identity = {};
     if (usb_device) {
-      IORegistryEntryGetRegistryEntryID(usb_device, &registry_id);
+      get_usb_identity(usb_device, identity);
       IOObjectRelease(usb_device);
     }
-    if (!registry_id || registry_id != volume.usb_registry_id) {
+    if (!same_usb_identity(identity, volume.usb_identity)) {
       IOObjectRelease(service);
       continue;
     }
@@ -747,16 +777,9 @@ static bool get_device_info(io_service_t service,
   if (names.size() != 1 || !is_lun_zero(names[0]))
     return false;
   info.device_name = names[0];
-  if (IORegistryEntryGetRegistryEntryID(service, &info.registry_id)
-      != KERN_SUCCESS || !info.registry_id)
+  get_usb_identity(service, info);
+  if (!info.registry_id)
     return false;
-  uint32_t number = 0;
-  if (get_registry_number(service, kUSBVendorID, number))
-    info.vendor_id = (uint16_t)number;
-  if (get_registry_number(service, kUSBProductID, number))
-    info.product_id = (uint16_t)number;
-  if (get_registry_number(service, kUSBDeviceReleaseNumber, number))
-    info.device_version = (uint16_t)number;
   return true;
 }
 
@@ -848,7 +871,8 @@ static IOUSBHostInterface * find_mass_storage_interface(IOUSBHostDevice * device
         options:IOUSBHostObjectInitOptionsNone queue:nil error:&ns_error
         interestHandler:nil];
       if (!result)
-        error = ns_error_string(ns_error);
+        error = ns_error_string(ns_error)
+          + "; run as root from the logged-in user's session (for example, sudo in Terminal)";
     }
     IOObjectRelease(service);
     if (selected)
@@ -989,11 +1013,21 @@ static bool copy_uas_pipes(IOUSBHostInterface * interface,
     return false;
   }
 
-  const IOUSBDescriptorHeader * descriptor = 0;
+  // Walk within this alternate setting explicitly. Some IOUSBHost versions
+  // return no descriptors from IOUSBGetNextAssociatedDescriptor, even though
+  // IOUSBGetNextDescriptor can enumerate the same valid configuration.
+  const IOUSBDescriptorHeader * descriptor =
+    (const IOUSBDescriptorHeader *)interface_descriptor;
   const IOUSBEndpointDescriptor * endpoint = 0;
-  while ((descriptor = IOUSBGetNextAssociatedDescriptor(configuration,
-      (const IOUSBDescriptorHeader *)interface_descriptor, descriptor))) {
+  while ((descriptor = IOUSBGetNextDescriptor(configuration, descriptor))) {
+    if (descriptor->bDescriptorType == kUSBInterfaceDesc)
+      break;
     if (descriptor->bDescriptorType == kUSBEndpointDesc) {
+      if (descriptor->bLength < sizeof(IOUSBEndpointDescriptor)) {
+        release_uas_pipes(command, status, data_in, data_out);
+        error = "UASP endpoint descriptor is truncated";
+        return false;
+      }
       endpoint = (const IOUSBEndpointDescriptor *)descriptor;
       continue;
     }
@@ -1168,6 +1202,12 @@ static bool bot_execute(darwin_usb_handle * handle, const uint8_t * cdb,
   cbw[13] = 0; // LUN 0 is the PoC boundary.
   cbw[14] = (uint8_t)cdb_length;
   memcpy(cbw + 15, cdb, cdb_length);
+  if (scsi_debugmode) {
+    lib_printf(" [USB BOT: tag=%u, transfer=%lu, CDB:", tag, (unsigned long)data_length);
+    for (size_t i = 0; i < cdb_length; ++i)
+      lib_printf(" %02x", cdb[i]);
+    lib_printf("]\n");
+  }
 
   size_t transferred = 0;
   std::string transfer_error;
@@ -1190,6 +1230,12 @@ static bool bot_execute(darwin_usb_handle * handle, const uint8_t * cdb,
       transfer_error);
     if (!data_ok)
       [data_pipe clearStallWithError:nil];
+    if (scsi_debugmode > 1 && data_transferred) {
+      lib_printf("  USB BOT data: %lu bytes, %s\n", (unsigned long)data_transferred,
+        data_ok ? "success" : "failed");
+      dStrHex((const uint8_t *)data,
+        (int)std::min(data_transferred, (size_t)(scsi_debugmode > 2 ? 4096 : 64)), 0);
+    }
   }
 
   uint8_t csw[13] = {};
@@ -1197,6 +1243,10 @@ static bool bot_execute(darwin_usb_handle * handle, const uint8_t * cdb,
   std::string csw_error;
   bool csw_ok = pipe_transfer(handle->bulk_in, csw, sizeof(csw), true,
     timeout, csw_length, csw_error);
+  if (scsi_debugmode > 1) {
+    lib_printf("  USB BOT CSW: %lu bytes\n", (unsigned long)csw_length);
+    dStrHex(csw, (int)csw_length, 0);
+  }
   if (!csw_ok || csw_length != sizeof(csw)
       || get_le32(csw + 0) != 0x53425355 || get_le32(csw + 4) != tag
       || csw[12] > 2) {
@@ -1210,23 +1260,41 @@ static bool bot_execute(darwin_usb_handle * handle, const uint8_t * cdb,
 
   result.residue = get_le32(csw + 8);
   result.status = csw[12];
+  if (result.status == 2) {
+    bot_reset_recovery(handle);
+    error_number = EIO;
+    error_message = "BOT phase error";
+    return false;
+  }
   if (result.residue > data_length) {
     bot_reset_recovery(handle);
     error_number = EIO;
     error_message = "BOT CSW residue exceeds the requested transfer length";
     return false;
   }
+  // JMS583 can report the entire transfer as residue for its
+  // NVMe data-in commands even after a complete, successful transfer.
+  // Apply across JMS583 firmware, but only for this envelope and response;
+  // short transfers and failed commands must retain their reported residue.
+  if (handle->jms583 && data_ok && result.status == 0
+      && direction == DXFER_FROM_DEVICE && data_length
+      && data_transferred == data_length && result.residue == data_length
+      && cdb_length == 12 && cdb[0] == SAT_ATA_PASSTHROUGH_12
+      && cdb[1] == 0x82
+      && (((size_t)cdb[3] << 16) | ((size_t)cdb[4] << 8) | cdb[5]) == data_length)
+    result.residue = 0;
+  // BOT residue describes relevant/processed data, not necessarily all bytes
+  // transferred on the wire: data-in may be padded and data-out discarded.
   if (data_length && data_ok
-      && data_transferred + result.residue != data_length) {
+      && data_transferred < data_length - result.residue) {
     bot_reset_recovery(handle);
     error_number = EIO;
-    error_message = "BOT data length and CSW residue are inconsistent";
-    return false;
-  }
-  if (result.status == 2) {
-    bot_reset_recovery(handle);
-    error_number = EIO;
-    error_message = "BOT phase error";
+    char detail[192];
+    snprintf(detail, sizeof(detail), "BOT data length and CSW residue are inconsistent "
+      "(requested=%lu, transferred=%lu, residue=%u, status=%u, direction=%d, opcode=0x%02x)",
+      (unsigned long)data_length, (unsigned long)data_transferred,
+      result.residue, result.status, direction, cdb[0]);
+    error_message = detail;
     return false;
   }
   if (!data_ok && result.status == 0) {
@@ -1644,6 +1712,12 @@ static bool read_only_scsi_command_is_allowed(const scsi_cmnd_io * iop)
   switch (iop->cmnd[0]) {
     case 0x00: // TEST UNIT READY
       return iop->dxfer_dir == DXFER_NONE;
+    case 0x1b: { // START STOP UNIT: only synchronous START, no eject or stop.
+      static const uint8_t start[6] = { 0x1b, 0, 0, 0, 1, 0 };
+      return iop->cmnd_len == sizeof(start) && iop->dxfer_len == 0
+        && iop->dxfer_dir == DXFER_NONE
+        && !memcmp(iop->cmnd, start, sizeof(start));
+    }
     case 0x03: // REQUEST SENSE
     case 0x12: // INQUIRY
     case 0x1a: // MODE SENSE(6)
@@ -1672,9 +1746,50 @@ static bool read_only_scsi_command_is_allowed(const scsi_cmnd_io * iop)
   }
 }
 
-darwin_usb_handle * darwin_usb_open(const char * selector, uint64_t & registry_id,
-  int & error_number,
+static const IOUSBInterfaceDescriptor * protocol_descriptor(
+  IOUSBHostInterface * interface, uint8_t number, darwin_usb_protocol protocol)
+{
+  const auto * configuration = [interface configurationDescriptor];
+  const IOUSBDescriptorHeader * descriptor = nullptr;
+  if (!configuration)
+    return nullptr;
+  while ((descriptor = IOUSBGetNextDescriptor(configuration, descriptor))) {
+    if (descriptor->bDescriptorType != kUSBInterfaceDesc
+        || descriptor->bLength < sizeof(IOUSBInterfaceDescriptor))
+      continue;
+    const auto * alt = (const IOUSBInterfaceDescriptor *)descriptor;
+    if (alt->bInterfaceNumber == number
+        && alt->bInterfaceClass == kUSBMassStorageInterfaceClass
+        && alt->bInterfaceSubClass == kUSBMassStorageSCSISubClass
+        && alt->bInterfaceProtocol == (protocol == darwin_usb_protocol::uasp ? 0x62 : 0x50))
+      return alt;
+  }
+  return nullptr;
+}
+
+static bool select_protocol(IOUSBHostInterface * interface, uint8_t number,
+  darwin_usb_protocol protocol, darwin_usb_transport & transport,
   std::string & error_message)
+{
+  const auto * descriptor = protocol_descriptor(interface, number, protocol);
+  if (!descriptor) {
+    error_message = "requested USB protocol is not advertised by this interface";
+    return false;
+  }
+  const auto * active = [interface interfaceDescriptor];
+  NSError * error = nil;
+  if ((!active || active->bAlternateSetting != descriptor->bAlternateSetting)
+      && ![interface selectAlternateSetting:descriptor->bAlternateSetting error:&error]) {
+    error_message = std::string("unable to select USB protocol: ") + ns_error_string(error);
+    return false;
+  }
+  transport = protocol == darwin_usb_protocol::uasp
+    ? darwin_usb_transport_uasp : darwin_usb_transport_bot;
+  return true;
+}
+
+darwin_usb_handle * darwin_usb_open(const char * selector, uint64_t & registry_id,
+  int & error_number, std::string & error_message, darwin_usb_protocol protocol)
 {
   error_number = 0;
   error_message.clear();
@@ -1761,8 +1876,17 @@ darwin_usb_handle * darwin_usb_open(const char * selector, uint64_t & registry_i
 
     darwin_usb_transport transport = darwin_usb_transport_none;
     const uint8_t interface_number = info.interface_number;
+    const bool jms583 = info.vendor_id == 0x152d
+      && info.product_id == 0x0583;
     IOUSBHostInterface * interface = find_mass_storage_interface(device,
       interface_number, transport, error_message);
+    if (interface && !select_protocol(interface, interface_number,
+        protocol == darwin_usb_protocol::none ? info.protocol : protocol,
+        transport, error_message)) {
+      [interface destroy];
+      [interface release];
+      interface = nil;
+    }
     if (!interface) {
       [device destroy];
       [device release];
@@ -1777,6 +1901,7 @@ darwin_usb_handle * darwin_usb_open(const char * selector, uint64_t & registry_i
     }
 
     darwin_usb_handle * handle = new darwin_usb_handle;
+    handle->jms583 = jms583;
     handle->disk_session = disk_session;
     handle->mounted_volumes.swap(mounted_volumes);
     handle->device = device;
@@ -1818,6 +1943,38 @@ darwin_usb_handle * darwin_usb_open(const char * selector, uint64_t & registry_i
         return 0;
       }
       try_enable_uas_streams(handle);
+    }
+    if (scsi_debugmode)
+      lib_printf("USB transport: system=%s, selected=%s, selection=%s, fallback=disabled\n",
+        info.protocol == darwin_usb_protocol::uasp ? "UASP" : "BOT",
+        darwin_usb_transport_name(handle),
+        protocol == darwin_usb_protocol::none ? "system" : "explicit");
+    if (jms583) {
+      // This bridge reports GOOD for TEST UNIT READY while the NVMe admin
+      // path is asleep (Identify then fails with sense 04/44/83). Synchronous
+      // START UNIT wakes it without a guessed delay; the SNT layer must still
+      // complete Identify before smartctl can read SMART. No stop/eject is sent.
+      uint8_t start[6] = { 0x1b, 0, 0, 0, 1, 0 };
+      uint8_t sense[32] = {};
+      scsi_cmnd_io io = {};
+      io.cmnd = start;
+      io.cmnd_len = sizeof(start);
+      io.dxfer_dir = DXFER_NONE;
+      io.sensep = sense;
+      io.max_sense_len = sizeof(sense);
+      io.timeout = 5;
+      if (!darwin_usb_scsi_pass_through(handle, &io, error_number,
+          error_message) || io.scsi_status) {
+        std::string open_error = error_message.empty()
+          ? "USB bridge failed to start the NVMe device" : error_message;
+        std::string close_error;
+        int close_errno = 0;
+        if (!darwin_usb_close(handle, close_errno, close_error))
+          open_error += std::string("; volume restore failed: ") + close_error;
+        error_number = EIO;
+        error_message = open_error;
+        return 0;
+      }
     }
     return handle;
   }

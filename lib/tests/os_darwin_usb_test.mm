@@ -65,6 +65,122 @@
 }
 @end
 
+struct TestBOTState {
+  uint32_t tag = 0;
+  uint32_t residue = 0;
+  uint8_t status = 0;
+  size_t dataCount = 0;
+  bool dataSucceeds = true;
+  unsigned resets = 0;
+};
+
+@interface TestBOTPipe : NSObject {
+@public
+  TestBOTState * state;
+  bool input;
+}
+@end
+
+@implementation TestBOTPipe
+- (BOOL)sendIORequestWithData:(NSMutableData *)data
+            bytesTransferred:(NSUInteger *)count
+           completionTimeout:(NSTimeInterval)timeout
+                       error:(NSError **)error
+{
+  (void)timeout;
+  (void)error;
+  using namespace smartmon::os_darwin;
+  uint8_t * bytes = (uint8_t *)[data mutableBytes];
+  if (!input && [data length] == 31) {
+    state->tag = get_le32(bytes + 4);
+    *count = 31;
+    return YES;
+  }
+  if (input && [data length] == 13) {
+    memset(bytes, 0, 13);
+    put_le32(bytes, 0x53425355);
+    put_le32(bytes + 4, state->tag);
+    put_le32(bytes + 8, state->residue);
+    bytes[12] = state->status;
+    *count = 13;
+    return YES;
+  }
+  if (input)
+    memset(bytes, 0x5a, std::min(state->dataCount, (size_t)[data length]));
+  *count = state->dataCount;
+  return state->dataSucceeds;
+}
+- (BOOL)clearStallWithError:(NSError **)error
+{
+  (void)error;
+  return YES;
+}
+@end
+
+@interface TestBOTDevice : NSObject {
+@public
+  TestBOTState * state;
+}
+@end
+
+@implementation TestBOTDevice
+- (BOOL)sendDeviceRequest:(IOUSBDeviceRequest)request
+                    data:(NSMutableData *)data
+        bytesTransferred:(NSUInteger *)count
+       completionTimeout:(NSTimeInterval)timeout
+                   error:(NSError **)error
+{
+  (void)request;
+  (void)data;
+  (void)count;
+  (void)timeout;
+  (void)error;
+  ++state->resets;
+  return YES;
+}
+@end
+
+@interface TestUSBInterface : NSObject {
+@public
+  std::vector<uint8_t> descriptors;
+  std::vector<uint8_t> addresses;
+  std::vector<NSUInteger> selectedAlternates;
+  bool failSelect;
+  size_t interfaceOffset;
+}
+@end
+@implementation TestUSBInterface
+- (const IOUSBConfigurationDescriptor *)configurationDescriptor
+{ return (const IOUSBConfigurationDescriptor *)descriptors.data(); }
+- (const IOUSBInterfaceDescriptor *)interfaceDescriptor
+{ return (const IOUSBInterfaceDescriptor *)(descriptors.data() + interfaceOffset); }
+- (BOOL)selectAlternateSetting:(NSUInteger)value error:(NSError **)error
+{
+  selectedAlternates.push_back(value);
+  if (failSelect) {
+    *error = [NSError errorWithDomain:@"test" code:kIOReturnError userInfo:nil];
+    return NO;
+  }
+  const auto * config = [self configurationDescriptor];
+  const IOUSBDescriptorHeader * descriptor = nullptr;
+  while ((descriptor = IOUSBGetNextDescriptor(config, descriptor))) {
+    if (descriptor->bDescriptorType == kUSBInterfaceDesc
+        && descriptor->bLength >= sizeof(IOUSBInterfaceDescriptor)
+        && ((const IOUSBInterfaceDescriptor *)descriptor)->bAlternateSetting == value) {
+      interfaceOffset = (const uint8_t *)descriptor - descriptors.data();
+      return YES;
+    }
+  }
+  return NO;
+}
+- (IOUSBHostPipe *)copyPipeWithAddress:(NSUInteger)address error:(NSError **)error
+{
+  (void)error;
+  addresses.push_back(address);
+  return (IOUSBHostPipe *)[[NSObject alloc] init];
+}
+@end
+
 #define CHECK(condition) do { if (!(condition)) { \
   std::fprintf(stderr, "line %d: %s\n", __LINE__, #condition); return 1; \
 } } while (0)
@@ -74,6 +190,62 @@ int main()
   using namespace smartmon;
   using namespace smartmon::os_darwin;
   @autoreleasepool {
+    // Actual JMS583 SuperSpeed descriptors: pipe usages follow companions.
+    TestUSBInterface * descriptorInterface = [[TestUSBInterface alloc] init];
+    descriptorInterface->descriptors = {
+      9,2,121,0,1,1,0,0x80,0x70,
+      9,4,0,0,2,8,6,0x50,0,
+      7,5,0x81,2,0,4,0, 6,0x30,15,0,0,0,
+      7,5,2,2,0,4,0, 6,0x30,15,0,0,0,
+      9,4,0,1,4,8,6,0x62,10,
+      7,5,1,2,0,4,0, 6,0x30,0,0,0,0, 4,0x24,1,0,
+      7,5,0x82,2,0,4,0, 6,0x30,0,5,0,0, 4,0x24,2,0,
+      7,5,0x83,2,0,4,0, 6,0x30,15,5,0,0, 4,0x24,3,0,
+      7,5,4,2,0,4,0, 6,0x30,15,5,0,0, 4,0x24,4,0
+    };
+    descriptorInterface->interfaceOffset = 9; // Capture has reverted to BOT.
+    darwin_usb_transport selected = darwin_usb_transport_none;
+    std::string selectionError;
+    CHECK(select_protocol((IOUSBHostInterface *)descriptorInterface, 0,
+      darwin_usb_protocol::uasp, selected, selectionError));
+    CHECK(selected == darwin_usb_transport_uasp && descriptorInterface->interfaceOffset == 44);
+    CHECK(descriptorInterface->selectedAlternates == std::vector<NSUInteger>{1});
+    CHECK(select_protocol((IOUSBHostInterface *)descriptorInterface, 0,
+      darwin_usb_protocol::uasp, selected, selectionError));
+    CHECK(descriptorInterface->selectedAlternates.size() == 1); // No unnecessary SET_INTERFACE.
+    descriptorInterface->failSelect = true;
+    CHECK(!select_protocol((IOUSBHostInterface *)descriptorInterface, 0,
+      darwin_usb_protocol::bot, selected, selectionError));
+    CHECK(descriptorInterface->selectedAlternates == (std::vector<NSUInteger>{1, 0}));
+    descriptorInterface->failSelect = false;
+    CHECK(!select_protocol((IOUSBHostInterface *)descriptorInterface, 1,
+      darwin_usb_protocol::bot, selected, selectionError)); // Never another interface.
+    CHECK(descriptorInterface->selectedAlternates.size() == 2);
+    descriptorInterface->interfaceOffset = 44;
+    IOUSBHostPipe * commandPipe, * statusPipe, * dataInPipe, * dataOutPipe;
+    std::string descriptorError;
+    auto copyTestPipes = [&]() {
+      return copy_uas_pipes((IOUSBHostInterface *)descriptorInterface,
+        commandPipe,statusPipe,dataInPipe,dataOutPipe,descriptorError);
+    };
+    CHECK(copyTestPipes());
+    CHECK(descriptorInterface->addresses == (std::vector<uint8_t>{1,0x82,0x83,4}));
+    release_uas_pipes(commandPipe,statusPipe,dataInPipe,dataOutPipe);
+    descriptorInterface->interfaceOffset = 9;
+    descriptorInterface->addresses.clear();
+    CHECK(!copyTestPipes()); // Must not borrow usages from the next alternate.
+    CHECK(descriptorInterface->addresses.empty());
+    descriptorInterface->interfaceOffset = 44;
+    descriptorInterface->descriptors[119] = 3; // Duplicate data-in usage.
+    descriptorInterface->descriptors[106] = 0x84;
+    CHECK(!copyTestPipes() && !commandPipe && !statusPipe && !dataInPipe && !dataOutPipe);
+    descriptorInterface->descriptors[119] = 4;
+    CHECK(!copyTestPipes()); // Data-out must not name an input endpoint.
+    descriptorInterface->descriptors[106] = 4;
+    descriptorInterface->descriptors[104] = 2; // Truncated endpoint.
+    CHECK(!copyTestPipes() && descriptorError == "UASP endpoint descriptor is truncated");
+    [descriptorInterface release];
+
     uint8_t cdb[16] = {};
     scsi_cmnd_io io = {};
     io.cmnd = cdb;
@@ -95,6 +267,125 @@ int main()
     CHECK(!read_only_scsi_command_is_allowed(&io));
     io.cmnd_len = 2;
     CHECK(!read_only_scsi_command_is_allowed(&io));
+
+    uint8_t startCdb[6] = {0x1b, 0, 0, 0, 1, 0};
+    scsi_cmnd_io startIo = {};
+    startIo.cmnd = startCdb;
+    startIo.cmnd_len = 6;
+    startIo.dxfer_dir = DXFER_NONE;
+    CHECK(read_only_scsi_command_is_allowed(&startIo));
+    for (unsigned byte = 1; byte < 6; ++byte) {
+      const uint8_t original = startCdb[byte];
+      for (unsigned value = 0; value < 256; ++value) {
+        if (value == original)
+          continue;
+        startCdb[byte] = value;
+        CHECK(!read_only_scsi_command_is_allowed(&startIo));
+      }
+      startCdb[byte] = original;
+    }
+    startIo.cmnd_len = 5;
+    CHECK(!read_only_scsi_command_is_allowed(&startIo));
+    startIo.cmnd_len = 6;
+    startIo.dxfer_len = 1;
+    CHECK(!read_only_scsi_command_is_allowed(&startIo));
+    startIo.dxfer_len = 0;
+    startIo.dxfer_dir = DXFER_FROM_DEVICE;
+    CHECK(!read_only_scsi_command_is_allowed(&startIo));
+
+    darwin_usb_device_info oldIdentity = {};
+    oldIdentity.registry_id = 100;
+    oldIdentity.location_id = 123;
+    oldIdentity.vendor_id = 0x152d;
+    oldIdentity.product_id = 0x0583;
+    oldIdentity.device_version = 0x0209;
+    oldIdentity.serial_number = "bridge-serial";
+    auto newIdentity = oldIdentity;
+    newIdentity.registry_id = 200;
+    CHECK(same_usb_identity(oldIdentity, newIdentity));
+    newIdentity.serial_number = "other";
+    CHECK(!same_usb_identity(oldIdentity, newIdentity));
+    newIdentity = oldIdentity;
+    newIdentity.location_id = 124;
+    CHECK(!same_usb_identity(oldIdentity, newIdentity));
+    newIdentity = oldIdentity;
+    newIdentity.product_id++;
+    CHECK(!same_usb_identity(oldIdentity, newIdentity));
+
+    TestBOTState bot;
+    TestBOTPipe * botIn = [[TestBOTPipe alloc] init];
+    TestBOTPipe * botOut = [[TestBOTPipe alloc] init];
+    TestBOTDevice * botDevice = [[TestBOTDevice alloc] init];
+    botIn->state = botOut->state = botDevice->state = &bot;
+    botIn->input = true;
+    botOut->input = false;
+    darwin_usb_handle botHandle = {};
+    botHandle.bulk_in = (IOUSBHostPipe *)botIn;
+    botHandle.bulk_out = (IOUSBHostPipe *)botOut;
+    botHandle.device = (IOUSBHostDevice *)botDevice;
+    uint8_t botCdb[12] = { 0xa1, 0x82, 0, 0, 0x10, 0 };
+    std::vector<uint8_t> botData(4096);
+    bot_result botResult = {};
+    int botError = 0;
+    std::string botMessage;
+    auto executeBot = [&](int direction = DXFER_FROM_DEVICE) {
+      botError = 0;
+      botMessage.clear();
+      return bot_execute(&botHandle, botCdb, sizeof(botCdb), direction,
+        botData.data(), botData.size(), 1, botResult, botError, botMessage);
+    };
+
+    // Captured JMS583 Identify response: a full payload and a full residue.
+    bot.dataCount = bot.residue = 4096;
+    CHECK(executeBot() && botResult.residue == 4096); // No blanket quirk.
+    botHandle.jms583 = true;
+    CHECK(executeBot() && botResult.residue == 0 && bot.resets == 0);
+    CHECK(botData[0] == 0x5a && botData.back() == 0x5a);
+    botCdb[1] = 0x8f;
+    botData.resize(512);
+    botCdb[4] = 2;
+    bot.dataCount = bot.residue = 512;
+    CHECK(executeBot() && botResult.residue == 512);
+
+    // Neither unrelated CDBs nor malformed envelopes get the correction.
+    botCdb[1] = 0x80;
+    CHECK(executeBot() && botResult.residue == 512);
+    botCdb[1] = 0x82;
+    botCdb[0] = INQUIRY;
+    CHECK(executeBot() && botResult.residue == 512);
+    botCdb[0] = 0xa1;
+    botCdb[4] = 1;
+    CHECK(executeBot() && botResult.residue == 512);
+    botCdb[4] = 2;
+    CHECK(executeBot(DXFER_TO_DEVICE) && botResult.residue == 512);
+
+    // Padding/discarded data is legal; residue need not equal wire shortfall.
+    bot.residue = 128;
+    CHECK(executeBot() && botResult.residue == 128);
+    CHECK(executeBot(DXFER_TO_DEVICE) && botResult.residue == 128);
+    // Short or failed data phases and failed commands never become full reads.
+    bot.dataCount = 256;
+    bot.residue = 512;
+    CHECK(executeBot() && botResult.residue == 512);
+    bot.dataCount = 512;
+    bot.status = 1;
+    CHECK(executeBot() && botResult.status == 1 && botResult.residue == 512);
+    bot.status = 0;
+    bot.dataSucceeds = false;
+    CHECK(!executeBot() && bot.resets == 1);
+    bot.dataSucceeds = true;
+    // A device cannot claim more relevant bytes than were actually received.
+    bot.dataCount = 256;
+    bot.residue = 0;
+    CHECK(!executeBot() && botError == EIO && bot.resets == 2);
+    bot.residue = 513;
+    CHECK(!executeBot() && bot.resets == 3);
+    // A phase error always requires reset, even with a meaningless residue.
+    bot.status = 2;
+    CHECK(!executeBot() && botMessage == "BOT phase error" && bot.resets == 4);
+    [botIn release];
+    [botOut release];
+    [botDevice release];
 
     uint8_t status[20] = { 3, 0, 0, 1 };
     uint8_t sense[2] = {};

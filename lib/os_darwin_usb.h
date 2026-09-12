@@ -37,6 +37,8 @@ struct darwin_usb_device_info
   uint16_t vendor_id;
   uint16_t product_id;
   uint16_t device_version;
+  uint32_t location_id = 0;
+  std::string serial_number;
   uint8_t interface_number;
   darwin_usb_protocol protocol;
 };
@@ -56,12 +58,15 @@ bool darwin_usb_scan_devices(std::vector<darwin_usb_device_info> & devices,
 
 // Resolve a Darwin whole-disk name or explicit usbraw selector, capture the
 // complete USB device, and locate its active SCSI mass-storage interface.
+// A protocol of none preserves the protocol observed before capture; an explicit
+// protocol selects only an advertised alternate of that same interface.
 // Capture intentionally detaches the normal macOS drivers until close.
 // registry_id pins a device object to its first selection.  A vanished ID
 // requires a rescan; it must never fall back to a potentially reused diskN.
 darwin_usb_handle * darwin_usb_open(const char * selector, uint64_t & registry_id,
   int & error_number,
-  std::string & error_message);
+  std::string & error_message,
+  darwin_usb_protocol protocol = darwin_usb_protocol::none);
 
 // Destroying the captured device resets it, lets macOS match its drivers again,
 // and restores volumes that were mounted before capture.
