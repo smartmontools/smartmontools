@@ -98,6 +98,8 @@ def main():
     parser.add_argument("--drive-serial", required=True)
     parser.add_argument("--capacity", type=int, required=True)
     parser.add_argument("--type", default="sntjmicron", choices=("sntjmicron", "sntasmedia", "sntrealtek"))
+    parser.add_argument("--autodetect", action="store_true",
+                        help="test plain /dev/diskN without -d for system-protocol runs")
     parser.add_argument("--rounds", type=int, default=3)
     args = parser.parse_args()
     if os.geteuid() != 0:
@@ -119,8 +121,11 @@ def main():
                 raise RuntimeError("bridge identity changed between runs")
             (args.output / (label + "-before.plist")).write_bytes(plistlib.dumps([before, disk]))
             dev_type = args.type + ("" if mode == "system" else "+usb," + mode)
-            command = [str(args.smartctl), "-a", "--json=o", "-r", "ioctl,1", "-d", dev_type,
-                       "usbraw:" + str(before["IORegistryEntryID"])]
+            command = [str(args.smartctl), "-a", "--json=o", "-r", "ioctl,1"]
+            if mode == "system" and args.autodetect:
+                command += ["/dev/" + disk["DeviceIdentifier"]]
+            else:
+                command += ["-d", dev_type, "usbraw:" + str(before["IORegistryEntryID"])]
             started = time.monotonic()
             print(label + ": " + " ".join(command), flush=True)
             result = None
@@ -137,12 +142,17 @@ def main():
             system_name = "UASP" if system_protocol == 0x62 else "BOT"
             selected = system_name if mode == "system" else mode.upper()
             diagnostic = f"USB transport: system={system_name}, selected={selected}, selection={'system' if mode == 'system' else 'explicit'}, fallback=disabled"
+            error_log = payload.get("nvme_error_information_log", {})
+            self_test_supported = payload.get("nvme_optional_admin_commands", {}).get("self_test", False)
             checks = {
                 "exit_zero": result.returncode == 0 and payload["smartctl"]["exit_status"] == 0,
                 "model": payload.get("model_name") == args.model,
                 "drive_serial": payload.get("serial_number") == args.drive_serial,
                 "capacity": payload.get("nvme_total_capacity") == args.capacity,
                 "smart_read": "nvme_smart_health_information_log" in payload,
+                "error_log_read": error_log.get("read", 0) > 0
+                    and error_log.get("read") == min(16, error_log.get("size", 0)),
+                "self_test_log_read": not self_test_supported or "nvme_self_test_log" in payload,
                 "selected_protocol": diagnostic in payload["smartctl"].get("output", []),
             }
             run = {"case": label, "checks": checks, "command": command,

@@ -94,7 +94,11 @@ General Darwin SCSI pass-through is not implemented.  With an explicit
 \*(Aq\-d scsi\*(Aq, \*(Aq\-d sat\*(Aq, or supported \*(Aq\-d snt*\*(Aq type,
 this experimental branch uses the normal whole-disk forms above for raw USB
 mass-storage access.  Device-type autodetection prefers an available native
-SMART driver before trying raw USB.  The Darwin-specific names \fBusbraw:diskN\fP and
+ATA SMART driver.  Known USB NVMe bridges use the SNT type from the drive
+database even if the system advertises native NVMe SMART support; that interface
+may provide Identify but reject GetLogPage.  Other NVMe devices retain native
+access.  An explicit \*(Aq\-d nvme\*(Aq also selects native access.
+The Darwin-specific names \fBusbraw:diskN\fP and
 \fBusbraw:REGISTRY_ID\fP are also available for explicit raw access and stable
 I/O Registry selection for the current connection.  Repeated opens bind to
 the original USB registry ID; if it disappears, a new scan is required.
@@ -106,7 +110,8 @@ for known SAT and SNT bridges.  Unknown bridges use non-vendor-specific
 required for an unknown USB to NVMe bridge.
 .Sp
 By default, raw USB uses the BOT or UASP protocol that macOS was using before
-capture.  It restores that protocol if capture resets the alternate setting.
+capture.  It reselects the corresponding alternate setting before opening
+pipes, even if the device still reports that setting after capture.
 There is no automatic protocol fallback.  Append \*(Aq+usb,bot\*(Aq or
 \*(Aq+usb,uasp\*(Aq to a SAT, SNT, or SCSI device type to select a protocol
 explicitly, for example \*(Aq\-d sntjmicron+usb,uasp\*(Aq or

@@ -72,6 +72,16 @@ struct TestBOTState {
   size_t dataCount = 0;
   bool dataSucceeds = true;
   unsigned resets = 0;
+  unsigned commands = 0;
+  unsigned dataCalls = 0;
+  unsigned cswCalls = 0;
+  unsigned cswFailures = 0;
+  unsigned clearCalls = 0;
+  bool clearSucceeds = true;
+  IOReturn cswError = kUSBHostReturnPipeStalled;
+  size_t cswLength = 13;
+  bool wrongTag = false;
+  bool resetSucceeds = true;
 };
 
 @interface TestBOTPipe : NSObject {
@@ -92,19 +102,26 @@ struct TestBOTState {
   using namespace smartmon::os_darwin;
   uint8_t * bytes = (uint8_t *)[data mutableBytes];
   if (!input && [data length] == 31) {
+    ++state->commands;
     state->tag = get_le32(bytes + 4);
     *count = 31;
     return YES;
   }
   if (input && [data length] == 13) {
+    if (++state->cswCalls <= state->cswFailures) {
+      *count = 0;
+      *error = [NSError errorWithDomain:@"test" code:state->cswError userInfo:nil];
+      return NO;
+    }
     memset(bytes, 0, 13);
     put_le32(bytes, 0x53425355);
-    put_le32(bytes + 4, state->tag);
+    put_le32(bytes + 4, state->tag + (state->wrongTag ? 1 : 0));
     put_le32(bytes + 8, state->residue);
     bytes[12] = state->status;
-    *count = 13;
+    *count = state->cswLength;
     return YES;
   }
+  ++state->dataCalls;
   if (input)
     memset(bytes, 0x5a, std::min(state->dataCount, (size_t)[data length]));
   *count = state->dataCount;
@@ -112,8 +129,10 @@ struct TestBOTState {
 }
 - (BOOL)clearStallWithError:(NSError **)error
 {
-  (void)error;
-  return YES;
+  ++state->clearCalls;
+  if (!state->clearSucceeds && error)
+    *error = [NSError errorWithDomain:@"test" code:kIOReturnError userInfo:nil];
+  return state->clearSucceeds;
 }
 @end
 
@@ -136,7 +155,9 @@ struct TestBOTState {
   (void)timeout;
   (void)error;
   ++state->resets;
-  return YES;
+  if (!state->resetSucceeds && error)
+    *error = [NSError errorWithDomain:@"test" code:kIOReturnError userInfo:nil];
+  return state->resetSucceeds;
 }
 @end
 
@@ -212,15 +233,17 @@ int main()
     CHECK(descriptorInterface->selectedAlternates == std::vector<NSUInteger>{1});
     CHECK(select_protocol((IOUSBHostInterface *)descriptorInterface, 0,
       darwin_usb_protocol::uasp, selected, selectionError));
-    CHECK(descriptorInterface->selectedAlternates.size() == 1); // No unnecessary SET_INTERFACE.
+    // A fresh capture can retain the previous alternate without a usable
+    // transport. It still needs SET_INTERFACE before pipes are opened.
+    CHECK(descriptorInterface->selectedAlternates == (std::vector<NSUInteger>{1, 1}));
     descriptorInterface->failSelect = true;
     CHECK(!select_protocol((IOUSBHostInterface *)descriptorInterface, 0,
       darwin_usb_protocol::bot, selected, selectionError));
-    CHECK(descriptorInterface->selectedAlternates == (std::vector<NSUInteger>{1, 0}));
+    CHECK(descriptorInterface->selectedAlternates == (std::vector<NSUInteger>{1, 1, 0}));
     descriptorInterface->failSelect = false;
     CHECK(!select_protocol((IOUSBHostInterface *)descriptorInterface, 1,
       darwin_usb_protocol::bot, selected, selectionError)); // Never another interface.
-    CHECK(descriptorInterface->selectedAlternates.size() == 2);
+    CHECK(descriptorInterface->selectedAlternates.size() == 3);
     descriptorInterface->interfaceOffset = 44;
     IOUSBHostPipe * commandPipe, * statusPipe, * dataInPipe, * dataOutPipe;
     std::string descriptorError;
@@ -244,6 +267,34 @@ int main()
     descriptorInterface->descriptors[106] = 4;
     descriptorInterface->descriptors[104] = 2; // Truncated endpoint.
     CHECK(!copyTestPipes() && descriptorError == "UASP endpoint descriptor is truncated");
+
+    // ASM2362 lists data pipes before status and command, and reuses BOT
+    // endpoint addresses. Resolve roles by pipe usage, not descriptor order.
+    descriptorInterface->descriptors = {
+      9,2,121,0,1,1,0,0xc0,0,
+      9,4,0,0,2,8,6,0x50,0,
+      7,5,0x81,2,0,4,0, 6,0x30,15,0,0,0,
+      7,5,2,2,0,4,0, 6,0x30,15,0,0,0,
+      9,4,0,1,4,8,6,0x62,0,
+      7,5,0x81,2,0,4,0, 6,0x30,15,5,0,0, 4,0x24,3,0,
+      7,5,2,2,0,4,0, 6,0x30,15,5,0,0, 4,0x24,4,0,
+      7,5,0x83,2,0,4,0, 6,0x30,15,5,0,0, 4,0x24,2,0,
+      7,5,4,2,0,4,0, 6,0x30,0,0,0,0, 4,0x24,1,0
+    };
+    descriptorInterface->selectedAlternates.clear();
+    descriptorInterface->addresses.clear();
+    CHECK(select_protocol((IOUSBHostInterface *)descriptorInterface, 0,
+      darwin_usb_protocol::uasp, selected, selectionError));
+    CHECK(descriptorInterface->selectedAlternates == std::vector<NSUInteger>{1});
+    CHECK(copyTestPipes());
+    CHECK(descriptorInterface->addresses == (std::vector<uint8_t>{0x81,2,0x83,4}));
+    release_uas_pipes(commandPipe,statusPipe,dataInPipe,dataOutPipe);
+    CHECK(select_protocol((IOUSBHostInterface *)descriptorInterface, 0,
+      darwin_usb_protocol::bot, selected, selectionError));
+    CHECK(select_protocol((IOUSBHostInterface *)descriptorInterface, 0,
+      darwin_usb_protocol::bot, selected, selectionError));
+    CHECK(descriptorInterface->selectedAlternates == (std::vector<NSUInteger>{1,0,0}));
+    CHECK(selected == darwin_usb_transport_bot);
     [descriptorInterface release];
 
     uint8_t cdb[16] = {};
@@ -383,6 +434,51 @@ int main()
     // A phase error always requires reset, even with a meaningless residue.
     bot.status = 2;
     CHECK(!executeBot() && botMessage == "BOT phase error" && bot.resets == 4);
+
+    // A short data packet can be followed by a status STALL. Clear it and
+    // read the CSW once more without replaying CBW or data (BOT 5.3.3).
+    bot = TestBOTState();
+    bot.dataCount = bot.residue = 256;
+    bot.cswFailures = 1;
+    CHECK(executeBot() && botResult.residue == 256);
+    CHECK(bot.commands == 1 && bot.dataCalls == 1 && bot.cswCalls == 2);
+    CHECK(bot.clearCalls == 1 && bot.resets == 0);
+    // A second STALL, failed clear-halt, or invalid CSW still requires reset.
+    bot = TestBOTState();
+    bot.dataCount = 512;
+    bot.cswFailures = 2;
+    CHECK(!executeBot() && botError == EIO && bot.resets == 1);
+    CHECK(bot.commands == 1 && bot.dataCalls == 1 && bot.cswCalls == 2);
+    bot = TestBOTState();
+    bot.dataCount = 512;
+    bot.cswFailures = 1;
+    bot.clearSucceeds = false;
+    CHECK(!executeBot() && bot.resets == 1 && bot.cswCalls == 1);
+    CHECK(botMessage.find("unable to clear status STALL") != std::string::npos);
+    for (bool wrongTag : { false, true }) {
+      bot = TestBOTState();
+      bot.dataCount = 512;
+      bot.cswFailures = 1;
+      bot.wrongTag = wrongTag;
+      bot.cswLength = (wrongTag ? 13 : 12);
+      CHECK(!executeBot() && bot.resets == 1 && bot.cswCalls == 2);
+    }
+    // Other transport errors must not be mistaken for a STALL.
+    bot = TestBOTState();
+    bot.dataCount = 512;
+    bot.cswFailures = 1;
+    bot.cswError = kIOReturnNotResponding;
+    CHECK(!executeBot() && bot.resets == 1 && bot.cswCalls == 1);
+    bot = TestBOTState();
+    CHECK(bot_reset_recovery(&botHandle, &botMessage));
+    CHECK(bot.resets == 1 && bot.clearCalls == 2 && bot.commands == 0);
+    bot.resetSucceeds = false;
+    CHECK(!bot_reset_recovery(&botHandle, &botMessage));
+    CHECK(bot.resets == 2 && bot.clearCalls == 4);
+    bot.resetSucceeds = true;
+    bot.clearSucceeds = false;
+    CHECK(!bot_reset_recovery(&botHandle, &botMessage));
+    CHECK(botMessage.find("BOT reset recovery failed") != std::string::npos);
     [botIn release];
     [botOut release];
     [botDevice release];

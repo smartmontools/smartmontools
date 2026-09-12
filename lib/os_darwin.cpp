@@ -810,8 +810,9 @@ smart_device * darwin_smart_interface::autodetect_smart_device(const char * name
 {
   const bool explicit_raw = !strncmp(name, "usbraw:", 7);
   if (!explicit_raw) {
-    // Prefer native SMART drivers, including third-party SAT drivers.  A USB
-    // ancestor alone must not turn their non-disruptive access into capture.
+    // Prefer native ATA SMART drivers, including third-party SAT drivers.
+    // For NVMe, a native capability key is insufficient on some USB bridges:
+    // the driver may provide Identify but reject SMART GetLogPage.
     const char * bsd_name = nullptr;
     if (!strncmp(name, "/dev/rdisk", 10))
       bsd_name = name + 6;
@@ -834,8 +835,20 @@ smart_device * darwin_smart_interface::autodetect_smart_device(const char * name
       IOObjectRelease(service);
       if (ata)
         return new darwin_ata_device(this, name, "");
-      if (nvme)
+      if (nvme) {
+        darwin_usb_device_info info;
+        int error = 0;
+        std::string message;
+        if (darwin_usb_get_device_info(name, info, error, message)) {
+          const char * type = get_usb_dev_type_by_id(info.vendor_id,
+            info.product_id, info.device_version);
+          if (type && str_starts_with(type, "snt")
+              && is_supported_darwin_usb_type(type))
+            return get_usb_smart_device(name, info, type);
+          clear_err();
+        }
         return new darwin_nvme_device(this, name, "", 0);
+      }
       service = parent;
     }
   }

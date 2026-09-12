@@ -1,9 +1,16 @@
 # Darwin raw USB SMART validation
 
 The default wire protocol is the one macOS was using immediately before capture.
-Capture may reset the interface to its default alternate, so the backend explicitly
-restores the saved protocol before opening its pipes. There is no automatic
-UASP/BOT fallback: errors are reported and the capture is released.
+After capture, the backend explicitly reselects the saved alternate before opening
+its pipes, even if the interface still reports that alternate. There is no automatic
+UASP/BOT fallback: errors are reported and the capture is released. Merely checking
+the alternate number does not establish a working transport session.
+
+Before opening the interface, it waits for the captured device's IOKit service
+tree to become quiet (matching/termination complete, with a five-second deadline).
+BOT sessions also perform standard Reset Recovery before their first command.
+A STALL while reading a BOT status wrapper is cleared and that status read is
+retried once, as specified by USB BOT section 5.3.3; CBW and data are not replayed.
 
 Append a transport suffix to the existing bridge type to override that selection:
 
@@ -26,6 +33,8 @@ safely; the JMS583 transport workarounds themselves are not firmware restricted.
 Build from the repository root, then run the checks separately:
 
 ```sh
+./autogen.sh
+./configure
 make -j8
 make check
 ./src/smartctl --scan -d usb
@@ -43,6 +52,16 @@ sudo ./src/smartctl -a --json=o -r ioctl,1 -d sntjmicron+usb,bot /dev/diskN
 Replace `diskN` with the current verified device. Use `-j` instead of `--json=o`
 when diagnostic text is unnecessary. The latter retains protocol selection and
 command diagnostics in `smartctl.output` inside JSON.
+
+ASM2362 (`174c:2362`) is already in the existing drive database. Its simplest
+automatic command is `sudo ./src/smartctl -a /dev/diskN`. For an explicit override,
+use `-d sntasmedia+usb,uasp` or `-d sntasmedia+usb,bot`. No database edit is required.
+Known USB NVMe bridges use the existing database's SNT type during autodetection,
+even if a native NVMe SMART capability is advertised. On the tested ASM2362,
+that native API returned Identify but rejected SMART GetLogPage. Native ATA
+drivers, other NVMe devices, and explicit `-d nvme` retain native access.
+`usbraw:diskN` is still available to explicitly select raw USB with automatic
+bridge detection. Default scans continue to exclude raw USB capture.
 
 A root background service can have a different audit/session context and fail to
 open the USB interface even after successful capture. This was reproduced on
@@ -79,6 +98,10 @@ external whole-disk status and capacity. After each read it requires the same
 bridge at the same port, a new registry ID, and a usable macOS disk node. It
 checks the actual protocol diagnostic and Identify/SMART JSON. Evidence includes
 before/after plists, command lines, binary hash, raw JSON, stderr, and timings.
+It also requires the requested error-log entries and, when supported, the self-test
+log. Add `--autodetect` to run system selection as plain `/dev/diskN` without a
+device type. For ASM2362 use `--autodetect --type sntasmedia --vendor 0x174c --product 0x2362` and the
+attached enclosure's identity instead of the JMicron values above.
 
 The release loop polls readiness with bounded backoff and a 30-second deadline;
 it never treats elapsed time as success. There is no sleep between successful
@@ -102,9 +125,25 @@ short transfers and errors remain errors/residual data. This family workaround
 is enabled independently of firmware version; actual hardware validation so far
 covers `0x0209` only.
 
+On the same date, Ugreen Storage Device (`174c:2362`, bcdDevice `0x0100`, ASM2362)
+with the same Micron model/firmware completed five rounds of system UASP, explicit
+UASP, and explicit BOT: 15 Identify, SMART, error-log, self-test-log reads and
+device releases. The ASM2362 session required alternate reselection even when
+GET_INTERFACE and the descriptor both already reported alternate 1. BOT also
+required initial Reset Recovery to avoid stale command/status data after capture.
+
+The ASMedia SNT layer now checks actual residual lengths. On a successful short
+Get Log Page response, it advances the existing byte offset and requests the
+remaining data. It rejects incomplete Identify, zero progress, unaligned progress,
+invalid residue, or offset overflow. This handling is independent of the host OS,
+USB protocol, bridge firmware, and drive-database entries. The tested ASM2362
+returned only 512 bytes for the initial 1024-byte error-log request on both BOT
+and UASP; the remaining 512 bytes are now fetched instead of silently zero filled.
+
 The disk had no mounted filesystem. Device re-enumeration was physically tested;
 the identity matching used for mount restoration has unit coverage, but actual
-unmount/remount behavior was not exercised by this hardware run. USB 2 UASP without streams, other bridge families, and other JMS583
-firmware versions need their own hardware acceptance. Write-capable commands,
+unmount/remount behavior was not exercised by these hardware runs. USB 2 UASP
+without streams, other bridge families, and other firmware versions need their
+own hardware acceptance. Write-capable commands,
 firmware updates, and arbitrary NVMe administration remain outside this transport's
 read-oriented command policy.

@@ -49,6 +49,7 @@
 /lib/drivedb.h
 /lib/libsmartmon.la
 /lib/os_darwin_*_test
+/lib/scsinvme_test
 /lib/*.log
 /lib/*.trs
 /shellcheck.txt

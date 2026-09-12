@@ -91,14 +91,20 @@ libsmartmon_la_DEPENDENCIES = $(os_deps)
 # library on the configured C++ link driver and its explicit libtool tag.
 libsmartmon_la_LINK = $(CXXLINK) $(libsmartmon_la_LDFLAGS)
 
+if !REALLY_CROSS_COMPILING
+check_PROGRAMS = scsinvme_test
+TESTS = $(check_PROGRAMS)
+scsinvme_test_SOURCES = tests/scsinvme_test.cpp
+scsinvme_test_LDADD = libsmartmon.la
+endif
+
 if OS_DARWIN
 # Also record framework dependencies in the shared library.  In particular,
 # IOUSBHost must remain weakly linked when running on older macOS versions.
 libsmartmon_la_LIBADD += $(os_libs)
 
 if !REALLY_CROSS_COMPILING
-check_PROGRAMS = os_darwin_scan_test os_darwin_usb_test
-TESTS = $(check_PROGRAMS)
+check_PROGRAMS += os_darwin_scan_test os_darwin_usb_test
 os_darwin_scan_test_SOURCES = tests/os_darwin_scan_test.cpp os_darwin.cpp
 os_darwin_scan_test_CPPFLAGS = $(AM_CPPFLAGS)
 os_darwin_scan_test_LDADD = libsmartmon.la $(os_libs)

@@ -852,6 +852,18 @@ bool darwin_usb_scan_devices(std::vector<darwin_usb_device_info> & devices,
 static IOUSBHostInterface * find_mass_storage_interface(IOUSBHostDevice * device,
   uint8_t interface_number, darwin_usb_transport & transport, std::string & error)
 {
+  // Kernel matching/termination is asynchronous. Wait for this captured
+  // device's service tree to become quiet before opening its interface.
+  // This is an IOKit completion condition, not a fixed startup delay.
+  mach_timespec_t quiet_timeout = { 5, 0 };
+  kern_return_t quiet = IOServiceWaitQuiet([device ioService], &quiet_timeout);
+  if (quiet != KERN_SUCCESS) {
+    char detail[96];
+    snprintf(detail, sizeof(detail), "captured USB service did not become quiet (0x%08x)",
+      (unsigned)quiet);
+    error = detail;
+    return nil;
+  }
   io_iterator_t iterator = MACH_PORT_NULL;
   if (IORegistryEntryGetChildIterator([device ioService], kIOServicePlane,
       &iterator) != KERN_SUCCESS) {
@@ -870,9 +882,12 @@ static IOUSBHostInterface * find_mass_storage_interface(IOUSBHostDevice * device
       result = [[IOUSBHostInterface alloc] initWithIOService:service
         options:IOUSBHostObjectInitOptionsNone queue:nil error:&ns_error
         interestHandler:nil];
-      if (!result)
-        error = ns_error_string(ns_error)
-          + "; run as root from the logged-in user's session (for example, sudo in Terminal)";
+      if (!result) {
+        error = ns_error_string(ns_error);
+        if ((IOReturn)[ns_error code] == kIOReturnNotPermitted
+            || (IOReturn)[ns_error code] == kIOReturnNotPrivileged)
+          error += "; run as root from the logged-in user's session (for example, sudo in Terminal)";
+      }
     }
     IOObjectRelease(service);
     if (selected)
@@ -1137,9 +1152,12 @@ static void put_le32(uint8_t * value, uint32_t number)
 }
 
 static bool pipe_transfer(IOUSBHostPipe * pipe, void * buffer, size_t length,
-  bool input, unsigned timeout, size_t & transferred, std::string & error)
+  bool input, unsigned timeout, size_t & transferred, std::string & error,
+  IOReturn * status = nullptr)
 {
   transferred = 0;
+  if (status)
+    *status = kIOReturnSuccess;
   NSMutableData * data = nil;
   if (length) {
     data = input
@@ -1160,23 +1178,33 @@ static bool pipe_transfer(IOUSBHostPipe * pipe, void * buffer, size_t length,
   [data release];
 
   if (!ok) {
+    if (status)
+      *status = (ns_error ? (IOReturn)[ns_error code] : kIOReturnError);
     error = ns_error_string(ns_error);
     return false;
   }
   return true;
 }
 
-static void bot_reset_recovery(darwin_usb_handle * handle)
+static bool bot_reset_recovery(darwin_usb_handle * handle,
+  std::string * error_message = nullptr)
 {
   IOUSBDeviceRequest request = {};
   request.bmRequestType = 0x21; // host-to-device, class, interface
   request.bRequest = 0xff;      // Bulk-Only Mass Storage Reset
   request.wIndex = handle->interface_number;
   NSError * error = nil;
-  [handle->device sendDeviceRequest:request data:nil bytesTransferred:nil
+  bool reset = [handle->device sendDeviceRequest:request data:nil bytesTransferred:nil
     completionTimeout:5 error:&error];
-  [handle->bulk_in clearStallWithError:nil];
-  [handle->bulk_out clearStallWithError:nil];
+  NSError * input_error = nil, * output_error = nil;
+  bool input = [handle->bulk_in clearStallWithError:&input_error];
+  bool output = [handle->bulk_out clearStallWithError:&output_error];
+  if (reset && input && output)
+    return true;
+  if (error_message)
+    *error_message = std::string("BOT reset recovery failed: ")
+      + ns_error_string(!reset ? error : !input ? input_error : output_error);
+  return false;
 }
 
 static bool bot_execute(darwin_usb_handle * handle, const uint8_t * cdb,
@@ -1241,8 +1269,24 @@ static bool bot_execute(darwin_usb_handle * handle, const uint8_t * cdb,
   uint8_t csw[13] = {};
   size_t csw_length = 0;
   std::string csw_error;
+  IOReturn csw_status = kIOReturnSuccess;
   bool csw_ok = pipe_transfer(handle->bulk_in, csw, sizeof(csw), true,
-    timeout, csw_length, csw_error);
+    timeout, csw_length, csw_error, &csw_status);
+  // BOT 5.3.3: clear a stalled status pipe and attempt to receive the CSW
+  // once more. Do not replay the command or its data phase.
+  if (!csw_ok && csw_status == kUSBHostReturnPipeStalled) {
+    NSError * clear_error = nil;
+    if ([handle->bulk_in clearStallWithError:&clear_error]) {
+      if (scsi_debugmode)
+        lib_printf("  USB BOT: cleared status STALL, retrying CSW\n");
+      csw_error.clear();
+      csw_ok = pipe_transfer(handle->bulk_in, csw, sizeof(csw), true,
+        timeout, csw_length, csw_error);
+    }
+    else
+      csw_error = std::string("unable to clear status STALL: ")
+        + ns_error_string(clear_error);
+  }
   if (scsi_debugmode > 1) {
     lib_printf("  USB BOT CSW: %lu bytes\n", (unsigned long)csw_length);
     dStrHex(csw, (int)csw_length, 0);
@@ -1776,10 +1820,13 @@ static bool select_protocol(IOUSBHostInterface * interface, uint8_t number,
     error_message = "requested USB protocol is not advertised by this interface";
     return false;
   }
-  const auto * active = [interface interfaceDescriptor];
   NSError * error = nil;
-  if ((!active || active->bAlternateSetting != descriptor->bAlternateSetting)
-      && ![interface selectAlternateSetting:descriptor->bAlternateSetting error:&error]) {
+  // Capture terminates the kernel transport but may preserve its alternate
+  // setting. Re-select even when the descriptor (or GET_INTERFACE) already
+  // reports the desired value: ASM2362 otherwise accepts command transfers
+  // without completing status or data. Establish a fresh endpoint state before
+  // creating pipes and streams, without changing the selected wire protocol.
+  if (![interface selectAlternateSetting:descriptor->bAlternateSetting error:&error]) {
     error_message = std::string("unable to select USB protocol: ") + ns_error_string(error);
     return false;
   }
@@ -1921,8 +1968,11 @@ darwin_usb_handle * darwin_usb_open(const char * selector, uint64_t & registry_i
     handle->interface_number = interface_number;
     handle->next_tag = 0;
     if (transport == darwin_usb_transport_bot
-        && !copy_bot_pipes(interface, handle->bulk_in, handle->bulk_out,
-          error_message)) {
+        && (!copy_bot_pipes(interface, handle->bulk_in, handle->bulk_out,
+          error_message)
+          // SET_INTERFACE establishes the pipes; Reset Recovery also clears
+          // command/status state left by the previous kernel transport.
+          || !bot_reset_recovery(handle, &error_message))) {
       std::string open_error = error_message, close_error;
       int close_errno = 0;
       if (!darwin_usb_close(handle, close_errno, close_error))
