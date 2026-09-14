@@ -123,7 +123,7 @@ TZ='' LC_ALL=C "${gitlog[@]}" | \
       local t
       # "./" prevents that BSD 'date(1)' interprets the filename as seconds
       t=$("$date" -Iseconds -u -r "./$2")
-      t="${t%+00:00}Z"
+      t="${t%[-+]00:00}"; t="${t%Z}Z"
       if [ "$t" = "$1" ]; then
         vecho ": touch -d '$1' '$2' #$s (already done)"
         return 0
@@ -154,8 +154,11 @@ TZ='' LC_ALL=C "${gitlog[@]}" | \
     IFS=$'\t' read -r a b c d <<<"$x"
 
     case "$a;${b:+y};${c:+y};${d:+y}" in
-      2*-*-*T*:*:*Z\;\;\;) # Commit timestamp
-        ignored=; ts=$a; tsold=$a; continue
+      [12][0-9][0-9][0-9]-*-*T*:*:*\;\;\;) # Commit timestamp
+        ignored=
+        ts="${a%[-+]00:00}"; ts="${ts%Z}Z"
+        tsold=$ts
+        continue
         ;;
       *)
         test -n "$ts" || continue
@@ -175,7 +178,7 @@ TZ='' LC_ALL=C "${gitlog[@]}" | \
     esac
 
     case "$a;${b:+y};${c:+y};${d:+y}" in
-      [AM]\;y\;\;) # Added or modified => touch
+      [AMT]\;y\;\;) # Added, modified or type changed => touch
         ignored=
         test ${files["$b"]+y} || continue
         f=$b
