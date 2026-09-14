@@ -263,6 +263,19 @@ devices, rather than the default \*(Aq\-a\*(Aq.
 .PP
 Multiple \*(Aq\-d TYPE\*(Aq options may be specified with DEVICESCAN
 to combine the scan results of more than one TYPE.
+.\" %IF OS Darwin
+.PP
+On Darwin, \*(Aq\-d usb\*(Aq explicitly enables discovery of devices using
+the experimental raw USB transport.  These devices are excluded from the
+default DEVICESCAN result permanently.  Each open requires exclusive capture
+of the entire USB device and temporarily unmounts its volumes; closing the
+device resets it and attempts to restore the previously mounted volumes.
+Restoration may fail.  These effects also apply to explicitly configured
+raw USB devices, including automatically detected \*(Aq/dev/diskN\*(Aq entries.
+This transport is therefore not suitable for monitoring mounted storage with
+a continuously running \fBsmartd\fP.  Repeated open/close testing should use
+a dedicated unmounted device.
+.\" %ENDIF OS Darwin
 .PP
 Configuration entries for specific devices may precede the \fBDEVICESCAN\fP
 entry.
