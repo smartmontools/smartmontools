@@ -211,6 +211,74 @@ int main()
   using namespace smartmon;
   using namespace smartmon::os_darwin;
   @autoreleasepool {
+    // Exercise restoration with independent Disk Arbitration observations.
+    // Existing auto-mounts must never trigger another mount, and callback
+    // status alone is insufficient evidence that the original path returned.
+    darwin_mounted_volume restoreVolume;
+    restoreVolume.volume_uuid = "test-volume";
+    restoreVolume.mount_path = "/Volumes/original";
+    struct RestoreCase {
+      bool appeared;
+      const char * beforePath;
+      const char * afterPath; // nullptr means the volume disappeared.
+      const char * mountError;
+      bool expected;
+      unsigned mounts;
+    };
+    const RestoreCase restoreCases[] = {
+      { true, "/Volumes/original", nullptr, "", true, 0 },
+      { true, "/Volumes/other", nullptr, "", false, 0 },
+      { false, "", nullptr, "", false, 0 },
+      { true, "", "/Volumes/original", "", true, 1 },
+      { true, "", "/Volumes/original", "volume remount failed (0xf8da0002)", true, 1 },
+      { true, "", "", "volume remount failed (0xf8da0003)", false, 1 },
+      { true, "", "", "", false, 1 },
+      { true, "", "/Volumes/other", "", false, 1 },
+      { true, "", nullptr, "volume remount failed (0xf8da0006)", false, 1 },
+    };
+    for (const auto & test : restoreCases) {
+      unsigned observations = 0, mounts = 0;
+      std::string restoreError;
+      bool restored = restore_volume(restoreVolume,
+        [&](std::string & path) -> DADiskRef {
+          const char * observed = observations++ ? test.afterPath : test.beforePath;
+          path = observed ? observed : "";
+          return test.appeared && observed
+            ? (DADiskRef)CFRetain(CFSTR("mock disk")) : nullptr;
+        },
+        [&](DADiskRef, std::string & error) {
+          ++mounts;
+          error = test.mountError;
+          return error.empty();
+        }, restoreError);
+      CHECK(restored == test.expected && mounts == test.mounts);
+      CHECK(observations == 1 + test.mounts);
+      CHECK(restoreError.empty() == test.expected);
+      if (!test.expected && *test.mountError)
+        CHECK(restoreError.find(test.mountError) != std::string::npos);
+      if (!test.expected && test.appeared)
+        CHECK(restoreError.find(restoreVolume.mount_path) != std::string::npos);
+    }
+
+    // Volume UUID is authoritative even when a cloned media UUID matches.
+    CFUUIDRef volumeUUID = CFUUIDCreate(kCFAllocatorDefault);
+    CFUUIDRef mediaUUID = CFUUIDCreate(kCFAllocatorDefault);
+    CFMutableDictionaryRef volumeDescription = CFDictionaryCreateMutable(
+      kCFAllocatorDefault, 0, &kCFTypeDictionaryKeyCallBacks,
+      &kCFTypeDictionaryValueCallBacks);
+    CFDictionarySetValue(volumeDescription, kDADiskDescriptionVolumeUUIDKey, volumeUUID);
+    CFDictionarySetValue(volumeDescription, kDADiskDescriptionMediaUUIDKey, mediaUUID);
+    restoreVolume.volume_uuid = description_uuid(volumeDescription, kDADiskDescriptionVolumeUUIDKey);
+    restoreVolume.media_uuid = description_uuid(volumeDescription, kDADiskDescriptionMediaUUIDKey);
+    CHECK(volume_matches(volumeDescription, restoreVolume));
+    CFDictionarySetValue(volumeDescription, kDADiskDescriptionVolumeUUIDKey, mediaUUID);
+    CHECK(!volume_matches(volumeDescription, restoreVolume));
+    restoreVolume.volume_uuid.clear();
+    CHECK(volume_matches(volumeDescription, restoreVolume));
+    CFRelease(volumeDescription);
+    CFRelease(volumeUUID);
+    CFRelease(mediaUUID);
+
     // Actual JMS583 SuperSpeed descriptors: pipe usages follow companions.
     TestUSBInterface * descriptorInterface = [[TestUSBInterface alloc] init];
     descriptorInterface->descriptors = {

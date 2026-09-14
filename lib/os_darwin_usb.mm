@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <memory>
 #include <cerrno>
+#include <chrono>
 #include <climits>
 #include <cstdio>
 #include <cstdint>
@@ -593,46 +594,85 @@ static const std::string & volume_identifier(
   return !volume.volume_uuid.empty() ? volume.volume_uuid : volume.media_uuid;
 }
 
-static DADiskRef find_volume(const disk_session_ptr & session,
-  const darwin_mounted_volume & volume, bool & mounted)
+struct volume_lookup
 {
-  mounted = false;
-  io_iterator_t iterator = MACH_PORT_NULL;
-  if (IOServiceGetMatchingServices(MACH_PORT_NULL,
-      IOServiceMatching(kIOMediaClass), &iterator) != KERN_SUCCESS)
-    return 0;
+  const disk_session_ptr & session;
+  const darwin_mounted_volume & volume;
+  DADiskRef disk = nullptr;
+  std::string mount_path;
 
-  DADiskRef result = 0;
-  io_service_t service = MACH_PORT_NULL;
-  while ((service = IOIteratorNext(iterator))) {
-    io_service_t usb_device = find_usb_device_ancestor(service);
-    darwin_usb_device_info identity = {};
-    if (usb_device) {
-      get_usb_identity(usb_device, identity);
-      IOObjectRelease(usb_device);
-    }
-    if (!same_usb_identity(identity, volume.usb_identity)) {
-      IOObjectRelease(service);
-      continue;
-    }
-    DADiskRef disk = DADiskCreateFromIOMedia(kCFAllocatorDefault, session->ref,
-      service);
-    IOObjectRelease(service);
-    if (!disk)
-      continue;
-    CFDictionaryRef description = DADiskCopyDescription(disk);
-    if (description && volume_matches(description, volume)) {
-      mounted = !description_path(description).empty();
-      result = disk;
-      CFRelease(description);
-      break;
-    }
-    if (description)
-      CFRelease(description);
-    CFRelease(disk);
+  volume_lookup(const disk_session_ptr & owner,
+    const darwin_mounted_volume & expected) : session(owner), volume(expected) { }
+};
+
+static void restore_disk_appeared(DADiskRef disk, void * context)
+{
+  volume_lookup & lookup = *static_cast<volume_lookup *>(context);
+  io_service_t media = DADiskCopyIOMedia(disk);
+  if (!media)
+    return;
+  io_service_t usb_device = find_usb_device_ancestor(media);
+  darwin_usb_device_info identity = {};
+  if (usb_device) {
+    get_usb_identity(usb_device, identity);
+    IOObjectRelease(usb_device);
   }
-  IOObjectRelease(iterator);
-  return result;
+  CFDictionaryRef description = DADiskCopyDescription(disk);
+  if (same_usb_identity(identity, lookup.volume.usb_identity)
+      && description && volume_matches(description, lookup.volume)) {
+    // Mount callbacks must use the caller's dispatch-backed session.
+    if (lookup.disk)
+      CFRelease(lookup.disk);
+    lookup.disk = DADiskCreateFromIOMedia(kCFAllocatorDefault,
+      lookup.session->ref, media);
+    lookup.mount_path = description_path(description);
+    if (scsi_debugmode > 1)
+      lib_printf("USB volume appeared/changed: %s, mount='%s'\n",
+        volume_identifier(lookup.volume).c_str(), lookup.mount_path.c_str());
+  }
+  if (description)
+    CFRelease(description);
+  IOObjectRelease(media);
+}
+
+static void restore_disk_changed(DADiskRef disk, CFArrayRef, void * context)
+{
+  restore_disk_appeared(disk, context);
+}
+
+static DADiskRef find_volume(const disk_session_ptr & session,
+  const darwin_mounted_volume & volume, std::string & mount_path)
+{
+  mount_path.clear();
+  DASessionRef observer = DASessionCreate(kCFAllocatorDefault);
+  if (!observer)
+    return nullptr;
+  volume_lookup lookup(session, volume);
+  CFRunLoopRef loop = CFRunLoopGetCurrent();
+  CFStringRef mode = CFSTR("smartmontools.volume-restore");
+  // IOMedia and even appeared notifications can precede publication of the
+  // automatic mount's path. Observe both appearance and mount-path changes
+  // before requesting a mount; registration also reports existing disks.
+  // This observer runs on the calling thread: unregistering and unscheduling
+  // cannot race a callback using the stack-owned lookup after a timeout.
+  DARegisterDiskAppearedCallback(observer, nullptr, restore_disk_appeared, &lookup);
+  DARegisterDiskDescriptionChangedCallback(observer, nullptr,
+    kDADiskDescriptionWatchVolumePath, restore_disk_changed, &lookup);
+  DASessionScheduleWithRunLoop(observer, loop, mode);
+  const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(10);
+  while (!lookup.disk || lookup.mount_path.empty()) {
+    const double remaining = std::chrono::duration<double>(
+      deadline - std::chrono::steady_clock::now()).count();
+    if (remaining <= 0)
+      break;
+    CFRunLoopRunInMode(mode, remaining, true);
+  }
+  DAUnregisterCallback(observer, (void *)restore_disk_appeared, &lookup);
+  DAUnregisterCallback(observer, (void *)restore_disk_changed, &lookup);
+  DASessionUnscheduleFromRunLoop(observer, loop, mode);
+  CFRelease(observer);
+  mount_path = lookup.mount_path;
+  return lookup.disk;
 }
 
 static bool mount_volume(const disk_session_ptr & session, DADiskRef disk,
@@ -653,6 +693,40 @@ static bool mount_volume(const disk_session_ptr & session, DADiskRef disk,
   return wait_da_operation(operation, "volume remount", error_message);
 }
 
+template <typename FindVolume, typename MountVolume>
+static bool restore_volume(const darwin_mounted_volume & volume,
+  FindVolume find, MountVolume mount, std::string & error_message)
+{
+  std::string path;
+  DADiskRef disk = find(path);
+  if (!disk) {
+    error_message = "volume did not reappear: " + volume_identifier(volume);
+    return false;
+  }
+  if (path.empty()) {
+    mount(disk, error_message);
+    CFRelease(disk);
+    // Another client can mount concurrently. Verify the scoped volume's
+    // actual path after either success or failure, without ignoring error
+    // codes or treating a mount at any other path as full restoration.
+    disk = find(path);
+  }
+  const bool restored = disk && path == volume.mount_path;
+  if (disk)
+    CFRelease(disk);
+  if (restored) {
+    error_message.clear();
+    return true;
+  }
+  if (!error_message.empty())
+    error_message += "; ";
+  error_message += "volume " + volume_identifier(volume)
+    + " was not restored at '" + volume.mount_path + "'";
+  if (!path.empty())
+    error_message += " (mounted at '" + path + "')";
+  return false;
+}
+
 static bool restore_mounted_volumes(const disk_session_ptr & session,
   const std::vector<darwin_mounted_volume> & volumes,
   std::string & error_message)
@@ -661,23 +735,12 @@ static bool restore_mounted_volumes(const disk_session_ptr & session,
   std::string errors;
   for (std::vector<darwin_mounted_volume>::const_iterator it = volumes.begin();
       it != volumes.end(); ++it) {
-    DADiskRef disk = 0;
-    bool mounted = false;
-    for (unsigned attempt = 0; attempt < 100 && !disk; ++attempt) {
-      disk = find_volume(session, *it, mounted);
-      if (!disk)
-        usleep(100000);
-    }
     std::string error;
-    if (!disk)
-      error = std::string("volume did not reappear: ")
-        + volume_identifier(*it);
-    else if (!mounted && !mount_volume(session, disk, *it, error)) {
-      // Preserve the detailed Disk Arbitration error.
-    }
-    if (disk)
-      CFRelease(disk);
-    if (!error.empty()) {
+    if (!restore_volume(*it,
+        [&](std::string & path) { return find_volume(session, *it, path); },
+        [&](DADiskRef disk, std::string & message) {
+          return mount_volume(session, disk, *it, message);
+        }, error)) {
       ok = false;
       if (!errors.empty())
         errors += "; ";

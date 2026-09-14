@@ -132,8 +132,10 @@ but cannot open its USB interface.
 It uses
 IOUSBHost DeviceCapture and temporarily
 detaches the complete USB device from macOS.  Mounted volumes are unmounted
-before capture without using a forced unmount.  Closing the device attempts
-to restore them; a failure is reported and sets exit status bit 1.
+before capture without using a forced unmount.  Closing the device waits for
+Disk Arbitration to finish rediscovering the volumes before requesting any
+remaining mounts.  Restoration verifies each volume's identity and original
+mount path; a failure is reported and sets exit status bit 1.
 An unmount timeout may complete after the error has been reported; verify
 volume mount state before continuing.  Capture is refused if a mounted
 volume cannot be identified safely for restoration.
