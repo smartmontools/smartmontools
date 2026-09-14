@@ -115,9 +115,16 @@ dist-hook:
 	cp include/smartmon/version.sh $(distdir)/util/dist-version.sh
 
 if REPRODUCIBLE_BUILD
+#
 # Override the builtin 'dist-*' rules to create reproducible tarballs
+#
+# Also override the 'dist' rule because starting with automake 1.19 the
+# builtin rule builds 'am--dist-gzip' instead of 'dist-gzip'
+#
 
 phony += dist-fail
+
+dist dist-all: dist-gzip
 
 dist-gzip: distdir
 	$(dist_tar) $(distdir) > $(distdir).tar
