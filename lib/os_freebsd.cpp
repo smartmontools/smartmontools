@@ -46,7 +46,6 @@
 #include "dev_ata_cmd_set.h"
 #include "dev_areca.h"
 
-#define USBDEV "/dev/usb"
 #if defined(__FreeBSD_version)
 
 // This way we define one variable for the GNU/kFreeBSD and FreeBSD 
@@ -55,15 +54,11 @@
 #define FREEBSDVER __FreeBSD_kernel_version
 #endif
 
-#if (FREEBSDVER >= 800000)
+#if (FREEBSDVER >= 1600019)
+#include <libusb.h>
+#else
 #include <libusb20_desc.h>
 #include <libusb20.h>
-#elif defined(__DragonFly__)
-#include <bus/usb/usb.h>
-#include <bus/usb/usbhid.h>
-#else
-#include <dev/usb/usb.h>
-#include <dev/usb/usbhid.h>
 #endif
 
 // based on "/sys/dev/nvme/nvme.h" from FreeBSD kernel sources
@@ -2152,63 +2147,77 @@ freebsd_smart_interface::megaraid_pd_add_list(const char * devname, smart_device
   return (0);
 }
 
-#if (FREEBSDVER < 800000) // without this build fail on FreeBSD 8
-static char done[USB_MAX_DEVICES];
-
-static int usbdevinfo(int f, int a, int rec, int busno, unsigned short & vendor_id,
-  unsigned short & product_id, unsigned short & version)
-{ 
-
-  struct usb_device_info di;
-  int e, p, i;
-  char devname[256];
-
-  snprintf(devname, sizeof(devname),"umass%d",busno);
-
-  di.udi_addr = a;
-  e = ioctl(f, USB_DEVICEINFO, &di);
-  if (e) {
-    if (errno != ENXIO)
-      printf("addr %d: I/O error\n", a);
-    return 0;
-  }
-  done[a] = 1;
-
-  // list devices
-  for (i = 0; i < USB_MAX_DEVNAMES; i++) {
-    if (di.udi_devnames[i][0]) {
-      if(strcmp(di.udi_devnames[i],devname)==0) {
-        // device found!
-        vendor_id = di.udi_vendorNo;
-        product_id = di.udi_productNo;
-        version = di.udi_releaseNo;
-        return 1;
-        // FIXME
-      }
-    }
-  }
-  if (!rec)
-    return 0;
-  for (p = 0; p < di.udi_nports; p++) {
-    int s = di.udi_ports[p];
-    if (s >= USB_MAX_DEVICES) {
-      continue;
-    }
-    if (s == 0)
-      printf("addr 0 should never happen!\n");
-    else {
-      if(usbdevinfo(f, s, 1, busno, vendor_id, product_id, version)) return 1;
-    }
-  }
-  return 0;
-}
-#endif
-
+#if (FREEBSDVER >= 1600019) // libusb interface
 
 static int usbdevlist(int busno,unsigned short & vendor_id,
   unsigned short & product_id, unsigned short & version)
 {
-#if (FREEBSDVER >= 800000) // libusb2 interface
+  libusb_context *ctx = nullptr;
+  libusb_device **list = nullptr;
+  char buf[128]; // do not change!
+  char devname[128];
+  int found = 0;
+
+  if (libusb_init(&ctx)) {
+    warnx("libusb_init: could not initialize libusb");
+    return 0;
+  }
+
+  ssize_t cnt = libusb_get_device_list(ctx, &list);
+  if (cnt < 0) {
+    warnx("libusb_get_device_list: could not list devices");
+    libusb_exit(ctx);
+    return 0;
+  }
+
+  snprintf(devname, sizeof(devname), "umass%d", busno);
+
+  for (ssize_t i = 0; i < cnt && !found; i++) {
+    libusb_device * dev = list[i];
+    struct libusb_device_descriptor desc;
+
+    if (libusb_get_device_descriptor(dev, &desc))
+      continue;
+
+    libusb_device_handle * handle = nullptr;
+    if (libusb_open(dev, &handle)) {
+      warnx("libusb_open: could not open device");
+      continue;
+    }
+
+    for (int n = 0; n != 255; n++) {
+      // returns the name of the kernel driver attached to this interface
+      if (libusb_get_driver_np(handle, n, buf, sizeof(buf)))
+        break;
+      if (buf[0] == 0)
+        continue;
+      if (!strcmp(buf, devname)) {
+        vendor_id = desc.idVendor;
+        product_id = desc.idProduct;
+        version = desc.bcdDevice;
+        found = 1;
+        break;
+      }
+    }
+
+    libusb_close(handle);
+  }
+
+  if (cnt == 0) {
+    printf("No device match or lack of permissions.\n");
+  }
+
+  libusb_free_device_list(list, 1);
+  libusb_exit(ctx);
+
+  return found;
+}
+
+#else // libusb20 interface
+
+static int usbdevlist(int busno,unsigned short & vendor_id,
+  unsigned short & product_id, unsigned short & version)
+{
   struct libusb20_device *pdev = NULL;
   struct libusb20_backend *pbe;
   uint32_t matches = 0;
@@ -2256,35 +2265,9 @@ static int usbdevlist(int busno,unsigned short & vendor_id,
   libusb20_be_free(pbe);
 
   return false;
-#else // freebsd < 8.0 USB stack, ioctl interface
-
-  int  i, a, rc;
-  char buf[50];
-  int ncont;
-
-  for (ncont = 0, i = 0; i < 10; i++) {
-    snprintf(buf, sizeof(buf), "%s%d", USBDEV, i);
-    int f = open(buf, O_RDONLY);
-    if (f >= 0) {
-      memset(done, 0, sizeof done);
-      for (a = 1; a < USB_MAX_DEVICES; a++) {
-        if (!done[a]) {
-          rc = usbdevinfo(f, a, 1, busno,vendor_id, product_id, version);
-          if(rc) return 1;
-        }
-
-      }
-      close(f);
-    } else {
-      if (errno == ENOENT || errno == ENXIO)
-        continue;
-      warn("%s", buf);
-    }
-    ncont++;
-  }
-  return 0;
-#endif
 }
+
+#endif
 
 smart_device * freebsd_smart_interface::autodetect_smart_device(const char * name)
 {
