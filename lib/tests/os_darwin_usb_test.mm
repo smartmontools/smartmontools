@@ -365,6 +365,50 @@ int main()
     CHECK(selected == darwin_usb_transport_bot);
     [descriptorInterface release];
 
+    // A BOT-only bridge may STALL SET_INTERFACE for its sole default setting.
+    // Do not issue that request, but retain explicit selection for any other
+    // alternate layout and reject unavailable protocols without fallback.
+    TestUSBInterface * defaultInterface = [[TestUSBInterface alloc] init];
+    defaultInterface->descriptors = {
+      9,2,44,0,1,1,0,0x80,0x70,
+      9,4,0,0,2,8,6,0x50,0,
+      7,5,0x81,2,0,4,0, 6,0x30,15,0,0,0,
+      7,5,2,2,0,4,0, 6,0x30,15,0,0,0
+    };
+    defaultInterface->interfaceOffset = 9;
+    defaultInterface->failSelect = true;
+    CHECK(select_protocol((IOUSBHostInterface *)defaultInterface, 0,
+      darwin_usb_protocol::bot, selected, selectionError));
+    CHECK(selected == darwin_usb_transport_bot && defaultInterface->selectedAlternates.empty());
+    CHECK(!select_protocol((IOUSBHostInterface *)defaultInterface, 0,
+      darwin_usb_protocol::uasp, selected, selectionError));
+    CHECK(selectionError == "requested USB protocol is not advertised by this interface");
+    CHECK(!select_protocol((IOUSBHostInterface *)defaultInterface, 1,
+      darwin_usb_protocol::bot, selected, selectionError));
+    CHECK(defaultInterface->selectedAlternates.empty());
+
+    // Even a sole nondefault alternate must still be selected explicitly.
+    defaultInterface->descriptors[12] = 1;
+    CHECK(!select_protocol((IOUSBHostInterface *)defaultInterface, 0,
+      darwin_usb_protocol::bot, selected, selectionError));
+    CHECK(defaultInterface->selectedAlternates == std::vector<NSUInteger>{1});
+    defaultInterface->descriptors[12] = 0;
+    defaultInterface->selectedAlternates.clear();
+    // A second setting of the same protocol also requires SET_INTERFACE.
+    defaultInterface->descriptors.insert(defaultInterface->descriptors.end(),
+      {9,4,0,1,2,8,6,0x50,0});
+    defaultInterface->descriptors[2] = 53;
+    CHECK(!select_protocol((IOUSBHostInterface *)defaultInterface, 0,
+      darwin_usb_protocol::bot, selected, selectionError));
+    CHECK(defaultInterface->selectedAlternates == std::vector<NSUInteger>{0});
+    // An alternate on another interface does not change this interface's count.
+    defaultInterface->descriptors[46] = 1;
+    defaultInterface->selectedAlternates.clear();
+    CHECK(select_protocol((IOUSBHostInterface *)defaultInterface, 0,
+      darwin_usb_protocol::bot, selected, selectionError));
+    CHECK(defaultInterface->selectedAlternates.empty());
+    [defaultInterface release];
+
     uint8_t cdb[16] = {};
     scsi_cmnd_io io = {};
     io.cmnd = cdb;

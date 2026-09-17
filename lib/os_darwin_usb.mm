@@ -1854,8 +1854,11 @@ static bool read_only_scsi_command_is_allowed(const scsi_cmnd_io * iop)
 }
 
 static const IOUSBInterfaceDescriptor * protocol_descriptor(
-  IOUSBHostInterface * interface, uint8_t number, darwin_usb_protocol protocol)
+  IOUSBHostInterface * interface, uint8_t number, darwin_usb_protocol protocol,
+  unsigned & alternate_count)
 {
+  alternate_count = 0;
+  const IOUSBInterfaceDescriptor * selected = nullptr;
   const auto * configuration = [interface configurationDescriptor];
   const IOUSBDescriptorHeader * descriptor = nullptr;
   if (!configuration)
@@ -1865,23 +1868,40 @@ static const IOUSBInterfaceDescriptor * protocol_descriptor(
         || descriptor->bLength < sizeof(IOUSBInterfaceDescriptor))
       continue;
     const auto * alt = (const IOUSBInterfaceDescriptor *)descriptor;
-    if (alt->bInterfaceNumber == number
-        && alt->bInterfaceClass == kUSBMassStorageInterfaceClass
+    if (alt->bInterfaceNumber != number)
+      continue;
+    ++alternate_count;
+    if (!selected && alt->bInterfaceClass == kUSBMassStorageInterfaceClass
         && alt->bInterfaceSubClass == kUSBMassStorageSCSISubClass
         && alt->bInterfaceProtocol == (protocol == darwin_usb_protocol::uasp ? 0x62 : 0x50))
-      return alt;
+      selected = alt;
   }
-  return nullptr;
+  return selected;
 }
 
 static bool select_protocol(IOUSBHostInterface * interface, uint8_t number,
   darwin_usb_protocol protocol, darwin_usb_transport & transport,
   std::string & error_message)
 {
-  const auto * descriptor = protocol_descriptor(interface, number, protocol);
+  unsigned alternate_count = 0;
+  const auto * descriptor = protocol_descriptor(interface, number, protocol,
+    alternate_count);
   if (!descriptor) {
     error_message = "requested USB protocol is not advertised by this interface";
     return false;
+  }
+  const auto * active = [interface interfaceDescriptor];
+  if (protocol == darwin_usb_protocol::bot && alternate_count == 1
+      && descriptor->bAlternateSetting == 0 && active
+      && active->bLength >= sizeof(*active)
+      && !memcmp(active, descriptor, sizeof(*active))) {
+    // USB 2.0 9.4.10 permits a STALL for an interface with only its default
+    // setting (e.g. BOT-only ASM1153E firmware). It is already selected;
+    // BOT Reset Recovery below clears endpoint halts and command state.
+    if (scsi_debugmode)
+      lib_printf("USB interface: single default BOT setting; SET_INTERFACE not needed\n");
+    transport = darwin_usb_transport_bot;
+    return true;
   }
   NSError * error = nil;
   // Capture terminates the kernel transport but may preserve its alternate
@@ -2033,8 +2053,8 @@ darwin_usb_handle * darwin_usb_open(const char * selector, uint64_t & registry_i
     if (transport == darwin_usb_transport_bot
         && (!copy_bot_pipes(interface, handle->bulk_in, handle->bulk_out,
           error_message)
-          // SET_INTERFACE establishes the pipes; Reset Recovery also clears
-          // command/status state left by the previous kernel transport.
+          // Reset Recovery clears endpoint halts and command/status state,
+          // including when the sole default setting needs no SET_INTERFACE.
           || !bot_reset_recovery(handle, &error_message))) {
       std::string open_error = error_message, close_error;
       int close_errno = 0;
