@@ -384,6 +384,8 @@ public:
   virtual ~sntrealtek_device();
 
   virtual bool nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out & out) override;
+
+  unsigned get_log_page_size_limit() const override { return 0x200; }
 };
 
 sntrealtek_device::sntrealtek_device(smart_interface * intf, scsi_device * scsidev,
@@ -414,11 +416,10 @@ bool sntrealtek_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out &
     case nvme_admin_get_log_page:
       if (!(in.nsid == nvme_broadcast_nsid || !in.nsid))
         return set_err(ENOSYS, "NVMe Get Log Page with NSID=0x%x not supported", in.nsid);
-      if (size > 0x200) { // Reading more apparently returns old data from previous command
-        // TODO: Add ability to return short reads to caller
-        size = 0x200;
-        lib_printf("Warning: NVMe Get Log truncated to 0x%03x bytes, 0x%03x bytes zero filled\n", size, in.size - size);
-      }
+      // Larger requests can return stale data. Never present a zero-filled
+      // tail as a successfully read log (in particular the self-test log).
+      if (size > get_log_page_size_limit())
+        return set_err(ENOSYS, "Realtek NVMe Get Log Page limited to 512 bytes (requested %u)", size);
       break;
     default:
       return set_err(ENOSYS, "NVMe admin command 0x%02x not supported", in.opcode);
@@ -444,6 +445,10 @@ bool sntrealtek_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out &
   scsi_device * scsidev = get_tunnel_dev();
   if (!scsidev->scsi_pass_through_and_check(&io_hdr, "sntrealtek_device::nvme_pass_through: "))
     return set_err(scsidev->get_err());
+
+  if (io_hdr.resid)
+    return set_err(EIO, "Incomplete Realtek NVMe response (size=%u, resid=%d)",
+      size, io_hdr.resid);
 
   //out.result = ?; // TODO
   return true;

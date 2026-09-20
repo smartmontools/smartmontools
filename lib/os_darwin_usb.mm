@@ -912,6 +912,24 @@ bool darwin_usb_scan_devices(std::vector<darwin_usb_device_info> & devices,
   return true;
 }
 
+static bool reset_usb_configuration(IOUSBHostDevice * device, std::string & error)
+{
+  const auto * descriptor = [device configurationDescriptor];
+  if (!descriptor || !descriptor->bConfigurationValue) {
+    error = "captured USB device has no active configuration";
+    return false;
+  }
+  const uint8_t configuration = descriptor->bConfigurationValue;
+  NSError * ns_error = nil;
+  if (![device configureWithValue:0 matchInterfaces:NO error:&ns_error]
+      || ![device configureWithValue:configuration matchInterfaces:NO error:&ns_error]) {
+    error = std::string("unable to reset captured USB configuration: ")
+      + ns_error_string(ns_error);
+    return false;
+  }
+  return true;
+}
+
 static IOUSBHostInterface * find_mass_storage_interface(IOUSBHostDevice * device,
   uint8_t interface_number, darwin_usb_transport & transport, std::string & error)
 {
@@ -1609,6 +1627,7 @@ static bool uas_execute_with_streams(darwin_usb_handle * handle,
   size_t status_length = 0;
   if (!finish_uas_async_transfer(status_request, status_iu,
       sizeof(status_iu), true, iop->timeout, status_length, error_message)) {
+    error_message = "UASP status: " + error_message;
     cancel_uas_async_transfer(data_request);
     error_number = EIO;
     return false;
@@ -1635,6 +1654,7 @@ static bool uas_execute_with_streams(darwin_usb_handle * handle,
   if (!finish_uas_async_transfer(data_request, iop->dxferp, iop->dxfer_len,
       iop->dxfer_dir == DXFER_FROM_DEVICE, iop->timeout, data_length,
       error_message)) {
+    error_message = "UASP data: " + error_message;
     error_number = EIO;
     return false;
   }
@@ -1890,6 +1910,7 @@ static bool select_protocol(IOUSBHostInterface * interface, uint8_t number,
     error_message = "requested USB protocol is not advertised by this interface";
     return false;
   }
+  const uint8_t target_alternate = descriptor->bAlternateSetting;
   const auto * active = [interface interfaceDescriptor];
   if (protocol == darwin_usb_protocol::bot && alternate_count == 1
       && descriptor->bAlternateSetting == 0 && active
@@ -1904,12 +1925,15 @@ static bool select_protocol(IOUSBHostInterface * interface, uint8_t number,
     return true;
   }
   NSError * error = nil;
+  if (scsi_debugmode)
+    lib_printf("USB interface: current=%u, requested=%u\n",
+      active ? active->bAlternateSetting : 0xff, target_alternate);
   // Capture terminates the kernel transport but may preserve its alternate
-  // setting. Re-select even when the descriptor (or GET_INTERFACE) already
-  // reports the desired value: ASM2362 otherwise accepts command transfers
-  // without completing status or data. Establish a fresh endpoint state before
+  // setting. Select explicitly even when the descriptor already reports the
+  // desired value: ASM2362 otherwise accepts command transfers without
+  // completing status or data. Establish a fresh endpoint state before
   // creating pipes and streams, without changing the selected wire protocol.
-  if (![interface selectAlternateSetting:descriptor->bAlternateSetting error:&error]) {
+  if (![interface selectAlternateSetting:target_alternate error:&error]) {
     error_message = std::string("unable to select USB protocol: ") + ns_error_string(error);
     return false;
   }
@@ -2008,8 +2032,13 @@ darwin_usb_handle * darwin_usb_open(const char * selector, uint64_t & registry_i
     const uint8_t interface_number = info.interface_number;
     const bool jms583 = info.vendor_id == 0x152d
       && info.product_id == 0x0583;
-    IOUSBHostInterface * interface = find_mass_storage_interface(device,
-      interface_number, transport, error_message);
+    // RTL9210 retains its old UAS session across capture. Recreate the
+    // interfaces without kernel driver matching before opening new pipes.
+    const bool rtl9210 = info.vendor_id == 0x0bda && info.product_id == 0x9210;
+    IOUSBHostInterface * interface = nullptr;
+    if (!rtl9210 || reset_usb_configuration(device, error_message))
+      interface = find_mass_storage_interface(device,
+        interface_number, transport, error_message);
     if (interface && !select_protocol(interface, interface_number,
         protocol == darwin_usb_protocol::none ? info.protocol : protocol,
         transport, error_message)) {
@@ -2076,6 +2105,8 @@ darwin_usb_handle * darwin_usb_open(const char * selector, uint64_t & registry_i
         return 0;
       }
       try_enable_uas_streams(handle);
+      if (scsi_debugmode)
+        lib_printf("USB UASP streams: %s\n", handle->uas_streams_enabled ? "enabled" : "disabled");
     }
     if (scsi_debugmode)
       lib_printf("USB transport: system=%s, selected=%s, selection=%s, fallback=disabled\n",

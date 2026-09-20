@@ -161,6 +161,31 @@ struct TestBOTState {
 }
 @end
 
+@interface TestUSBConfiguration : NSObject {
+@public
+  IOUSBConfigurationDescriptor descriptor;
+  std::vector<NSUInteger> selected;
+  unsigned failCall;
+}
+@end
+
+@implementation TestUSBConfiguration
+- (const IOUSBConfigurationDescriptor *)configurationDescriptor
+{ return &descriptor; }
+- (BOOL)configureWithValue:(NSUInteger)value matchInterfaces:(BOOL)match error:(NSError **)error
+{
+  if (match)
+    std::abort();
+  selected.push_back(value);
+  if (failCall == selected.size()) {
+    *error = [NSError errorWithDomain:@"test" code:kIOReturnError userInfo:nil];
+    return NO;
+  }
+  descriptor.bConfigurationValue = value;
+  return YES;
+}
+@end
+
 @interface TestUSBInterface : NSObject {
 @public
   std::vector<uint8_t> descriptors;
@@ -278,6 +303,25 @@ int main()
     CFRelease(volumeDescription);
     CFRelease(volumeUUID);
     CFRelease(mediaUUID);
+
+    TestUSBConfiguration * configuration = [[TestUSBConfiguration alloc] init];
+    std::string configurationError;
+    configuration->descriptor.bConfigurationValue = 2;
+    CHECK(reset_usb_configuration((IOUSBHostDevice *)configuration, configurationError));
+    CHECK(configuration->selected == (std::vector<NSUInteger>{0, 2}));
+    for (unsigned fail : {1, 2}) {
+      configuration->selected.clear();
+      configuration->descriptor.bConfigurationValue = 2;
+      configuration->failCall = fail;
+      CHECK(!reset_usb_configuration((IOUSBHostDevice *)configuration, configurationError));
+      CHECK(configuration->selected.size() == fail);
+      CHECK(configurationError.find("unable to reset captured USB configuration:") == 0);
+    }
+    configuration->selected.clear();
+    configuration->descriptor.bConfigurationValue = 0;
+    CHECK(!reset_usb_configuration((IOUSBHostDevice *)configuration, configurationError));
+    CHECK(configuration->selected.empty());
+    [configuration release];
 
     // Actual JMS583 SuperSpeed descriptors: pipe usages follow companions.
     TestUSBInterface * descriptorInterface = [[TestUSBInterface alloc] init];

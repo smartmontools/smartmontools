@@ -154,12 +154,14 @@ def main():
             finally:
                 released = time.monotonic()
                 after, after_disk, after_protocol, after_volumes = wait_released(args, before, released + 30, before_volumes,
-                    require_new_id=result is not None and result.returncode == 0)
+                    require_new_id=result is not None and result.returncode in (0, 4))
                 (args.output / (label + "-after.plist")).write_bytes(plistlib.dumps([after, after_disk]))
             payload = json.loads(result.stdout)
             system_name = "UASP" if system_protocol == 0x62 else "BOT"
             selected = system_name if mode == "system" else mode.upper()
             diagnostic = f"USB transport: system={system_name}, selected={selected}, selection={'system' if mode == 'system' else 'explicit'}, fallback=disabled"
+            expected_exit = 0
+            limitations = []
             if args.type == "sat":
                 capacity = payload.get("user_capacity", {}).get("bytes")
                 smart = payload.get("ata_smart_attributes")
@@ -181,8 +183,30 @@ def main():
                         .get("self_test", False) or "nvme_self_test_log" in payload,
                 }
                 smart_read = bool(smart)
+                if args.type == "sntrealtek":
+                    # The current SNT policy reads only the first 512 log bytes.
+                    # Require truthful partial/error reporting, never count
+                    # the previous zero-filled tail as hardware acceptance.
+                    output = payload["smartctl"].get("output", [])
+                    wanted = min(16, error_log.get("size", 0))
+                    log_checks["error_log_read"] = error_log.get("read", 0) == min(8, wanted) and wanted > 0
+                    if wanted > 8:
+                        expected_exit = 4
+                        limitations.append("error log limited to 8 entries")
+                        log_checks["error_log_limit_reported"] = any(
+                            line.startswith(f"Read Error Information Log failed, {wanted - 8} entries missing:")
+                            for line in output)
+                    if payload.get("nvme_optional_admin_commands", {}).get("self_test", False):
+                        expected_exit = 4
+                        limitations.append("564-byte self-test log exceeds software limit")
+                        del log_checks["self_test_log_read"]
+                        log_checks["self_test_log_limit_reported"] = (
+                            "nvme_self_test_log" not in payload and any(
+                                line.startswith("Read Self-test Log failed: Realtek NVMe Get Log Page limited to 512 bytes (requested 564)")
+                                for line in output))
             checks = {
-                "exit_zero": result.returncode == 0 and payload["smartctl"]["exit_status"] == 0,
+                "expected_exit_status": result.returncode == expected_exit
+                    and payload["smartctl"]["exit_status"] == expected_exit,
                 "model": payload.get("model_name") == args.model,
                 "drive_serial": payload.get("serial_number") == args.drive_serial,
                 "capacity": capacity == args.capacity,
@@ -198,6 +222,7 @@ def main():
                    "seconds": time.monotonic() - started,
                    "release_seconds": time.monotonic() - released,
                    "volumes_before": before_volumes, "volumes_after": after_volumes,
+                   "expected_exit_status": expected_exit, "limitations": limitations,
                    "smart": smart}
             summary["runs"].append(run)
             (args.output / "summary.json").write_text(json.dumps(summary, indent=2) + "\n")

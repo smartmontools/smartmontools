@@ -6,6 +6,10 @@ its pipes, even if the interface still reports that alternate. There is no autom
 UASP/BOT fallback: errors are reported and the capture is released. Merely checking
 the alternate number does not establish a working transport session.
 
+For Realtek `0bda:9210`, capture can retain a stale UASP session. Before opening
+the interface, the backend unconfigures and restores the active USB configuration
+with interface driver matching disabled. It then selects the requested protocol.
+
 Before opening the interface, it waits for the captured device's IOKit service
 tree to become quiet (matching/termination complete, with a five-second deadline).
 BOT sessions also perform standard Reset Recovery before their first command.
@@ -99,7 +103,11 @@ bridge at the same port, a new registry ID, and a usable macOS disk node. It
 checks the actual protocol diagnostic and Identify/SMART JSON. Evidence includes
 before/after plists, command lines, binary hash, raw JSON, stderr, and timings.
 It also requires the requested error-log entries and, when supported, the self-test
-log. Add `--autodetect` to run system selection as plain `/dev/diskN` without a
+log. For `--type sntrealtek`, it instead requires the first eight error-log entries
+and explicit reporting of the 512-byte log limit: larger error-log requests and
+the 564-byte self-test log must report failure (exit status 4), not zero-filled
+success. These limitations are saved separately in each run's summary.
+Add `--autodetect` to run system selection as plain `/dev/diskN` without a
 device type. For ASM2362 use `--autodetect --type sntasmedia --vendor 0x174c --product 0x2362` and the
 attached enclosure's identity instead of the JMicron values above.
 
@@ -110,6 +118,37 @@ START UNIT for JMS583, followed by the existing SNT Identify and SMART sequence,
 with command completion timeouts rather than a fixed startup delay.
 
 ## Validated hardware and limits
+
+On 2026-09-21, HIKSEMI MS201 (`0bda:9210`, bcdDevice `0x2001`, user-identified
+RTL9210B) with Micron `MTFDHBL256TDQ` / `MU05.1` completed five rounds each of
+automatic UASP, explicit UASP, and explicit BOT reads and releases. All 15 runs
+verified Identify, SMART, eight error-log entries, explicit log-limit errors,
+device re-enumeration, and restoration to system UASP. No filesystem was mounted.
+Ordinary capture/reselection had timed out on Identify; switching alternates
+twice was also unreliable. Rebuilding the configuration before opening the
+interface passed the repeated acceptance.
+
+Follow-up direct E4 requests on this same device bypassed the software cap:
+both UASP and BOT returned 564-byte self-test logs and 4096-byte error-log
+responses with zero residue. The self-test log contained the final record's
+nonzero status at offset 536. Alternating preceding Controller/Namespace
+Identify responses did not change the log data. Thus the inherited 512-byte
+cap is not a verified hardware limit for this device. The empty error log
+cannot establish correctness of nonempty records beyond entry eight, and other
+bridge firmware remains untested.
+
+The current SNT implementation still caps logs at 512 bytes and does not encode
+a nonzero log offset. To read
+Identify, SMART health, and eight complete error-log entries without requesting
+unsupported logs, use:
+
+```sh
+sudo ./src/smartctl -i -H -A -l error,8 /dev/diskN
+```
+
+`-a` still reads SMART, but reports missing error-log entries and rejects the
+incomplete self-test log. This is the current software policy, not a failed drive
+health assessment. Incomplete SCSI responses are also rejected.
 
 On 2026-09-12, JEYI External (`152d:0583`, firmware `0x0209`, USB 10 Gb/s) with a
 Micron `MTFDHBL256TDQ` / `MU05.1` NVMe drive completed reads through both BOT and
