@@ -293,6 +293,25 @@ static void notify_wait(time_t wakeuptime, int numdev)
   notify_ready = true;
 }
 
+static void notify_reload()
+{
+  if (!notify_enabled)
+    return;
+  timespec ts;
+  // using std::chrono is not possible, since it might use another time source
+  // and using CLOCK_MONOTONIC is mandatory for the MONOTONIC_USEC field
+  if (clock_gettime(CLOCK_MONOTONIC, &ts) < 0)
+    throw std::runtime_error("clock_gettime(CLOCK_MONOTONIC, .) failed");
+  long long current_usec = ts.tv_sec * 1000000LL + ts.tv_nsec / 1000;
+  if (debugmode) {
+    lib_printf("sd_notify(0, \"RELOADING=1\nMONOTONIC_USEC=%lld\nSTATUS=Reloading ...\")\n",
+               current_usec);
+  } else {
+    sd_notifyf(0, "RELOADING=1\nMONOTONIC_USEC=%lld\nSTATUS=Reloading ...", current_usec);
+  }
+  notify_ready = false;  // resend READY=1 when reload is finished
+}
+
 static void notify_exit(int status)
 {
   if (!notify_enabled)
@@ -331,6 +350,7 @@ static inline void notify_extend_timeout() { }
 static inline void notify_msg(const char *) { }
 static inline void notify_check(int) { }
 static inline void notify_wait(time_t, int) { }
+static inline void notify_reload() { }
 static inline void notify_exit(int) { }
 
 #endif // HAVE_LIBSYSTEMD
@@ -1956,7 +1976,7 @@ static void Usage()
   PrintOut(LOG_INFO,"  -n, --no-fork\n");
   PrintOut(LOG_INFO,"        Do not fork into background\n");
 #ifdef HAVE_LIBSYSTEMD
-  PrintOut(LOG_INFO,"        (systemd 'Type=notify' is assumed if $NOTIFY_SOCKET is set)\n");
+  PrintOut(LOG_INFO,"        (systemd 'Type=notify[-reload]' is assumed if $NOTIFY_SOCKET is set)\n");
 #endif // HAVE_LIBSYSTEMD
   PrintOut(LOG_INFO,"\n");
 #endif // WIN32
@@ -6441,7 +6461,7 @@ static int main_worker(int argc, char **argv)
                  "Signal HUP - rereading configuration file %s\n":
                  "\a\nSignal INT - rereading configuration file %s (" SIGQUIT_KEYNAME " quits)\n\n",
                  configfile);
-        notify_msg("Reloading ...");
+        notify_reload();
       }
 
       {

@@ -337,7 +337,9 @@ $(smartd_service): smartd.service.in Makefile
 	$(ECHO_V_GEN) ' $$(SMARTD_SERVICE_FILTER) < $(srcdir)/smartd.service.in > $@'
 	@{ \
 	sed 's|/usr/local/sbin/smartd|$(sbindir)/smartd|' | \
-	if test -n '$(SYSTEMD_LDADD)'; then \
+	if test '$(use_systemd_reload)' = 'yes'; then \
+	  sed -e 's/^Type=notify/Type=notify-reload/' -e '/^ExecReload=/d'; \
+	elif test -n '$(SYSTEMD_LDADD)'; then \
 	  cat; \
 	else \
 	  sed '/^Type=notify/d'; \
