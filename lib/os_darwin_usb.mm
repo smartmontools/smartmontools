@@ -104,11 +104,20 @@ static std::string ns_error_string(NSError * error)
 {
   if (!error)
     return "unknown IOUSBHost error";
-  NSString * text = [error localizedDescription];
+  const char * text = [[error localizedDescription] UTF8String];
+  const char * domain = [[error domain] UTF8String];
+  const char * reason = [[error localizedFailureReason] UTF8String];
+  std::string message = (text && *text ? text : "unknown IOUSBHost error");
+  const bool add_reason = reason && *reason
+    && message.find(reason) == std::string::npos;
   char code[40];
   snprintf(code, sizeof(code), " (0x%08x)", (unsigned)[error code]);
-  return (text ? std::string([text UTF8String]) : "unknown IOUSBHost error")
-    + code;
+  message += code;
+  if (domain && *domain)
+    message += std::string(" [") + domain + "]";
+  if (add_reason)
+    message += std::string(": ") + reason;
+  return message;
 }
 
 // The framework is weakly linked so normal ATA/NVMe access still works on
@@ -334,9 +343,21 @@ static darwin_usb_protocol get_mass_storage_protocol(io_service_t device,
   return interfaces == 1 ? protocol : darwin_usb_protocol::none;
 }
 
-static void get_whole_disk_names(io_service_t device,
-  std::vector<std::string> & names)
+static bool has_block_storage_driver(io_service_t media)
 {
+  io_registry_entry_t provider = MACH_PORT_NULL;
+  if (IORegistryEntryGetParentEntry(media, kIOServicePlane, &provider)
+      != KERN_SUCCESS)
+    return false;
+  const bool physical = IOObjectConformsTo(provider, "IOBlockStorageDriver");
+  IOObjectRelease(provider);
+  return physical;
+}
+
+static void get_whole_disk_names(io_service_t device,
+  std::vector<std::string> & names, bool physical_only)
+{
+  names.clear();
   io_iterator_t iterator = MACH_PORT_NULL;
   if (IORegistryEntryCreateIterator(device, kIOServicePlane,
       kIORegistryIterateRecursively, &iterator) != KERN_SUCCESS)
@@ -346,7 +367,11 @@ static void get_whole_disk_names(io_service_t device,
   io_service_t service = MACH_PORT_NULL;
   while ((service = IOIteratorNext(iterator))) {
     if (IOObjectConformsTo(service, kIOMediaClass)
-        && get_registry_boolean(service, kIOMediaWholeKey)) {
+        && get_registry_boolean(service, kIOMediaWholeKey)
+        // APFS containers are also Whole IOMedia, but their immediate
+        // providers are not block storage drivers. Keep all physical disks;
+        // the caller separately decides whether their topology is supported.
+        && (!physical_only || has_block_storage_driver(service))) {
       std::string name = get_registry_string(service, kIOBSDNameKey);
       if (!name.empty())
         unique_names.insert(std::string("/dev/") + name);
@@ -757,7 +782,9 @@ static bool prepare_mounted_volumes(io_service_t service,
   std::string & error_message)
 {
   std::vector<std::string> whole_disks;
-  get_whole_disk_names(service, whole_disks);
+  // Preserve the unmount scope, including synthetic whole media. Physical
+  // target discovery must not narrow the existing volume cleanup path.
+  get_whole_disk_names(service, whole_disks, false);
   if (whole_disks.empty()) {
     error_message = "USB storage device has no whole-disk IOMedia";
     return false;
@@ -836,7 +863,7 @@ static bool get_device_info(io_service_t service,
     return false;
 
   std::vector<std::string> names;
-  get_whole_disk_names(service, names);
+  get_whole_disk_names(service, names, true);
   if (names.size() != 1 || !is_lun_zero(names[0]))
     return false;
   info.device_name = names[0];
@@ -999,6 +1026,7 @@ static bool copy_bot_pipes(IOUSBHostInterface * interface,
 {
   bulk_in = nil;
   bulk_out = nil;
+  error.clear();
 
   const IOUSBConfigurationDescriptor * configuration =
     [interface configurationDescriptor];
@@ -1009,9 +1037,18 @@ static bool copy_bot_pipes(IOUSBHostInterface * interface,
     return false;
   }
 
-  const IOUSBEndpointDescriptor * endpoint = 0;
-  while ((endpoint = IOUSBGetNextEndpointDescriptor(configuration,
-      interface_descriptor, (const IOUSBDescriptorHeader *)endpoint))) {
+  const IOUSBDescriptorHeader * descriptor =
+    (const IOUSBDescriptorHeader *)interface_descriptor;
+  while ((descriptor = IOUSBGetNextDescriptor(configuration, descriptor))) {
+    if (descriptor->bDescriptorType == kUSBInterfaceDesc)
+      break;
+    if (descriptor->bDescriptorType != kUSBEndpointDesc)
+      continue;
+    if (descriptor->bLength < sizeof(IOUSBEndpointDescriptor)) {
+      error = "BOT endpoint descriptor is truncated";
+      break;
+    }
+    const auto * endpoint = (const IOUSBEndpointDescriptor *)descriptor;
     if ((endpoint->bmAttributes & kIOUSBEndpointDescriptorTransferType)
         != kIOUSBEndpointDescriptorTransferTypeBulk)
       continue;
@@ -1022,12 +1059,7 @@ static bool copy_bot_pipes(IOUSBHostInterface * interface,
     if (!pipe) {
       error = std::string("unable to open BOT bulk pipe: ")
         + ns_error_string(ns_error);
-      if (bulk_in)
-        [bulk_in release];
-      if (bulk_out)
-        [bulk_out release];
-      bulk_in = bulk_out = nil;
-      return false;
+      break;
     }
 
     if (endpoint->bEndpointAddress & kIOUSBEndpointDescriptorDirection) {
@@ -1044,7 +1076,7 @@ static bool copy_bot_pipes(IOUSBHostInterface * interface,
     }
   }
 
-  if (bulk_in && bulk_out)
+  if (error.empty() && bulk_in && bulk_out)
     return true;
 
   if (bulk_in)
@@ -1052,7 +1084,8 @@ static bool copy_bot_pipes(IOUSBHostInterface * interface,
   if (bulk_out)
     [bulk_out release];
   bulk_in = bulk_out = nil;
-  error = "BOT interface does not expose one bulk-in and one bulk-out pipe";
+  if (error.empty())
+    error = "BOT interface does not expose one bulk-in and one bulk-out pipe";
   return false;
 }
 

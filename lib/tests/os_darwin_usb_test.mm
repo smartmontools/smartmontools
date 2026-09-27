@@ -5,7 +5,166 @@
  */
 
 #include <chrono>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <vector>
+#import <CoreFoundation/CoreFoundation.h>
+#import <IOKit/IOBSD.h>
+#import <IOKit/IOKitLib.h>
+#import <IOKit/storage/IOMedia.h>
+
+// Substitute only the registry operations used by media discovery. The real
+// enumeration and filtering code runs below against a synthetic service tree.
+namespace test_registry {
+struct node {
+  const char * class_name;
+  io_registry_entry_t parent;
+  bool block_driver;
+  bool whole;
+  const char * bsd_name;
+  unsigned references = 0;
+
+  node(const char * cls, io_registry_entry_t provider, bool driver,
+    bool is_whole, const char * name)
+    : class_name(cls), parent(provider), block_driver(driver),
+      whole(is_whole), bsd_name(name) { }
+};
+static std::vector<node> nodes;
+static constexpr io_service_t device = 0x1000;
+static constexpr io_iterator_t iterator = 0x1001;
+static size_t position;
+static unsigned iterator_references;
+static bool fail_iteration;
+
+static node & get(io_object_t object)
+{
+  if (!object || object > nodes.size())
+    std::abort(); // No real IORegistry access is allowed in these tests.
+  return nodes[object - 1];
+}
+
+static kern_return_t create_iterator(io_registry_entry_t entry,
+  const io_name_t plane, IOOptionBits options, io_iterator_t * result)
+{
+  if (entry != device || strcmp(plane, kIOServicePlane)
+      || options != kIORegistryIterateRecursively || iterator_references)
+    std::abort();
+  if (fail_iteration)
+    return KERN_FAILURE;
+  position = 0;
+  ++iterator_references;
+  *result = iterator;
+  return KERN_SUCCESS;
+}
+
+static io_object_t next(io_iterator_t entry)
+{
+  if (entry != iterator || !iterator_references)
+    std::abort();
+  if (position == nodes.size())
+    return MACH_PORT_NULL;
+  ++nodes[position++].references;
+  return (io_object_t)position;
+}
+
+static boolean_t conforms(io_object_t entry, const io_name_t name)
+{
+  const auto & n = get(entry);
+  return !strcmp(n.class_name, name)
+    || (!strcmp(name, "IOBlockStorageDriver") && n.block_driver);
+}
+
+static CFTypeRef property(io_registry_entry_t entry, CFStringRef key,
+  CFAllocatorRef allocator, IOOptionBits options)
+{
+  if (options)
+    std::abort();
+  const auto & n = get(entry);
+  if (CFEqual(key, CFSTR(kIOMediaWholeKey)))
+    return CFRetain(n.whole ? kCFBooleanTrue : kCFBooleanFalse);
+  if (CFEqual(key, CFSTR(kIOBSDNameKey)) && n.bsd_name)
+    return CFStringCreateWithCString(allocator, n.bsd_name, kCFStringEncodingUTF8);
+  return nullptr;
+}
+
+static kern_return_t parent(io_registry_entry_t entry, const io_name_t plane,
+  io_registry_entry_t * result)
+{
+  if (strcmp(plane, kIOServicePlane))
+    std::abort();
+  *result = get(entry).parent;
+  if (!*result)
+    return KERN_FAILURE;
+  ++get(*result).references;
+  return KERN_SUCCESS;
+}
+
+static kern_return_t release(io_object_t entry)
+{
+  unsigned & references = (entry == iterator
+    ? iterator_references : get(entry).references);
+  if (!references)
+    std::abort();
+  --references;
+  return KERN_SUCCESS;
+}
+
+static bool released()
+{
+  if (iterator_references)
+    return false;
+  for (const auto & n : nodes)
+    if (n.references)
+      return false;
+  return true;
+}
+} // namespace test_registry
+
+#define IORegistryEntryCreateIterator test_registry::create_iterator
+#define IOIteratorNext test_registry::next
+#define IOObjectConformsTo test_registry::conforms
+#define IORegistryEntryCreateCFProperty test_registry::property
+#define IORegistryEntryGetParentEntry test_registry::parent
+#define IOObjectRelease test_registry::release
 #include "../os_darwin_usb.mm"
+#undef IORegistryEntryCreateIterator
+#undef IOIteratorNext
+#undef IOObjectConformsTo
+#undef IORegistryEntryCreateCFProperty
+#undef IORegistryEntryGetParentEntry
+#undef IOObjectRelease
+
+@interface TestNSError : NSError {
+@public
+  NSString * descriptionText;
+  NSString * domainText;
+  NSString * reasonText;
+}
+@end
+@implementation TestNSError
+- (NSString *)localizedDescription { return descriptionText; }
+- (NSString *)domain { return domainText; }
+- (NSString *)localizedFailureReason { return reasonText; }
+@end
+
+static unsigned descriptor_pipes_alive;
+@interface TestDescriptorPipe : NSObject
+@end
+@implementation TestDescriptorPipe
+- (instancetype)init
+{
+  self = [super init];
+  if (self)
+    ++descriptor_pipes_alive;
+  return self;
+}
+- (void)dealloc
+{
+  --descriptor_pipes_alive;
+  [super dealloc];
+}
+@end
 
 @interface TestUSBPipe : NSObject {
 @public
@@ -192,6 +351,7 @@ struct TestBOTState {
   std::vector<uint8_t> addresses;
   std::vector<NSUInteger> selectedAlternates;
   bool failSelect;
+  NSUInteger failPipeAddress;
   size_t interfaceOffset;
 }
 @end
@@ -221,9 +381,13 @@ struct TestBOTState {
 }
 - (IOUSBHostPipe *)copyPipeWithAddress:(NSUInteger)address error:(NSError **)error
 {
-  (void)error;
   addresses.push_back(address);
-  return (IOUSBHostPipe *)[[NSObject alloc] init];
+  if (address == failPipeAddress) {
+    *error = [NSError errorWithDomain:@"test.usb" code:5 userInfo:@{
+      NSLocalizedDescriptionKey: @"Open failed"}];
+    return nil;
+  }
+  return (IOUSBHostPipe *)[[TestDescriptorPipe alloc] init];
 }
 @end
 
@@ -236,6 +400,62 @@ int main()
   using namespace smartmon;
   using namespace smartmon::os_darwin;
   @autoreleasepool {
+    // A physical APFS disk, its partition, synthetic container and volume.
+    // The block-driver flag models IOObjectConformsTo for driver subclasses.
+    test_registry::nodes = {
+      {"IOSCSIBlockStorageDriver", 0, true, false, nullptr},
+      {"IOMedia", 1, false, true, "disk4"},
+      {"IOMedia", 2, false, false, "disk4s1"},
+      {"AppleAPFSContainerScheme", 3, false, false, nullptr},
+      {"IOMedia", 4, false, true, "disk5"},
+      {"IOMedia", 5, false, false, "disk5s1"}
+    };
+    std::vector<std::string> diskNames;
+    get_whole_disk_names(test_registry::device, diskNames, true);
+    CHECK(diskNames == std::vector<std::string>{"/dev/disk4"});
+    CHECK(test_registry::released());
+    // Unmount enumeration retains synthetic whole media; volume restoration
+    // still has its separate, unfiltered IOMedia traversal.
+    get_whole_disk_names(test_registry::device, diskNames, false);
+    CHECK(diskNames == (std::vector<std::string>{"/dev/disk4", "/dev/disk5"}));
+    CHECK(test_registry::released());
+    test_registry::nodes.push_back({"IOMedia", 1, false, true, "disk6"});
+    test_registry::nodes.push_back({"IOMedia", 1, false, true, "disk4"});
+    test_registry::nodes.push_back({"IOMedia", 1, false, true, nullptr});
+    test_registry::nodes.push_back({"IOMedia", 0, false, true, "disk7"});
+    get_whole_disk_names(test_registry::device, diskNames, true);
+    CHECK(diskNames == (std::vector<std::string>{"/dev/disk4", "/dev/disk6"}));
+    CHECK(test_registry::released());
+    test_registry::fail_iteration = true;
+    get_whole_disk_names(test_registry::device, diskNames, true);
+    CHECK(diskNames.empty() && test_registry::released());
+    test_registry::fail_iteration = false;
+    test_registry::nodes.clear();
+    get_whole_disk_names(test_registry::device, diskNames, true);
+    CHECK(diskNames.empty() && test_registry::released());
+
+    CHECK(ns_error_string(nil) == "unknown IOUSBHost error");
+    NSError * detailError = [NSError errorWithDomain:@"test.usb" code:5
+      userInfo:@{NSLocalizedDescriptionKey: @"Open failed",
+        NSLocalizedFailureReasonErrorKey: @"Interface unavailable"}];
+    CHECK(ns_error_string(detailError)
+      == "Open failed (0x00000005) [test.usb]: Interface unavailable");
+    TestNSError * sparseError = [[TestNSError alloc] initWithDomain:@"test" code:5 userInfo:nil];
+    CHECK(ns_error_string(sparseError) == "unknown IOUSBHost error (0x00000005)");
+    sparseError->descriptionText = @"";
+    sparseError->domainText = @"";
+    sparseError->reasonText = @"";
+    CHECK(ns_error_string(sparseError) == "unknown IOUSBHost error (0x00000005)");
+    sparseError->descriptionText = @"Open failed: Interface unavailable";
+    sparseError->domainText = @"test.usb";
+    sparseError->reasonText = @"Interface unavailable";
+    CHECK(ns_error_string(sparseError)
+      == "Open failed: Interface unavailable (0x00000005) [test.usb]");
+    sparseError->descriptionText = @"Open failed";
+    sparseError->reasonText = nil;
+    CHECK(ns_error_string(sparseError) == "Open failed (0x00000005) [test.usb]");
+    [sparseError release];
+
     // Exercise restoration with independent Disk Arbitration observations.
     // Existing auto-mounts must never trigger another mount, and callback
     // status alone is insufficient evidence that the original path returned.
@@ -337,6 +557,51 @@ int main()
       7,5,4,2,0,4,0, 6,0x30,15,5,0,0, 4,0x24,4,0
     };
     descriptorInterface->interfaceOffset = 9; // Capture has reverted to BOT.
+    IOUSBHostPipe * bulkIn, * bulkOut;
+    std::string botDescriptorError;
+    auto copyBOTPipes = [&]() {
+      return copy_bot_pipes((IOUSBHostInterface *)descriptorInterface,
+        bulkIn, bulkOut, botDescriptorError);
+    };
+    CHECK(copyBOTPipes() && descriptor_pipes_alive == 2);
+    // Companions are skipped, and UASP endpoints in the next alternate are
+    // never opened as BOT pipes.
+    CHECK(descriptorInterface->addresses == (std::vector<uint8_t>{0x81, 2}));
+    [bulkIn release];
+    [bulkOut release];
+    CHECK(descriptor_pipes_alive == 0);
+    descriptorInterface->addresses.clear();
+    descriptorInterface->descriptors[34] = 3; // Interrupt, not bulk OUT.
+    CHECK(!copyBOTPipes() && !bulkIn && !bulkOut && !descriptor_pipes_alive);
+    CHECK(descriptorInterface->addresses == std::vector<uint8_t>{0x81});
+    descriptorInterface->addresses.clear();
+    descriptorInterface->descriptors[46] = 1; // Next interface, not alternate.
+    CHECK(!copyBOTPipes() && !bulkIn && !bulkOut && !descriptor_pipes_alive);
+    CHECK(descriptorInterface->addresses == std::vector<uint8_t>{0x81});
+    descriptorInterface->descriptors[46] = 0;
+    descriptorInterface->descriptors[34] = 2;
+    descriptorInterface->addresses.clear();
+    descriptorInterface->descriptors[31] = 2;
+    CHECK(!copyBOTPipes() && !bulkIn && !bulkOut && !descriptor_pipes_alive);
+    CHECK(botDescriptorError == "BOT endpoint descriptor is truncated");
+    CHECK(descriptorInterface->addresses == std::vector<uint8_t>{0x81});
+    descriptorInterface->descriptors[31] = 7;
+    // A bad endpoint after both valid pipes must still fail and release both.
+    descriptorInterface->descriptors[38] = 2;
+    descriptorInterface->descriptors[39] = kUSBEndpointDesc;
+    CHECK(!copyBOTPipes() && !bulkIn && !bulkOut && !descriptor_pipes_alive);
+    CHECK(botDescriptorError == "BOT endpoint descriptor is truncated");
+    descriptorInterface->descriptors[38] = 6;
+    descriptorInterface->descriptors[39] = 0x30;
+    descriptorInterface->failPipeAddress = 2;
+    CHECK(!copyBOTPipes() && !bulkIn && !bulkOut && !descriptor_pipes_alive);
+    CHECK(botDescriptorError == "unable to open BOT bulk pipe: Open failed (0x00000005) [test.usb]");
+    descriptorInterface->failPipeAddress = 0;
+    CHECK(copyBOTPipes() && botDescriptorError.empty() && descriptor_pipes_alive == 2);
+    [bulkIn release];
+    [bulkOut release];
+    CHECK(descriptor_pipes_alive == 0);
+    descriptorInterface->addresses.clear();
     darwin_usb_transport selected = darwin_usb_transport_none;
     std::string selectionError;
     CHECK(select_protocol((IOUSBHostInterface *)descriptorInterface, 0,
