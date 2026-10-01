@@ -10,6 +10,11 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#ifndef MPI3MR_H
+#define MPI3MR_H
+
+#include <stdint.h>
+
 /*****************************************************************************
  *              Common structure for Simple, Chain, and Last Chain           *
  *              scatter gather elements                                      *
@@ -231,19 +236,19 @@ struct mpi3mr_all_tgt_info {
 SMARTMON_ASSERT_SIZEOF(mpi3mr_all_tgt_info, 20);
 
 struct mpi3_scsi_io_cdb_eedp32 {
-    uint8_t                 cdb[20];
-    uint32_t             primary_reference_tag;
-    uint16_t             primary_application_tag;
-    uint16_t             primary_application_tag_mask;
-    uint32_t             transfer_length;
+    uint8_t  cdb[20];
+    uint32_t primary_reference_tag;
+    uint16_t primary_application_tag;
+    uint16_t primary_application_tag_mask;
+    uint32_t transfer_length;
 } __attribute__ ((packed));
 SMARTMON_ASSERT_SIZEOF(mpi3_scsi_io_cdb_eedp32, 32);
 
 struct mpi3_sge_common {
-    uint64_t             address;
-    uint32_t             length;
-    uint8_t                 reserved0c[3];
-    uint8_t                 flags;
+    uint64_t address;
+    uint32_t length;
+    uint8_t  reserved0c[3];
+    uint8_t  flags;
 } __attribute__ ((packed));
 SMARTMON_ASSERT_SIZEOF(mpi3_sge_common, 16);
 
@@ -256,19 +261,19 @@ SMARTMON_ASSERT_SIZEOF(mpi3_scsi_io_cdb_union, 32);
 
 struct mpi3_scsi_io_request {
     uint16_t                     host_tag;
-    uint8_t                         ioc_use_only02;
-    uint8_t                         function;
+    uint8_t                      ioc_use_only02;
+    uint8_t                      function;
     uint16_t                     ioc_use_only04;
-    uint8_t                         ioc_use_only06;
-    uint8_t                         msg_flags;
+    uint8_t                      ioc_use_only06;
+    uint8_t                      msg_flags;
     uint16_t                     change_count;
     uint16_t                     dev_handle;
     uint32_t                     flags;
     uint32_t                     skip_count;
     uint32_t                     data_length;
-    uint8_t                         lun[8];
-    union mpi3_scsi_io_cdb_union  cdb;
-    MPI3_SGE_UNION          sgl[4];
+    uint8_t                      lun[8];
+    union mpi3_scsi_io_cdb_union cdb;
+    MPI3_SGE_UNION               sgl[4];
 } __attribute__ ((packed));
 
 #define MPI3_SCSIIO_MSGFLAGS_METASGL_VALID                  (0x80)
@@ -298,16 +303,16 @@ struct mpi3_scsi_io_request {
 
 struct mpi3_scsi_io_reply {
     uint16_t                     host_tag;
-    uint8_t                         ioc_use_only02;
-    uint8_t                         function;
+    uint8_t                      ioc_use_only02;
+    uint8_t                      function;
     uint16_t                     ioc_use_only04;
-    uint8_t                         ioc_use_only06;
-    uint8_t                         msg_flags;
+    uint8_t                      ioc_use_only06;
+    uint8_t                      msg_flags;
     uint16_t                     ioc_use_only08;
     uint16_t                     ioc_status;
     uint32_t                     ioc_log_info;
-    uint8_t                         scsi_status;
-    uint8_t                         scsi_state;
+    uint8_t                      scsi_status;
+    uint8_t                      scsi_state;
     uint16_t                     dev_handle;
     uint32_t                     transfer_count;
     uint32_t                     sense_count;
@@ -391,7 +396,9 @@ SMARTMON_ASSERT_SIZEOF(mpi3_scsi_io_reply, 56);
 #define MPI3_FUNCTION_SCSI_IO                       (0x20)
 
 /* Supported BSG commands */
-enum command {
+enum mpi3mr_bsg_cmd_type {
     MPI3MR_DRV_CMD = 1,
     MPI3MR_MPT_CMD = 2,
 };
+
+#endif /* MPI3MR_H */
