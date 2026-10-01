@@ -1708,7 +1708,7 @@ int linux_mpi3mr_device::mpi3mr_dev_list_cmd(int mrioc_id, void *buf,
     io_hdr_v4.subprotocol = BSG_SUB_PROTOCOL_SCSI_TRANSPORT;
     io_hdr_v4.response = (uint64_t)sense_buffer;
     io_hdr_v4.max_response_len = sizeof(sense_buffer);
-    io_hdr_v4.timeout = MPI3MR_APP_DEFAULT_TIMEOUT;
+    io_hdr_v4.timeout = MPI3MR_APP_DEFAULT_TIMEOUT * 1000; // msec
     io_hdr_v4.request = (uint64_t)bsg_req.get();
     io_hdr_v4.request_len = sizeof(struct mpi3mr_bsg_packet);
     io_hdr_v4.din_xferp = (uint64_t)sgl_din_base_ptr;
@@ -1734,23 +1734,30 @@ unsigned int linux_mpi3mr_device::mpi3mr_get_devhandle(int mrioc_id, unsigned in
   unsigned int devhandle = (unsigned int)-1;
 
   /* get the devices from the driver to map the devh */
-  uint32_t din_buffers_size = 0x800;
-  std::vector<uint8_t> sgl_din_base_ptr(din_buffers_size);
-
-  if (mpi3mr_dev_list_cmd(mrioc_id, sgl_din_base_ptr.data(), din_buffers_size, get_fd()) < 0) {
-    return (devhandle);
+  std::vector<uint8_t> list_buffer;
+  for (unsigned list_size = 0x800; ; ) {
+    list_buffer.resize(list_size);
+    std::fill(list_buffer.begin(), list_buffer.end(), 0);
+    struct mpi3mr_all_tgt_info *list = (struct mpi3mr_all_tgt_info *)list_buffer.data();
+    if (mpi3mr_dev_list_cmd(mrioc_id, list, list_size, get_fd()) < 0)
+      return devhandle;
+    size_t size = list->num_devices * sizeof(struct mpi3mr_device_map_info);
+    size += (sizeof(struct mpi3mr_all_tgt_info)-sizeof(struct mpi3mr_device_map_info));
+    if (size <= list_size)
+      break;
+    list_size = size;
   }
 
   // process the response
-  struct mpi3mr_all_tgt_info *drv_all_tgt_info = (struct mpi3mr_all_tgt_info *)sgl_din_base_ptr.data();
-  for (int j = 0; j < drv_all_tgt_info->num_devices; j++) {
+  struct mpi3mr_all_tgt_info *drv_all_tgt_info = (struct mpi3mr_all_tgt_info *)list_buffer.data();
+  for (unsigned j = 0; j < drv_all_tgt_info->num_devices; j++) {
     if (disknum == drv_all_tgt_info->dmi[j].perst_id) {
       devhandle = drv_all_tgt_info->dmi[j].handle;
       break;
     }
   }
 
-  return (devhandle);
+  return devhandle;
 }
 
 /* Issue passthrough scsi commands to MR8 controllers */
@@ -1758,6 +1765,13 @@ bool linux_mpi3mr_device::mpi3mr_cmd(int cdbLen, void *cdb,
   int dataLen, void *data,
   int /*senseLen*/, void * /*sense*/, int /*report*/, int dxfer_dir)
 {
+  // TODO: The MPI3MR reply status and sense data are currently ignored.
+  // The controller only returns sense data if an MPI3MR_BSG_BUFTYPE_ERR_RESPONSE
+  // buffer entry is supplied, and the MPI reply may be a STATUS descriptor
+  // instead of a full MPI3_SCSI_IO_REPLY.  'iop' is not available here, so
+  // scsi_status, resp_sense_len and resid cannot be propagated yet.  Without
+  // this, CHECK CONDITION results and SAT ATA return descriptors are lost.
+
   // get the mrioc_id for the bus, if not already known
   if (m_mrioc_id == (unsigned int)-1) {
     m_mrioc_id = get_mrioc_id(m_hba);
@@ -1854,7 +1868,7 @@ bool linux_mpi3mr_device::mpi3mr_cmd(int cdbLen, void *cdb,
   io_hdr_v4.max_response_len = sizeof(sense_buffer);
   io_hdr_v4.request = (uint64_t)bsg_req;
   io_hdr_v4.request_len = (uint32_t) bsg_req_len;
-  io_hdr_v4.timeout = MPI3MR_APP_DEFAULT_TIMEOUT;
+  io_hdr_v4.timeout = MPI3MR_APP_DEFAULT_TIMEOUT * 1000; // msec
   io_hdr_v4.din_xferp = (uint64_t) sgl_din_base_ptr.data();
   io_hdr_v4.din_xfer_len = (uint32_t) din_buffers_size;
   io_hdr_v4.dout_xferp = (uint64_t) sgl_dout_base_ptr.data();
@@ -4297,6 +4311,8 @@ smart_device * linux_smart_interface::get_custom_smart_device(const char * name,
 
   // mpi3mr
   if (sscanf(type, "mpi3mr,%d%n", &disknum, &n1) == 1 && n1 == (int)strlen(type)) {
+    if (disknum < 0)
+      return set_err_np(EINVAL, "Option -d mpi3mr,N requires N to be a non-negative integer");
     return new linux_mpi3mr_device(this, name, disknum);
   }
 
@@ -4320,7 +4336,7 @@ smart_device * linux_smart_interface::get_custom_smart_device(const char * name,
 
 std::string linux_smart_interface::get_valid_custom_dev_types_str()
 {
-  return "areca,N/E, 3ware,N, hpt,L/M/N, megaraid,N, aacraid,H,L,ID, sssraid,E,S"
+  return "areca,N/E, 3ware,N, hpt,L/M/N, megaraid,N, mpi3mr,N, aacraid,H,L,ID, sssraid,E,S"
 #ifdef HAVE_LINUX_CCISS_IOCTL_H
                                                                                 ", cciss,N"
 #endif
