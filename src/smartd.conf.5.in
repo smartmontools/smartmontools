@@ -477,6 +477,16 @@ megaraid_disk_XXX with XXX in the range from 000 to 127 inclusive.
 Please see the \fBsmartctl\fP(8) man page for further details.
 .Sp
 .\" %ENDIF OS FreeBSD Linux
+.\" %IF OS Linux
+.I mpi3mr,N
+\- [Linux only] the device consists of one or more SCSI/SAS, SATA or NVMe disks
+connected to a Broadcom MPI3 RAID controller.
+The non-negative integer N denotes which disk on the controller is monitored.
+In log files and email messages this disk will be identified as
+mpi3mr_disk_XX.
+Please see the \fBsmartctl\fP(8) man page for further details.
+.Sp
+.\" %ENDIF OS Linux
 .\" %IF OS Linux Windows Cygwin
 .I aacraid,H,L,ID
 \- [Linux, Windows and Cygwin only] the device consists of one or more
