@@ -90,7 +90,36 @@ Long forms are also available: please use \*(Aq\-h\*(Aq to see some examples.
 .Sp
 There is NVMe support based on the NVMeSMARTLib API in OSX.
 .Sp
-Note that Darwin SCSI support is not yet implemented.
+General Darwin SCSI pass-through is not implemented.  Experimental raw USB
+access supports SCSI, SAT and SNT device types with the whole-disk names above.
+Use \fBusbraw:diskN\fP or \fBusbraw:REGISTRY_ID\fP to request raw access
+explicitly.  Registry IDs are valid only for the current connection;
+rescan after reconnection.  Only devices with a single storage interface and
+one whole disk at verified LUN 0 are supported; composite devices are excluded.
+Access is limited to read-oriented commands.
+.Sp
+Autodetection prefers native ATA SMART drivers and uses the drive database
+for known USB bridges.  Known USB NVMe bridges use SNT instead of native NVMe
+access; other NVMe devices and explicit \*(Aq\-d nvme\*(Aq use native access.
+Unknown USB bridges use \*(Aq\-d sat,auto\*(Aq detection; unknown USB to NVMe
+bridges require an explicit \*(Aq\-d snt*\*(Aq type.
+.Sp
+Raw USB defaults to the BOT or UASP protocol used by macOS, without automatic
+fallback.  Append \*(Aq+usb,bot\*(Aq or \*(Aq+usb,uasp\*(Aq to a SAT, SNT or
+SCSI type to select a protocol, for example \*(Aq\-d sat+usb,bot\*(Aq.
+An unavailable protocol is an error.  Use \*(Aq\-r ioctl,1\*(Aq to report
+the system and selected protocols; add \*(Aq\-\-json=o\*(Aq to retain this
+diagnostic text in JSON output.
+.Sp
+Raw USB requires macOS 10.15 or later and root privileges in the logged-in
+user's session, for example via sudo in Terminal.  Each open exclusively
+captures the entire USB device and unmounts its volumes without forcing.
+Capture is refused if a mounted volume cannot be safely identified for
+restoration.  Closing releases the device and waits for the original volumes
+and mount paths to be restored; failure sets exit status bit 1.
+An unmount timeout may complete late; check mount state after an error.
+Continuous monitoring of mounted storage is unsuitable;
+see \fBsmartd.conf\fP(5).
 .Sp
 Use the OS X SAT SMART Driver to access SMART data on SAT capable USB and
 Firewire devices (see INSTALL file).
@@ -314,6 +343,13 @@ smartctl \-\-scan\-open \-\- \-a \-W 4,45,50 \-m admin@work > smartd.conf
 .Sp
 Multiple \*(Aq\-d TYPE\*(Aq options may be specified with
 \*(Aq\-\-scan[\-open]\*(Aq to combine the scan results of more than one TYPE.
+.\" %IF OS Darwin
+.Sp
+On Darwin, raw USB devices are excluded from default scans.
+Use \*(Aq\-\-scan \-d usb\*(Aq to list them without changing mount state.
+Using \*(Aq\-\-scan\-open \-d usb\*(Aq also captures each device and
+temporarily unmounts its volumes as described under \fBDARWIN\fP above.
+.\" %ENDIF OS Darwin
 .TP
 .B \-g NAME, \-\-get=NAME
 Get non-SMART device settings.  See \*(Aq\-s, \-\-set\*(Aq below for further
@@ -525,6 +561,22 @@ This is useful if checking NVMe first with \*(Aq\-d snt*/sat\*(Aq does not
 work.
 .Sp
 .\" %ENDIF NOT OS Darwin
+.\" %IF OS Darwin
+.I scsi
+\- a USB SCSI device using the raw USB transport described above.
+.Sp
+.I sat[,12|16]
+\- a SATA disk behind a USB bridge, using the raw USB transport described above.
+.Sp
+.I sntasmedia[/sat]
+.TQ
+.I sntjmicron[,NSID][/sat]
+.TQ
+.I sntrealtek[/sat]
+\- an NVMe disk behind an ASMedia, JMicron or Realtek USB bridge, respectively.
+The raw USB transport supports only NVMe Identify and Get Log Page commands.
+.Sp
+.\" %ENDIF OS Darwin
 .\" %IF OS Linux
 .I marvell
 \- [Linux only] (deprecated and subject to remove).
@@ -2508,7 +2560,7 @@ may also be returned for SCSI disks.
 Command line did not parse.
 .TP
 .B Bit 1:
-Device open failed, device did not return an IDENTIFY DEVICE structure,
+Device open or close failed, device did not return an IDENTIFY DEVICE structure,
 or device is in a low-power mode (see \*(Aq\-n\*(Aq option above).
 .TP
 .B Bit 2:
