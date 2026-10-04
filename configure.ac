@@ -735,7 +735,9 @@ case "${host}" in
     os_deps='os_freebsd.lo cciss.lo dev_areca.lo'
     os_libs='-lcam -lsbuf'
     os_dltools='fetch curl wget lynx'
-    AC_CHECK_LIB(usb, libusb_get_driver_np)
+    # -lusb provides both the libusb 1.0 API (used on FreeBSD >= 16) and the
+    # libusb20 API (used below that), so probe a symbol exported by all versions
+    AC_CHECK_LIB(usb, libusb20_dev_get_device_desc)
     os_man_filter=FreeBSD
     ;;
   *-*-solaris*)
