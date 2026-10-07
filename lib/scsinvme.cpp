@@ -185,8 +185,35 @@ bool sntasmedia_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out &
   memset(in.buffer, 0, in.size);
 
   scsi_device * scsidev = get_tunnel_dev();
-  if (!scsidev->scsi_pass_through_and_check(&io_hdr, "sntasmedia_device::nvme_pass_through: "))
-    return set_err(scsidev->get_err());
+  for (;;) {
+    io_hdr.resid = 0;
+    if (!scsidev->scsi_pass_through_and_check(&io_hdr, "sntasmedia_device::nvme_pass_through: "))
+      return set_err(scsidev->get_err());
+    if (!io_hdr.resid)
+      break;
+    if (io_hdr.resid < 0 || (unsigned)io_hdr.resid > io_hdr.dxfer_len)
+      return set_err(EIO, "Invalid ASMedia transfer residue: %d", io_hdr.resid);
+
+    // Some ASMedia bridges return only part of a log page. Complete the read
+    // using its byte offset instead of accepting the zero-filled buffer tail.
+    // Identify has no offset field and cannot be continued this way.
+    unsigned received = io_hdr.dxfer_len - io_hdr.resid;
+    if (in.opcode != nvme_admin_get_log_page || !received
+        || received % 4 || io_hdr.resid % 4
+        || size != (cdw10_hi + 1) * 4)
+      return set_err(EIO, "Incomplete ASMedia NVMe response (%u of %u bytes)",
+        received, (unsigned)io_hdr.dxfer_len);
+    uint64_t offset = sg_get_unaligned_be64(cdb + 8);
+    if (offset > UINT64_MAX - received)
+      return set_err(EIO, "ASMedia log page offset overflow");
+    sg_put_unaligned_be64(offset + received, cdb + 8);
+    sg_put_unaligned_be16((unsigned)io_hdr.resid / 4 - 1, cdb + 6);
+    io_hdr.dxferp = (uint8_t *)io_hdr.dxferp + received;
+    io_hdr.dxfer_len = io_hdr.resid;
+    if (scsi_debugmode)
+      lib_printf("  ASMedia: continuing log at offset %llu, %u bytes remaining\n",
+        (unsigned long long)(offset + received), (unsigned)io_hdr.dxfer_len);
+  }
 
   //out.result = ?;
   return true;
@@ -416,6 +443,8 @@ public:
   virtual ~sntrealtek_device();
 
   virtual bool nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out & out) override;
+
+  unsigned get_log_page_size_limit() const override { return 0x200; }
 };
 
 sntrealtek_device::sntrealtek_device(smart_interface * intf, scsi_device * scsidev,
@@ -446,11 +475,10 @@ bool sntrealtek_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out &
     case nvme_admin_get_log_page:
       if (!(in.nsid == nvme_broadcast_nsid || !in.nsid))
         return set_err(ENOSYS, "NVMe Get Log Page with NSID=0x%x not supported", in.nsid);
-      if (size > 0x200) { // Reading more apparently returns old data from previous command
-        // TODO: Add ability to return short reads to caller
-        size = 0x200;
-        lib_printf("Warning: NVMe Get Log truncated to 0x%03x bytes, 0x%03x bytes zero filled\n", size, in.size - size);
-      }
+      // Larger requests can return stale data. Never present a zero-filled
+      // tail as a successfully read log (in particular the self-test log).
+      if (size > get_log_page_size_limit())
+        return set_err(ENOSYS, "Realtek NVMe Get Log Page limited to 512 bytes (requested %u)", size);
       break;
     default:
       return set_err(ENOSYS, "NVMe admin command 0x%02x not supported", in.opcode);
@@ -476,6 +504,10 @@ bool sntrealtek_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out &
   scsi_device * scsidev = get_tunnel_dev();
   if (!scsidev->scsi_pass_through_and_check(&io_hdr, "sntrealtek_device::nvme_pass_through: "))
     return set_err(scsidev->get_err());
+
+  if (io_hdr.resid)
+    return set_err(EIO, "Incomplete Realtek NVMe response (size=%u, resid=%d)",
+      size, io_hdr.resid);
 
   //out.result = ?; // TODO
   return true;
