@@ -80,10 +80,6 @@
  *  The following cut out of twereg.h
  *
  */
-#if __FreeBSD_version < 500040
-#define __packed __attribute__((__packed__))
-#endif
-
 #define TWE_MAX_SGL_LENGTH		62
 #define TWE_MAX_ATA_SGL_LENGTH		60
 #define TWE_OP_ATA_PASSTHROUGH		0x11
