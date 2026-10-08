@@ -3816,6 +3816,13 @@ private:
   bool nvme_storage_query_property(const nvme_cmd_in & in, nvme_cmd_out & out);
 
   bool nvme_storage_protocol_command(const nvme_cmd_in & in, nvme_cmd_out & out);
+
+  // iaStorVD rejects IOCTL_STORAGE_QUERY_PROPERTY(NVMe) (Error=1). Identify and
+  // Get Log Page then go through Intel's SCSI miniport pass-through.
+  bool nvme_intel_rst_pass_through(const nvme_cmd_in & in, nvme_cmd_out & out);
+
+  int m_rst_port{-1};
+  int m_rst_path{-1};
 };
 
 
@@ -4041,10 +4048,147 @@ bool win10_nvme_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out &
     case nvme_admin_identify:
     case nvme_admin_get_log_page:
     // case nvme_admin_get_features: // TODO
-      return nvme_storage_query_property(in, out);
+      if (nvme_storage_query_property(in, out))
+        return true;
+      // Intel RST/VMD (iaStorVD) does not implement the Microsoft NVMe IOCTL.
+      if (!strstr(get_errmsg(), "Error=1"))
+        return false;
+      if (nvme_intel_rst_pass_through(in, out)) {
+        clear_err();
+        return true;
+      }
+      return set_err(EIO, "IOCTL_STORAGE_QUERY_PROPERTY(NVMe) failed, Error=1");
     default:
       return nvme_storage_protocol_command(in, out);
   }
+}
+
+// Intel RST NVMe admin pass-through. Same layout as used by other Windows tools
+// that read drives behind iaStorVD: SRB signature "IntelNvm", IOCTL_SCSI_MINIPORT.
+bool win10_nvme_device::nvme_intel_rst_pass_through(const nvme_cmd_in & in, nvme_cmd_out & out)
+{
+  if (in.size > 0x1000)
+    return set_err(EINVAL, "NVMe data buffer too large");
+
+  struct scsi_address {
+    ULONG Length;
+    UCHAR PortNumber;
+    UCHAR PathId;
+    UCHAR TargetId;
+    UCHAR Lun;
+  };
+  // CTL_CODE(FILE_DEVICE_CONTROLLER, 0x0406, METHOD_BUFFERED, FILE_ANY_ACCESS)
+  const DWORD ioctl_scsi_get_address = 0x00041018;
+  // CTL_CODE(0xf000, 0xA02, METHOD_BUFFERED, FILE_ANY_ACCESS)
+  const ULONG intel_nvme_ctrl = 0xF0002808;
+
+#pragma pack(push, 1)
+  struct intel_nvme_pt {
+    SRB_IO_CONTROL SRB;
+    UCHAR Version;
+    UCHAR PathId;
+    UCHAR TargetID;
+    UCHAR Lun;
+    ULONG CDW0;
+    ULONG NSID;
+    ULONG Rsvd1[2];
+    ULONGLONG MPTR;
+    ULONGLONG PRP1;
+    ULONGLONG PRP2;
+    ULONG CDW10;
+    ULONG CDW11;
+    ULONG CDW12;
+    ULONG CDW13;
+    ULONG CDW14;
+    ULONG CDW15;
+    ULONG CplEntry[4];
+    ULONG QueueId;
+    ULONG ParamBufLen;
+    ULONG ReturnBufferLen;
+    UCHAR Rsvd2[0x28];
+    UCHAR DataBuffer[0x1000];
+  };
+#pragma pack(pop)
+
+  scsi_address addr{};
+  addr.Length = sizeof(addr);
+  DWORD num_out = 0;
+  int paths[17];
+  int npaths = 0;
+  if (m_rst_port >= 0) {
+    paths[npaths++] = m_rst_path;
+  }
+  else if (DeviceIoControl(get_fh(), ioctl_scsi_get_address,
+             &addr, sizeof(addr), &addr, sizeof(addr), &num_out, (OVERLAPPED *)0)) {
+    m_rst_port = addr.PortNumber;
+    paths[npaths++] = addr.PathId;
+    for (int path = 0; path < 16; path++) {
+      if (path != addr.PathId)
+        paths[npaths++] = path;
+    }
+  }
+  else {
+    return set_err(EIO, "IOCTL_SCSI_GET_ADDRESS failed, Error=%u", (unsigned)GetLastError());
+  }
+
+  char devpath[32];
+  snprintf(devpath, sizeof(devpath), "\\\\.\\Scsi%d:", m_rst_port);
+  HANDLE h = CreateFileA(devpath, GENERIC_READ | GENERIC_WRITE,
+    FILE_SHARE_READ | FILE_SHARE_WRITE,
+    (SECURITY_ATTRIBUTES *)0, OPEN_EXISTING, 0, (HANDLE)0);
+  if (h == INVALID_HANDLE_VALUE) {
+    long err = GetLastError();
+    m_rst_port = -1;
+    if (err == ERROR_ACCESS_DENIED)
+      return set_err(EACCES, "%s: access denied", devpath);
+    return set_err(EIO, "%s: Error=%ld", devpath, err);
+  }
+
+  bool found = false;
+  for (int i = 0; i < npaths && !found; i++) {
+    intel_nvme_pt pt{};
+    pt.SRB.HeaderLength = sizeof(SRB_IO_CONTROL);
+    memcpy(pt.SRB.Signature, "IntelNvm", 8);
+    pt.SRB.Timeout = 10;
+    pt.SRB.ControlCode = intel_nvme_ctrl;
+    pt.SRB.Length = sizeof(pt) - sizeof(SRB_IO_CONTROL);
+    pt.Version = 1;
+    pt.PathId = (UCHAR)paths[i];
+    pt.CDW0 = in.opcode;
+    pt.NSID = in.nsid;
+    pt.CDW10 = in.cdw10;
+    pt.ParamBufLen = sizeof(intel_nvme_pt) - sizeof(pt.DataBuffer);
+    pt.ReturnBufferLen = 0x1000;
+    if (in.direction() & nvme_cmd_in::data_out)
+      memcpy(pt.DataBuffer, in.buffer, in.size);
+
+    num_out = 0;
+    if (!DeviceIoControl(h, IOCTL_SCSI_MINIPORT,
+          &pt, sizeof(pt), &pt, sizeof(pt), &num_out, (OVERLAPPED *)0))
+      continue;
+
+    // Controller identify: skip a path that returns an empty serial.
+    if (in.opcode == nvme_admin_identify && (in.cdw10 & 0xff) == 1) {
+      bool any = false;
+      for (int b = 4; b < 24; b++) {
+        if (pt.DataBuffer[b] != 0 && pt.DataBuffer[b] != ' ')
+          any = true;
+      }
+      if (!any)
+        continue;
+    }
+
+    if (in.direction() & nvme_cmd_in::data_in)
+      memcpy(in.buffer, pt.DataBuffer, in.size);
+    out.result = pt.CplEntry[0];
+    m_rst_path = paths[i];
+    found = true;
+  }
+
+  CloseHandle(h);
+  if (!found)
+    return set_err(EIO, "Intel RST NVMe pass-through failed");
+  return true;
 }
 
 /////////////////////////////////////////////////////////////////////////////
