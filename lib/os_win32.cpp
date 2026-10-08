@@ -22,7 +22,6 @@
 #include <smartmon/scsicmds.h>
 #include <smartmon/nvmecmds.h>
 #include <smartmon/utility.h>
-#include <algorithm>
 #include <array>
 #include <string>
 #include <vector>
@@ -4098,7 +4097,7 @@ struct intel_nvme_tail {
   ULONG QueueId;
   ULONG ParamBufLen;
   ULONG ReturnBufferLen;
-  std::array<std::byte, 0x28> Rsvd2{};
+  std::array<unsigned char, 0x28> Rsvd2{};
 };
 
 struct intel_nvme_pt {
@@ -4109,17 +4108,18 @@ struct intel_nvme_pt {
   UCHAR Lun;
   intel_nvme_cmd Cmd;
   intel_nvme_tail Tail;
-  std::array<std::byte, 0x1000> DataBuffer{};
+  std::array<unsigned char, 0x1000> DataBuffer{};
 };
 #pragma pack(pop)
 
 bool intel_controller_serial_present(const intel_nvme_pt & pt)
 {
-  auto first = pt.DataBuffer.begin() + 4;
-  auto last = pt.DataBuffer.begin() + 24;
-  return std::any_of(first, last, [](std::byte b) {
-    return b != std::byte{0} && b != std::byte{' '};
-  });
+  for (int i = 4; i < 24; ++i) {
+    unsigned char b = pt.DataBuffer[i];
+    if (b != 0 && b != ' ')
+      return true;
+  }
+  return false;
 }
 
 bool intel_path_accepts(HANDLE handle, int path, const nvme_cmd_in & in, nvme_cmd_out & out)
