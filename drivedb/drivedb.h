@@ -2562,8 +2562,8 @@ const drive_settings builtin_knowndrives[] = {
     "NFORCE (256|512)25 - SSZS13|" // Nextron NForce, tested with NFORCE 25625 - SSZS13/V0915A0
     "ONDA S-12 64GB|" // tested with ONDA S-12 64GB/U0401A0
     "OWC Envoy Pro|" // tested with OWC Envoy Pro/R0522A0 (0x1e91:0xa2a5)
-    "Patriot P2[01]0 ((128|256|512)GB|[12]TB)|" // tested with Patriot P200 256GB/S1022A0,
-      // Patriot P210 256GB/HPS2227P
+    "Patriot P2[01]0 ((128|256|512|1024)GB|[12]TB)|" // tested with Patriot P200 256GB/S1022A0,
+      // Patriot P210 256GB/HPS2227P, Patriot P210 1024GB/V0718B0
     "R3SL(120|240|480|960)G|" // AMD Radeon SSDs, tested with R3SL240G/P0422C
     "Ramsta SSD S800 (120|240|480)GB|" // SM2258G, tested with Ramsta SSD S800 480GB/RS81V0
     "SED2QII-LP SATA SSD ((64|128|256|512)GB|[12]TB)|" // ACPI SED2QII-LP, tested with
@@ -2641,7 +2641,7 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 232,raw48,Available_Reservd_Space "
     "-v 241,raw48,Host_Writes_32MiB "
     "-v 242,raw48,Host_Reads_32MiB "
-    "-v 245,raw48,TLC_Writes_32MiB " // FW N0815B, N1114H // TS128GMSA370I: Flash Write Sector Count
+    "-v 245,raw48,TLC_Writes_32MiB " // FW N0815B, N1114H // TS128GMSA370I, Patriot P210: Flash Write Sector Count
     "-v 246,raw48,SLC_Writes_32MiB "
     "-v 247,raw48,Raid_Recoverty_Ct "
     "-v 248,raw48,Unkn_SiliconMotion_Attr " // ADATA SU900/Q0125A
