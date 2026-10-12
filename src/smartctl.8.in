@@ -112,9 +112,10 @@ Be sure to specify the correct "whole disk" partition letter for
 your architecture.
 .\" %ENDIF OS NetBSD OpenBSD
 .\" %IF OS Solaris
-.IP \fBSOLARIS\fP: 9
-Use the forms \fB"/dev/rdsk/c?t?d?s?"\fP for IDE/ATA and SCSI disk
-devices, and \fB"/dev/rmt/*"\fP for SCSI tape devices.
+.IP \fBSOLARIS/ILLUMOS\fP: 9
+Use the forms \fB"/dev/rdsk/c?t?d?s?"\fP for SCSI disk devices,
+including SATA disks accessed via SAT, and \fB"/dev/rmt/*"\fP for SCSI
+tape devices.
 .\" %ENDIF OS Solaris
 .\" %IF OS Windows Cygwin
 .IP \fBWINDOWS\fP: 9
@@ -299,6 +300,13 @@ Scans for devices and prints each device name, device type and protocol
 to restrict the scan to a specific TYPE.  See also info about platform
 specific device scan and the \fBDEVICESCAN\fP directive on
 \fBsmartd\fP(8) man page.
+.\" %IF OS Solaris
+.Sp
+[Solaris/illumos only] If the first argument after \*(Aq\-\-\*(Aq does not start
+with \*(Aq\-\*(Aq, it is used as a shell wildcard pattern (see
+\fBfnmatch\fP(3C)) and only devices with matching names are reported.
+For example, \*(Aqsmartctl \-\-scan \-\- "/dev/rdsk/c1t*"\*(Aq.
+.\" %ENDIF OS Solaris
 .TP
 .B \-\-scan\-open
 Same as \-\-scan, but also tries to open each device before printing

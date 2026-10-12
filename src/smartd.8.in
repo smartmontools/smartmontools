@@ -143,8 +143,10 @@ Authoritative list of disk devices is obtained from sysctl
 .\" %ENDIF OS NetBSD OpenBSD
 .\" %IF OS Solaris
 .IP \fBSOLARIS:\fP 9
-Examine all entries \fB"/dev/rdsk/*s0"\fP for IDE/ATA and SCSI disk
-devices, and entries \fB"/dev/rmt/*"\fP for SCSI tape devices.
+Examine all entries \fB"/dev/rdsk/*s0"\fP for SCSI disk devices,
+including SATA disks accessed via SAT, and all-digit entries
+\fB"/dev/rmt/[0\-9]*"\fP (for example \fB"/dev/rmt/0"\fP) for SCSI
+tape devices.
 .\" %ENDIF OS Solaris
 .\" %IF OS Darwin
 .IP \fBDARWIN:\fP 9

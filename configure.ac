@@ -748,7 +748,7 @@ case "${host}" in
     os_man_filter=FreeBSD
     ;;
   *-*-solaris*)
-    os_deps='os_solaris.lo dev_legacy.lo' # TODO: migrate to new interface
+    os_deps='os_solaris.lo'
     os_mailer='mailx'
     os_solaris=yes
     os_man_filter=Solaris
