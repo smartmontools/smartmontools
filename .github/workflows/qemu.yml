@@ -5,10 +5,11 @@ on:
     inputs:
       native-platforms:
         description: >-
-          Native platforms or 'none' (defaults to all)
+          Native platforms or 'none':
+          freebsd-x86_64 netbsd-x86_64 openbsd omnios openindiana solaris
         required: false
         default: >-
-          freebsd-x86_64 netbsd-x86_64 openbsd openindiana solaris
+          freebsd-x86_64 netbsd-x86_64 openbsd omnios
       emulated-le-platforms:
         description: >-
           Emulated Little Endian platforms (slow):
@@ -259,6 +260,41 @@ jobs:
         with:
           name: smartmontools-openbsd-x86_64
           path: smartmontools-openbsd-*.tar.gz
+          retention-days: 90
+
+  build-omnios-x86_64:
+    if: ${{ contains(github.event.inputs.native-platforms, 'omnios') }}
+    needs: build-source-tarball
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: smartmontools-src
+
+      - name: Build and Run (QEMU)
+        uses: vmactions/omnios-vm@v1
+        with:
+          release: "r151054-build" # "r151054" + "pkg install build-essential" (LTS)
+          usesh: true
+          run: | # SOURCE_DATE_EPOCH not used because GNU tar is not installed by default
+            uname -a && ver=$(uname -r) && ver=${ver%%.*} &&
+            distfile=$(ls -d smartmontools-*.tar.gz) &&
+            test "$(echo "$distfile" | wc -l | tr -d ' ')" = 1 &&
+            tar -xf "$distfile" && distdir=${distfile%-*-g*.tar.gz} &&
+            version_sh=$("$distdir/util/getversion.sh" -s) && eval "${version_sh}" &&
+            cd smartmontools-${SMARTMONTOOLS_PKG_VER} && mkdir build && cd build &&
+            ../configure --with-build-info='(GHA/qemu)' &&
+            make -j 4 && make check &&
+            bin_distfile="../../smartmontools-omnios-$ver-x86_64-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" &&
+            make bin_distfile="$bin_distfile" bin-dist && tar -tvf "$bin_distfile" &&
+            tar -xf "$bin_distfile" usr/local/sbin/smartctl &&
+            echo '$' usr/local/sbin/smartctl --scan &&
+            { usr/local/sbin/smartctl --scan || echo "::error::'smartctl --scan' failed"; }
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: smartmontools-omnios-x86_64
+          path: smartmontools-omnios-*.tar.gz
           retention-days: 90
 
   build-openindiana-x86_64:
