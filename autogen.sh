@@ -45,7 +45,10 @@ vrun()
   "$@"
 }
 
-test "${myname%/*}" = "." || error "Not run from \${srcdir}"
+srcdir=${myname%/*}
+test "$srcdir" != "$myname" || error "unknown \$srcdir"
+test -f "$srcdir/configure.ac" || error "$srcdir/configure.ac: not found"
+test "$srcdir" = "." || vrun cd "$srcdir" || exit 1
 
 if $clean || $force; then
   for f in \
