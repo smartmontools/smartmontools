@@ -15,40 +15,49 @@
 # This also adds files like missing,depcomp,install-sh to the source
 # directory.
 
-# Missing double quotes around $warnings and $v are intentional
+# Missing double quotes around $warnings are intentional
 # shellcheck disable=SC2086
 
 set -e
-
 myname=$0
 
-clean=false; force=false; v=; warnings=
+clean=false; force=false; verbose=false; warnings=
 while [ $# -gt 0 ]; do case $1 in
-  -v) v=-v ;;
+  -v) verbose=true ;;
   --clean) clean=true ;;
   --force) force=true ;;
   --warnings=?*) warnings="${warnings}${warnings:+ }$1" ;;
   *) echo "Usage: [AUTOMAKE=...] [ACLOCAL=...] [LIBTOOLIZE=...] \\"
      echo "       $0 [-v] [--force] [--warnings=CATEGORY ...]";
-     echo "       $0 [-v] [--clean]"; exit 1 ;;
+     echo "       $0 [-v] --clean"; exit 1 ;;
 esac; shift; done
 
 error()
 {
-  echo "$myname: $*" >&2
+  echo "$myname: $1" >&2
+  test -z "$2" || echo "$2" >&2
   exit 1
+}
+
+vrun()
+{
+  ! $verbose || echo "$*"
+  "$@"
 }
 
 test "${myname%/*}" = "." || error "Not run from \${srcdir}"
 
 if $clean || $force; then
-  rm -f $v \
+  for f in \
     aclocal.m4 compile configure configure~ config.guess config.h.in \
     config.h.in~ config.sub depcomp install-sh ltmain.sh missing \
     m4/libtool.m4 m4/libtool.m4~ m4/lt*.m4 m4/lt*.m4~ \
     Makefile.in include/Makefile.in lib/Makefile.in src/Makefile.in
-  rm -f -r $v autom4te.cache
-  test ! -d m4 || rmdir $v m4 || exit 1
+  do
+    ! test -f "$f" || vrun rm -f "$f"
+  done
+  ! test -d autom4te.cache || vrun rm -f -r autom4te.cache
+  ! test -d m4 || vrun rmdir m4 || exit 1
   $force || exit 0
 fi
 
@@ -68,7 +77,9 @@ else
     AUTOMAKE="automake-$i"
     break
   done
-  test -n "$AUTOMAKE" || error "GNU Automake $minver (up to $maxver) is required"
+  test -n "$AUTOMAKE" \
+  || error "GNU Automake $minver (up to $maxver) is required" \
+           "('AUTOMAKE=/path/to/automake-VERSION ./autogen.sh' to override)"
 fi
 
 ver=$(echo "$ver" | sed -n '1s,^.*[^.0-9]\([12]\.[0-9][-.0-9pl]*\).*$,\1,p')
@@ -102,12 +113,6 @@ case "$ver" in
     echo "Note: GNU Automake version ${ver} was not tested by the developers."
     echo "Please report success/failure to the smartmontools-support mailing list."
 esac
-
-vrun()
-{
-  test -z "$v" || echo "$*"
-  "$@"
-}
 
 # Same order as 'autoreconf --install'
 vrun "$ACLOCAL" --install $warnings
