@@ -2378,6 +2378,14 @@ const drive_settings builtin_knowndrives[] = {
     "-v 251,raw48,NAND_Writes " // PM863, PM893
     "-v 252,raw48,Added_Bad_Flash_Blk_Ct" // 870 EVO FW SVT02B6Q
   },
+  // Issue #657: register this model and firmware without assuming
+  // an unverified interpretation of SMART attribute 173.
+  { "SanDisk X300s",
+    "SanDisk SD7SB2Q-512G-1006",
+    "X2180006",
+    "",
+    ""
+  },
   { "Marvell based SanDisk SSDs",
     "SanDisk SD5SG2[0-9]*G1052E|" // X100 (88SS9174), tested with SanDisk SD5SG2256G1052E/10.04.01
     "SanDisk SD6S[BFP][12]M[0-9]*G(1022I?|1102)?|" // X110/X210 (88SS9175/187?), tested with SanDisk SD6SB1M064G1022I/X231600,
