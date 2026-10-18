@@ -8,6 +8,13 @@ Smartmontools was originally derived from the Linux [smartsuite package](https:/
 It should run on any modern Linux, FreeBSD, NetBSD, OpenBSD, Darwin (macOS), Solaris, Windows, Cygwin, OS/2, eComStation, or QNX system.
 Smartmontools can also be run from one of many different Live CDs/DVDs.
 
+## Windows binaries
+The Windows installer offers x86 (32-bit) and x86_64 (64-bit) program sets. These are architecture choices; the current installer does not offer separate XP/NT5 and NT6 builds.
+
+`smartctl-nc.exe` is a non-console build of `smartctl` provided for GSmartControl. The installer also uses `runcmdu.exe` for Start Menu example shortcuts and `runcmda.exe` for Explorer drive-menu commands. Both helpers run a console command and wait for Enter; `runcmda.exe` requests administrator privileges.
+
+`smartd_warning.cmd` uses `wtssendmsg.exe` to display `smartd` warning message boxes on Windows sessions when the first warning destination is `console`, `active`, or `connected`.
+
 ## Important links
 - [Project homepage](https://www.smartmontools.org/)
 - [GitHub repository](https://github.com/smartmontools/smartmontools)
