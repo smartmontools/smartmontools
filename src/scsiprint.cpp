@@ -3840,8 +3840,10 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
             res = scsiPrintSelfTest(device);
         else {
             pout("Device does not support Self Test logging\n");
+#if 0
             if (! is_tape)
                 failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+#endif
         }
         if (0 != res)
             failuretest(OPTIONAL_CMD, returnval|=res);
@@ -3853,7 +3855,9 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
             res = scsiPrintBackgroundResults(device, false);
         else {
             pout("Device does not support Background scan results logging\n");
+#if 0
             failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+#endif
         }
         if (0 != res)
             failuretest(OPTIONAL_CMD, returnval|=res);
@@ -3865,7 +3869,9 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
             res = scsiPrintZBDeviceStats(device);
         else {
             pout("Device does not support %s logging\n", zbds_s);
+#if 0
             failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+#endif
         }
         if (0 != res)
             failuretest(OPTIONAL_CMD, returnval|=res);
@@ -3877,7 +3883,9 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
             res = scsiPrintGStatsPerf(device);
         else {
             pout("Device does not support %s logging\n", gsap_s);
+#if 0
             failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+#endif
         }
         if (0 != res)
             failuretest(OPTIONAL_CMD, returnval|=res);
@@ -3892,7 +3900,9 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
             } else {
                 pout("Device does not support (tape) device characteristics "
                      "(SSC) logging\n");
+#if 0
                 failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+#endif
             }
             if (0 != res)
                 failuretest(OPTIONAL_CMD, returnval|=res);
@@ -3904,7 +3914,9 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
                 res = scsiPrintActiveTapeAlerts(device, peripheral_type, false);
             } else {
                 pout("Device does not support TapeAlert logging\n");
+#if 0
                 failuretest(OPTIONAL_CMD, returnval|=FAILSMART);
+#endif
             }
             if (res < 0)
                 failuretest(OPTIONAL_CMD, returnval|=res);
