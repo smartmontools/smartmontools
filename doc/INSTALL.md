@@ -25,12 +25,34 @@ For available versions, see for example
 [repology.org](https://repology.org/project/smartmontools/versions)
 ([Badge](https://repology.org/badge/vertical-allrepos/smartmontools.svg)).
 
-DMG files for macOS and installers for Windows are available from the
+DMG files for macOS are also available from the
 [releases page](https://github.com/smartmontools/smartmontools/releases).
 
 **Experimental** binaries for more platforms are available from the
 [CI builds](https://github.com/smartmontools/smartmontools-builds/releases) and from other
 [workflows](https://github.com/smartmontools/smartmontools/actions).
+
+#### Install the Windows package
+
+[NSIS](https://nsis.sourceforge.io/Main_Page) installers for the Windows version of smartmontools
+are available from the [releases page](https://github.com/smartmontools/smartmontools/releases).
+
+The default installation type, "Full", creates start menu shortcuts, including an uninstaller, and adds
+the installation directory to the User PATH variable.
+The type "Extract files only" is useful to unpack a "portable" version without affecting the Windows
+registry.
+The files could also be unpacked with [7-Zip](https://www.7-zip.org/).
+
+The (32-bit) installer allows to select 32-bit (x86) or 64-bit (x86_64) executables.
+Both versions provide identical functionality.
+In very rare cases, the 32-bit version fails on 64-bit Windows due to bugs in the 32-bit part
+of some 64-bit device driver.
+
+The minimum Windows version supported is usually Vista.
+It depends on the version of the used [MinGW-w64](https://www.mingw-w64.org/) toolchain.
+
+See also section [Windows: installed files and related installer options](#windows-files)
+below.
 
 ### Install from source tarball
 
@@ -326,6 +348,7 @@ MSBuild -m -p:Platform=ARM64 -p:Configuration=Release src/os_win32/vc17/smartmon
 ```
 
 The compiled files appear in `src/os_win32/vc17/${Platform}/${Configuration}`.
+These require at least Windows Vista.
 
 Clean up later:
 
@@ -403,7 +426,74 @@ enabled or autodetected by `./configure`:
 /usr/local/var/lib/smartmontools/                       # --with-[drivedbdir|attributelog|savestates|jsonstate]
 ```
 
+## <a id="windows-files"></a>Windows: installed files and related installer options
+
+The following list shows the directories and files installed by the smartmontools installer for windows
+and the related options:
+
+```
+C:\Program Files\smartmontools\                                       # Destination Folder [...]
+C:\Program Files\smartmontools\bin\drivedb.h                          # [X] Program files / drivedb.h (Drive Database)
+C:\Program Files\smartmontools\bin\runcmdu.exe                        # [X] Start Menu Shortcuts
+C:\Program Files\smartmontools\bin\runcmda.exe                        # [X] Add smartctl to drive menu / ...
+C:\Program Files\smartmontools\bin\smartctl.exe                       # [X] Program files / smartctl
+C:\Program Files\smartmontools\bin\smartctl-nc.exe                    # [X] Program files / smartctl-nc (GSmartControl)
+C:\Program Files\smartmontools\bin\smartd.conf                        # [X] Program files / smartd
+C:\Program Files\smartmontools\bin\smartd.exe                         # [X] Program files / smartd
+C:\Program Files\smartmontools\bin\smartd_mailer.conf.sample.ps1      # [X] Program files / smartd
+C:\Program Files\smartmontools\bin\smartd_mailer.ps1                  # [X] Program files / smartd
+C:\Program Files\smartmontools\bin\smartd_warning.cmd                 # [X] Program files / smartd
+C:\Program Files\smartmontools\bin\update-smart-drivedb.ps1           # [X] Program files / drivedb.h (Drive Database)
+C:\Program Files\smartmontools\bin\wtssendmsg.exe                     # [X] Program files / smartd
+C:\Program Files\smartmontools\doc\*                                  # [X] Documentation
+C:\Program Files\smartmontools\uninst-smartmontools.exe               # [X] Uninstaller
+C:\Program Files\smartmontools\uninst-user-path.txt                   # [X] Add install dir to User PATH
+C:\Program Files\smartmontools\uninst-system-path.txt                 # [X] Add install dir to System PATH
+C:\ProgramData\Microsoft\Windows\Start Menu\Programs\smartmontools\*  # [X] Start Menu Shortcuts
+```
+
+Affected registry entries:
+
+```
+HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\smartmontools\*  # [X] Uninstaller
+HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment\Path    # [X] Add install dir to System PATH
+HKCU\Environment\Path                                                     # [X] Add install dir to User PATH
+HKCR\Drive\shell\smartctl*                                                # [X] Add smartctl to drive menu / ...
+```
+
+The following additional programs are provided:
+
+- `smartctl-nc.exe`: a copy of `smartctl.exe` with the `SUBSYSTEM` type in the EXE header
+changed from `CONSOLE` to `GUI`.
+This prevents that an empty console window appears when the command is run in background
+with output redirected.
+Used by [GSmartControl](https://gsmartcontrol.shaduri.dev/).
+When `smartctl-nc.exe` is run without redirection from a console window, its output is not
+visible because Windows detaches the program from the console.
+- `smartd_warning.cmd`: called by `smartd.exe` if the `-m` directive is used and a warning
+occurs (similar to `smartd_warning.sh` from the other platforms).
+It could be run with a restricted access token, see the `smartd` option `--warn-as-user`.
+It supports a `--dryrun` option for testing
+- `smartd_mailer.ps1`: called by `smartd_warning.cmd` if the configuration file
+`smartd_mailer.conf.ps1` is also present.
+It sends emails via SMTP.
+See `smartd_mailer.conf.sample.ps1` for details.
+- `wtssendmsg.exe`: called by `smartd_warning.cmd` to display warning messages on client
+desktops if the first "email" address is `console`, `active` or `connected`.
+- `runcmdu.exe`: runs a command line, prints its exit status and then waits for `<return>`.
+Used by the start menu shortcuts.
+- `runcmda.exe`: like `runcmdu.exe`, but also requests administrator privileges in its
+application manifest.
+Used by the drive menu entries.
+
 ## Usage examples
+
+If `sudo` is unavailable as for example on Windows, run the commands with root/administrator
+privileges.
+
+Some platforms provide an API for R/O access to diagnostic information which work without
+root/administrator privileges.
+This is the case for NVMe devices behind the `stornvme.sys` driver on Windows.
 
 ### Scan for devices
 
