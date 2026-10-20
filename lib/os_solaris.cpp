@@ -231,7 +231,7 @@ bool solaris_scsi_device::scsi_pass_through(scsi_cmnd_io * iop)
     else if (iop->scsi_status)
       lib_printf("  status=%x\n", iop->scsi_status);
     if (iop->resid)
-      lib_printf("  dxfer_len=%d, resid=%d\n", (int)iop->dxfer_len, iop->resid);
+      lib_printf("  dxfer_len=%zu, resid=%d\n", iop->dxfer_len, iop->resid);
     if (report > 1) {
       len = iop->dxfer_len - iop->resid;
       if (len > 0) {
