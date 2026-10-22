@@ -14,9 +14,9 @@ import re
 import sys
 
 CDB_RE = re.compile(r'^ \[([^:\]]+): ((?:[0-9a-f]{2} )+)\]$')
-# Printed before the CDB; "data length=0x%u" is actually decimal
+# Printed before the CDB; the length is decimal ("0x" prefix up to smartctl 7.5)
 DESC_RE = re.compile(r'^ \[[^:\]]+: SCSI opcode=0x[0-9a-f]+, CDB length=\d+, '
-                     r'data length=0x(\d+), data dir=(\w+)\]$')
+                     r'data length=(?:0x)?(\d+), data dir=(\w+)\]$')
 SENSE_RE = re.compile(r'^  >>> Sense buffer, len=(\d+):')
 STATUS_RE = re.compile(r'^  status=([0-9a-f]+):')
 DATAIN_RE = re.compile(r'^  \[data-in buffer: req_len=(\d+), resid=(-?\d+), gives (\d+) bytes\]')

@@ -1577,7 +1577,7 @@ scsi_pass_through_yield_sense(scsi_device * device, scsi_cmnd_io * iop,
         }
         np = scsi_get_opcode_name(iop->cmnd);
         lib_printf(" [%s: ", np ? np : "<unknown opcode>");
-        lib_printf("SCSI opcode=0x%x, CDB length=%u, data length=0x%u, data "
+        lib_printf("SCSI opcode=0x%x, CDB length=%u, data length=%u, data "
                    "dir=%s]\n", opcode, (unsigned int)iop->cmnd_len,
                    (unsigned int)iop->dxfer_len, ddir);
         if (dout && (scsi_debugmode > 3))  /* output hex without address */
