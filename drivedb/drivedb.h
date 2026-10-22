@@ -6529,9 +6529,10 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "" // unsupported
   },
-  { "USB: Crucial X9 Pro/X10; ",
-    "0x0634:0x560[37]", // 0x5603(0x5603): CT2000X9PROSSD9 (Crucial X9 Pro 2TB, SM2320 USB->NAND)
+  { "USB: Crucial X6/X9 Pro/X10; ",
+    "0x0634:0x560[237]", // 0x5603(0x5603): CT2000X9PROSSD9 (Crucial X9 Pro 2TB, SM2320 USB->NAND)
     "", // 0x5607(0x5607): CT2000X10SSD9C (Crucial X10 2TB)
+      // 0x5602: CT4000X6SSD9 (Crucial X6 4TB, FW UHFF32.0, no ATA emulation)
     "",
     "-d sntasmedia" // Partly emulates both ATA(SAT) and NVMe(ASMedia) diagnostics.
       // ATA: 'Device Model' is empty, NVMe: 'Number of Namespaces: 0'.
