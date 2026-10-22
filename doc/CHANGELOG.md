@@ -21,6 +21,10 @@ board and lifetime temperatures and host reads and writes are reported from the 
 0x30 and 0x32 (JSON: `sandisk_vendor_log: {...}`).
 The controller temperature replaces the invalid value from the IE mode page.
 
+- `smartctl -r scsiioctl,4`: data transfers of the operating system pass-through
+layer are printed completely instead of only the first 256 bytes.
+Data-out is printed after its CDB instead of before.
+
 - `smartctl -d scsi|sat...|snt... -`: a recorded SCSI command trace can be replayed from stdin.
 This simulates a SCSI device or USB bridge without the hardware.
 `make check` now runs unit tests and compares the replayed output of recorded devices
