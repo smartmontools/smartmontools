@@ -7151,6 +7151,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  { "USB: ; JMicron", // USB3->SATA
+    "0x152d:0x1562", // NFHK USB 3.0 enclosure
+    "",
+    "",
+    "-d sat"
+  },
   { "USB: ; JMicron JMS576", // USB3.1->SATA
     "0x152d:0x[01a]576", // 0x1576 (0x0204): ICY BOX IB-223U3a-B
     "", // 0xa576 (0x5102): JMicron SY-ENC50104 USB Device
