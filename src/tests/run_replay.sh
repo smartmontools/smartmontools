@@ -10,6 +10,9 @@
 # where OPTS is a '_' separated list of single letter options, e.g. "x" or "i_H_A".
 # Version, copyright and local time lines are ignored, and digit grouping and
 # decimal commas are removed (the expected output may stem from a non-C locale).
+# The estimated times of the SCT temperature history depend on the current
+# time and are replaced by a placeholder. The drive database version is
+# removed as it changes with each commit.
 #
 # Copyright (C) 2026 smartmontools contributors
 #
@@ -30,6 +33,8 @@ normalize()
   sed -e '/^smartctl [^ ]* [0-9-]* .*\[.*\]/d' \
       -e '/^Copyright (C)/d' \
       -e '/^Local Time is:/d' \
+      -e 's/^\(Device is: *In smartctl database\).*/\1/' \
+      -e 's/^\( *[0-9][0-9]*  *\)[0-9]\{4\}-[0-9][0-9]-[0-9][0-9] [0-9][0-9]:[0-9][0-9] /\1YYYY-MM-DD hh:mm /' \
       -e 's/$/ /' \
       -e ':a' -e 's/\([0-9]\)[.,]\([0-9][0-9][0-9][^0-9]\)/\1\2/' -e 'ta' \
       -e 's/\[\([0-9][0-9]*\),\([0-9][0-9]*\) \([KMGTP]*B\)\]/[\1.\2 \3]/g' \
