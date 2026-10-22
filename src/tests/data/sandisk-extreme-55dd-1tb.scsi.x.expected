@@ -1,0 +1,28 @@
+
+=== START OF INFORMATION SECTION ===
+Vendor:               SanDisk
+Product:              Extreme 55DD
+Revision:             0010
+Compliance:           SPC-4
+User Capacity:        1.000.204.886.016 bytes [1,00 TB]
+Logical block size:   512 bytes
+Physical block size:  4096 bytes
+LU is resource provisioned, LBPRZ=0
+Rotation Rate:        Solid State Device
+Logical Unit id:      0x5001b44a4449b251
+Serial number:        244407402716
+Device type:          disk
+Local Time is:        Thu Oct 22 16:03:21 2026 MS
+SMART support is:     Unavailable - device lacks SMART capability.
+Read Cache is:        Enabled
+Writeback Cache is:   Enabled
+
+=== START OF READ SMART DATA SECTION ===
+Current Drive Temperature:     0 C
+Drive Trip Temperature:        0 C
+
+Error Counter logging not supported
+
+Device does not support Self Test logging
+Device does not support Background scan results logging
+Device does not support General statistics and performance logging

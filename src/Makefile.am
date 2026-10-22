@@ -663,6 +663,27 @@ check-smartctl:
 	fi
 endif
 
+# Unit tests and replay of recorded device traces (no hardware required)
+check_PROGRAMS = test_scsi_trace
+
+test_scsi_trace_SOURCES = tests/test_scsi_trace.cpp
+test_scsi_trace_LDADD = ../lib/libsmartmon.la $(os_libs)
+test_scsi_trace_DEPENDENCIES = ../lib/libsmartmon.la
+
+phony += check-unit check-replay
+check += check-unit check-replay
+
+if REALLY_CROSS_COMPILING
+check-unit check-replay:
+	@echo "$@: check is unavailable if cross-compiling"
+else
+check-unit: test_scsi_trace$(EXEEXT)
+	./test_scsi_trace$(EXEEXT) $(srcdir)/tests/data
+
+check-replay: smartctl$(EXEEXT)
+	$(SHELL) $(srcdir)/tests/run_replay.sh ./smartctl$(EXEEXT) $(srcdir)/tests/data
+endif
+
 check: $(check)
 
 if OS_WIN32_MINGW
