@@ -16,6 +16,11 @@ replaced by library hooks.
 Source code examples have been added to the new directory `lib/examples`.
 Work towards a more consistent and flexible API is in progress.
 
+- `smartctl -d scsi|sat...|snt... -`: a recorded SCSI command trace can be replayed from stdin.
+This simulates a SCSI device or USB bridge without the hardware.
+`make check` now runs unit tests and compares the replayed output of recorded devices
+with the output of the real device.
+
 - `smartctl -j`: the new JSON values `host_reads: {...}` and `host_writes: {...}` have been
 added for ATA and NVMe.
 

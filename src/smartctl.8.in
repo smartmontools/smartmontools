@@ -901,7 +901,17 @@ The ATA command input parameters, sector data and return values are
 reconstructed from the debug report read from stdin.
 Then \fBsmartctl\fP internally simulates an ATA device with the same
 behaviour.
-This is does not work for SCSI devices yet.
+.Sp
+[NEW EXPERIMENTAL SMARTCTL FEATURE]
+If \*(Aq\-d scsi\*(Aq, \*(Aq\-d sat...\*(Aq or \*(Aq\-d snt...\*(Aq is
+specified together with \*(Aq\-\*(Aq as device path, \fBsmartctl\fP reads a
+SCSI command trace from stdin and simulates a SCSI device (or USB bridge)
+which returns the recorded responses.
+Each command of the trace is a block of lines \*(AqCDB\*(Aq, \*(AqALLOC\*(Aq,
+\*(AqSTATUS\*(Aq, \*(AqSENSE\*(Aq, \*(AqDATA\*(Aq and \*(AqEND\*(Aq.
+The output of \*(Aq\-r scsiioctl,4\*(Aq can be converted into this format
+with the script \*(Aqsrc/tests/tools/scsiioctl2trace.py\*(Aq from the source
+tree.
 .TP
 .B \-n POWERMODE[,STATUS[,STATUS2]], \-\-nocheck=POWERMODE[,STATUS[,STATUS2]]
 [ATA, SCSI] Specifies if \fBsmartctl\fP should exit before performing any

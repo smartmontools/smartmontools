@@ -578,6 +578,14 @@ const unsigned char * sg_scsi_sense_desc_find(const unsigned char * sensep,
 // Moved to C++ interface
 //int do_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report);
 
+class smart_interface;
+
+// Return pseudo-device which replays a recorded SCSI command trace
+// (see dev_scsi_trace.cpp). The trace is read from 'trace_text' if
+// specified, else from stdin if 'dev_name' is "-", else from file 'dev_name'.
+scsi_device * get_trace_scsi_device(smart_interface * intf, const char * dev_name,
+                                    const char * trace_text = nullptr);
+
 } // namespace smartmon
 
 #endif // SMARTMON_SCSICMDS_H
