@@ -35,6 +35,7 @@ namespace smartmon {
 //   ALLOC 252
 //   STATUS 0             (SCSI status, or "-1 ERROR n" if pass-through failed)
 //   SENSE                (sense data if status != 0)
+//   DATAOUT ...          (optional: data-out sent to the device)
 //   DATA b2 00 00 2d ... (data-in returned by the device)
 //   END
 //
@@ -44,9 +45,12 @@ namespace smartmon {
 //   length or returned with a residual count.
 // - An exact match (including allocation length) is preferred, otherwise
 //   the response recorded with the largest allocation length is used.
+// - Several exact matches are used in recorded order, the last one is
+//   repeated. This simulates devices with state (e.g. SCT status).
 // - Unrecorded CDBs fail with ILLEGAL REQUEST: INVALID FIELD IN CDB if the
 //   opcode was recorded at least once, INVALID COMMAND OPERATION CODE else.
-// - Data-out commands are never accepted.
+// - Data-out commands are only replayed if CDB and data match a record
+//   with DATAOUT exactly, such a record never answers other commands.
 
 namespace {
 
@@ -73,6 +77,7 @@ private:
     int status = 0;
     int error = 0;
     std::vector<uint8_t> sense;
+    std::vector<uint8_t> dataout;
     std::vector<uint8_t> data;
   };
 
@@ -83,6 +88,7 @@ private:
   bool m_has_text;
   std::string m_text;
   std::vector<trace_cmd> m_cmds;
+  std::vector<bool> m_used;
   bool m_open;
 };
 
@@ -142,6 +148,7 @@ bool trace_scsi_device::open()
   }
   if (!parse(text, src))
     return false;
+  m_used.assign(m_cmds.size(), false);
   m_open = true;
   return true;
 }
@@ -230,6 +237,8 @@ bool trace_scsi_device::parse(const std::string & text, const char * src)
       ok = has_status = (in_cmd && parse_status(arg, cmd.status, cmd.error));
     else if (key == "SENSE")
       ok = (in_cmd && parse_hex(arg, cmd.sense));
+    else if (key == "DATAOUT")
+      ok = (in_cmd && parse_hex(arg, cmd.dataout) && !cmd.dataout.empty());
     else if (key == "DATA")
       ok = (in_cmd && parse_hex(arg, cmd.data));
     else if (key == "END") {
@@ -327,24 +336,44 @@ bool trace_scsi_device::scsi_pass_through(scsi_cmnd_io * iop)
   iop->resid = 0;
 
   const uint8_t opcode = iop->cmnd[0];
-  if (iop->dxfer_dir == DXFER_TO_DEVICE)
-    // Replay never accepts data-out commands
-    return set_check_condition(iop, 0x20 /* INVALID COMMAND OPERATION CODE */);
+  const bool dout = (iop->dxfer_dir == DXFER_TO_DEVICE);
 
+  // Exact matches are used in recorded order, the last one is repeated.
+  // This simulates state, e.g. SCT status before and after an SCT command.
   const trace_cmd * best = nullptr;
+  int first_unused = -1, last_exact = -1;
   bool opcode_seen = false;
-  for (const trace_cmd & cmd : m_cmds) {
+  for (unsigned i = 0; i < m_cmds.size(); i++) {
+    const trace_cmd & cmd = m_cmds[i];
     if (cmd.cdb[0] == opcode)
       opcode_seen = true;
+    if (dout != !cmd.dataout.empty())
+      continue;
     bool exact = false;
-    if (!same_cdb(cmd.cdb, iop->cmnd, iop->cmnd_len, exact))
+    if (dout) {
+      // Data-out only if CDB and data are identical
+      exact = (   cmd.cdb.size() == iop->cmnd_len
+               && !memcmp(cmd.cdb.data(), iop->cmnd, iop->cmnd_len)
+               && cmd.dataout.size() == iop->dxfer_len && iop->dxferp
+               && !memcmp(cmd.dataout.data(), iop->dxferp, iop->dxfer_len));
+      if (!exact)
+        continue;
+    }
+    else if (!same_cdb(cmd.cdb, iop->cmnd, iop->cmnd_len, exact))
       continue;
     if (exact && cmd.alloc == iop->dxfer_len) {
-      best = &cmd;
-      break;
+      if (first_unused < 0 && !m_used[i])
+        first_unused = (int)i;
+      last_exact = (int)i;
+      continue;
     }
     if (!best || cmd.alloc > best->alloc)
       best = &cmd;
+  }
+  int sel = (first_unused >= 0 ? first_unused : last_exact);
+  if (sel >= 0) {
+    m_used[sel] = true;
+    best = &m_cmds[sel];
   }
 
   if (!best)

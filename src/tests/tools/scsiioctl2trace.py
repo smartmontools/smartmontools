@@ -21,6 +21,7 @@ SENSE_RE = re.compile(r'^  >>> Sense buffer, len=(\d+):')
 STATUS_RE = re.compile(r'^  status=([0-9a-f]+):')
 DATAIN_RE = re.compile(r'^  \[data-in buffer: req_len=(\d+), resid=(-?\d+), gives (\d+) bytes\]')
 INCOMING_RE = re.compile(r'^  Incoming data, len=(\d+), resid=(-?\d+)(.*):')
+OUTGOING_RE = re.compile(r'^  Outgoing data, len=(\d+)(.*):$')
 HEX_OFS_RE = re.compile(r'^ [0-9a-f]+ {3,}((?:[0-9a-f]{2} +)*[0-9a-f]{2})\s*$')
 HEX_RAW_RE = re.compile(r'^((?:[0-9a-f]{2} +)*[0-9a-f]{2})\s*$')
 IOCTL_ERR_RE = re.compile(r'IOCTL_SCSI_PASS_THROUGH\w* failed, Error=(\d+)')
@@ -42,6 +43,7 @@ def convert(lines):
     cmds = []
     cur = None
     desc = None
+    loose = []  # hex dump not yet assigned to a command
     i = 0
     while i < len(lines):
         line = lines[i].rstrip('\r\n')
@@ -56,12 +58,33 @@ def convert(lines):
             desc = None
             cur = {'name': m.group(1), 'cdb': m.group(2).split(), 'alloc': dlen,
                    'dir': ddir, 'status': 0, 'error': None, 'sense': [],
-                   'data': None, 'truncated': None}
+                   'data': None, 'truncated': None, 'dataout': None,
+                   'pre_hex': loose}
+            loose = []
             cmds.append(cur)
+            i += 1
+            continue
+        m = HEX_OFS_RE.match(line)
+        if m:
+            # Up to smartctl 7.5, data-out was printed before its CDB
+            loose += [int(b, 16) for b in m.group(1).split()]
             i += 1
             continue
         if cur is None:
             i += 1
+            continue
+        m = OUTGOING_RE.match(line)
+        if m:
+            n = int(m.group(1))
+            data, i = read_hex([l.rstrip('\r\n') for l in lines], i + 1, n, True)
+            if not data and len(cur['pre_hex']) == n:
+                data = cur['pre_hex']
+            cur['dir'] = 'out'
+            cur['alloc'] = n
+            if 'only first' in m.group(2) or len(data) != n:
+                cur['dataout_truncated'] = True
+            else:
+                cur['dataout'] = data
             continue
         m = SENSE_RE.match(line)
         if m:
@@ -103,6 +126,11 @@ def convert(lines):
 def emit(cmds, src, out):
     out.write('# converted from "smartctl -r scsiioctl,4" output: %s\n' % src)
     for c in cmds:
+        if c.get('dataout_truncated'):
+            # Data-out is only replayed if identical, so it must be complete
+            out.write('\n# %s: OMITTED, data-out incomplete in debug output\n'
+                      '# CDB %s\n' % (c['name'], ' '.join(c['cdb'])))
+            continue
         if c['data'] is None and c['status'] == 0 and c['truncated'] is not None:
             # Incomplete response is worse than none: omit, a complete
             # recording of the same CDB may be appended to the trace.
@@ -117,6 +145,8 @@ def emit(cmds, src, out):
         else:
             out.write('STATUS %d\n' % c['status'])
         out.write('SENSE %s\n' % ' '.join('%02x' % b for b in c['sense']))
+        if c['dataout']:
+            out.write('DATAOUT %s\n' % ' '.join('%02x' % b for b in c['dataout']))
         data = c['data']
         if c['status'] != 0:
             data = []

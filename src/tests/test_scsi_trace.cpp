@@ -190,6 +190,59 @@ static void test_data_out_is_never_accepted()
   CHECK_EQ(sinfo.sense_key, SCSI_SK_ILLEGAL_REQUEST);
 }
 
+// A recorded data-out command (e.g. SMART WRITE LOG of an SCT command through
+// ATA PASS-THROUGH) is replayed only if CDB and data match exactly
+static void test_recorded_data_out()
+{
+  static const char trace[] =
+    "# ATA PASS-THROUGH(16) SMART WRITE LOG 0xe0, 1 sector (shortened to 4 bytes)\n"
+    "CDB 85 0b 06 00 d6 00 01 00 e0 00 4f 00 c2 00 b0 00\n"
+    "ALLOC 4\n"
+    "STATUS 0\n"
+    "SENSE\n"
+    "DATAOUT 05 00 01 00\n"
+    "DATA\n"
+    "END\n";
+  scsi_ptr dev = open_trace(trace);
+  CHECK(dev->is_open());
+  scsi_sense_disect sinfo;
+  scsi_cmnd_io io;
+  const uint8_t cdb[16] = {0x85, 0x0b, 0x06, 0, 0xd6, 0, 1, 0, 0xe0, 0, 0x4f, 0, 0xc2, 0, 0xb0, 0};
+
+  uint8_t same[4] = {0x05, 0x00, 0x01, 0x00};
+  CHECK(raw_cmd(dev.get(), cdb, sizeof(cdb), DXFER_TO_DEVICE, same, sizeof(same), sinfo, io));
+  CHECK_EQ(io.scsi_status, 0);
+
+  uint8_t other[4] = {0x05, 0x00, 0x02, 0x00};
+  CHECK(raw_cmd(dev.get(), cdb, sizeof(cdb), DXFER_TO_DEVICE, other, sizeof(other), sinfo, io));
+  CHECK_EQ(io.scsi_status, SCSI_STATUS_CHECK_CONDITION);
+  CHECK_EQ(sinfo.sense_key, SCSI_SK_ILLEGAL_REQUEST);
+
+  // The data-out record never answers a data-in request
+  uint8_t in[4] = {0xee, 0xee, 0xee, 0xee};
+  CHECK(raw_cmd(dev.get(), cdb, sizeof(cdb), DXFER_FROM_DEVICE, in, sizeof(in), sinfo, io));
+  CHECK_EQ(io.scsi_status, SCSI_STATUS_CHECK_CONDITION);
+}
+
+// Identical commands are answered in recorded order, the last record is
+// repeated (e.g. SCT status before and after an SCT command)
+static void test_identical_commands_in_recorded_order()
+{
+  static const char trace[] =
+    "CDB 12 01 80 00 08 00\nALLOC 8\nSTATUS 0\nSENSE\nDATA 00 80 00 04 41 41 41 41\nEND\n"
+    "CDB 12 01 80 00 08 00\nALLOC 8\nSTATUS 0\nSENSE\nDATA 00 80 00 04 42 42 42 42\nEND\n";
+  scsi_ptr dev = open_trace(trace);
+  scsi_sense_disect sinfo;
+  scsi_cmnd_io io;
+  const uint8_t cdb[6] = {0x12, 0x01, 0x80, 0, 8, 0};
+  const char expect[] = "ABB";
+  for (int k = 0; k < 3; k++) {
+    uint8_t buf[8] = {0, };
+    CHECK(raw_cmd(dev.get(), cdb, sizeof(cdb), DXFER_FROM_DEVICE, buf, sizeof(buf), sinfo, io));
+    CHECK_EQ(buf[4], expect[k]);
+  }
+}
+
 static void test_parse_errors()
 {
   static const char * const bad[] = {
@@ -279,6 +332,8 @@ int main(int argc, char ** argv)
   test_unknown_opcode();
   test_transport_failure();
   test_data_out_is_never_accepted();
+  test_recorded_data_out();
+  test_identical_commands_in_recorded_order();
   test_parse_errors();
   test_sandisk_55dd_trace(datadir);
   test_drivedb_usb_sandisk_55dd(drivedb);
