@@ -517,7 +517,9 @@ scsiGetSmartData(scsi_device * device, bool attribs)
     }
 
     if (attribs && !gTempLPage) {
-        bool have_temp = (255 != currenttemp);
+        /* scsiCheckIE() returns 0 if neither the IE nor the temperature
+           log page provides a value, smartd also treats 0 as unavailable */
+        bool have_temp = (0 != currenttemp && 255 != currenttemp);
         int temp = currenttemp;
         sandisk_temps st;
         if (gSanDiskTempLPage && scsiGetSanDiskTemps(device, st)) {
@@ -533,7 +535,7 @@ scsiGetSmartData(scsi_device * device, bool attribs)
             jout("Current Drive Temperature:     %d C\n", temp);
             jglb["temperature"]["current"] = temp;
         }
-        if (255 == triptemp)
+        if (0 == triptemp || 255 == triptemp)
             pout("Drive Trip Temperature:        <not available>\n");
         else {
             jout("Drive Trip Temperature:        %d C\n", triptemp);

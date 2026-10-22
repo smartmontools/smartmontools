@@ -2042,8 +2042,9 @@ scsiGetTemp(scsi_device * device, uint8_t *currenttemp, uint8_t *triptemp)
 
 /* Read informational exception log page or Request Sense response.
  * Fetching asc/ascq code potentially flagging an exception or warning.
- * Returns 0 if ok, else error number. A current temperature of 255
- * (Celsius) implies that the temperature not available. */
+ * Returns 0 if ok, else error number. A temperature of 0 (not provided by
+ * the IE or temperature log page) or 255 (Celsius) implies that the
+ * temperature is not available. */
 int
 scsiCheckIE(scsi_device * device, int hasIELogPage, int hasTempLogPage,
             uint8_t *asc, uint8_t *ascq, uint8_t *currenttemp,
