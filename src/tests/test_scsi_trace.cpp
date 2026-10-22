@@ -199,6 +199,11 @@ static void test_parse_errors()
     "", // empty trace
     "CDB 12 00 00 00 24 00\nSTATUS 0\nSENSE\nDATA\nEND\n", // missing ALLOC
     "CDB 12 00 00 00 24 00\nALLOC 36\nSENSE\nDATA\nEND\n", // missing STATUS
+    "CDB 12 00 00 00 24 00\nALLOC -1\nSTATUS 0\nSENSE\nDATA\nEND\n", // negative ALLOC
+    "CDB 12 00 00 00 24 00\nALLOC 36x\nSTATUS 0\nSENSE\nDATA\nEND\n", // trailing input
+    "CDB 12 00 00 00 24 00\nALLOC 36\nSTATUS 256\nSENSE\nDATA\nEND\n", // status > 255
+    "CDB 12 00 00 00 24 00\nALLOC 36\nSTATUS -1 ERROR\nSENSE\nDATA\nEND\n", // ERROR number missing
+    "CDB 12 00 00 00 24 00\nALLOC 36\nSTATUS 0 ERROR 5\nSENSE\nDATA\nEND\n", // ERROR without -1
   };
   for (const char * text : bad) {
     scsi_ptr dev(get_trace_scsi_device(smi(), "-", text));

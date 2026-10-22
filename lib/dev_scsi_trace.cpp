@@ -164,6 +164,38 @@ static bool parse_hex(const char * s, std::vector<uint8_t> & out)
   }
 }
 
+// Parse decimal number without sign and trailing characters
+static bool parse_uint(const char * s, unsigned & v)
+{
+  if (!('0' <= *s && *s <= '9'))
+    return false;
+  char * end;
+  errno = 0;
+  unsigned long x = strtoul(s, &end, 10);
+  if (*end || errno || x > 0xffffffffUL)
+    return false;
+  v = (unsigned)x;
+  return true;
+}
+
+// Parse "STATUS" argument: SCSI status 0-255 or "-1 ERROR n"
+static bool parse_status(const char * s, int & status, int & error)
+{
+  unsigned v;
+  if (!strncmp(s, "-1 ERROR ", 9)) {
+    if (!parse_uint(s + 9, v) || v > 0x7fffffff)
+      return false;
+    status = -1;
+    error = (int)v;
+    return true;
+  }
+  if (!parse_uint(s, v) || v > 0xff)
+    return false;
+  status = (int)v;
+  error = 0;
+  return true;
+}
+
 bool trace_scsi_device::parse(const std::string & text, const char * src)
 {
   trace_cmd cmd;
@@ -193,9 +225,9 @@ bool trace_scsi_device::parse(const std::string & text, const char * src)
       has_alloc = has_status = false;
     }
     else if (key == "ALLOC")
-      ok = has_alloc = (in_cmd && sscanf(arg, "%u", &cmd.alloc) == 1);
+      ok = has_alloc = (in_cmd && parse_uint(arg, cmd.alloc));
     else if (key == "STATUS")
-      ok = has_status = (in_cmd && sscanf(arg, "%d ERROR %d", &cmd.status, &cmd.error) >= 1);
+      ok = has_status = (in_cmd && parse_status(arg, cmd.status, cmd.error));
     else if (key == "SENSE")
       ok = (in_cmd && parse_hex(arg, cmd.sense));
     else if (key == "DATA")
