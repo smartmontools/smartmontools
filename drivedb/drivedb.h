@@ -6595,6 +6595,12 @@ const drive_settings builtin_knowndrives[] = {
     "", // 0x55af(0x4060): SanDisk Extreme Pro Portable SSD (Western Digital SN850XE 4TB)
     "-d sntasmedia"
   },
+  { "USB: SanDisk Extreme Portable SSD; ", // SDSSDE61, no NVMe or ATA pass-through (#526)
+    "0x0781:0x55dd", // SanDisk Extreme 55DD: 1TB (rev 0010), 4TB (rev 0830, 0x003)
+    "", // Temperatures and host reads from vendor log pages 0x30-0x32
+    "",
+    "-d scsi"
+  },
   // Freecom
   { "USB: ; Innostor IS631", // No Name USB3->SATA Enclosure
     "0x07ab:0x0621",

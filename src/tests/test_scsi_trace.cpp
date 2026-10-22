@@ -8,7 +8,9 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#include <smartmon/atacmds.h>
 #include <smartmon/dev_interface.h>
+#include <smartmon/knowndrives.h>
 #include <smartmon/scsicmds.h>
 
 #include <cerrno>
@@ -242,10 +244,25 @@ static void test_sandisk_55dd_trace(const std::string & datadir)
   CHECK_EQ(sinfo.asc, 0x20);
 }
 
+// The traced device is selected as plain SCSI device from its USB ID
+static void test_drivedb_usb_sandisk_55dd(const char * drivedb)
+{
+  CHECK(read_drive_database(drivedb));
+  usb_dev_info info, info2;
+  CHECK_EQ(lookup_usb_device(0x0781, 0x55dd, 0x0010, info, info2), 1);
+  CHECK(info.usb_type == "scsi");
+  CHECK(info.usb_device.find("SanDisk Extreme") != std::string::npos);
+
+  // 0x55ae (NVMe behind ASMedia bridge) is unchanged
+  CHECK_EQ(lookup_usb_device(0x0781, 0x55ae, 0x3008, info, info2), 1);
+  CHECK(info.usb_type == "sntasmedia");
+}
+
 int main(int argc, char ** argv)
 {
   smart_interface::init();
   std::string datadir = (argc > 1 ? argv[1] : "tests/data");
+  const char * drivedb = (argc > 2 ? argv[2] : "../lib/drivedb.h");
 
   test_open();
   test_inquiry_any_allocation_length();
@@ -257,6 +274,7 @@ int main(int argc, char ** argv)
   test_data_out_is_never_accepted();
   test_parse_errors();
   test_sandisk_55dd_trace(datadir);
+  test_drivedb_usb_sandisk_55dd(drivedb);
 
   std::printf("%d checks, %d failed\n", g_checks, g_failed);
   return (g_failed ? 1 : 0);
