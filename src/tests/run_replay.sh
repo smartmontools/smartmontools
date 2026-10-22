@@ -34,6 +34,7 @@ normalize()
       -e '/^Copyright (C)/d' \
       -e '/^Local Time is:/d' \
       -e 's/^\(Device is: *In smartctl database\).*/\1/' \
+      -e 's/^\(Device is: *Not in smartctl database\).*/\1/' \
       -e 's/^\( *[0-9][0-9]*  *\)[0-9]\{4\}-[0-9][0-9]-[0-9][0-9] [0-9][0-9]:[0-9][0-9] /\1YYYY-MM-DD hh:mm /' \
       -e 's/$/ /' \
       -e ':a' -e 's/\([0-9]\)[.,]\([0-9][0-9][0-9][^0-9]\)/\1\2/' -e 'ta' \

@@ -321,6 +321,11 @@ static void test_drivedb_usb_sandisk_55dd(const char * drivedb)
   CHECK_EQ(lookup_usb_device(0x0634, 0x5602, -1, info, info2), 1);
   CHECK(info.usb_type == "sntasmedia");
   CHECK(info.usb_device.find("Crucial X6") != std::string::npos);
+
+  // JMicron 0x1562 passes ATA commands through SAT
+  info = usb_dev_info();
+  CHECK_EQ(lookup_usb_device(0x152d, 0x1562, -1, info, info2), 1);
+  CHECK(info.usb_type == "sat");
 }
 
 int main(int argc, char ** argv)

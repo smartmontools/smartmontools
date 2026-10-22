@@ -1,0 +1,219 @@
+
+=== START OF INFORMATION SECTION ===
+Device Model:     APPLE SSD SM256C
+Serial Number:    S0S9NEAC206663
+LU WWN Device Id: 5 0000f0 000000000
+Firmware Version: AXM0AA1Q
+User Capacity:    251,000,193,024 bytes [251 GB]
+Sector Size:      512 bytes logical/physical
+Rotation Rate:    Solid State Device
+TRIM Command:     Available
+Device is:        Not in smartctl database 8.0/6322
+ATA Version is:   ATA8-ACS, ATA/ATAPI-7 T13/1532D revision 1
+SATA Version is:  SATA 2.6, 3.0 Gb/s (current: 3.0 Gb/s)
+Local Time is:    Thu Oct 22 20:03:06 2026 UTC
+SMART support is: Available - device has SMART capability.
+SMART support is: Enabled
+AAM feature is:   Disabled
+APM feature is:   Unavailable
+Rd look-ahead is: Enabled
+Write cache is:   Enabled
+DSN feature is:   Unavailable
+ATA Security is:  Disabled, NOT FROZEN [SEC1]
+
+=== START OF READ SMART DATA SECTION ===
+SMART Status not supported: Incomplete response, ATA output registers missing
+SMART overall-health self-assessment test result: PASSED
+Warning: This result is based on an Attribute check.
+
+General SMART Values:
+Offline data collection status:  (0x00)	Offline data collection activity
+					was never started.
+					Auto Offline Data Collection: Disabled.
+Self-test execution status:      (   0)	The previous self-test routine completed
+					without error or no self-test has ever 
+					been run.
+Total time to complete Offline 
+data collection: 		( 1680) seconds.
+Offline data collection
+capabilities: 			 (0x53) SMART execute Offline immediate.
+					Auto Offline data collection on/off support.
+					Suspend Offline collection upon new
+					command.
+					No Offline surface scan supported.
+					Self-test supported.
+					No Conveyance Self-test supported.
+					Selective Self-test supported.
+SMART capabilities:            (0x0003)	Saves SMART data before entering
+					power-saving mode.
+					Supports SMART auto save timer.
+Error logging capability:        (0x01)	Error logging supported.
+					General Purpose Logging supported.
+Short self-test routine 
+recommended polling time: 	 (   2) minutes.
+Extended self-test routine
+recommended polling time: 	 (  28) minutes.
+
+SMART Attributes Data Structure revision number: 1
+Vendor Specific SMART Attributes with Thresholds:
+ID# ATTRIBUTE_NAME          FLAGS    VALUE WORST THRESH FAIL RAW_VALUE
+  1 Raw_Read_Error_Rate     POSR-K   199   199   000    -    446
+  5 Reallocated_Sector_Ct   PO--CK   098   098   000    -    82
+  9 Power_On_Hours          -O--CK   098   098   000    -    7086
+ 12 Power_Cycle_Count       -O--CK   083   083   000    -    16900
+169 Unknown_Attribute       PO--C-   253   253   010    -    7396478949632
+173 Unknown_Attribute       -O--CK   188   188   100    -    236247449764
+175 Program_Fail_Count_Chip -O--CK   099   099   010    -    42
+176 Erase_Fail_Count_Chip   -O--CK   100   100   010    -    0
+177 Wear_Leveling_Count     PO--C-   098   098   017    -    55
+178 Used_Rsvd_Blk_Cnt_Chip  PO--C-   078   078   010    -    918
+179 Used_Rsvd_Blk_Cnt_Tot   PO--C-   079   079   010    -    1722
+180 Unused_Rsvd_Blk_Cnt_Tot PO--C-   079   079   010    -    6598
+181 Program_Fail_Cnt_Total  -O--CK   099   099   010    -    82
+182 Erase_Fail_Count_Total  -O--CK   100   100   010    -    0
+183 Runtime_Bad_Block       PO--C-   099   099   010    -    82
+187 Reported_Uncorrect      -O--CK   099   099   000    -    446
+192 Power-Off_Retract_Count -O--CK   096   096   000    -    15258
+194 Temperature_Celsius     -O---K   071   071   000    -    29 (Min/Max 14/67)
+195 Hardware_ECC_Recovered  -O-RC-   095   095   000    -    446
+197 Current_Pending_Sector  PO--C-   100   100   000    -    0
+198 Offline_Uncorrectable   ----CK   100   100   000    -    0
+199 UDMA_CRC_Error_Count    -OSRCK   253   253   000    -    0
+                            ||||||_ K auto-keep
+                            |||||__ C event count
+                            ||||___ R error rate
+                            |||____ S speed/performance
+                            ||_____ O updated online
+                            |______ P prefailure warning
+
+General Purpose Log Directory Version 1
+SMART           Log Directory Version 0
+Address    Access  R/W   Size  Description
+0x00       GPL,SL  R/O      1  Log Directory
+0x01       GPL,SL  R/O      1  Summary SMART error log
+0x02       GPL,SL  R/O      1  Comprehensive SMART error log
+0x03       GPL,SL  R/O      1  Ext. Comprehensive SMART error log
+0x06       GPL,SL  R/O      1  SMART self-test log
+0x07       GPL,SL  R/O      1  Extended self-test log
+0x09       GPL,SL  R/W      1  Selective self-test log
+0x10       GPL,SL  R/O      1  NCQ Command Error log
+0x11       GPL,SL  R/O      1  SATA Phy Event Counters log
+0x80-0x9f  GPL,SL  R/W      1  Host vendor specific log
+
+Warning! SMART Extended Comprehensive Error Log Structure error: invalid SMART checksum.
+SMART Extended Comprehensive Error Log Version: 1 (1 sectors)
+Device Error Count: 380 (device log contains only the most recent 4 errors)
+	CR     = Command Register
+	FEATR  = Features Register
+	COUNT  = Count (was: Sector Count) Register
+	LBA_48 = Upper bytes of LBA High/Mid/Low Registers ]  ATA-8
+	LH     = LBA High (was: Cylinder High) Register    ]   LBA
+	LM     = LBA Mid (was: Cylinder Low) Register      ] Register
+	LL     = LBA Low (was: Sector Number) Register     ]
+	DV     = Device (was: Device/Head) Register
+	DC     = Device Control Register
+	ER     = Error register
+	ST     = Status register
+Powered_Up_Time is measured from power on, and printed as
+DDd+hh:mm:SS.sss where DD=days, hh=hours, mm=minutes,
+SS=sec, and sss=millisec. It "wraps" after 49.710 days.
+
+Error 380 [3] occurred at disk power-on lifetime: 5607 hours (233 days + 15 hours)
+  When the command that caused the error occurred, the device was sleeping.
+
+  After command completion occurred, registers were:
+  ER -- ST COUNT  LBA_48  LH LM LL DV DC
+  -- -- -- == -- == == == -- -- -- -- --
+  40 -- 51 00 04 00 00 1c 28 47 e4 40 00
+
+  Commands leading to the command that caused the error were:
+  CR FEATR COUNT  LBA_48  LH LM LL DV DC  Powered_Up_Time  Command/Feature_Name
+  -- == -- == -- == == == -- -- -- -- --  ---------------  --------------------
+  e1 00 00 00 0f 00 00 00 00 00 00 00 00     11:32:45.000  IDLE IMMEDIATE
+  ef 00 03 00 46 00 00 00 00 00 00 00 00     11:32:45.000  SET FEATURES [Set transfer mode]
+  ef 00 02 00 00 00 00 00 00 00 00 00 00     11:32:45.000  SET FEATURES [Enable write cache]
+  ef 00 90 00 06 00 00 00 00 00 00 00 00     11:32:45.000  SET FEATURES [Disable SATA feature]
+  e1 00 00 00 02 00 00 00 00 00 00 00 00     11:32:45.000  IDLE IMMEDIATE
+
+Error 379 [2] occurred at disk power-on lifetime: 5607 hours (233 days + 15 hours)
+  When the command that caused the error occurred, the device was active or idle.
+
+  After command completion occurred, registers were:
+  ER -- ST COUNT  LBA_48  LH LM LL DV DC
+  -- -- -- == -- == == == -- -- -- -- --
+  40 -- 51 00 04 00 00 1c 28 47 e4 40 00  Error: UNC 4 sectors at LBA = 0x1c2847e4 = 472401892
+
+  Commands leading to the command that caused the error were:
+  CR FEATR COUNT  LBA_48  LH LM LL DV DC  Powered_Up_Time  Command/Feature_Name
+  -- == -- == -- == == == -- -- -- -- --  ---------------  --------------------
+  25 00 00 00 08 00 00 1c 28 47 e0 1c 00     11:32:13.000  READ DMA EXT
+
+Error 378 [1] occurred at disk power-on lifetime: 5607 hours (233 days + 15 hours)
+  When the command that caused the error occurred, the device was sleeping.
+
+  After command completion occurred, registers were:
+  ER -- ST COUNT  LBA_48  LH LM LL DV DC
+  -- -- -- == -- == == == -- -- -- -- --
+  40 -- 51 00 04 00 00 1c 28 47 e4 40 00
+
+  Commands leading to the command that caused the error were:
+  CR FEATR COUNT  LBA_48  LH LM LL DV DC  Powered_Up_Time  Command/Feature_Name
+  -- == -- == -- == == == -- -- -- -- --  ---------------  --------------------
+  e1 00 00 00 0f 00 00 00 00 00 00 00 00     11:32:13.000  IDLE IMMEDIATE
+  ef 00 03 00 46 00 00 00 00 00 00 00 00     11:32:13.000  SET FEATURES [Set transfer mode]
+  ef 00 02 00 00 00 00 00 00 00 00 00 00     11:32:13.000  SET FEATURES [Enable write cache]
+  ef 00 90 00 06 00 00 00 00 00 00 00 00     11:32:13.000  SET FEATURES [Disable SATA feature]
+  e1 00 00 00 02 00 00 00 00 00 00 00 00     11:32:13.000  IDLE IMMEDIATE
+
+Error 377 [0] occurred at disk power-on lifetime: 5607 hours (233 days + 15 hours)
+  When the command that caused the error occurred, the device was active or idle.
+
+  After command completion occurred, registers were:
+  ER -- ST COUNT  LBA_48  LH LM LL DV DC
+  -- -- -- == -- == == == -- -- -- -- --
+  40 -- 51 00 04 00 00 1c 28 47 e4 40 00  Error: UNC 4 sectors at LBA = 0x1c2847e4 = 472401892
+
+  Commands leading to the command that caused the error were:
+  CR FEATR COUNT  LBA_48  LH LM LL DV DC  Powered_Up_Time  Command/Feature_Name
+  -- == -- == -- == == == -- -- -- -- --  ---------------  --------------------
+  25 00 00 00 08 00 00 1c 28 47 f8 1c 00     11:31:40.000  READ DMA EXT
+
+SMART Extended Self-test Log Version: 1 (1 sectors)
+No self-tests have been logged.  [To run self-tests, use: smartctl -t]
+
+SMART Selective self-test log data structure revision number 1
+ SPAN  MIN_LBA  MAX_LBA  CURRENT_TEST_STATUS
+    1        0        0  Not_testing
+    2        0        0  Not_testing
+    3        0        0  Not_testing
+    4        0        0  Not_testing
+    5        0        0  Not_testing
+Selective self-test flags (0x0):
+  After scanning selected spans, do NOT read-scan remainder of disk.
+If Selective self-test is pending on power-up, resume after 0 minute delay.
+
+SCT Commands not supported
+
+Device Statistics (GP/SMART Log 0x04) not supported
+
+Pending Defects log (GP Log 0x0c) not supported
+
+SATA Phy Event Counters (GP Log 0x11)
+ID      Size     Value  Description
+0x0001  2            0  Command failed due to ICRC error
+0x0002  2            0  R_ERR response for data FIS
+0x0003  2            0  R_ERR response for device-to-host data FIS
+0x0004  2            0  R_ERR response for host-to-device data FIS
+0x0005  2            0  R_ERR response for non-data FIS
+0x0006  2            0  R_ERR response for device-to-host non-data FIS
+0x0007  2            0  R_ERR response for host-to-device non-data FIS
+0x0008  2            0  Device-to-host non-data FIS retries
+0x0009  2            0  Transition from drive PhyRdy to drive PhyNRdy
+0x000a  2            0  Device-to-host register FISes sent due to a COMRESET
+0x000b  2            0  CRC errors within host-to-device FIS
+0x000d  2            0  Non-CRC errors within host-to-device FIS
+0x000f  2            0  R_ERR response for host-to-device data FIS, CRC
+0x0010  2            0  R_ERR response for host-to-device data FIS, non-CRC
+0x0012  2            0  R_ERR response for host-to-device non-data FIS, CRC
+0x0013  2            0  R_ERR response for host-to-device non-data FIS, non-CRC
+
