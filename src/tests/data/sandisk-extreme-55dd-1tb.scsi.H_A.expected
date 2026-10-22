@@ -1,0 +1,15 @@
+
+=== START OF READ SMART DATA SECTION ===
+SMART Health Status: OK
+Current Drive Temperature:     54 C
+Drive Trip Temperature:        <not available>
+
+Vendor (SanDisk) information
+  Controller temperature = 54 C
+  NAND temperatures = 51 51 52 53 C
+  Board temperatures = 46 48 C
+  Lifetime maximum temperature = 56 C
+  Lifetime minimum temperature = 20 C
+  Host data read = 516 GiB
+  Host data written = 2440 GiB
+
