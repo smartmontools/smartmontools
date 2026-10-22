@@ -316,6 +316,11 @@ static void test_drivedb_usb_sandisk_55dd(const char * drivedb)
   // 0x55ae (NVMe behind ASMedia bridge) is unchanged
   CHECK_EQ(lookup_usb_device(0x0781, 0x55ae, 0x3008, info, info2), 1);
   CHECK(info.usb_type == "sntasmedia");
+
+  // Crucial X6 emulates NVMe through the ASMedia pass-through like X9 Pro/X10
+  CHECK_EQ(lookup_usb_device(0x0634, 0x5602, -1, info, info2), 1);
+  CHECK(info.usb_type == "sntasmedia");
+  CHECK(info.usb_device.find("Crucial X6") != std::string::npos);
 }
 
 int main(int argc, char ** argv)
