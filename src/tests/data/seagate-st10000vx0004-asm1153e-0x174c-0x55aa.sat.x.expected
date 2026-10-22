@@ -1,0 +1,330 @@
+
+=== START OF INFORMATION SECTION ===
+Model Family:     Seagate SkyHawk
+Device Model:     ST10000VX0004-1ZE101
+Serial Number:    ZA21484B
+LU WWN Device Id: 5 000c50 0a21be1b0
+Firmware Version: AV01
+User Capacity:    10,000,831,348,736 bytes [10.0 TB]
+Sector Sizes:     512 bytes logical, 4096 bytes physical
+Rotation Rate:    7200 rpm
+Form Factor:      3.5 inches
+Device is:        In smartctl database 8.0/6324
+ATA Version is:   ACS-3 T13/2161-D revision 5
+SATA Version is:  SATA 3.1, 6.0 Gb/s (current: 6.0 Gb/s)
+Local Time is:    Thu Oct 22 20:59:56 2026 UTC
+SMART support is: Available - device has SMART capability.
+SMART support is: Enabled
+AAM feature is:   Unavailable
+APM feature is:   Unavailable
+Rd look-ahead is: Enabled
+Write cache is:   Enabled
+DSN feature is:   Unavailable
+ATA Security is:  Disabled, NOT FROZEN [SEC1]
+
+=== START OF READ SMART DATA SECTION ===
+SMART overall-health self-assessment test result: PASSED
+
+General SMART Values:
+Offline data collection status:  (0x82)	Offline data collection activity
+					was completed without error.
+					Auto Offline Data Collection: Enabled.
+Self-test execution status:      (   0)	The previous self-test routine completed
+					without error or no self-test has ever 
+					been run.
+Total time to complete Offline 
+data collection: 		(  567) seconds.
+Offline data collection
+capabilities: 			 (0x7b) SMART execute Offline immediate.
+					Auto Offline data collection on/off support.
+					Suspend Offline collection upon new
+					command.
+					Offline surface scan supported.
+					Self-test supported.
+					Conveyance Self-test supported.
+					Selective Self-test supported.
+SMART capabilities:            (0x0003)	Saves SMART data before entering
+					power-saving mode.
+					Supports SMART auto save timer.
+Error logging capability:        (0x01)	Error logging supported.
+					General Purpose Logging supported.
+Short self-test routine 
+recommended polling time: 	 (   1) minutes.
+Extended self-test routine
+recommended polling time: 	 ( 872) minutes.
+Conveyance self-test routine
+recommended polling time: 	 (   2) minutes.
+SCT capabilities: 	       (0x50bd)	SCT Status supported.
+					SCT Error Recovery Control supported.
+					SCT Feature Control supported.
+					SCT Data Table supported.
+
+SMART Attributes Data Structure revision number: 10
+Vendor Specific SMART Attributes with Thresholds:
+ID# ATTRIBUTE_NAME          FLAGS    VALUE WORST THRESH FAIL RAW_VALUE
+  1 Raw_Read_Error_Rate     POSR--   084   064   044    -    0/243669670
+  3 Spin_Up_Time            PO----   087   086   000    -    0
+  4 Start_Stop_Count        -O--CK   100   100   020    -    925
+  5 Reallocated_Sector_Ct   PO--CK   100   100   010    -    0
+  7 Seek_Error_Rate         POSR--   079   060   045    -    0/82821269
+  9 Power_On_Hours          -O--CK   099   099   000    -    1699h+23m+05.829s
+ 10 Spin_Retry_Count        PO--C-   100   100   097    -    0
+ 12 Power_Cycle_Count       -O--CK   100   100   020    -    96
+184 End-to-End_Error        -O--CK   100   100   099    -    0
+187 Reported_Uncorrect      -O--CK   100   100   000    -    0
+188 Command_Timeout         -O--CK   100   099   000    -    4 4 4
+189 High_Fly_Writes         -O-RCK   100   100   000    -    0
+190 Airflow_Temperature_Cel -O---K   076   046   040    -    24 (Min/Max 23/24)
+191 G-Sense_Error_Rate      -O--CK   099   099   000    -    2740
+192 Power-Off_Retract_Count -O--CK   100   100   000    -    16
+193 Load_Cycle_Count        -O--CK   099   099   000    -    2082
+194 Temperature_Celsius     -O---K   024   054   000    -    24 (0 16 0 0 0)
+195 ECC_On_the_Fly_Count    -O-RC-   009   003   000    -    0/243669670
+197 Current_Pending_Sector  -O--C-   100   100   000    -    0
+198 Offline_Uncorrectable   ----C-   100   100   000    -    0
+199 UDMA_CRC_Error_Count    -OSRCK   200   200   000    -    0
+200 Multi_Zone_Error_Rate   PO---K   100   100   001    -    0
+240 Head_Flying_Hours       ------   100   253   000    -    363h+20m+15.248s
+241 Total_LBAs_Written      ------   100   253   000    -    61597821408
+242 Total_LBAs_Read         ------   100   253   000    -    89829219638
+                            ||||||_ K auto-keep
+                            |||||__ C event count
+                            ||||___ R error rate
+                            |||____ S speed/performance
+                            ||_____ O updated online
+                            |______ P prefailure warning
+
+General Purpose Log Directory Version 1
+SMART           Log Directory Version 1 [multi-sector log support]
+Address    Access  R/W   Size  Description
+0x00       GPL,SL  R/O      1  Log Directory
+0x01           SL  R/O      1  Summary SMART error log
+0x02           SL  R/O      5  Comprehensive SMART error log
+0x03       GPL     R/O      5  Ext. Comprehensive SMART error log
+0x04       GPL     R/O    256  Device Statistics log
+0x04       SL      R/O      8  Device Statistics log
+0x06           SL  R/O      1  SMART self-test log
+0x07       GPL     R/O      1  Extended self-test log
+0x08       GPL     R/O      2  Power Conditions log
+0x09           SL  R/W      1  Selective self-test log
+0x0c       GPL     R/O   2048  Pending Defects log
+0x10       GPL     R/O      1  NCQ Command Error log
+0x11       GPL     R/O      1  SATA Phy Event Counters log
+0x13       GPL     R/O      1  SATA NCQ Send and Receive log
+0x15       GPL     R/W      1  Rebuild Assist log
+0x21       GPL     R/O      1  Write stream error log
+0x22       GPL     R/O      1  Read stream error log
+0x24       GPL     R/O    768  Current Device Internal Status Data log
+0x30       GPL,SL  R/O      9  IDENTIFY DEVICE data log
+0x80-0x9f  GPL,SL  R/W     16  Host vendor specific log
+0xa1       GPL,SL  VS      24  Device vendor specific log
+0xa2       GPL     VS   16320  Device vendor specific log
+0xa6       GPL     VS     192  Device vendor specific log
+0xa8-0xa9  GPL,SL  VS     136  Device vendor specific log
+0xab       GPL     VS       1  Device vendor specific log
+0xad       GPL     VS      16  Device vendor specific log
+0xb0       GPL     VS   17208  Device vendor specific log
+0xbe-0xbf  GPL     VS   65535  Device vendor specific log
+0xc1       GPL,SL  VS      16  Device vendor specific log
+0xc3       GPL,SL  VS       8  Device vendor specific log
+0xc9       GPL,SL  VS       8  Device vendor specific log
+0xca       GPL,SL  VS      16  Device vendor specific log
+0xd1       GPL     VS     304  Device vendor specific log
+0xd2       GPL     VS   10000  Device vendor specific log
+0xd4       GPL     VS    2048  Device vendor specific log
+0xe0       GPL,SL  R/W      1  SCT Command/Status
+0xe1       GPL,SL  R/W      1  SCT Data Transfer
+
+SMART Extended Comprehensive Error Log Version: 1 (5 sectors)
+No Errors Logged
+
+SMART Extended Self-test Log Version: 1 (1 sectors)
+No self-tests have been logged.  [To run self-tests, use: smartctl -t]
+
+SMART Selective self-test log data structure revision number 1
+ SPAN  MIN_LBA  MAX_LBA  CURRENT_TEST_STATUS
+    1        0        0  Not_testing
+    2        0        0  Not_testing
+    3        0        0  Not_testing
+    4        0        0  Not_testing
+    5        0        0  Not_testing
+Selective self-test flags (0x0):
+  After scanning selected spans, do NOT read-scan remainder of disk.
+If Selective self-test is pending on power-up, resume after 0 minute delay.
+
+SCT Status Version:                  3
+SCT Version (vendor specific):       522 (0x020a)
+Device State:                        Active (0)
+Current Temperature:                    23 Celsius
+Power Cycle Min/Max Temperature:     23/23 Celsius
+Lifetime    Min/Max Temperature:     16/54 Celsius
+Under/Over Temperature Limit Count:   0/1
+
+SCT Temperature History Version:     2
+Temperature Sampling Period:         3 minutes
+Temperature Logging Interval:        59 minutes
+Min/Max recommended Temperature:      0/ 0 Celsius
+Min/Max Temperature Limit:            0/ 0 Celsius
+Temperature History Size (Index):    128 (100)
+
+Index    Estimated Time   Temperature Celsius
+ 101    2026-10-17 15:54    30  ***********
+ 102    2026-10-17 16:53    32  *************
+ ...    ..(  5 skipped).    ..  *************
+ 108    2026-10-17 22:47    32  *************
+ 109    2026-10-17 23:46    31  ************
+ ...    ..(  2 skipped).    ..  ************
+ 112    2026-10-18 02:43    31  ************
+ 113    2026-10-18 03:42    30  ***********
+ ...    ..(  3 skipped).    ..  ***********
+ 117    2026-10-18 07:38    30  ***********
+ 118    2026-10-18 08:37    29  **********
+ ...    ..(  3 skipped).    ..  **********
+ 122    2026-10-18 12:33    29  **********
+ 123    2026-10-18 13:32    30  ***********
+ 124    2026-10-18 14:31    30  ***********
+ 125    2026-10-18 15:30    31  ************
+ 126    2026-10-18 16:29    31  ************
+ 127    2026-10-18 17:28    31  ************
+   0    2026-10-18 18:27    32  *************
+   1    2026-10-18 19:26    32  *************
+   2    2026-10-18 20:25    32  *************
+   3    2026-10-18 21:24    31  ************
+ ...    ..(  4 skipped).    ..  ************
+   8    2026-10-19 02:19    31  ************
+   9    2026-10-19 03:18    30  ***********
+ ...    ..(  6 skipped).    ..  ***********
+  16    2026-10-19 10:11    30  ***********
+  17    2026-10-19 11:10    29  **********
+  18    2026-10-19 12:09    29  **********
+  19    2026-10-19 13:08    31  ************
+  20    2026-10-19 14:07    31  ************
+  21    2026-10-19 15:06    33  **************
+  22    2026-10-19 16:05    33  **************
+  23    2026-10-19 17:04    34  ***************
+  24    2026-10-19 18:03    34  ***************
+  25    2026-10-19 19:02    33  **************
+ ...    ..(  3 skipped).    ..  **************
+  29    2026-10-19 22:58    33  **************
+  30    2026-10-19 23:57    32  *************
+ ...    ..(  2 skipped).    ..  *************
+  33    2026-10-20 02:54    32  *************
+  34    2026-10-20 03:53    31  ************
+ ...    ..(  4 skipped).    ..  ************
+  39    2026-10-20 08:48    31  ************
+  40    2026-10-20 09:47    30  ***********
+  41    2026-10-20 10:46    30  ***********
+  42    2026-10-20 11:45    30  ***********
+  43    2026-10-20 12:44    31  ************
+  44    2026-10-20 13:43    32  *************
+  45    2026-10-20 14:42    41  **********************
+  46    2026-10-20 15:41    48  *****************************
+  47    2026-10-20 16:40    50  *******************************
+  48    2026-10-20 17:39    51  ********************************
+  49    2026-10-20 18:38    50  *******************************
+ ...    ..(  3 skipped).    ..  *******************************
+  53    2026-10-20 22:34    50  *******************************
+  54    2026-10-20 23:33    49  ******************************
+ ...    ..(  3 skipped).    ..  ******************************
+  58    2026-10-21 03:29    49  ******************************
+  59    2026-10-21 04:28    48  *****************************
+ ...    ..(  7 skipped).    ..  *****************************
+  67    2026-10-21 12:20    48  *****************************
+  68    2026-10-21 13:19    49  ******************************
+  69    2026-10-21 14:18    47  ****************************
+  70    2026-10-21 15:17    42  ***********************
+  71    2026-10-21 16:16    46  ***************************
+  72    2026-10-21 17:15    47  ****************************
+  73    2026-10-21 18:14    47  ****************************
+  74    2026-10-21 19:13    47  ****************************
+  75    2026-10-21 20:12    42  ***********************
+  76    2026-10-21 21:11    33  **************
+  77    2026-10-21 22:10    31  ************
+  78    2026-10-21 23:09    37  ******************
+  79    2026-10-22 00:08    33  **************
+  80    2026-10-22 01:07    38  *******************
+  81    2026-10-22 02:06    34  ***************
+  82    2026-10-22 03:05    35  ****************
+  83    2026-10-22 04:04    35  ****************
+  84    2026-10-22 05:03    33  **************
+  85    2026-10-22 06:02    36  *****************
+  86    2026-10-22 07:01    31  ************
+  87    2026-10-22 08:00    36  *****************
+  88    2026-10-22 08:59    32  *************
+  89    2026-10-22 09:58    38  *******************
+  90    2026-10-22 10:57    46  ***************************
+  91    2026-10-22 11:56    49  ******************************
+  92    2026-10-22 12:55    50  *******************************
+  93    2026-10-22 13:54    49  ******************************
+  94    2026-10-22 14:53    49  ******************************
+  95    2026-10-22 15:52     ?  -
+  96    2026-10-22 16:51    26  *******
+  97    2026-10-22 17:50     ?  -
+  98    2026-10-22 18:49    23  ****
+  99    2026-10-22 19:48     ?  -
+ 100    2026-10-22 20:47    23  ****
+
+SCT Error Recovery Control:
+           Read:     70 (7.0 seconds)
+          Write:     70 (7.0 seconds)
+
+Device Statistics (GP Log 0x04)
+Page  Offset Size        Value Flags Description
+0x01  =====  =               =  ===  == General Statistics (rev 1) ==
+0x01  0x008  4              96  ---  Lifetime Power-On Resets
+0x01  0x010  4            1699  ---  Power-on Hours
+0x01  0x018  6     61813770220  ---  Logical Sectors Written [31.6 TB]
+0x01  0x020  6       265853345  ---  Number of Write Commands
+0x01  0x028  6     89827736185  ---  Logical Sectors Read [45.9 TB]
+0x01  0x030  6       530331323  ---  Number of Read Commands
+0x01  0x038  6               -  ---  Date and Time TimeStamp
+0x03  =====  =               =  ===  == Rotating Media Statistics (rev 1) ==
+0x03  0x008  4      3239094986  N--  Spindle Motor Power-on Hours
+0x03  0x010  4      3239094346  N--  Head Flying Hours
+0x03  0x018  4            2082  ---  Head Load Events
+0x03  0x020  4               0  ---  Number of Reallocated Logical Sectors
+0x03  0x028  4               0  ---  Read Recovery Attempts
+0x03  0x030  4               0  ---  Number of Mechanical Start Failures
+0x03  0x038  4               0  ---  Number of Realloc. Candidate Logical Sectors
+0x03  0x040  4              16  ---  Number of High Priority Unload Events
+0x04  =====  =               =  ===  == General Errors Statistics (rev 1) ==
+0x04  0x008  4               0  ---  Number of Reported Uncorrectable Errors
+0x04  0x010  4               4  ---  Resets Between Cmd Acceptance and Completion
+0x05  =====  =               =  ===  == Temperature Statistics (rev 1) ==
+0x05  0x008  1              23  ---  Current Temperature
+0x05  0x010  1              30  ---  Average Short Term Temperature
+0x05  0x018  1              32  ---  Average Long Term Temperature
+0x05  0x020  1              54  ---  Highest Temperature
+0x05  0x028  1               0  ---  Lowest Temperature
+0x05  0x030  1              51  ---  Highest Average Short Term Temperature
+0x05  0x038  1              25  ---  Lowest Average Short Term Temperature
+0x05  0x040  1              37  ---  Highest Average Long Term Temperature
+0x05  0x048  1              30  ---  Lowest Average Long Term Temperature
+0x05  0x050  4               0  ---  Time in Over-Temperature
+0x05  0x058  1              70  ---  Specified Maximum Operating Temperature
+0x05  0x060  4               0  ---  Time in Under-Temperature
+0x05  0x068  1               0  ---  Specified Minimum Operating Temperature
+0x06  =====  =               =  ===  == Transport Statistics (rev 1) ==
+0x06  0x008  4              34  ---  Number of Hardware Resets
+0x06  0x010  4              21  ---  Number of ASR Events
+0x06  0x018  4               0  ---  Number of Interface CRC Errors
+0xff  =====  =               =  ===  == Vendor Specific Statistics (rev 1) ==
+0xff  0x008  7               0  ---  Vendor Specific
+                                |||_ C monitored condition met
+                                ||__ D supports DSN
+                                |___ N normalized value
+
+Pending Defects log (GP Log 0x0c)
+No Defects Logged
+
+SATA Phy Event Counters (GP Log 0x11)
+ID      Size     Value  Description
+0x000a  2            1  Device-to-host register FISes sent due to a COMRESET
+0x0001  2            0  Command failed due to ICRC error
+0x0003  2            0  R_ERR response for device-to-host data FIS
+0x0004  2            0  R_ERR response for host-to-device data FIS
+0x0006  2            0  R_ERR response for device-to-host non-data FIS
+0x0007  2            0  R_ERR response for host-to-device non-data FIS
+
+Seagate FARM log (GP Log 0xa6) supported [try: -l farm]
+
