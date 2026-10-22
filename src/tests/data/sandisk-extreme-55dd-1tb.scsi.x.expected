@@ -18,8 +18,17 @@ Read Cache is:        Enabled
 Writeback Cache is:   Enabled
 
 === START OF READ SMART DATA SECTION ===
-Current Drive Temperature:     0 C
-Drive Trip Temperature:        0 C
+Current Drive Temperature:     54 C
+Drive Trip Temperature:        <not available>
+
+Vendor (SanDisk) information
+  Controller temperature = 54 C
+  NAND temperatures = 51 51 52 53 C
+  Board temperatures = 46 48 C
+  Lifetime maximum temperature = 56 C
+  Lifetime minimum temperature = 20 C
+  Host data read = 516 GiB
+  Host data written = 2440 GiB
 
 Error Counter logging not supported
 
