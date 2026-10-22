@@ -59,5 +59,20 @@ for exp in "$datadir"/*.expected; do
     fails=$((fails + 1))
   fi
 done
+# Debug output of a replay: the data length of the first INQUIRY (VPD page
+# list, 252 bytes) must be printed as decimal number, not with a misleading
+# "0x" prefix
+trace=$datadir/sandisk-extreme-55dd-1tb.trace
+if [ -f "$trace" ]; then
+  total=$((total + 1))
+  "$smartctl" -d scsi -i -r scsiioctl,3 - < "$trace" > "$tmp.dbg" 2>&1
+  first=$(grep 'data length=' "$tmp.dbg" | head -n 1)
+  case $first in
+    *'data length=252,'*) echo "PASS: debug output data length (-r scsiioctl,3)" ;;
+    *) echo "FAIL: debug output data length (-r scsiioctl,3): $first"
+       fails=$((fails + 1)) ;;
+  esac
+fi
+
 echo "$total replay tests, $fails failed"
 [ "$total" -gt 0 ] && [ "$fails" -eq 0 ]
