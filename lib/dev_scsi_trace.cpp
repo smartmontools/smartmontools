@@ -76,7 +76,7 @@ private:
     std::vector<uint8_t> data;
   };
 
-  bool parse(const char * text, const char * src);
+  bool parse(const std::string & text, const char * src);
 
   bool set_check_condition(scsi_cmnd_io * iop, uint8_t asc);
 
@@ -140,7 +140,7 @@ bool trace_scsi_device::open()
     if (!ok)
       return set_err(EIO, "%s: read error", src);
   }
-  if (!parse(text.c_str(), src))
+  if (!parse(text, src))
     return false;
   m_open = true;
   return true;
@@ -164,16 +164,18 @@ static bool parse_hex(const char * s, std::vector<uint8_t> & out)
   }
 }
 
-bool trace_scsi_device::parse(const char * text, const char * src)
+bool trace_scsi_device::parse(const std::string & text, const char * src)
 {
   trace_cmd cmd;
-  bool in_cmd = false;
+  bool in_cmd = false, has_alloc = false, has_status = false;
   int lineno = 0;
-  const char * p = text;
-  while (*p) {
-    const char * eol = strchr(p, '\n');
-    std::string line(p, (eol ? eol - p : strlen(p)));
-    p = (eol ? eol + 1 : p + line.size());
+  size_t pos = 0;
+  while (pos < text.size()) {
+    size_t eol = text.find('\n', pos);
+    if (eol == std::string::npos)
+      eol = text.size();
+    std::string line = text.substr(pos, eol - pos);
+    pos = eol + 1;
     lineno++;
     if (!line.empty() && line.back() == '\r')
       line.pop_back();
@@ -188,16 +190,19 @@ bool trace_scsi_device::parse(const char * text, const char * src)
       cmd = trace_cmd();
       ok = (!in_cmd && parse_hex(arg, cmd.cdb) && !cmd.cdb.empty());
       in_cmd = true;
+      has_alloc = has_status = false;
     }
     else if (key == "ALLOC")
-      ok = (in_cmd && sscanf(arg, "%u", &cmd.alloc) == 1);
+      ok = has_alloc = (in_cmd && sscanf(arg, "%u", &cmd.alloc) == 1);
     else if (key == "STATUS")
-      ok = (in_cmd && sscanf(arg, "%d ERROR %d", &cmd.status, &cmd.error) >= 1);
+      ok = has_status = (in_cmd && sscanf(arg, "%d ERROR %d", &cmd.status, &cmd.error) >= 1);
     else if (key == "SENSE")
       ok = (in_cmd && parse_hex(arg, cmd.sense));
     else if (key == "DATA")
       ok = (in_cmd && parse_hex(arg, cmd.data));
     else if (key == "END") {
+      if (in_cmd && !(has_alloc && has_status))
+        return set_err(EINVAL, "%s(%d): ALLOC or STATUS missing", src, lineno);
       ok = in_cmd;
       if (ok)
         m_cmds.push_back(cmd);

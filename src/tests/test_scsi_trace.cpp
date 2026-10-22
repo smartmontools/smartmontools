@@ -197,6 +197,8 @@ static void test_parse_errors()
     "CDB 12 00 zz 00 24 00\nALLOC 36\nSTATUS 0\nSENSE\nDATA\nEND\n", // bad hex
     "BOGUS line\n",
     "", // empty trace
+    "CDB 12 00 00 00 24 00\nSTATUS 0\nSENSE\nDATA\nEND\n", // missing ALLOC
+    "CDB 12 00 00 00 24 00\nALLOC 36\nSENSE\nDATA\nEND\n", // missing STATUS
   };
   for (const char * text : bad) {
     scsi_ptr dev(get_trace_scsi_device(smi(), "-", text));

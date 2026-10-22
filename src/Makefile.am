@@ -556,6 +556,12 @@ EXTRA_DIST += \
         examples/Makefile.in \
         $(examples_cpp)
 
+# Inputs of check-unit and check-replay
+EXTRA_DIST += \
+        tests/data \
+        tests/run_replay.sh \
+        tests/tools/scsiioctl2trace.py
+
 examples: examples.stamp
 
 examples.stamp: $(examples_cpp) examples/Makefile examples/make.sh ../lib/libsmartmon.la

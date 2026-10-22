@@ -517,17 +517,21 @@ scsiGetSmartData(scsi_device * device, bool attribs)
     }
 
     if (attribs && !gTempLPage) {
+        bool have_temp = (255 != currenttemp);
+        int temp = currenttemp;
         sandisk_temps st;
         if (gSanDiskTempLPage && scsiGetSanDiskTemps(device, st)) {
-            /* IE mode page values are invalid on this device */
-            currenttemp = (uint8_t)st.controller;
+            /* IE mode page values are invalid on this device,
+               the signed controller temperature may be below 0 C */
+            have_temp = true;
+            temp = st.controller;
             triptemp = 255;
         }
-        if (255 == currenttemp)
+        if (!have_temp)
             pout("Current Drive Temperature:     <not available>\n");
         else {
-            jout("Current Drive Temperature:     %d C\n", currenttemp);
-            jglb["temperature"]["current"] = currenttemp;
+            jout("Current Drive Temperature:     %d C\n", temp);
+            jglb["temperature"]["current"] = temp;
         }
         if (255 == triptemp)
             pout("Drive Trip Temperature:        <not available>\n");
@@ -3000,10 +3004,11 @@ scsiGetDriveInfo(scsi_device * device, uint8_t * peripheral_type,
     // Upper bits of version bytes were used in older standards
     // Only interested in SPC-4 (0x6) and SPC-5 (assumed to be 0x7)
     scsi_version = gBuf[2] & 0x7;
+    // Also needed without '-i' to detect vendor specific log pages
+    scsi_format_id_string(scsi_vendor, &gBuf[8], 8);
 
     if (all && (0 != strncmp((char *)&gBuf[8], "ATA", 3))) {
         char product[16+1], revision[4+1];
-        scsi_format_id_string(scsi_vendor, &gBuf[8], 8);
         scsi_format_id_string(product, &gBuf[16], 16);
         scsi_format_id_string(revision, &gBuf[32], 4);
         char model_name[sizeof(scsi_vendor) + sizeof(product)];
