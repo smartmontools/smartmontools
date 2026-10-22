@@ -7044,6 +7044,12 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sntasmedia"
   },
+  { "USB: StarTech USB 3.1 to SATA Adapter (USB312SAT3CB); ASMedia ASMT105x", // USB3.1->SATA
+    "0x14b0:0x0207",
+    "",
+    "",
+    "-d sat"
+  },
   // Super Top
   { "USB: Super Top generic enclosure; ",
     "0x14cd:0x6116",
