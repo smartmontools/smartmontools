@@ -71,6 +71,8 @@ static bool gZBDeviceStatsLPage = false;
 static bool gGenStatsAndPerfLPage = false;
 
 /* Vendor specific log pages */
+static bool gSanDiskCountersLPage = false;
+static bool gSanDiskTempLPage = false;
 static bool gSeagateCacheLPage = false;
 static bool gSeagateFactoryLPage = false;
 static bool gSeagateFarmLPage = false;
@@ -115,6 +117,12 @@ seagate_or_hitachi(void)
                          strlen(T10_VENDOR_HITACHI_2))) ||
             (0 == memcmp(scsi_vendor, T10_VENDOR_HITACHI_3,
                          strlen(T10_VENDOR_HITACHI_3))));
+}
+
+static bool
+sandisk(void)
+{
+    return (0 == memcmp(scsi_vendor, "SanDisk", 7));
 }
 
 static bool
@@ -328,6 +336,14 @@ skip_subpages:
             case FORMAT_STATUS_LPAGE:
                 gFormatStatusLPage = true;
                 break;
+            case SANDISK_COUNTERS_LPAGE:
+                if (sandisk())
+                    gSanDiskCountersLPage = true;
+                break;
+            case SANDISK_TEMPERATURE_LPAGE:
+                if (sandisk())
+                    gSanDiskTempLPage = true;
+                break;
             case SEAGATE_CACHE_LPAGE:
                 if (failuretest_permissive) {
                     gSeagateCacheLPage = true;
@@ -369,6 +385,100 @@ skip_subpages:
               __func__, lp_s, num_unreported, num_unreported_spg);
 }
 
+/* SanDisk Extreme Portable SSD (USB 0x0781:0x55dd) vendor specific log
+ * pages, no documentation available. Layout from smartmontools issue #526,
+ * validated by temperature, read and write load tests:
+ * Page 0x32 (length 0x2d): offset 7: controller temperature, 8-11: NAND
+ * temperatures, 12/13: lifetime maximum/minimum, 16/21: board sensors,
+ * 0x18-0x1b: "AUAK" signature. Values are degrees Celsius.
+ * Page 0x30 (length 0xa5): offset 0x79: host writes, 0x81: host reads,
+ * both in GiB (32-bit LE). */
+struct sandisk_temps {
+    int controller;
+    int nand[4];
+    int board[2];
+    int lifetime_max;
+    int lifetime_min;
+};
+
+static bool
+scsiGetSanDiskTemps(scsi_device * device, sandisk_temps & t)
+{
+    int err;
+    if ((err = scsiLogSense(device, SANDISK_TEMPERATURE_LPAGE, 0, gBuf,
+                            LOG_RESP_LEN, 0))) {
+        if (scsi_debugmode > 0)
+            pout("SanDisk temperature %s failed [%s]\n", logSenStr,
+                 scsiErrString(err));
+        return false;
+    }
+    if (((gBuf[0] & 0x3f) != SANDISK_TEMPERATURE_LPAGE) ||
+        (sg_get_unaligned_be16(gBuf + 2) < 0x2d) ||
+        memcmp(gBuf + 0x18, "AUAK", 4)) {
+        if (scsi_debugmode > 0)
+            pout("SanDisk temperature %s, unknown layout\n", logSenRspStr);
+        return false;
+    }
+    t.controller = (int8_t)gBuf[7];
+    for (int i = 0; i < 4; i++)
+        t.nand[i] = (int8_t)gBuf[8 + i];
+    t.lifetime_max = (int8_t)gBuf[12];
+    t.lifetime_min = (int8_t)gBuf[13];
+    t.board[0] = (int8_t)gBuf[16];
+    t.board[1] = (int8_t)gBuf[21];
+    return true;
+}
+
+static void
+scsiPrintSanDiskLPages(scsi_device * device)
+{
+    sandisk_temps t;
+    bool have_temps = (gSanDiskTempLPage && scsiGetSanDiskTemps(device, t));
+
+    bool have_reads = false;
+    uint32_t host_read_gib = 0, host_written_gib = 0;
+    if (gSanDiskCountersLPage) {
+        int err = scsiLogSense(device, SANDISK_COUNTERS_LPAGE, 0, gBuf,
+                               LOG_RESP_LEN, 0);
+        if (!err && ((gBuf[0] & 0x3f) == SANDISK_COUNTERS_LPAGE) &&
+            (sg_get_unaligned_be16(gBuf + 2) + 4 >= 0x85)) {
+            host_written_gib = sg_get_unaligned_le32(gBuf + 0x79);
+            host_read_gib = sg_get_unaligned_le32(gBuf + 0x81);
+            have_reads = true;
+        } else if (scsi_debugmode > 0)
+            pout("SanDisk counters %s failed [%s]\n", logSenStr,
+                 (err ? scsiErrString(err) : "unknown layout"));
+    }
+    if (!(have_temps || have_reads))
+        return;
+
+    static const char * jname = "sandisk_vendor_log";
+    pout("Vendor (SanDisk) information\n");
+    if (have_temps) {
+        json::ref jref = jglb[jname];
+        jout("  Controller temperature = %d C\n", t.controller);
+        jref["controller_temperature"] = t.controller;
+        jout("  NAND temperatures = %d %d %d %d C\n",
+             t.nand[0], t.nand[1], t.nand[2], t.nand[3]);
+        for (int i = 0; i < 4; i++)
+            jref["nand_temperatures"][i] = t.nand[i];
+        jout("  Board temperatures = %d %d C\n", t.board[0], t.board[1]);
+        for (int i = 0; i < 2; i++)
+            jref["board_temperatures"][i] = t.board[i];
+        jout("  Lifetime maximum temperature = %d C\n", t.lifetime_max);
+        jref["lifetime_max_temperature"] = t.lifetime_max;
+        jout("  Lifetime minimum temperature = %d C\n", t.lifetime_min);
+        jref["lifetime_min_temperature"] = t.lifetime_min;
+    }
+    if (have_reads) {
+        jout("  Host data read = %u GiB\n", host_read_gib);
+        jglb[jname]["host_read_gib"] = host_read_gib;
+        jout("  Host data written = %u GiB\n", host_written_gib);
+        jglb[jname]["host_written_gib"] = host_written_gib;
+    }
+    pout("\n");
+}
+
 /* Returns 0 if ok, -1 if can't check IE, -2 if can check and bad
    (or at least something to report). */
 static int
@@ -407,6 +517,12 @@ scsiGetSmartData(scsi_device * device, bool attribs)
     }
 
     if (attribs && !gTempLPage) {
+        sandisk_temps st;
+        if (gSanDiskTempLPage && scsiGetSanDiskTemps(device, st)) {
+            /* IE mode page values are invalid on this device */
+            currenttemp = (uint8_t)st.controller;
+            triptemp = 255;
+        }
         if (255 == currenttemp)
             pout("Current Drive Temperature:     <not available>\n");
         else {
@@ -3787,6 +3903,8 @@ scsiPrintMain(scsi_device * device, const scsi_print_options & options)
                 scsiPrintSeagateCacheLPage(device);
             if (gSeagateFactoryLPage)
                 scsiPrintSeagateFactoryLPage(device);
+            if (gSanDiskTempLPage || gSanDiskCountersLPage)
+                scsiPrintSanDiskLPages(device);
         }
         any_output = true;
     }

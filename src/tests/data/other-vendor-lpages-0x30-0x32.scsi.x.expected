@@ -1,0 +1,25 @@
+
+=== START OF INFORMATION SECTION ===
+Vendor:               WDC
+Product:              Extreme 55DD
+Revision:             0010
+Compliance:           SPC-4
+User Capacity:        1,000,204,886,016 bytes [1.00 TB]
+Logical block size:   512 bytes
+Physical block size:  4096 bytes
+Logical block provisioning enabled, LBPRZ=0
+Device type:          disk
+Local Time is:        Thu Oct 22 14:29:49 2026 UTC
+SMART support is:     Unavailable - device lacks SMART capability.
+Read Cache is:        Unavailable
+Writeback Cache is:   Unavailable
+
+=== START OF READ SMART DATA SECTION ===
+Current Drive Temperature:     0 C
+Drive Trip Temperature:        0 C
+
+Error Counter logging not supported
+
+Device does not support Self Test logging
+Device does not support Background scan results logging
+Device does not support General statistics and performance logging

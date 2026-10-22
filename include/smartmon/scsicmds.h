@@ -254,6 +254,8 @@ struct scsi_supp_log_pages {
 #define SUPP_SPAGE_L_SPAGE              0xff    /* 0x0,0xff pages+subpages */
 
 /* Seagate vendor specific log pages. */
+#define SANDISK_COUNTERS_LPAGE              0x30
+#define SANDISK_TEMPERATURE_LPAGE           0x32
 #define SEAGATE_CACHE_LPAGE                 0x37
 #define SEAGATE_FARM_LPAGE                  0x3d
 #define SEAGATE_FACTORY_LPAGE               0x3e
