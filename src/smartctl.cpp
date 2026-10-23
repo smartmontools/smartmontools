@@ -315,7 +315,7 @@ enum checksum_err_mode_t {
 
 static checksum_err_mode_t checksum_err_mode = CHECKSUM_ERR_WARN;
 
-static void scan_devices(const smart_devtype_list & types, bool with_open, char ** argv);
+static int scan_devices(const smart_devtype_list & types, bool with_open, char ** argv);
 
 
 /*      Takes command options and sets features to be run */    
@@ -1236,8 +1236,7 @@ static int parse_options(int argc, char** argv, const char * & type,
     // Read or init drive database to allow USB ID check.
     if (!init_drive_database(use_default_db))
       return FAILCMD;
-    scan_devices(scan_types, (scan == opt_scan_open), argv + optind);
-    return 0;
+    return scan_devices(scan_types, (scan == opt_scan_open), argv + optind);
   }
 
   // At this point we have processed all command-line options.  If the
@@ -1557,7 +1556,7 @@ static void js_device_info(const json::ref & jref, const smart_device * dev)
 
 // Device scan
 // smartctl [-d type] --scan[-open] -- [PATTERN] [smartd directive ...]
-void scan_devices(const smart_devtype_list & types, bool with_open, char ** argv)
+int scan_devices(const smart_devtype_list & types, bool with_open, char ** argv)
 {
   bool dont_print = !(ata_debugmode || scsi_debugmode || nvme_debugmode);
 
@@ -1573,9 +1572,10 @@ void scan_devices(const smart_devtype_list & types, bool with_open, char ** argv
 
   if (!ok) {
     pout("# scan_smart_devices: %s\n", smi()->get_errmsg());
-    return;
+    return 0;
   }
 
+  int status = 0;
   for (unsigned i = 0; i < devlist.size(); i++) {
     smart_device_auto_ptr dev( devlist.release(i) );
     json::ref jref = jglb["devices"][i];
@@ -1605,9 +1605,13 @@ void scan_devices(const smart_devtype_list & types, bool with_open, char ** argv
       jout("\n");
     }
 
-    if (dev->is_open())
-      dev->close();
+    if (dev->is_open() && !dev->close()) {
+      jerr("# %s: close failed: %s\n", dev->get_dev_name(), dev->get_errmsg());
+      jref["close_error"] = dev->get_errmsg();
+      status |= FAILDEV;
+    }
   }
+  return status;
 }
 
 // Main program without exception handling
@@ -1718,7 +1722,10 @@ static int main_worker(int argc, char **argv)
     // we should never fall into this branch!
     pout("%s: Neither ATA, SCSI nor NVMe device\n", dev->get_info_name());
 
-  dev->close();
+  if (!dev->close()) {
+    jerr("%s: close failed: %s\n", dev->get_dev_name(), dev->get_errmsg());
+    retval |= FAILDEV;
+  }
   return retval;
 }
 

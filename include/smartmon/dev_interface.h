@@ -714,6 +714,10 @@ public:
   /// Return false on error.
   virtual bool nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out & out) = 0;
 
+  /// Maximum bytes returned by one Get Log Page command.
+  virtual unsigned get_log_page_size_limit() const
+    { return 0x1000; }
+
   /// Get namespace id.
   unsigned get_nsid() const
     { return m_nsid; }
