@@ -60,6 +60,7 @@ libsmartmon_la_SOURCES = \
         dev_interface.cpp \
         dev_jmb39x_raid.cpp \
         dev_parse_debug.cpp \
+        dev_scsi_trace.cpp \
         dev_tunnelled.h \
         farmcmds.cpp \
         hexdump.cpp \

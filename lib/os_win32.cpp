@@ -2913,11 +2913,13 @@ bool win_scsi_device::scsi_pass_through(struct scsi_cmnd_io * iop)
       j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "%02x ", ucp[k]);
     if ((report > 1) &&
       (DXFER_TO_DEVICE == iop->dxfer_dir) && (iop->dxferp)) {
-      int trunc = (iop->dxfer_len > 256) ? 1 : 0;
+      int trunc = (report < 4 && iop->dxfer_len > 256) ? 1 : 0;
 
       j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n  Outgoing "
               "data, len=%d%s:\n", (int)iop->dxfer_len,
               (trunc ? " [only first 256 bytes shown]" : ""));
+      lib_printf("%s", buff); // header before data
+      buff[0] = 0;
       dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
     }
     else
@@ -3012,7 +3014,7 @@ bool win_scsi_device::scsi_pass_through(struct scsi_cmnd_io * iop)
     iop->resid = 0;
 
   if ((iop->dxfer_dir == DXFER_FROM_DEVICE) && (report > 1)) {
-     int trunc = (iop->dxfer_len > 256) ? 1 : 0;
+     int trunc = (report < 4 && iop->dxfer_len > 256) ? 1 : 0;
      lib_printf("  Incoming data, len=%d, resid=%d%s:\n", (int)iop->dxfer_len, iop->resid,
         (trunc ? " [only first 256 bytes shown]" : ""));
         dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
@@ -3042,11 +3044,13 @@ static long scsi_pass_through_direct(HANDLE fd, UCHAR targetid, struct scsi_cmnd
       j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "%02x ", ucp[k]);
     if ((report > 1) &&
       (DXFER_TO_DEVICE == iop->dxfer_dir) && (iop->dxferp)) {
-      int trunc = (iop->dxfer_len > 256) ? 1 : 0;
+      int trunc = (report < 4 && iop->dxfer_len > 256) ? 1 : 0;
 
       j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n  Outgoing "
               "data, len=%d%s:\n", (int)iop->dxfer_len,
               (trunc ? " [only first 256 bytes shown]" : ""));
+      lib_printf("%s", buff); // header before data
+      buff[0] = 0;
       dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
     }
     else
@@ -3142,7 +3146,7 @@ static long scsi_pass_through_direct(HANDLE fd, UCHAR targetid, struct scsi_cmnd
     iop->resid = 0;
 
   if ((iop->dxfer_dir == DXFER_FROM_DEVICE) && (report > 1)) {
-     int trunc = (iop->dxfer_len > 256) ? 1 : 0;
+     int trunc = (report < 4 && iop->dxfer_len > 256) ? 1 : 0;
      lib_printf("  Incoming data, len=%d, resid=%d%s:\n", (int)iop->dxfer_len, iop->resid,
         (trunc ? " [only first 256 bytes shown]" : ""));
         dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
@@ -3479,16 +3483,18 @@ bool win_aacraid_device::scsi_pass_through(struct scsi_cmnd_io *iop)
       j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "%02x ", ucp[k]);
     if ((report > 1) &&
       (DXFER_TO_DEVICE == iop->dxfer_dir) && (iop->dxferp)) {
-      int trunc = (iop->dxfer_len > 256) ? 1 : 0;
+      int trunc = (report < 4 && iop->dxfer_len > 256) ? 1 : 0;
 
       j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n  Outgoing "
         "data, len=%d%s:\n", (int)iop->dxfer_len,
         (trunc ? " [only first 256 bytes shown]" : ""));
+        lib_printf("%s", buff); // header before data
+        buff[0] = 0;
         dStrHex(iop->dxferp, (trunc ? 256 : (int)iop->dxfer_len) , 1);
       }
     else
       j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n");
-    lib_printf("buff %s\n",buff);
+    lib_printf("%s", buff);
   }
 
   // Create buffer with appropriate size
@@ -3589,7 +3595,7 @@ bool win_aacraid_device::scsi_pass_through(struct scsi_cmnd_io *iop)
      memcpy(iop->dxferp,pDataIO, iop->dxfer_len);
   }
   if((iop->dxfer_dir == DXFER_FROM_DEVICE) && (report > 1)){
-    int trunc = (iop->dxfer_len > 256) ? 1 : 0;
+    int trunc = (report < 4 && iop->dxfer_len > 256) ? 1 : 0;
     lib_printf("  Incoming data, len=%d, resid=%d%s:\n", (int)iop->dxfer_len, iop->resid,
       (trunc ? " [only first 256 bytes shown]" : ""));
     dStrHex((const uint8_t *)pDataIO, (trunc ? 256 : (int)(iop->dxfer_len)) , 1);

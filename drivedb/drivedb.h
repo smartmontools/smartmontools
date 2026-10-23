@@ -4209,8 +4209,9 @@ const drive_settings builtin_knowndrives[] = {
     "", "", ""
   },
   { "HGST Ultrastar HC310/320", // tested with HGST HUS726T6TALE6L4/VKGNW40H,
-      // HGST HUS728T8TALE6L4/V8GNW460, HGST HUS726T4TALA6L1/VLGNX41C
-    "HGST HUS72(6T[46]|8T8)TAL[AE]6L[14]",
+      // HGST HUS728T8TALE6L4/V8GNW460, HGST HUS726T4TALA6L1/VLGNX41C,
+      // HGST HUS726T4TALA600/VLGNT460
+    "HGST HUS72(6T[46]|8T8)TAL[AE]6(L[14]|00)",
     "", "", ""
   },
   { "Western Digital Ultrastar DC HC330", // tested with WUS721010ALE6L4/VXGAW9C0,
@@ -6529,9 +6530,10 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "" // unsupported
   },
-  { "USB: Crucial X9 Pro/X10; ",
-    "0x0634:0x560[37]", // 0x5603(0x5603): CT2000X9PROSSD9 (Crucial X9 Pro 2TB, SM2320 USB->NAND)
+  { "USB: Crucial X6/X9 Pro/X10; ",
+    "0x0634:0x560[237]", // 0x5603(0x5603): CT2000X9PROSSD9 (Crucial X9 Pro 2TB, SM2320 USB->NAND)
     "", // 0x5607(0x5607): CT2000X10SSD9C (Crucial X10 2TB)
+      // 0x5602: CT4000X6SSD9 (Crucial X6 4TB, FW UHFF32.0, no ATA emulation)
     "",
     "-d sntasmedia" // Partly emulates both ATA(SAT) and NVMe(ASMedia) diagnostics.
       // ATA: 'Device Model' is empty, NVMe: 'Number of Namespaces: 0'.
@@ -6594,6 +6596,12 @@ const drive_settings builtin_knowndrives[] = {
     "", // 0x55bb(0x6004, 0x6006): SanDisk Portable SSD (WDC SN350E 1TB, WDC 360E 2TB)
     "", // 0x55af(0x4060): SanDisk Extreme Pro Portable SSD (Western Digital SN850XE 4TB)
     "-d sntasmedia"
+  },
+  { "USB: SanDisk Extreme Portable SSD; ", // SDSSDE61, no NVMe or ATA pass-through (#526)
+    "0x0781:0x55dd", // SanDisk Extreme 55DD: 1TB (rev 0010), 4TB (rev 0830, 0x003)
+    "", // Temperatures and host reads from vendor log pages 0x30-0x32
+    "",
+    "-d scsi"
   },
   // Freecom
   { "USB: ; Innostor IS631", // No Name USB3->SATA Enclosure
@@ -7141,6 +7149,12 @@ const drive_settings builtin_knowndrives[] = {
   { "USB: ; JMicron JMS561", // USB2/3->2xSATA
     "0x152d:0x[19]561", // 0x1561(0x0106), Sabrent USB 3.0 Dual Bay SATA Dock
     "",  // 0x9561(0x0105), Orico 6629US3-C USB 3.0 Dual Bay SATA Dock
+    "",
+    "-d sat"
+  },
+  { "USB: ; JMicron", // USB3->SATA
+    "0x152d:0x1562", // NFHK USB 3.0 enclosure
+    "",
     "",
     "-d sat"
   },
