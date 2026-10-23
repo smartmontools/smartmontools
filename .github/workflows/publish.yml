@@ -1,0 +1,71 @@
+name: Publish in 'smartmontools-builds'
+
+on:
+  workflow_call:
+
+jobs:
+  in-builds:
+    if: >-
+      ${{    github.repository == 'smartmontools/smartmontools'
+          && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/test/build') }}
+    runs-on: ubuntu-latest
+
+    environment: # Import APP_ID and PRIVATE_KEY
+      name: mainbranch
+      url: https://github.com/smartmontools/smartmontools-builds
+
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          path: artifacts
+
+      - name: Get version and create release directory
+        run: |
+          if ! [ -d artifacts/smartmontools-src ]; then
+            mkdir -v artifacts/smartmontools-src &&
+            mv -v artifacts/smartmontools-*.*.tar.gz artifacts/smartmontools-src
+          fi &&
+          ls -dl artifacts/*/* &&
+          SMARTMONTOOLS_GIT_VER_FNAME=$(ls artifacts/smartmontools-src \
+          | sed -n 's,^smartmontools-\([89]\.[0-9][0-9]*-[0-9][0-9]*-g[0-9a-f]*\)\.tar\.gz,\1,p') &&
+          echo "SMARTMONTOOLS_GIT_VER_FNAME='${SMARTMONTOOLS_GIT_VER_FNAME}'" &&
+          test "$(printf '%s' "${SMARTMONTOOLS_GIT_VER_FNAME}" | grep -c '^')" = 1 &&
+          echo "SMARTMONTOOLS_GIT_VER_FNAME=${SMARTMONTOOLS_GIT_VER_FNAME}" >> $GITHUB_ENV &&
+          mkdir -v release && mv -bfv artifacts/smartmontools-*/smartmontools-* release &&
+          ! find artifacts ! -type d | grep '^' && ! find release -name '*~' | grep '^'
+
+      - uses: actions/create-github-app-token@v3
+        id: app-token
+        with:
+          client-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.PRIVATE_KEY }}
+          owner: smartmontools
+          repositories: smartmontools-builds
+
+      - name: Run gh release delete (cleanup)
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          echo "SMARTMONTOOLS_GIT_VER_FNAME='${SMARTMONTOOLS_GIT_VER_FNAME}'" &&
+          gh release delete "smartmontools-${SMARTMONTOOLS_GIT_VER_FNAME}" \
+            --repo smartmontools/smartmontools-builds --cleanup-tag --yes ||:
+
+      - name: Run gh release create
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          ls -dl release/* &&
+          gh release create "smartmontools-${SMARTMONTOOLS_GIT_VER_FNAME}" \
+            release/* \
+            --repo smartmontools/smartmontools-builds \
+            --notes "Smartmontools CI build: [smartmontools-${SMARTMONTOOLS_GIT_VER_FNAME}](https://github.com/smartmontools/smartmontools/tree/${GITHUB_SHA})" \
+            --prerelease
+
+      - name: Run gh release delete (leave only 50 builds)
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          gh release list --repo smartmontools/smartmontools-builds --limit 100 \
+            --json tagName --jq '.[50:][]|.tagName' \
+          | xargs -n1 --no-run-if-empty \
+            gh release delete --repo smartmontools/smartmontools-builds --cleanup-tag --yes

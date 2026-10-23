@@ -1,0 +1,21 @@
+name: Build and publish on every push
+
+on:
+  push:
+    branches:
+      - main
+      - test/build
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    uses: ./.github/workflows/build.yml
+    with:
+      builds: >-
+        linux-x86_64-static linux-i686-static darwin freebsd windows cygwin
+
+  publish:
+    needs: build
+    uses: ./.github/workflows/publish.yml
+    secrets: inherit

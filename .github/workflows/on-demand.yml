@@ -1,0 +1,59 @@
+name: Build and publish on demand
+
+on:
+  workflow_dispatch:
+    inputs:
+      builds:
+        description: >-
+          Default CI builds:
+          linux-x86_64-static linux-i686-static darwin freebsd windows cygwin
+        default: ''
+        type: string
+      upload-all:
+        description: >-
+          Upload 'smartmontools-all' with all builds
+        default: 'no'
+        type: choice
+        options:
+          - 'no'
+          - 'yes'
+      publish:
+        description: >-
+          Publish in repository 'smartmontools-builds'
+        default: 'no'
+        type: choice
+        options:
+          - 'no'
+          - 'yes'
+
+jobs:
+  build:
+    uses: ./.github/workflows/build.yml
+    with:
+      builds: >-
+        ${{ inputs.builds }}
+      retention-days: >-
+        ${{ case(inputs.publish == 'yes', 1, 90) }}
+
+  upload-all:
+    if: ${{ inputs.upload-all == 'yes' }}
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          merge-multiple: true
+          path: artifacts
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: smartmontools-all
+          path: artifacts/*
+          retention-days: 1
+
+  publish:
+    if: ${{ inputs.publish == 'yes' }}
+    needs: build
+    uses: ./.github/workflows/publish.yml
+    secrets: inherit

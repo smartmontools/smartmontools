@@ -1,0 +1,16 @@
+name: Build on every pull request
+
+on:
+  pull_request:
+    branches:
+      - main
+      - test/build
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    uses: ./.github/workflows/build.yml
+    with:
+      builds: >-
+        linux-x86_64-static linux-i686-static darwin freebsd windows cygwin
