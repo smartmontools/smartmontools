@@ -3,10 +3,16 @@ name: Build and publish on demand
 on:
   workflow_dispatch:
     inputs:
-      builds:
+      builds-1:
         description: >-
           Default CI builds:
           linux-x86_64-static linux-i686-static darwin freebsd windows cygwin
+        default: ''
+        type: string
+      builds-2:
+        description: >-
+          Extra builds:
+          netbsd-x86_64 openbsd-x86_64 omnios-x86_64 os2emx
         default: ''
         type: string
       configure-override:
@@ -41,7 +47,7 @@ jobs:
     uses: ./.github/workflows/build.yml
     with:
       builds: >-
-        ${{ inputs.builds }}
+        ${{ inputs.builds-1 }} ${{ inputs.builds-2 }}
       configure-override: ${{ inputs.configure-override }}
       make-override: ${{ inputs.make-override }}
       retention-days: ${{ case(inputs.publish == 'yes', 1, 90) }}

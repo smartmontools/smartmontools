@@ -130,6 +130,7 @@ jobs:
         continue-on-error: true
 
   darwin:
+    # '--enable-static-link' fails due to missing 'crt0.o'
     if: ${{ contains(format(' {0} ', inputs.builds), ' darwin ') }}
     needs: source-tarball
     runs-on: ubuntu-latest
@@ -234,6 +235,113 @@ jobs:
           if-no-files-found: error
           retention-days: ${{ inputs.retention-days }}
 
+  netbsd-x86_64:
+    if: ${{ contains(format(' {0} ', inputs.builds), ' netbsd-x86_64 ') }}
+    needs: source-tarball
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: smartmontools-src
+          path: source
+
+      - name: Build and Run (QEMU)
+        uses: vmactions/netbsd-vm@v1
+        with:
+          usesh: true
+          run: | # SOURCE_DATE_EPOCH not used because GNU tar is not installed by default
+            uname -a && ver=$(uname -r) && ver=${ver%%.*} &&
+            tar -xf source/smartmontools-*.*.tar.gz && mv -v smartmontools-*.*/ smartmontools &&
+            mkdir smartmontools/build && cd smartmontools/build &&
+            version_sh=$(../util/getversion.sh -s) && eval "${version_sh}" &&
+            ../configure --with-build-info='(GHA Build)' \
+              ${{ inputs.configure-override }} &&
+            make ${{ inputs.make-override || '-j 4 V=0' }} && make check &&
+            bin_distfile="../../smartmontools-netbsd-$ver-x86_64-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" &&
+            make bin_distfile="$bin_distfile" bin-dist && tar -tvf "$bin_distfile" &&
+            echo '$' smartctl --scan &&
+            { src/smartctl --scan || echo "::error::'smartctl --scan' failed"; }
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: smartmontools-netbsd-x86_64
+          path: smartmontools-netbsd-*-x86_64-*.*.tar.gz
+          if-no-files-found: error
+          retention-days: ${{ inputs.retention-days }}
+
+  openbsd-x86_64:
+    if: ${{ contains(format(' {0} ', inputs.builds), ' openbsd-x86_64 ') }}
+    needs: source-tarball
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: smartmontools-src
+          path: source
+
+      - name: Build and Run (QEMU)
+        uses: vmactions/openbsd-vm@v1
+        with:
+          usesh: true
+          run: | # SOURCE_DATE_EPOCH not used because GNU tar is not installed by default
+            uname -a && ver=$(uname -r) && ver=${ver%%.*} &&
+            tar -xzf source/smartmontools-*.*.tar.gz && mv -v smartmontools-*.*/ smartmontools &&
+            mkdir smartmontools/build && cd smartmontools/build &&
+            version_sh=$(../util/getversion.sh -s) && eval "${version_sh}" &&
+            ../configure --with-build-info='(GHA Build)' \
+              ${{ inputs.configure-override }} &&
+            make ${{ inputs.make-override || '-j 4 V=0' }} && make check &&
+            bin_distfile="../../smartmontools-openbsd-$ver-x86_64-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" &&
+            make bin_distfile="$bin_distfile" bin-dist && tar -tvzf "$bin_distfile" &&
+            echo '$' smartctl --scan &&
+            { src/smartctl --scan || echo "::error::'smartctl --scan' failed"; }
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: smartmontools-openbsd-x86_64
+          path: smartmontools-openbsd-*-x86_64-*.*.tar.gz
+          if-no-files-found: error
+          retention-days: ${{ inputs.retention-days }}
+
+  omnios-x86_64:
+    if: ${{ contains(format(' {0} ', inputs.builds), ' omnios-x86_64 ') }}
+    needs: source-tarball
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: smartmontools-src
+          path: source
+
+      - name: Build and Run (QEMU)
+        uses: vmactions/omnios-vm@v1
+        with:
+          release: "r151054-build" # "r151054" + "pkg install build-essential" (LTS)
+          usesh: true
+          run: | # SOURCE_DATE_EPOCH not used because GNU tar is not installed by default
+            uname -a && ver=$(uname -v) && ver=${ver#*-} && ver=${ver%-*} &&
+            tar -xf source/smartmontools-*.*.tar.gz && mv smartmontools-*.*/ smartmontools &&
+            mkdir smartmontools/build && cd smartmontools/build &&
+            version_sh=$(../util/getversion.sh -s) && eval "${version_sh}" &&
+            ../configure --with-build-info='(GHA Build)' \
+              ${{ inputs.configure-override }} &&
+            make ${{ inputs.make-override || '-j 4 V=0' }} && make check &&
+            bin_distfile="../../smartmontools-omnios-$ver-x86_64-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" &&
+            make bin_distfile="$bin_distfile" bin-dist && tar -tvf "$bin_distfile" &&
+            tar -xf "$bin_distfile" usr/local/sbin/smartctl &&
+            echo '$' smartctl --scan &&
+            { src/smartctl --scan || echo "::error::'smartctl --scan' failed"; }
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: smartmontools-omnios-x86_64
+          path: smartmontools-omnios-*-x86_64-*.*.tar.gz
+          if-no-files-found: error
+          retention-days: ${{ inputs.retention-days }}
+
   windows:
     if: ${{ contains(format(' {0} ', inputs.builds), ' windows ') }}
     needs: source-tarball
@@ -316,5 +424,49 @@ jobs:
         with:
           name: smartmontools-cygwin
           path: smartmontools-cygwin-*.*.tar.gz
+          if-no-files-found: error
+          retention-days: ${{ inputs.retention-days }}
+
+  os2emx:
+    # '--enable-shared' fails due to syntax error in generated 'smartmon.def'
+    # '--enable-static-link' fails due to missing static libraries
+    if: ${{ contains(format(' {0} ', inputs.builds), ' os2emx ') }}
+    needs: source-tarball
+    runs-on: ubuntu-26.04 # cross-os2emx requires glibc-2.43 (TODO: change to 'ubuntu-latest')
+
+    steps:
+      - name: Install cross-os2emx toolchain
+        run: |
+          set -e -o pipefail
+          sudo mkdir -pv /opt
+          curl -L https://github.com/komh/cross-os2emx/releases/download/1.4.0/cross-os2emx-1.4.0-linux-x64.tar.gz \
+          | sudo tar -xzf - -C /opt
+          sudo mv -v /opt/cross-os2emx-*/opt/os2emx /opt
+          /opt/os2emx/bin/i686-pc-os2-emx-g++ --version
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: smartmontools-src
+          path: source
+
+      - name: Build
+        run: |
+          export PATH="/opt/os2emx/bin:$PATH" &&
+          tar -xf source/smartmontools-*.*.tar.gz && mv -v smartmontools-*.*/ smartmontools &&
+          mkdir smartmontools/build && cd smartmontools/build &&
+          version_sh=$(../util/getversion.sh -s) && eval "${version_sh}" &&
+          ../configure --build=$(../config.guess) --host=i686-pc-os2-emx \
+            --with-build-info='(GHA Build)' \
+            ${{ inputs.configure-override }} \
+            SOURCE_DATE_EPOCH=$((SMARTMONTOOLS_GIT_REV_EPOCH + 1)) &&
+          make ${{ inputs.make-override || '-j V=0' }} && make check &&
+          bin_distdir="../../smartmontools-os2emx-${SMARTMONTOOLS_GIT_VER_FNAME}" &&
+          mkdir -v "$bin_distdir" && mv -v src/smart*.exe src/examples/*.exe "$bin_distdir"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: smartmontools-os2emx
+          path: smartmontools-os2emx-*
+          compression-level: 9
           if-no-files-found: error
           retention-days: ${{ inputs.retention-days }}
