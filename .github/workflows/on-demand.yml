@@ -9,6 +9,16 @@ on:
           linux-x86_64-static linux-i686-static darwin freebsd windows cygwin
         default: ''
         type: string
+      configure-override:
+        description: >-
+          Override 'configure' options
+        default: ''
+        type: string
+      make-override:
+        description: >-
+          Override 'make' options
+        default: ''
+        type: string
       upload-all:
         description: >-
           Upload 'smartmontools-all' with all builds
@@ -32,8 +42,9 @@ jobs:
     with:
       builds: >-
         ${{ inputs.builds }}
-      retention-days: >-
-        ${{ case(inputs.publish == 'yes', 1, 90) }}
+      configure-override: ${{ inputs.configure-override }}
+      make-override: ${{ inputs.make-override }}
+      retention-days: ${{ case(inputs.publish == 'yes', 1, 90) }}
 
   upload-all:
     if: ${{ inputs.upload-all == 'yes' }}
