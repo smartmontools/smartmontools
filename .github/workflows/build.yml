@@ -238,13 +238,14 @@ jobs:
     if: ${{ contains(format(' {0} ', inputs.builds), ' windows ') }}
     needs: source-tarball
     runs-on: ubuntu-latest
-    # windows cross-compilation, also running using our build container
-    # based on Debian 12. Probably could be migrated to normal ubuntu runner
-    # need to test this
-    container:
-      image: ghcr.io/smartmontools/docker-build:master
 
     steps:
+      - name: Install build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y g++-mingw-w64-x86-64 g++-mingw-w64-i686 \
+            dos2unix groff man2html-base nsis
+
       - uses: actions/download-artifact@v8
         with:
           name: smartmontools-src
