@@ -13,6 +13,7 @@ on:
         description: >-
           Extra builds:
           netbsd-x86_64 openbsd-x86_64 omnios-x86_64 os2emx
+          windows-signed windows-test-signed
         default: ''
         type: string
       configure-override:
@@ -25,6 +26,14 @@ on:
           Override 'make' options
         default: ''
         type: string
+      run-checks:
+        description: >-
+          Run checks if cross-compiling
+        default: 'no'
+        type: choice
+        options:
+          - 'no'
+          - 'yes'
       upload-all:
         description: >-
           Upload 'smartmontools-all' with all builds
@@ -50,7 +59,9 @@ jobs:
         ${{ inputs.builds-1 }} ${{ inputs.builds-2 }}
       configure-override: ${{ inputs.configure-override }}
       make-override: ${{ inputs.make-override }}
+      run-checks:  ${{ inputs.run-checks }}
       retention-days: ${{ case(inputs.publish == 'yes', 1, 90) }}
+    secrets: inherit
 
   upload-all:
     if: ${{ inputs.upload-all == 'yes' }}
@@ -61,6 +72,7 @@ jobs:
       - uses: actions/download-artifact@v8
         with:
           merge-multiple: true
+          pattern: smartmontools-*
           path: artifacts
 
       - uses: actions/upload-artifact@v7

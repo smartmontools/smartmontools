@@ -12,6 +12,9 @@ on:
       make-override:
         default: ''
         type: string
+      run-checks:
+        default: 'no'
+        type: string
       retention-days:
         default: 1
         type: number
@@ -28,6 +31,7 @@ jobs:
           echo "::notice::builds: '${{ inputs.builds }}'" \
                "configure-override: '${{ inputs.configure-override }}'" \
                "make-override: '${{ inputs.make-override }}'" \
+               "run-checks: '${{ inputs.run-checks }}'" \
                "retention-days: '${{ inputs.retention-days }}'"
 
       - uses: actions/checkout@v6
@@ -343,7 +347,10 @@ jobs:
           retention-days: ${{ inputs.retention-days }}
 
   windows:
-    if: ${{ contains(format(' {0} ', inputs.builds), ' windows ') }}
+    if: >-
+      ${{    contains(format(' {0} ', inputs.builds), ' windows ')
+          || contains(format(' {0} ', inputs.builds), ' windows-signed ')
+          || contains(format(' {0} ', inputs.builds), ' windows-test-signed ') }}
     needs: source-tarball
     runs-on: ubuntu-latest
 
@@ -359,7 +366,8 @@ jobs:
           name: smartmontools-src
           path: source
 
-      - name: Build
+      - name: Build installer
+        id: build
         run: |
           tar -xf source/smartmontools-*.*.tar.gz && mv -v smartmontools-*.*/ smartmontools &&
           mkdir smartmontools/build && cd smartmontools/build &&
@@ -374,15 +382,122 @@ jobs:
             ${{ inputs.configure-override || '--enable-static-link' }} \
             SOURCE_DATE_EPOCH=$((SMARTMONTOOLS_GIT_REV_EPOCH + 1)) &&
           make ${{ inputs.make-override || '-j V=0' }} && make check && make distdir-win32 &&
-          cd ../build &&
-          make builddir_win64=../../build64/src \
-            distinst_win32="../../../smartmontools-win32-setup-${SMARTMONTOOLS_GIT_VER_FNAME}.exe" \
-            installer-win32
+          cd ../build/src &&
+          distinst_win32="../../../smartmontools-win32-setup-${SMARTMONTOOLS_GIT_VER_FNAME}.exe" &&
+          make MAKENSISFLAGS=-DEXPORT_UNINST builddir_win64=../../build64/src \
+            distinst_win32="$distinst_win32" installer-win32 &&
+          7z l "$distinst_win32" &&
+          signing=no policy=unknown &&
+          case ' ${{ inputs.builds }} ' in
+            *\ windows-signed\ *)      policy=release-signing ;;
+            *\ windows-test-signed\ *) policy=test-signing ;;
+          esac &&
+          case '${{ github.repository }}:'"$policy" in
+            smartmontools/smartmontools:*-signing) signing=yes ;;
+            *-signing)                             signing=emulate ;;
+          esac &&
+          printf 'signing=%s\npolicy=%s\n' "$signing" "$policy" >> $GITHUB_OUTPUT &&
+          cat $GITHUB_OUTPUT
 
-      - uses: actions/upload-artifact@v7
+      - name: Upload installer
+        if: ${{ contains(format(' {0} ', inputs.builds), ' windows ') }}
+        uses: actions/upload-artifact@v7
         with:
           name: smartmontools-windows
           path: smartmontools-win32-setup-*.*.exe
+          if-no-files-found: error
+          retention-days: ${{ inputs.retention-days }}
+
+      - name: Prepare upload of binaries
+        if: ${{ steps.build.outputs.signing != 'no' }}
+        run: |
+          mkdir -p unsigned-binaries/bin32 &&
+          mv -v smartmontools/build64/src/smartmontools-*.win64/bin/*.exe unsigned-binaries &&
+          mv -v smartmontools/build/src/smartmontools-*.win32/bin/*.exe unsigned-binaries/bin32 &&
+          mv -v smartmontools/build/src/smartmontools-*.win32/bin/smartd_mailer.ps1 unsigned-binaries &&
+          mv -v smartmontools/build/src/smartmontools-*.win32/bin/update-smart-drivedb.ps1 unsigned-binaries &&
+          mv -v smartmontools/build/src/uninst-smartmontools.exe unsigned-binaries
+
+      - name: Upload binaries
+        if: ${{ steps.build.outputs.signing != 'no' }}
+        id: upload-binaries
+        uses: actions/upload-artifact@v7
+        with:
+          name: temp-windows-binaries
+          path: unsigned-binaries/*
+          if-no-files-found: error
+          retention-days: 1
+
+      - name: Submit binaries to signpath.io to sign
+        if: ${{ steps.build.outputs.signing == 'yes' }}
+        uses: signpath/github-action-submit-signing-request@v2
+        with:
+          api-token: '${{ secrets.SIGNPATH_API_TOKEN }}'
+          organization-id: 0924a018-22d7-47ea-b10c-7c84c08e8d55
+          project-slug: smartmontools
+          signing-policy-slug: '${{ steps.build.outputs.policy }}'
+          github-artifact-id: '${{ steps.upload-binaries.outputs.artifact-id }}'
+          output-artifact-directory: signed-binaries
+
+      - name: Emulate signing if this is a fork
+        if: ${{ steps.build.outputs.signing == 'emulate' }}
+        run: |
+          cp -rv unsigned-binaries signed-binaries
+
+      - name: Rebuild installer
+        if: ${{ steps.build.outputs.signing != 'no' }}
+        run: |
+          SMARTMONTOOLS_GIT_VER_FNAME=$(smartmontools/util/getversion.sh -n) &&
+          rm -v smartmontools-win32-setup-${SMARTMONTOOLS_GIT_VER_FNAME}.exe &&
+          mv -v signed-binaries/uninst-smartmontools.exe smartmontools/build/src &&
+          mv -v signed-binaries/*.exe smartmontools/build64/src/smartmontools-*.*.win64/bin/ &&
+          cp -v signed-binaries/*.ps1 smartmontools/build64/src/smartmontools-*.*.win64/bin/ &&
+          mv -v signed-binaries/bin32/*.exe smartmontools/build/src/smartmontools-*.*.win32/bin/ &&
+          mv -v signed-binaries/*.ps1 smartmontools/build/src/smartmontools-*.*win32/bin/ &&
+          for d in smartmontools/build/src/smartmontools-*.*.win32 \
+                   smartmontools/build64/src/smartmontools-*.*.win64; do
+            ( cd $d/bin && set -o pipefail &&
+              sha256sum *.exe *.cmd *.ps1 | unix2dos > "../doc/checksums${d:0-2}.txt" )
+          done &&
+          cd smartmontools/build/src &&
+          distinst_win32="../../../smartmontools-win32-setup-signed-${SMARTMONTOOLS_GIT_VER_FNAME}.exe" &&
+          make MAKENSISFLAGS=-DIMPORT_UNINST builddir_win64=../../build64/src \
+            distinst_win32="$distinst_win32" installer-win32 &&
+          7z l "$distinst_win32"
+
+      - name: Upload rebuilt installer
+        if: ${{ steps.build.outputs.signing != 'no' }}
+        id: upload-installer
+        uses: actions/upload-artifact@v7
+        with:
+          name: temp-windows-installer
+          path: smartmontools-win32-setup-signed-*.*.exe
+          if-no-files-found: error
+          retention-days: 1
+
+      - name: Submit installer to signpath.io to sign
+        if: ${{ steps.build.outputs.signing == 'yes' }}
+        uses: signpath/github-action-submit-signing-request@v2
+        with:
+          api-token: '${{ secrets.SIGNPATH_API_TOKEN }}'
+          organization-id: 0924a018-22d7-47ea-b10c-7c84c08e8d55
+          project-slug: smartmontools
+          signing-policy-slug: '${{ steps.build.outputs.policy }}'
+          github-artifact-id: '${{ steps.upload-installer.outputs.artifact-id }}'
+          output-artifact-directory: signed-installer
+
+      - name: Emulate signing if this is a fork
+        if: ${{ steps.build.outputs.signing == 'emulate' }}
+        run: |
+          mkdir -v signed-installer
+          cp -v smartmontools-win32-setup-signed-*.*.exe signed-installer
+
+      - name: Upload signed installer
+        if: ${{ steps.build.outputs.signing != 'no' }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: smartmontools-windows-signed
+          path: signed-installer/smartmontools-win32-setup-signed-*.*.exe
           if-no-files-found: error
           retention-days: ${{ inputs.retention-days }}
 
@@ -470,3 +585,47 @@ jobs:
           compression-level: 9
           if-no-files-found: error
           retention-days: ${{ inputs.retention-days }}
+
+  check-windows:
+    if: ${{ inputs.run-checks }}
+    needs: windows
+    strategy:
+      matrix:
+        os: [ windows-latest, windows-11-arm ]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          merge-multiple: true
+          pattern: smartmontools-windows*
+
+      - name: Run 7z x smartmontools-win32-setup[-signed]-*.*.exe
+        run: | # Use the signed version if available
+          $f = 'smartmontools-win32-setup-signed-*.*.exe'
+          if (!(Test-Path $f)) {
+            $f = 'smartmontools-win32-setup-*.*.exe'
+          }
+          7z x $f
+
+      - run: |
+          bin/smartctl -V
+
+      - run: |
+          bin32/smartctl -V
+
+      - run: |
+          bin/smartctl --scan
+
+      - run: |
+          bin32/smartctl --scan
+
+      - run: |
+          bin/update-smart-drivedb.ps1 -DryRun
+        continue-on-error: true
+
+      - name: Check signatures
+        run: |
+          Get-AuthenticodeSignature smartmontools-win32-setup-*.*.exe, `
+            bin/smart*.exe, bin32/smart*.exe, bin/update-smart-drivedb.ps1 `
+          | Format-List

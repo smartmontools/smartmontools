@@ -17,6 +17,7 @@ jobs:
     steps:
       - uses: actions/download-artifact@v8
         with:
+          pattern: smartmontools-*
           path: artifacts
 
       - name: Get version and create release directory
