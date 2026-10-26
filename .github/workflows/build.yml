@@ -586,8 +586,64 @@ jobs:
           if-no-files-found: error
           retention-days: ${{ inputs.retention-days }}
 
+  check-darwin:
+    if: ${{ inputs.run-checks == 'yes' }}
+    needs: darwin
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: smartmontools-darwin
+
+      - name: Install smartmontools-*.*.dmg
+        run: |
+          uname -a
+          ls -l
+          hdiutil attach smartmontools-*.*.dmg
+          ls -lR /Volumes
+          sudo installer -package /Volumes/smartmontools/smartmontools-*.*.pkg -target /
+          echo DYLD_LIBRARY_PATH=/usr/local/lib | tee -a $GITHUB_ENV
+
+      - run: |
+          /usr/local/sbin/smartctl -V
+
+      - run: |
+          sudo /usr/local/sbin/smartctl --scan
+
+  check-freebsd:
+    if: ${{ inputs.run-checks == 'yes' }}
+    needs: freebsd
+    strategy:
+      matrix:
+        version: [ '14', '15' ]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: smartmontools-freebsd-${{ matrix.version }}
+
+      - run: |
+          tar -xvf smartmontools-freebsd-${{ matrix.version }}-*.*.tar.gz usr/local
+
+      - name: Run smartctl on FreeBSD ${{ matrix.version }} (QEMU)
+        uses: vmactions/freebsd-vm@v1
+        with:
+          release: ${{ case(matrix.version == '14', '14.5', '15.1') }}
+          usesh: true # use 'sh' instead of 'tcsh'
+          run: |
+            uname -a
+            export LD_LIBRARY_PATH="$(pwd)/usr/local/lib"
+            echo
+            echo '$' usr/local/sbin/smartctl -V
+            usr/local/sbin/smartctl -V
+            echo
+            echo '$' usr/local/sbin/smartctl --scan
+            usr/local/sbin/smartctl --scan
+
   check-windows:
-    if: ${{ inputs.run-checks }}
+    if: ${{ inputs.run-checks == 'yes' }}
     needs: windows
     strategy:
       matrix:
