@@ -3748,7 +3748,7 @@ bool linux_smart_interface::scan_smart_devices(smart_device_list & devlist,
   if (!(type_ata || type_scsi || type_sat || type_nvme || scan_megaraid
         || scan_sg || scan_mpi3mr || scan_sssraid)) {
      type_ata = type_scsi = type_sat = type_nvme = "";
-     scan_megaraid = scan_sssraid = true;
+     scan_megaraid = scan_mpi3mr = scan_sssraid = true;
   }
 
   const char * type_scsi_sat = ((type_scsi && type_sat) ? "" // detect both
@@ -3879,7 +3879,8 @@ linux_smart_interface::mpi3mr_pd_add_list(int bus_no, smart_device_list & devlis
   snprintf(fname, sizeof(fname) - 1, "/dev/bsg/mpi3mrctl%d", mrioc_id);
   int fd = open(fname, O_RDWR);
   if (fd < 0) {
-    lib_printf("Couldn't open %s. line %d, errno %d\n", fname, __LINE__, errno);
+    if (scsi_debugmode)
+      lib_printf("Couldn't open %s. line %d, errno %d\n", fname, __LINE__, errno);
     return (-errno);
   }
 
