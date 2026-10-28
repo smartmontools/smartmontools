@@ -657,6 +657,7 @@ the option \*(Aq,q\*(Aq to POWERMODE (like \*(Aq\-n standby,q\*(Aq).
 This prevents a laptop disk from spinning up due to this message.
 .Sp
 Both \*(Aq,N\*(Aq and \*(Aq,q\*(Aq can be specified together.
+These options are ignored if POWERMODE is \fInever\fP.
 .TP
 .B \-T TYPE
 Specifies how tolerant
