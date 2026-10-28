@@ -4756,7 +4756,6 @@ static time_t dosleep(time_t wakeuptime, const dev_config_vector & configs,
   // If past wake-up-time, compute next wake-up-time
   time_t timenow = time(nullptr);
   unsigned n = configs.size();
-  int ct;
 
   // Determine wakeuptime of next device(s)
   wakeuptime = 0;
@@ -4769,7 +4768,6 @@ static time_t dosleep(time_t wakeuptime, const dev_config_vector & configs,
     if (!wakeuptime || state.wakeuptime < wakeuptime)
       wakeuptime = state.wakeuptime;
   }
-  ct = checktime_min;
 
   if (!wakeuptime)
       // no config; use default check time
@@ -4782,9 +4780,9 @@ static time_t dosleep(time_t wakeuptime, const dev_config_vector & configs,
   int addtime = 0;
   while (timenow < wakeuptime+addtime && !caughtsigUSR1 && !caughtsigHUP && !caughtsigEXIT) {
     // Restart if system clock has been adjusted to the past
-    if (wakeuptime > timenow + ct) {
+    if (wakeuptime > timenow + checktime_min) {
       PrintOut(LOG_INFO, "System clock time adjusted to the past. Resetting next wakeup time.\n");
-      wakeuptime = timenow + ct;
+      wakeuptime = timenow + checktime_min;
       for (auto & state : states)
         state.wakeuptime = 0;
       no_skip = true;
@@ -4811,7 +4809,7 @@ static time_t dosleep(time_t wakeuptime, const dev_config_vector & configs,
       // Wait another 20 seconds to avoid I/O errors during disk spin-up
       addtime = timenow-wakeuptime+20;
       // Use next wake-up-time if close
-      int nextcheck = ct - addtime % ct;
+      int nextcheck = checktime_min - addtime % checktime_min;
       if (nextcheck <= 20)
         addtime += nextcheck;
     }
