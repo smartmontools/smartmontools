@@ -659,6 +659,14 @@ informal log message.
 The message can be suppressed by including the option \*(Aqq\*(Aq.
 This prevents a laptop disk from spinning up due to this message.
 .Sp
+.br
+[NEW EXPERIMENTAL SMARTD 8.1 FEATURE]
+.I t
+\- When periodic checks are not run, scheduled self-tests (via the '\-s'
+directive) are not run either.
+If the \*(Aqt\*(Aq option is specified, then smartd will enable a periodic
+check when necessary to run a self-test that is scheduled for that time.
+.Sp
 POWERMODE and all options can be specified in any order.
 In the case of conflicting POWERMODE or options, the one listed last takes
 priority.
