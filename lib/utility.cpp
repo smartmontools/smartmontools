@@ -880,6 +880,13 @@ const char * format_capacity(char * str, int strsize, uint64_t val,
   return str;
 }
 
+// Like strncmp, but returns 1 if the length of the second argument is not n.
+// The second argument must be null-terminated.
+bool strncmp_full(const char * buf, const char * str, size_t n)
+{
+  return strlen(str) == n ? strncmp(str, buf, n) : 1;
+}
+
 // return (v)sprintf() formatted std::string
 SMARTMON_FORMAT_PRINTF(1, 0)
 std::string vstrprintf(const char * fmt, va_list ap)
