@@ -139,7 +139,7 @@ static unsigned char debugmode = 0;
 // command-line: how long to sleep between checks
 static constexpr int default_checktime = 1800;
 static int checktime = default_checktime;
-static int checktime_min = 0; // Minimum individual check time, 0 if none
+static int checktime_min = INT_MAX; // Minimum individual check time
 
 // command-line: name of PID file (empty for no pid file)
 static std::string pid_file;
@@ -4756,26 +4756,22 @@ static time_t dosleep(time_t wakeuptime, const dev_config_vector & configs,
   // If past wake-up-time, compute next wake-up-time
   time_t timenow = time(nullptr);
   unsigned n = configs.size();
-  int ct;
-  if (!checktime_min) {
-    // Same for all devices
-    wakeuptime = calc_next_wakeuptime(wakeuptime, timenow, checktime);
-    ct = checktime;
+
+  // Determine wakeuptime of next device(s)
+  wakeuptime = 0;
+  for (unsigned i = 0; i < n; i++) {
+    const dev_config & cfg = configs.at(i);
+    dev_state & state = states.at(i);
+    if (!state.skip)
+      state.wakeuptime = calc_next_wakeuptime((state.wakeuptime ? state.wakeuptime : timenow),
+        timenow, (cfg.checktime ? cfg.checktime : checktime));
+    if (!wakeuptime || state.wakeuptime < wakeuptime)
+      wakeuptime = state.wakeuptime;
   }
-  else {
-    // Determine wakeuptime of next device(s)
-    wakeuptime = 0;
-    for (unsigned i = 0; i < n; i++) {
-      const dev_config & cfg = configs.at(i);
-      dev_state & state = states.at(i);
-      if (!state.skip)
-        state.wakeuptime = calc_next_wakeuptime((state.wakeuptime ? state.wakeuptime : timenow),
-          timenow, (cfg.checktime ? cfg.checktime : checktime));
-      if (!wakeuptime || state.wakeuptime < wakeuptime)
-        wakeuptime = state.wakeuptime;
-    }
-    ct = checktime_min;
-  }
+
+  if (!wakeuptime)
+      // no config; use default check time
+      wakeuptime = calc_next_wakeuptime(wakeuptime, timenow, checktime);
 
   notify_wait(wakeuptime, n);
 
@@ -4784,9 +4780,9 @@ static time_t dosleep(time_t wakeuptime, const dev_config_vector & configs,
   int addtime = 0;
   while (timenow < wakeuptime+addtime && !caughtsigUSR1 && !caughtsigHUP && !caughtsigEXIT) {
     // Restart if system clock has been adjusted to the past
-    if (wakeuptime > timenow + ct) {
+    if (wakeuptime > timenow + checktime_min) {
       PrintOut(LOG_INFO, "System clock time adjusted to the past. Resetting next wakeup time.\n");
-      wakeuptime = timenow + ct;
+      wakeuptime = timenow + checktime_min;
       for (auto & state : states)
         state.wakeuptime = 0;
       no_skip = true;
@@ -4813,7 +4809,7 @@ static time_t dosleep(time_t wakeuptime, const dev_config_vector & configs,
       // Wait another 20 seconds to avoid I/O errors during disk spin-up
       addtime = timenow-wakeuptime+20;
       // Use next wake-up-time if close
-      int nextcheck = ct - addtime % ct;
+      int nextcheck = checktime_min - addtime % checktime_min;
       if (nextcheck <= 20)
         addtime += nextcheck;
     }
@@ -4828,11 +4824,9 @@ static time_t dosleep(time_t wakeuptime, const dev_config_vector & configs,
   }
 
   // Check which devices must be skipped in this cycle
-  if (checktime_min) {
-    for (auto & state : states)
-      state.skip = (!no_skip && timenow < state.wakeuptime);
-  }
-  
+  for (auto & state : states)
+    state.skip = (!no_skip && timenow < state.wakeuptime);
+
   // return adjusted wakeuptime
   return wakeuptime;
 }
@@ -6397,16 +6391,19 @@ static bool register_devices(const dev_config_vector & conf_entries, smart_devic
   }
 
   // Set minimum check time and factors for staggered tests
-  checktime_min = 0;
+  checktime_min = INT_MAX;
   unsigned factor = 0;
   for (auto & cfg : configs) {
-    if (cfg.checktime && (!checktime_min || checktime_min > cfg.checktime))
-      checktime_min = cfg.checktime;
+    if (cfg.checktime) {
+      if (checktime_min > cfg.checktime)
+        checktime_min = cfg.checktime;
+    } else {
+      if (checktime_min > checktime)
+        checktime_min = checktime;
+    }
     if (!cfg.test_regex.empty())
       cfg.test_offset_factor = factor++;
   }
-  if (checktime_min && checktime_min > checktime)
-    checktime_min = checktime;
 
   init_disable_standby_check(configs);
   return true;
