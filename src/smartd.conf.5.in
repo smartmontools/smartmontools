@@ -645,19 +645,24 @@ this is probably what you want.
 In the IDLE state, most disks are still spinning, so this is probably
 not what you want.
 .Sp
-Maximum number of skipped checks (in a row) can be specified by
-appending positive number \*(Aq,N\*(Aq to POWERMODE (like
-\*(Aq\-n standby,15\*(Aq).
+In addition to POWERMODE, the following options are supported,
+separated by a comma (\*(Aq,\*(Aq).
+.Sp
+.I N (any positive number)
+\- Maximum number of skipped checks (in a row).
 After N checks are skipped in a row, powermode is ignored and the
 check is performed anyway.
 .Sp
-When a periodic test is skipped, \fBsmartd\fP normally writes an
-informal log message.  The message can be suppressed by appending
-the option \*(Aq,q\*(Aq to POWERMODE (like \*(Aq\-n standby,q\*(Aq).
+.I q
+\- When a periodic test is skipped, \fBsmartd\fP normally writes an
+informal log message.
+The message can be suppressed by including the option \*(Aqq\*(Aq.
 This prevents a laptop disk from spinning up due to this message.
 .Sp
-Both \*(Aq,N\*(Aq and \*(Aq,q\*(Aq can be specified together.
-These options are ignored if POWERMODE is \fInever\fP.
+POWERMODE and all options can be specified in any order.
+In the case of conflicting POWERMODE or options, the one listed last takes
+priority.
+Options are ignored if POWERMODE is \fInever\fP.
 .TP
 .B \-T TYPE
 Specifies how tolerant

@@ -4968,6 +4968,52 @@ static const char * strtok_dequote(const char * delimiters)
 
 #endif // _WIN32
 
+// Parse the option string given to the -n (nocheck) configuration directive.
+// Return 0 if ok, 1 if there is a bad argument.
+static int ParseNocheckOptions(const char * arg, dev_config & cfg) {
+  const char *end = strchr(arg, '\0');
+
+  cfg.powermode = CHAR_MAX;
+  cfg.powerquiet = false;
+  cfg.powerskipmax = 0;
+
+  while (arg < end) {
+    size_t len;
+
+    if (const char *next = strchr(arg, ','))
+      len = next - arg;
+    else
+      len = end - arg;
+
+    if (!strncmp(arg, "never", len))
+      cfg.powermode = 0;
+    else if (!strncmp(arg, "sleep", len))
+      cfg.powermode = 1;
+    else if (!strncmp(arg, "standby", len))
+      cfg.powermode = 2;
+    else if (!strncmp(arg, "idle", len))
+      cfg.powermode = 3;
+    else if (!strncmp(arg, "q", len))
+      cfg.powerquiet = true;
+    else {
+      // attempt to parse numerical argument
+      char *endptr = nullptr;
+      cfg.powerskipmax = strtol(arg, &endptr, 10);
+      if (endptr != arg + len || cfg.powerskipmax <= 0)
+        // malformed number or unrecognized option
+        return 1;
+    }
+
+    arg += len + 1;
+  }
+
+  if (cfg.powermode == CHAR_MAX)
+    // mode is required
+    return 1;
+
+  // parsed OK
+  return 0;
+}
 
 // This function returns 1 if it has correctly parsed one token (and
 // any arguments), else zero if no tokens remain.  It returns -1 if an
@@ -5171,46 +5217,8 @@ static int ParseToken(char * & token, dev_config & cfg, smart_devtype_list & sca
     // skip disk check if in idle or standby mode
     if (!(arg = strtok(nullptr, delim)))
       missingarg = 1;
-    else {
-      char *endptr = nullptr;
-      char *next = strchr(const_cast<char*>(arg), ',');
-
-      cfg.powerquiet = false;
-      cfg.powerskipmax = 0;
-
-      if (next)
-        *next = '\0';
-      if (!strcmp(arg, "never"))
-        cfg.powermode = 0;
-      else if (!strcmp(arg, "sleep"))
-        cfg.powermode = 1;
-      else if (!strcmp(arg, "standby"))
-        cfg.powermode = 2;
-      else if (!strcmp(arg, "idle"))
-        cfg.powermode = 3;
-      else
-        badarg = 1;
-
-      // if optional arguments are present
-      if (!badarg && next) {
-        next++;
-        cfg.powerskipmax = strtol(next, &endptr, 10);
-        if (endptr == next)
-          cfg.powerskipmax = 0;
-        else {
-          next = endptr + (*endptr != '\0');
-          if (cfg.powerskipmax <= 0)
-            badarg = 1;
-        }
-        if (*next != '\0') {
-          if (!strcmp("q", next))
-            cfg.powerquiet = true;
-          else {
-            badarg = 1;
-          }
-        }
-      }
-    }
+    else
+      badarg = ParseNocheckOptions(arg, cfg);
     break;
   case 'S':
     // automatic attribute autosave enable/disable
