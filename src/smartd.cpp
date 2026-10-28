@@ -6398,14 +6398,19 @@ static bool register_devices(const dev_config_vector & conf_entries, smart_devic
 
   // Set minimum check time and factors for staggered tests
   checktime_min = 0;
+  int checktime_always_set = 1;
   unsigned factor = 0;
   for (auto & cfg : configs) {
-    if (cfg.checktime && (!checktime_min || checktime_min > cfg.checktime))
-      checktime_min = cfg.checktime;
+    if (cfg.checktime) {
+      if (!checktime_min || checktime_min > cfg.checktime)
+        checktime_min = cfg.checktime;
+    } else {
+        checktime_always_set = 0;
+    }
     if (!cfg.test_regex.empty())
       cfg.test_offset_factor = factor++;
   }
-  if (checktime_min && checktime_min > checktime)
+  if (checktime_min && !checktime_always_set && checktime_min > checktime)
     checktime_min = checktime;
 
   init_disable_standby_check(configs);
