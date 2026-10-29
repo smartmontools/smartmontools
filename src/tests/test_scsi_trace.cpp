@@ -326,6 +326,18 @@ static void test_drivedb_usb_sandisk_55dd(const char * drivedb)
   info = usb_dev_info();
   CHECK_EQ(lookup_usb_device(0x152d, 0x1562, -1, info, info2), 1);
   CHECK(info.usb_type == "sat");
+
+  // JMicron 0x0583 is selected by bcdDevice: NVMe only for known values,
+  // '-d sntjmicron' on a SATA adapter with this ID issues 'ATA hardware reset'
+  info = usb_dev_info();
+  CHECK_EQ(lookup_usb_device(0x152d, 0x0583, 0x8101, info, info2), 1);
+  CHECK(info.usb_type == "sntjmicron");
+  info = usb_dev_info();
+  CHECK_EQ(lookup_usb_device(0x152d, 0x0583, 0x0205, info, info2), 1);
+  CHECK(info.usb_type == "sat");
+  info = usb_dev_info(); info2 = usb_dev_info();
+  CHECK_EQ(lookup_usb_device(0x152d, 0x0583, 0x1234, info, info2), 2);
+  CHECK(info.usb_type == "sat" && info2.usb_type == "sntjmicron");
 }
 
 int main(int argc, char ** argv)

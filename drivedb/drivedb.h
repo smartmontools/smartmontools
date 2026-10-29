@@ -7123,7 +7123,8 @@ const drive_settings builtin_knowndrives[] = {
   },
   { "USB: ; JMicron JMS583", // USB->PCIe (NVMe)
     "0x152d:0x0583",
-    "0xXXXX", // TODO: add 'bcdDevice' values of devices which support '-d sntjmicron'
+    "0x8101", // Digitus DA-71120-1 (TODO: add 'bcdDevice' values of other devices
+              // which support '-d sntjmicron')
     "",
     "-d sntjmicron" // Caution: Using this on the USB->SATA adapter above issues the
                     // SAT command 'ATA hardware reset'
