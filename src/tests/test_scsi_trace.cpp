@@ -18,6 +18,7 @@
 #include <cstring>
 #include <memory>
 #include <string>
+#include <vector>
 
 using namespace smartmon;
 
@@ -340,6 +341,33 @@ static void test_drivedb_usb_sandisk_55dd(const char * drivedb)
   CHECK(info.usb_type == "sat" && info2.usb_type == "sntjmicron");
 }
 
+#if defined(_WIN32) || defined(__CYGWIN__)
+namespace smartmon { namespace os_win32 { // os_win32.cpp
+int get_usb_bcd_device(const std::vector<std::string> & hwids,
+                       unsigned short vendor_id, unsigned short product_id);
+} }
+using smartmon::os_win32::get_usb_bcd_device;
+
+// Windows passes bcdDevice from the hardware IDs of the USB bridge (WMI
+// Win32_PnPEntity.HardwareID) to the USB ID lookup
+static void test_win32_usb_bcd_device()
+{
+  // Digitus DA-71120-1 (JMicron JMS583)
+  std::vector<std::string> hwids = {"USB\\VID_152D&PID_0583&REV_8101", "USB\\VID_152D&PID_0583"};
+  CHECK_EQ(get_usb_bcd_device(hwids, 0x152d, 0x0583), 0x8101);
+  CHECK_EQ(get_usb_bcd_device(hwids, 0x152d, 0x0578), -1);
+  // Lower case hex digits
+  hwids = {"USB\\VID_0781&PID_55dd&REV_0001"};
+  CHECK_EQ(get_usb_bcd_device(hwids, 0x0781, 0x55dd), 0x0001);
+  // No REV, truncated REV, interface of a composite device
+  hwids = {"USB\\VID_152D&PID_0583", "USB\\VID_152D&PID_0583&REV_81",
+           "USB\\VID_152D&PID_0583&REV_8101&MI_00", ""};
+  CHECK_EQ(get_usb_bcd_device(hwids, 0x152d, 0x0583), -1);
+  hwids.clear();
+  CHECK_EQ(get_usb_bcd_device(hwids, 0x152d, 0x0583), -1);
+}
+#endif
+
 int main(int argc, char ** argv)
 {
   smart_interface::init();
@@ -359,6 +387,9 @@ int main(int argc, char ** argv)
   test_parse_errors();
   test_sandisk_55dd_trace(datadir);
   test_drivedb_usb_sandisk_55dd(drivedb);
+#if defined(_WIN32) || defined(__CYGWIN__)
+  test_win32_usb_bcd_device();
+#endif
 
   std::printf("%d checks, %d failed\n", g_checks, g_failed);
   return (g_failed ? 1 : 0);
