@@ -16,6 +16,7 @@
 #include <wbemcli.h>
 
 #include <string>
+#include <vector>
 
 /////////////////////////////////////////////////////////////////////////////
 // com_bstr
@@ -109,6 +110,9 @@ class wbem_object
 public:
   /// Get string representation.
   std::string get_str(const char * name) /*const*/;
+
+  /// Get string array (e.g. HardwareID), return false if not available.
+  bool get_str_array(const char * name, std::vector<std::string> & strs) /*const*/;
 
 private:
   /// Contents is set by wbem_enumerator.
