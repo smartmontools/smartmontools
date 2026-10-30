@@ -430,6 +430,7 @@ struct dev_config
   char powermode{};                       // skip check, if disk in idle or standby mode
   bool powerquiet{};                      // skip powermode 'skipping checks' message
   int powerskipmax{};                     // how many times can be check skipped
+  bool powerupfortest{};                  // power up for scheduled test
   unsigned char tempdiff{};               // Track Temperature changes >= this limit
   unsigned char tempinfo{}, tempcrit{};   // Track Temperatures >= these limits as LOG_INFO, LOG_CRIT+mail
   regular_expression test_regex;          // Regex for scheduled testing
@@ -1840,7 +1841,7 @@ static void Directives()
            "  -T TYPE Set the tolerance to one of: normal, permissive\n"
            "  -o VAL  Enable/disable automatic offline tests (on/off)\n"
            "  -S VAL  Enable/disable attribute autosave (on/off)\n"
-           "  -n MODE No check if: never[,N][,q], sleep[,N][,q], standby[,N][,q], idle[,N][,q]\n"
+           "  -n MODE No check if: (never|sleep|standby|idle)[,N][,q][,t]\n"
            "  -H      Monitor SMART Health Status, report if failed\n"
            "  -H MASK Monitor specific NVMe Critical Warning bits\n"
            "  -s REG  Do Self-Test at time(s) given by regular expression REG\n"
@@ -3221,7 +3222,8 @@ static int NVMeDeviceScan(dev_config & cfg, dev_state & state, nvme_device * nvm
 }
 
 // Return 1 if ok to open the device; return 0 if not ok.
-static bool ok_to_open_device(const dev_config & cfg, dev_state & state, smart_device * device)
+static bool ok_to_open_device(const dev_config & cfg, dev_state & state, smart_device * device,
+                              char testtype)
 {
   const char * name = cfg.name.c_str();
 
@@ -3234,8 +3236,11 @@ static bool ok_to_open_device(const dev_config & cfg, dev_state & state, smart_d
     // can be used before calling 'open()' (that's the whole point of 'is_powered_down()'!).
     if (device->is_powered_down())
     {
+      if (cfg.powerupfortest && testtype) {
+        if (debugmode)
+          PrintOut(LOG_INFO, "Device: %s, allowing device open to power up for self-test\n", name);
       // skip at most powerskipmax checks
-      if (!cfg.powerskipmax || state.powerskipcnt<cfg.powerskipmax) {
+      } else if (!cfg.powerskipmax || state.powerskipcnt<cfg.powerskipmax) {
         // report first only except if state has changed, avoid waking up system disk
         if ((!state.powerskipcnt || state.lastpowermodeskipped != -1) && !cfg.powerquiet) {
           PrintOut(LOG_INFO, "Device: %s, is in %s mode, suspending checks\n", name, "STANDBY (OS)");
@@ -3249,10 +3254,9 @@ static bool ok_to_open_device(const dev_config & cfg, dev_state & state, smart_d
   return true;
 }
 
-
 // Open device for next check, return false on error
 static bool open_device(const dev_config & cfg, dev_state & state, smart_device * device,
-                        const char * type)
+                        const char * type, char testtype = '0')
 {
   const char * name = cfg.name.c_str();
 
@@ -3260,7 +3264,7 @@ static bool open_device(const dev_config & cfg, dev_state & state, smart_device 
   if (cfg.emailtest)
     MailWarning(cfg, state, 0, "TEST EMAIL from smartd for device: %s", name);
 
-  if (! ok_to_open_device(cfg, state, device))
+  if (! ok_to_open_device(cfg, state, device, testtype))
       return false;
 
   // if we can't open device, fail gracefully rather than hard --
@@ -3931,8 +3935,20 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
   state.selftest_log_refreshed = false;
   state.scsi_logs_refreshed = false;
 
-  if (!open_device(cfg, state, atadev, "ATA"))
+  char testtype = 0;
+
+  time_t saved_scheduled_test_next_check = state.scheduled_test_next_check;
+
+  // if the user has asked, and device is capable (or we're not yet
+  // sure) check whether a self test should be done now.
+  if (allow_selftests && !cfg.test_regex.empty()) {
+    testtype = next_scheduled_test(cfg, state, false/*!scsi*/);
+  }
+
+  if (!open_device(cfg, state, atadev, "ATA", testtype)) {
+    state.scheduled_test_next_check = saved_scheduled_test_next_check;
     return 1;
+  }
 
   const char * name = cfg.name.c_str();
 
@@ -4013,8 +4029,13 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
 
     // if we are going to skip a check, return now
     if (dontcheck){
+      state.scheduled_test_next_check = saved_scheduled_test_next_check;
+      bool powerupfortest = cfg.powerupfortest && testtype;
+      if (powerupfortest) {
+        if (debugmode)
+          PrintOut(LOG_INFO, "Device: %s, allowing ATA device to power up for self-test\n", name);
       // skip at most powerskipmax checks
-      if (!cfg.powerskipmax || state.powerskipcnt<cfg.powerskipmax) {
+      } else if (!cfg.powerskipmax || state.powerskipcnt<cfg.powerskipmax) {
         CloseDevice(atadev, name);
         // report first only except if state has changed, avoid waking up system disk
         if ((!state.powerskipcnt || state.lastpowermodeskipped != powermode) && !cfg.powerquiet) {
@@ -4162,13 +4183,8 @@ static int ATACheckDevice(const dev_config & cfg, dev_state & state, ata_device 
     }
   }
 
-  // if the user has asked, and device is capable (or we're not yet
-  // sure) check whether a self test should be done now.
-  if (allow_selftests && !cfg.test_regex.empty()) {
-    char testtype = next_scheduled_test(cfg, state, false/*!scsi*/);
-    if (testtype)
-      DoATASelfTest(cfg, state, atadev, testtype);
-  }
+  if (testtype)
+    DoATASelfTest(cfg, state, atadev, testtype);
 
   // Don't leave device open -- the OS/user may want to access it
   // before the next smartd cycle!
@@ -4853,7 +4869,7 @@ static void printoutvaliddirectiveargs(int priority, char d)
 {
   switch (d) {
   case 'n':
-    PrintOut(priority, "never[,N][,q], sleep[,N][,q], standby[,N][,q], idle[,N][,q]");
+    PrintOut(priority, "(never|sleep|standby|idle)[,N][,q][,t]");
     break;
   case 's':
     PrintOut(priority, "valid_regular_expression");
@@ -4987,6 +5003,7 @@ static int ParseNocheckOptions(const char * arg, dev_config & cfg) {
   cfg.powermode = CHAR_MAX;
   cfg.powerquiet = false;
   cfg.powerskipmax = 0;
+  cfg.powerupfortest = false;
 
   while (arg < end) {
     size_t len;
@@ -5006,6 +5023,8 @@ static int ParseNocheckOptions(const char * arg, dev_config & cfg) {
       cfg.powermode = 3;
     else if (!strncmp(arg, "q", len))
       cfg.powerquiet = true;
+    else if (!strncmp(arg, "t", len))
+      cfg.powerupfortest = true;
     else {
       // attempt to parse numerical argument
       char *endptr = nullptr;

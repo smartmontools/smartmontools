@@ -598,7 +598,7 @@ Directives.
 \fBWARNING: Removing a device and connecting a different one to same interface
 is not supported and may result in bogus warnings until smartd is restarted.\fP
 .TP
-.B \-n POWERMODE[,N][,q]
+.B \-n POWERMODE[,N][,q][,t]
 [ATA only] This \*(Aqnocheck\*(Aq Directive is used to prevent a disk from
 being spun-up when it is periodically polled by \fBsmartd\fP.
 .Sp
@@ -658,6 +658,14 @@ check is performed anyway.
 informal log message.
 The message can be suppressed by including the option \*(Aqq\*(Aq.
 This prevents a laptop disk from spinning up due to this message.
+.Sp
+.br
+[NEW EXPERIMENTAL SMARTD 8.1 FEATURE]
+.I t
+\- When periodic checks are not run, scheduled self-tests (via the '\-s'
+directive) are not run either.
+If the \*(Aqt\*(Aq option is specified, then smartd will enable a periodic
+check when necessary to run a self-test that is scheduled for that time.
 .Sp
 POWERMODE and all options can be specified in any order.
 In the case of conflicting POWERMODE or options, the one listed last takes
