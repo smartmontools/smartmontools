@@ -3220,15 +3220,10 @@ static int NVMeDeviceScan(dev_config & cfg, dev_state & state, nvme_device * nvm
   return 0;
 }
 
-// Open device for next check, return false on error
-static bool open_device(const dev_config & cfg, dev_state & state, smart_device * device,
-                        const char * type)
+// Return 1 if ok to open the device; return 0 if not ok.
+static bool ok_to_open_device(const dev_config & cfg, dev_state & state, smart_device * device)
 {
   const char * name = cfg.name.c_str();
-
-  // If user has asked, test the email warning system
-  if (cfg.emailtest)
-    MailWarning(cfg, state, 0, "TEST EMAIL from smartd for device: %s", name);
 
   // User may have requested (with the -n Directive) to leave the disk
   // alone if it is in idle or standby mode.  In this case check the
@@ -3251,6 +3246,22 @@ static bool open_device(const dev_config & cfg, dev_state & state, smart_device 
       }
     }
   }
+  return true;
+}
+
+
+// Open device for next check, return false on error
+static bool open_device(const dev_config & cfg, dev_state & state, smart_device * device,
+                        const char * type)
+{
+  const char * name = cfg.name.c_str();
+
+  // If user has asked, test the email warning system
+  if (cfg.emailtest)
+    MailWarning(cfg, state, 0, "TEST EMAIL from smartd for device: %s", name);
+
+  if (! ok_to_open_device(cfg, state, device))
+      return false;
 
   // if we can't open device, fail gracefully rather than hard --
   // perhaps the next time around we'll be able to open it
