@@ -187,7 +187,7 @@ bool ata_device::ata_cmd_is_supported(const ata_cmd_in & in,
   else {
     if (!in.buffer)
       return set_err(EINVAL, "Buffer not set for DATA IN/OUT command");
-    unsigned count = (in.in_regs.prev.sector_count<<16)|in.in_regs.sector_count;
+    unsigned count = in.in_regs.sector_count_16;
     // TODO: Add check for sector count == 0
     if (count * 512 != in.size)
       return set_err(EINVAL, "Sector count %u does not match buffer size %u", count, in.size);
