@@ -1,0 +1,23 @@
+# JMicron JMS562 USB->2xSATA bridge 0x152d:0x0562 (SCSI revision 0213) which presents
+# a 4TB volume and rejects ATA PASS-THROUGH(16) (INVALID COMMAND OPERATION CODE)
+# and (12) (INVALID FIELD IN CDB). '-d sat' must fail without further commands.
+# Recorded with smartctl pre-8.0 'smartctl -x -r scsiioctl,4' (complete data).
+# The expected output is the replay of this trace. It equals the output of the real
+# device except volatile values which changed between both runs.
+# converted from "smartctl -r scsiioctl,4" output: jmicron-jms562-0x152d-0x0562_20261022_215537.new-x.ioctl4.txt
+
+# ata pass-through(16)
+CDB 85 08 0e 00 00 00 01 00 00 00 00 00 00 00 ec 00
+ALLOC 512
+STATUS 2
+SENSE 70 00 05 00 00 00 00 0a 00 00 00 00 20 00 00 00 00 00
+DATA 
+END
+
+# ata pass-through(16)
+CDB 85 08 0e 00 00 00 01 00 00 00 00 00 00 00 a1 00
+ALLOC 512
+STATUS 2
+SENSE 70 00 05 00 00 00 00 0a 00 00 00 00 20 00 00 00 00 00
+DATA 
+END

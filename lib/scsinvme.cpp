@@ -134,10 +134,48 @@ sntasmedia_device::~sntasmedia_device()
 {
 }
 
+// Get Log causes some USB bridges to hang or to return bogus data if size > 0x0200
+// (see also GH issues #256, #526 and #648).  Truncate known logs and reject other logs.
+// Allow override with '-T permissive'.  Return the transfer SIZE and CDW10 and the
+// number of valid bytes LOG_SIZE, or false if the log is not supported.
+static bool limit_get_log_size(smart_device * dev, const nvme_cmd_in & in,
+                               unsigned & size, unsigned & cdw10, unsigned & log_size)
+{
+  size = log_size = in.size;
+  cdw10 = in.cdw10;
+  constexpr unsigned max_log_size = 0x0200;
+  if (!(in.opcode == nvme_admin_get_log_page && size > max_log_size) || is_permissive())
+    return true;
+
+  const char * warnmsg;
+  const char * ovrmsg = (nvme_debugmode ? " (override with '-T permissive' option)" : "");
+  unsigned lid = cdw10 & 0xff;
+  if (lid == 0x01) {
+    constexpr unsigned sz = 8 * sizeof(nvme_error_log_page);
+    SMARTMON_STATIC_ASSERT(sz == max_log_size);
+    log_size = sz;
+    warnmsg = "Error Information truncated to 8 entries";
+  }
+  else if (lid == 0x06) {
+    constexpr unsigned sz = sizeof(nvme_self_test_log) - (20 - 18) * sizeof(nvme_self_test_result);
+    SMARTMON_STATIC_ASSERT(sz == 0x01fc && sz < max_log_size);
+    log_size = sz;
+    warnmsg = "Self-test Log truncated to 18 entries";
+  }
+  else {
+    return dev->set_err(ENOSYS, "NVMe Get Log Page with LID=0x%02x and size=0x%04x not supported%s",
+                        lid, size, ovrmsg);
+  }
+  size = max_log_size;
+  cdw10 = lid | (((size / 4) - 1) << 16);
+  if (nvme_debugmode)
+    lib_printf(" [Changed: size=0x%04x, cdw10=0x%08x]\n", size, cdw10);
+  lib_printf("Warning: %s to prevent device reset%s\n", warnmsg, ovrmsg);
+  return true;
+}
+
 bool sntasmedia_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out & /* out */)
 {
-  unsigned size = in.size;
-  unsigned cdw10_hi = in.cdw10 >> 16;
   switch (in.opcode) {
     case nvme_admin_identify:
       if (in.cdw10 == 0x0000001) // Identify controller
@@ -159,11 +197,18 @@ bool sntasmedia_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out &
   if (in.cdw11 || in.cdw14 || in.cdw15)
     return set_err(ENOSYS, "Nonzero NVMe command dwords 11, 14, or 15 not supported");
 
+  // The bridge returns at most 0x0200 bytes for Get Log, a longer transfer
+  // times out and resets the device on Windows
+  unsigned size, log_size, cdw10;
+  if (!limit_get_log_size(this, in, size, cdw10, log_size))
+    return false;
+  unsigned cdw10_hi = cdw10 >> 16;
+
   uint8_t cdb[16] = {0, };
   cdb[0] = 0xe6;
   cdb[1] = in.opcode;
   //cdb[2] = 0
-  cdb[3] = (uint8_t)in.cdw10;
+  cdb[3] = (uint8_t)cdw10;
   //cdb[4..5] = 0
   cdb[6] = (uint8_t)(cdw10_hi >> 8);
   cdb[7] = (uint8_t)cdw10_hi;
@@ -187,6 +232,10 @@ bool sntasmedia_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out &
   scsi_device * scsidev = get_tunnel_dev();
   if (!scsidev->scsi_pass_through_and_check(&io_hdr, "sntasmedia_device::nvme_pass_through: "))
     return set_err(scsidev->get_err());
+
+  if (log_size < size)
+    // Clear truncated log entry
+    memset(reinterpret_cast<uint8_t *>(in.buffer) + log_size, 0, size - log_size);
 
   //out.result = ?;
   return true;
@@ -246,39 +295,9 @@ bool sntjmicron_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out &
   /* Only admin commands used */
   constexpr bool admin = true;
 
-  // Get Log causes controller to hang or return bogus data if size > 0x0200
-  // (see also GH issues #256 and #648).  Truncate known logs and reject other logs.
-  // Allow override with '-T permissive'.
-  unsigned size = in.size;
-  unsigned log_size = size;
-  unsigned cdw10 = in.cdw10;
-  constexpr unsigned max_log_size = 0x0200;
-  if (in.opcode == nvme_admin_get_log_page && size > max_log_size && !is_permissive()) {
-    const char * warnmsg;
-    const char * ovrmsg = (nvme_debugmode ? " (override with '-T permissive' option)" : "");
-    unsigned lid = cdw10 & 0xff;
-    if (lid == 0x01) {
-      constexpr unsigned sz = 8 * sizeof(nvme_error_log_page);
-      SMARTMON_STATIC_ASSERT(sz == max_log_size);
-      log_size = sz;
-      warnmsg = "Error Information truncated to 8 entries";
-    }
-    else if (lid == 0x06) {
-      constexpr unsigned sz = sizeof(nvme_self_test_log) - (20 - 18) * sizeof(nvme_self_test_result);
-      SMARTMON_STATIC_ASSERT(sz == 0x01fc && sz < max_log_size);
-      log_size = sz;
-      warnmsg = "Self-test Log truncated to 18 entries";
-    }
-    else {
-      return set_err(ENOSYS, "NVMe Get Log Page with LID=0x%02x and size=0x%04x not supported%s",
-                     lid, size, ovrmsg);
-    }
-    size = max_log_size;
-    cdw10 = lid | (((size / 4) - 1) << 16);
-    if (nvme_debugmode)
-      lib_printf(" [Changed: size=0x%04x, cdw10=0x%08x]\n", size, cdw10);
-    lib_printf("Warning: %s to prevent device reset%s\n", warnmsg, ovrmsg);
-  }
+  unsigned size, log_size, cdw10;
+  if (!limit_get_log_size(this, in, size, cdw10, log_size))
+    return false;
 
   // 1: "NVM Command Set Payload"
   {

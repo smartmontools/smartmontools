@@ -16,6 +16,20 @@ replaced by library hooks.
 Source code examples have been added to the new directory `lib/examples`.
 Work towards a more consistent and flexible API is in progress.
 
+- `smartctl -A`, `-x`: SanDisk Extreme Portable SSD (USB 0x0781:0x55dd): controller, NAND,
+board and lifetime temperatures and host reads and writes are reported from the vendor specific log pages
+0x30 and 0x32 (JSON: `sandisk_vendor_log: {...}`).
+The controller temperature replaces the invalid value from the IE mode page.
+
+- `smartctl -r scsiioctl,4`: data transfers of the operating system pass-through
+layer are printed completely instead of only the first 256 bytes.
+Data-out is printed after its CDB instead of before.
+
+- `smartctl -d scsi|sat...|snt... -`: a recorded SCSI command trace can be replayed from stdin.
+This simulates a SCSI device or USB bridge without the hardware.
+`make check` now runs unit tests and compares the replayed output of recorded devices
+with the output of the real device.
+
 - `smartctl -j`: the new JSON values `host_reads: {...}` and `host_writes: {...}` have been
 added for ATA and NVMe.
 

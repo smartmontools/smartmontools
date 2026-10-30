@@ -1,0 +1,74 @@
+
+=== START OF INFORMATION SECTION ===
+Model Number:                       Samsung SSD 990 PRO 4TB
+Serial Number:                      S7DPNU0Y734621D
+Firmware Version:                   8B2QJXD7
+PCI Vendor/Subsystem ID:            0x144d
+IEEE OUI Identifier:                0x002538
+Total NVM Capacity:                 4,000,787,030,016 [4.00 TB]
+Unallocated NVM Capacity:           0
+Controller ID:                      1
+NVMe Version:                       2.0
+Number of Namespaces:               1
+Namespace 1 Size/Capacity:          4,000,787,030,016 [4.00 TB]
+Namespace 1 Utilization:            4,000,642,027,520 [4.00 TB]
+Namespace 1 Formatted LBA Size:     512
+Namespace 1 IEEE EUI-64:            002538 4751a44e79
+Local Time is:                      Wed Oct 28 18:21:39 2026 UTC
+Firmware Updates (0x16):            3 Slots, no Reset required
+Optional Admin Commands (0x0017):   Security Format Frmw_DL Self_Test
+Optional NVM Commands (0x0055):     Comp DS_Mngmt Sav/Sel_Feat Timestmp
+Log Page Attributes (0x2f):         S/H_per_NS Cmd_Eff_Lg Ext_Get_Lg Telmtry_Lg Log0_FISE_MI
+Maximum Data Transfer Size:         512 Pages
+Warning  Comp. Temp. Threshold:     82 Celsius
+Critical Comp. Temp. Threshold:     85 Celsius
+
+Supported Power States
+St Op     Max   Active     Idle   RL RT WL WT  Ent_Lat  Ex_Lat
+ 0 +     9.39W       -        -    0  0  0  0        0       0
+ 1 +     9.39W       -        -    1  1  1  1        0       0
+ 2 +     9.39W       -        -    2  2  2  2        0       0
+ 3 -   0.0400W       -        -    3  3  3  3     4200    2700
+ 4 -   0.0050W       -        -    4  4  4  4      500   21800
+
+Supported LBA Sizes (NSID 0x1)
+Id Fmt  Data  Metadt  Rel_Perf
+ 0 +     512       0         0
+
+=== START OF SMART DATA SECTION ===
+SMART overall-health self-assessment test result: PASSED
+
+SMART/Health Information (NVMe Log 0x02, NSID 0xffffffff)
+Critical Warning:                   0x00
+Temperature:                        39 Celsius
+Available Spare:                    100%
+Available Spare Threshold:          10%
+Percentage Used:                    0%
+Data Units Read:                    3,955,142 [2.02 TB]
+Data Units Written:                 13,192,976 [6.75 TB]
+Host Read Commands:                 37,707,994
+Host Write Commands:                52,869,795
+Controller Busy Time:               110
+Power Cycles:                       16
+Power On Hours:                     52
+Unsafe Shutdowns:                   2
+Media and Data Integrity Errors:    0
+Error Information Log Entries:      0
+Warning  Comp. Temperature Time:    59
+Critical Comp. Temperature Time:    0
+Temperature Sensor 1:               39 Celsius
+Temperature Sensor 2:               46 Celsius
+Thermal Temp. 1 Transition Count:   2
+Thermal Temp. 1 Total Time:         964
+Thermal Temp. 2 Transition Count:   1
+Thermal Temp. 2 Total Time:         68709
+
+Warning: NVMe Get Log truncated to 0x200 bytes, 0x200 bytes zero filled
+Error Information (NVMe Log 0x01, 16 of 64 entries)
+No Errors Logged
+
+Warning: NVMe Get Log truncated to 0x200 bytes, 0x034 bytes zero filled
+Self-test Log (NVMe Log 0x06, NSID 0xffffffff)
+Self-test status: No self-test in progress
+No Self-tests Logged
+

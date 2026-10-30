@@ -360,7 +360,7 @@ bool netbsd_scsi_device::scsi_pass_through(scsi_cmnd_io * iop)
       lib_printf("%02x ", ucp[k]);
     if ((scsi_debugmode > 1) &&
       (DXFER_TO_DEVICE == iop->dxfer_dir) && (iop->dxferp)) {
-    int trunc = (iop->dxfer_len > 256) ? 1 : 0;
+    int trunc = (scsi_debugmode < 4 && iop->dxfer_len > 256) ? 1 : 0;
 
     lib_printf("]\n  Outgoing data, len=%d%s:\n", (int)iop->dxfer_len,
       (trunc ? " [only first 256 bytes shown]" : ""));
@@ -397,7 +397,7 @@ bool netbsd_scsi_device::scsi_pass_through(scsi_cmnd_io * iop)
     int trunc;
 
     lib_printf("  status=0\n");
-    trunc = (iop->dxfer_len > 256) ? 1 : 0;
+    trunc = (scsi_debugmode < 4 && iop->dxfer_len > 256) ? 1 : 0;
 
     lib_printf("  Incoming data, len=%d%s:\n", (int) iop->dxfer_len,
       (trunc ? " [only first 256 bytes shown]" : ""));

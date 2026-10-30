@@ -168,7 +168,7 @@ bool solaris_scsi_device::scsi_pass_through(scsi_cmnd_io * iop)
       lib_printf("%02x ", ucp[k]);
     lib_printf("]\n");
     if (report > 1 && iop->dxfer_dir == DXFER_TO_DEVICE && iop->dxferp) {
-      int trunc = (iop->dxfer_len > 256) ? 1 : 0;
+      int trunc = (report < 4 && iop->dxfer_len > 256) ? 1 : 0;
 
       lib_printf("  Outgoing data, len=%d%s:\n", (int)iop->dxfer_len,
         (trunc ? " [only first 256 bytes shown]" : ""));
@@ -235,7 +235,7 @@ bool solaris_scsi_device::scsi_pass_through(scsi_cmnd_io * iop)
     if (report > 1) {
       len = iop->dxfer_len - iop->resid;
       if (len > 0) {
-        int trunc = (len > 256) ? 1 : 0;
+        int trunc = (report < 4 && len > 256) ? 1 : 0;
         lib_printf("  Incoming data, len=%d%s:\n", len,
           (trunc ? " [only first 256 bytes shown]" : ""));
         dStrHex(iop->dxferp, (trunc ? 256 : len), 1);
