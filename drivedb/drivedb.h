@@ -3426,7 +3426,12 @@ const drive_settings builtin_knowndrives[] = {
      // ST1000LM035-1RK172/SBM3 (0x125f:0xa42a),
      // ST2000LM007-1R8174/SBK2
     "ST(2000LM0(07|09|10)|1000LM03[578])-.*",
-    "", "", ""
+    "", "",
+    "-v 1,raw24/raw32 "
+    "-v 7,raw24/raw32 "
+    "-v 9,msec24hour32 "
+    "-v 188,raw16 "
+    "-v 194,tempminmax:zz4wz0"
   },
   // Flash accelerated, no SMART info in the specs
   // ST1000LX015-1U7172/SDM1
