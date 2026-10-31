@@ -1607,6 +1607,7 @@ std::string ata_format_attr_raw_value(const ata_smart_attribute & attr,
       // xx HH xx LL xx TT (Hitachi/HGST)
       // xx LL xx HH xx TT (Kingston SSDs)
       // 00 00 HH LL xx TT (Maxtor, Samsung, Seagate, Toshiba)
+      // 00 LL 00 00 xx TT (some Seagate, HH in attr.worst; TT == attr.current)
       // 00 00 00 HH LL TT (WDC)
       // CC CC HH LL xx TT (WDC, CCCC=over temperature count)
       // (xx = 00/ff, possibly sign extension of lower byte)
@@ -1630,15 +1631,24 @@ std::string ata_format_attr_raw_value(const ata_smart_attribute & attr,
           tformat = -1;
       }
       else if (ctw0) {
-        if (   (ctw0 & check_temp_word(word[1]) & check_temp_word(word[2])) != 0x00
+        if (   !(defs[attr.id].flags & (ATTRFLAG_NO_WORSTVAL|ATTRFLAG_NO_NORMVAL))
+            && !word[1] && !raw[5]
+            && attr.current == t
+            && (signed char)raw[4] <= attr.worst
+            && check_temp_range(t, raw[4], attr.worst, lo, hi))
+          // 00 LL 00 00 xx TT (some Seagate, HH in attr.worst; TT == attr.current)
+          // (used especially for attribute 194; TT == attr.current is typical
+          // for this format)
+          tformat = 3;
+        else if (   (ctw0 & check_temp_word(word[1]) & check_temp_word(word[2])) != 0x00
             && check_temp_range(t, raw[2], raw[4], lo, hi)                         )
           // xx HL xx LH xx TT
-          tformat = 3;
+          tformat = 4;
         else if (   word[2] < 0x7fff
                  && check_temp_range(t, raw[2], raw[3], lo, hi)
                  && hi >= 40                                   )
           // CC CC HL LH xx TT
-          tformat = 4;
+          tformat = 5;
         else
           tformat = -2;
       }
@@ -1649,10 +1659,10 @@ std::string ata_format_attr_raw_value(const ata_smart_attribute & attr,
         case 0:
           s = strprintf("%d", t);
           break;
-        case 1: case 2: case 3:
+        case 1: case 2: case 3: case 4:
           s = strprintf("%d (Min/Max %d/%d)", t, lo, hi);
           break;
-        case 4:
+        case 5:
           s = strprintf("%d (Min/Max %d/%d #%d)", t, lo, hi, word[2]);
           break;
         default:
