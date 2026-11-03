@@ -1,5 +1,27 @@
 name: Build smartmontools (non-release)
 
+#| Configuration            | CPU Architectures         | Type     | Build image  | Toolchain      | Comments
+#| ------------------------ | ------------------------- | -------- | ------------ | -------------- | --------------------------
+#| ubuntu-ARCH              | x86_64, i686, arm64       | native   | -            | gcc[-multilib] | shared
+#| ubuntu-ARCH-static       | x86_64, i686, arm64       | native   | -            | gcc[-multilib] | static-link
+#| ubuntu-ARCH-clang        | x86_64, arm64             | native   | -            | clang+analyzer | shared
+#| ubuntu-ARCH-clang-static | x86_64, arm64             | native   | -            | clang+analyzer | static-link
+#| darwin                   | x86_64+arm64              | cross    | docker-build | clang          |
+#| freebsd                  | x86_64                    | cross    | docker-build | clang          | static-link, FreeBSD 14+15
+#| windows                  | x86_64+i686               | cross    | -            | gcc-mingw64    | static-link
+#| windows-signed           | x84_64+i686               | cross    | -            | gcc-mingw64    | static-link, signpath.io
+#| cygwin                   | x86_64                    | cross    | fedora       | gcc            |
+#| os2emx                   | i486                      | cross    | -            | gcc-emx        |
+#| ubuntu-ARCH              | ppc64le, riscv64, s390x   | emulated | vmactions    | gcc            | Big Endian: s390x
+#| freebsd-x86_64           | x86_64                    | native   | vmactions    | clang          |
+#| freebsd-ARCH             | arm64, powerpc64, riscv64 | emulated | vmactions    | clang          | Big Endian: powerpc64
+#| openbsd-x86_64           | x86_64                    | native   | vmactions    | clang          |
+#| openbsd-ARCH             | arm64, riscv64, sparc64   | emulated | vmactions    | clang          | Big Endian: sparc64
+#| netbsd-x86_64            | x86_64                    | native   | vmactions    | gcc            |
+#| netbsd-ARCH              | arm64, riscv64, sparc64   | emulated | vmactions    | gcc            | Big Endian: sparc64
+#| omnios-x86_64            | x86_64                    | native   | vmactions    | gcc            |
+#| solaris-x86_64           | x86_64                    | native   | vmactions    | gcc            |
+
 on:
   workflow_call:
     inputs:
