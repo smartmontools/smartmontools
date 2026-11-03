@@ -6,12 +6,14 @@ on:
       builds-1:
         description: >-
           Default CI builds:
-          linux-x86_64-static linux-i686-static darwin freebsd windows cygwin
+          ubuntu-x86_64-static ubuntu-i686-static
+          darwin freebsd windows cygwin
         default: ''
         type: string
       builds-2:
         description: >-
           Extra builds:
+          ubuntu-(x86_64|i686|arm64)[-clang][-static]
           (free|net|open)bsd-x86_64 (omnios|solaris)-x86_64
           windows[-test]-signed os2emx
         default: ''

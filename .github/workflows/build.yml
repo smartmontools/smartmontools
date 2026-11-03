@@ -24,6 +24,7 @@ on:
 jobs:
   source-tarball:
     outputs:
+      ubuntu-matrix: ${{ steps.init.outputs.ubuntu-matrix }}
       qemu-matrix: ${{ steps.init.outputs.qemu-matrix }}
     runs-on: ubuntu-latest
 
@@ -36,6 +37,23 @@ jobs:
                "make-override: '${{ inputs.make-override }}'" \
                "run-checks: '${{ inputs.run-checks }}'" \
                "retention-days: '${{ inputs.retention-days }}'"
+          delim=
+          printf 'ubuntu-matrix={"include":[' >> $GITHUB_OUTPUT
+          for arch in x86_64 i686 arm64; do
+            for clang in '' '-clang'; do
+              for static in '' '-static'; do
+                build="ubuntu-$arch$clang$static"
+                case $build in ubuntu-i686-clang*) continue ;; esac
+                case ' ${{ inputs.builds }} ' in
+                  *\ $build\ *)
+                    printf '%s{"arch":"%s","clang":"%s","static":"%s"}' \
+                      "$delim" "$arch" "$clang" "$static" >> $GITHUB_OUTPUT
+                    delim=',' ;;
+                esac
+              done
+            done
+          done
+          echo ']}' >> $GITHUB_OUTPUT
           delim=
           printf 'qemu-matrix={"include":[' >> $GITHUB_OUTPUT
           for os in ubuntu freebsd netbsd openbsd omnios solaris; do
@@ -85,47 +103,21 @@ jobs:
           if-no-files-found: error
           retention-days: ${{ inputs.retention-days }}
 
-  linux-x86_64-static:
-    if: ${{ contains(format(' {0} ', inputs.builds), ' linux-x86_64-static ') }}
+  ubuntu:
+    if: ${{ ! contains(needs.source-tarball.outputs.ubuntu-matrix, '[]') }}
     needs: source-tarball
-    runs-on: ubuntu-latest
+    strategy:
+      matrix: ${{ fromJSON(needs.source-tarball.outputs.ubuntu-matrix) }}
+    runs-on: ${{ case(matrix.arch != 'arm64', 'ubuntu-latest', 'ubuntu-24.04-arm') }}
 
     steps:
-      - uses: actions/download-artifact@v8
-        with:
-          name: smartmontools-src
-          path: source
-
-      - name: Build
+      - if: ${{ matrix.arch == 'i686' }}
         run: |
-          tar -xf source/smartmontools-*.*.tar.gz && mv -v smartmontools-*.*/ smartmontools &&
-          mkdir smartmontools/build && cd smartmontools/build &&
-          version_sh=$(../util/getversion.sh -s) && eval "${version_sh}" &&
-          ../configure --with-build-info='(GHA Build)' \
-            ${{ inputs.configure-override || '--enable-static-link' }} \
-            SOURCE_DATE_EPOCH=$((SMARTMONTOOLS_GIT_REV_EPOCH + 1)) &&
-          make ${{ inputs.make-override || '-j V=0' }} && make check &&
-          bin_distfile="../../smartmontools-linux-x86_64-static-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz"
-          make bin_distfile="$bin_distfile" bin-dist && tar -tvf "$bin_distfile"
+          sudo apt-get update && sudo apt-get install -y gcc-multilib g++-multilib
 
-      - uses: actions/upload-artifact@v7
-        with:
-          name: smartmontools-linux-x86_64-static
-          path: smartmontools-linux-x86_64-static-*.*.tar.gz
-          if-no-files-found: error
-          retention-days: ${{ inputs.retention-days }}
-
-      - run: smartmontools/build/src/smartctl --scan
-        continue-on-error: true
-
-  linux-i686-static:
-    if: ${{ contains(format(' {0} ', inputs.builds), ' linux-i686-static ') }}
-    needs: source-tarball
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Install m32 dependencies
-        run: sudo apt-get update && sudo apt-get install gcc-multilib g++-multilib
+      - if: ${{ matrix.clang != '' }}
+        run: |
+          sudo apt-get update && sudo apt-get install -y clang-tools
 
       - uses: actions/download-artifact@v8
         with:
@@ -137,21 +129,37 @@ jobs:
         # With 'setarch i686 ...' it correctly detects 'host=i686-pc-linux-gnu'.
         # TODO: Remove this workaround if 'ubuntu-latest' provides automake >= 1.17.
         run: |
+          uname -a && id &&
           tar -xf source/smartmontools-*.*.tar.gz && mv -v smartmontools-*.*/ smartmontools &&
           mkdir smartmontools/build && cd smartmontools/build &&
           version_sh=$(../util/getversion.sh -s) && eval "${version_sh}" &&
-          setarch i686 ../configure --with-build-info='(GHA Build)' \
-            ${{ inputs.configure-override || '--enable-static-link' }} \
-            CC="gcc -m32" CXX="g++ -m32" SOURCE_DATE_EPOCH=$((SMARTMONTOOLS_GIT_REV_EPOCH + 1)) &&
-          make ${{ inputs.make-override || '-j V=0' }} && make check &&
-          bin_distfile="../../smartmontools-linux-i686-static-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" &&
+          ${{ case(matrix.arch == 'i686', 'setarch i686 ', '') }}../configure \
+            --with-build-info='(GHA Build)' \
+            ${{ inputs.configure-override || case (matrix.static != '', '--enable-static-link', '--enable-shared') }} \
+            ${{ case(matrix.arch == 'i686', 'CC="gcc -m32" CXX="g++ -m32" ', matrix.clang != '', 'CC=clang CXX=clang++ ', '') }}\
+            SOURCE_DATE_EPOCH=$((SMARTMONTOOLS_GIT_REV_EPOCH + 1)) &&
+          name='smartmontools-ubuntu-${{ matrix.arch }}${{ matrix.clang }}${{ matrix.static }}' &&
+          ${{ case(matrix.clang != '', '../util/clang-scan-build.sh -f "../../$name-report-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" ', '')
+          }}make ${{ inputs.make-override || '-j V=0' }} &&
+          make check &&
+          bin_distfile="../../$name-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz"
           make bin_distfile="$bin_distfile" bin-dist && tar -tvf "$bin_distfile"
 
       - uses: actions/upload-artifact@v7
         with:
-          name: smartmontools-linux-i686-static
-          path: smartmontools-linux-i686-static-*.*.tar.gz
+          name: smartmontools-ubuntu-${{ matrix.arch }}${{ matrix.clang }}${{ matrix.static }}
+          path: |
+            smartmontools-ubuntu-${{ matrix.arch }}${{ matrix.clang }}${{ matrix.static }}-*.*.tar.gz
+            !*-report-*
           if-no-files-found: error
+          retention-days: ${{ inputs.retention-days }}
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: smartmontools-ubuntu-${{ matrix.arch }}${{ matrix.clang }}${{ matrix.static }}-report
+          path: |
+            smartmontools-ubuntu-${{ matrix.arch }}${{ matrix.clang }}${{ matrix.static }}-report-*.*.tar.gz
+          if-no-files-found: ignore
           retention-days: ${{ inputs.retention-days }}
 
       - run: smartmontools/build/src/smartctl --scan
