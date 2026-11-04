@@ -1842,7 +1842,7 @@ const drive_settings builtin_knowndrives[] = {
     "INTEL SSDSC(1N|[12]B)[ABGPX]((080|100|120|150|160|200|240|300|400|480|600|800)[GH][3467][CERT]?|(012|016)T[46])|"
       // A = S3700, B*4 = S3500, B*6 = S3510, P = 730, X = S3610
       // Dell ships drives with model of the form SSDSC2BB120G4R
-    "VK000(120|240|480)G(WSXF|XNZA)", // tested with VK000480GWSXF/HPG2 (HPe INTEL SSDSC2BB480G4),
+    "VK000(120|240|480)G(WSXF|XNZA)", // tested with VK000480GWSXF/HPG2 (HPe INTEL DC S3500 SSDSC2BB480G4),
       // VK000480GXNZA/HPG1 (HPe)
     "", "",
   //"-v 3,raw16(avg16),Spin_Up_Time "
@@ -1876,6 +1876,31 @@ const drive_settings builtin_knowndrives[] = {
     "-v 242,raw48,Host_Reads_32MiB "
     "-v 243,raw48,NAND_Writes_32MiB " // S3510/3610
     "-F xerrorlba" // tested with SSDSC2BB600G4/D2010355
+  },
+  { "Intel DC S3510/3610/3710 Series SSDs (HPE OEM Drives)", // tested with LK0800GEYMU/4IHVHPG6, MK0800GEYKE/4IHVHPG6
+    "VK(0080|0120|0240|0480|0800|1600)GEYJ[NPQRTU]|" // HPE OEM (INTEL DC S3510)
+    "LK(0200GEYMR|0480GFJSK|0800GEYMU|1600GEYMV)|" // HPE OEM (INTEL DC S3610)
+      // tested with LK0800GEYMU/HPG6 (HPE INTEL DC S3610 SSDSC2BX800G4P)
+    "MK(0200|0400|0800|1200)GEYK[CDEF]", // HPE OEM (INTEL DC S3710), MK0200GEYKC = SSDSC2BA200G4P
+      // tested with MK0800GEYKE/HPG6 (HPE INTEL DC S3710 SSDSC2BA800G4P)
+      // Models VK*GEYJ*, LK*GEYM*, LK0480GFJSK, MK*GEYK* covered by the same HPE SATA SSD firmware component (HPG6).
+      // HPE firmware reports only SMART attributes 1, 5, 9, 173, 175, 180, 194, 196.
+      // Host writes/reads, endurance used, and uncorrectable and interface CRC
+      // error counts are available from Device Statistics ('-l devstat').
+      // No '-F xerrorlba': Ext. Comprehensive Error Log LBAs are correct as reported.
+    "", "",
+  //"-v 1,raw48,Raw_Read_Error_Rate "
+  //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
+  //"-v 9,raw24(raw8),Power_On_Hours "
+    "-v 173,raw48,Percent_Lifetime_Remain " // 100 - "Device Statistics page 0x07, offset 0x008 (Percentage Used Endurance Indicator)"
+      // This is the direct replacement for Intel's E9h attribute. Intel's datasheet maps this statistic to E9h and notes that it counts from 1 to 150. 
+      // That gives it an advantage over E9h. E9h's normalized value declines linearly from 100 to 1 as erase cycles approach the rated maximum, 
+      // and once it reaches 1 it stops decreasing, even though the drive can take significant additional wear. The Device Statistics value 
+      // keeps climbing past 100%, so it can show how far beyond rated life a drive has gone.
+    "-v 175,raw16(raw16),Power_Loss_Cap_Test " // usec to discharge (lifetime tests, min since last)
+  //"-v 180,raw48,Unused_Rsvd_Blk_Cnt_Tot "
+    "-v 194,tempminmax,Temperature_Internal"
+  //"-v 196,raw16(raw16),Reallocated_Event_Count "
   },
   { "Intel SSD Pro 5400s Series", // Tested with SSDSC2KF480H6/LSF036P,
       // INTEL SSDSC2KF256H6 SATA 256GB/LBFD16N
@@ -2254,6 +2279,40 @@ const drive_settings builtin_knowndrives[] = {
   //"-v 233,raw48,Media_Wearout_Indicator " // MS6/1.03
     "-v 241,raw48,Host_Writes_32MiB "
     "-v 242,raw48,Host_Reads_32MiB"
+  },
+  { "Samsung based SSDs", // PM893 customer variant (-00AAZ), tested with
+      // SAMSUNG MZ7L31T9HBLT-00AAZ/JXTC1W4Q
+    "SAMSUNG MZ7L3(240|480|960|1T9|3T8|7T6)H(B[LN][AT]|CHQ|CJR)-00AAZ",
+    "", "",
+  //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
+  //"-v 9,raw24(raw8),Power_On_Hours "
+  //"-v 12,raw48,Power_Cycle_Count "
+  //"-v 177,raw48,Wear_Leveling_Count "
+  //"-v 179,raw48,Used_Rsvd_Blk_Cnt_Tot "
+  //"-v 180,raw48,Unused_Rsvd_Blk_Cnt_Tot "
+  //"-v 181,raw48,Program_Fail_Cnt_Total "
+  //"-v 182,raw48,Erase_Fail_Count_Total "
+  //"-v 183,raw48,Runtime_Bad_Block "
+  //"-v 184,raw48,End-to-End_Error "
+    "-v 187,raw48,Uncorrectable_Error_Cnt "
+  //"-v 190,tempminmax,Airflow_Temperature_Cel "
+    "-v 195,raw48,ECC_Error_Rate "
+  //"-v 197,raw48,Current_Pending_Sector "
+    "-v 199,raw48,CRC_Error_Count "
+    "-v 202,raw48,Exception_Mode_Status "
+    "-v 235,raw48,POR_Recovery_Count "
+  //"-v 241,raw48,Total_LBAs_Written "
+  //"-v 242,raw48,Total_LBAs_Read "
+    "-v 243,raw48,SATA_Downshift_Ct "
+    "-v 244,raw48,Thermal_Throttle_St "
+    "-v 245,raw48,Timed_Workld_Media_Wear "
+    "-v 246,raw48,Timed_Workld_RdWr_Ratio "
+    "-v 247,raw48,Timed_Workld_Timer "
+    "-v 248,raw48,Unknown_Samsung_Attr "
+    "-v 249,raw48,Unknown_Samsung_Attr "
+    "-v 250,raw48,Unknown_Samsung_Attr "
+    "-v 251,raw48,NAND_Writes " // 512-byte sectors
+    "-v 252,raw48,Added_Bad_Flash_Blk_Ct" // name from 870 EVO, unverified here
   },
   { "Samsung based SSDs",
     "SAMSUNG SSD PM800 .*GB|"  // SAMSUNG PM800 SSDs, tested with SAMSUNG SSD PM800 TH 64GB/VBM25D1Q
