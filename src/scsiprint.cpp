@@ -218,15 +218,20 @@ scsiGetSupportedLogPages(scsi_device * device)
     }
 
     if (got_subpages) {
-        int resp_len_max = GBUF_SIZE - LOGPAGEHDRSIZE;
+        const int resp_len_max = GBUF_SIZE - LOGPAGEHDRSIZE;
 
         resp_len = sg_get_unaligned_be16(gBuf + 2);
         if (resp_len > (resp_len_max - 2))
+
             resp_len = resp_len_max - 2;
         up = gBuf + LOGPAGEHDRSIZE;
-        for (k = 0; k < resp_len; k += 2) {
-            uint8_t page_code = 0x3f & up[k];
-            uint8_t subpage_code = up[k+1];
+        for (k = 0;
+             (k < resp_len) &&
+             (supp_lpg_and_spg_count < SCSI_SUPP_LOG_PAGES_MAX_COUNT);
+             k += 2) {
+            const uint8_t page_code = 0x3f & up[k];
+            const uint8_t subpage_code = up[k+1];
+
             supp_lpg_and_spg[supp_lpg_and_spg_count++] = {page_code, subpage_code};
         }
     }
@@ -1462,7 +1467,7 @@ scsiPrintBackgroundResults(scsi_device * device, bool only_pow_time)
 }
 
 static int64_t
-scsiGetTimeUnitInNano(const uint8_t * ucp, int num, uint16_t ti_pc) 
+scsiGetTimeUnitInNano(const uint8_t * ucp, int num, uint16_t ti_pc)
 {
     uint16_t loop_pc, pl;
     uint32_t a_exp, a_int, casc;
