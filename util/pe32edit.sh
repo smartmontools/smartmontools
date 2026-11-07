@@ -137,6 +137,7 @@ print_header()
   case $machine in
     "$((0x014c))") txt="i386" ;;
     "$((0x8664))") txt="amd64" ;;
+    "$((0xaa64))") txt="arm64" ;;
     *)             txt="*Unknown*" ;;
   esac
   printf 'Machine:                0x%04x [%s]\n' $machine "$txt"
@@ -196,6 +197,7 @@ fi
 case "$machine:$magic:$(get_uint16 $subsystem_offs)" in
   $((0x014c)):$((0x010b)):[23]) ;; # i386:PE32:GUI/Console
   $((0x8664)):$((0x020b)):[23]) ;; # amd64:PE32+:GUI/Console
+  $((0xaa64)):$((0x020b)):[23]) ;; # arm64:PE32+:GUI/Console
   *) error "$file: Unknown image type"
 esac
 
