@@ -10,8 +10,11 @@ name: Build smartmontools (non-release)
 #| fedora-ARCH[-static]     | x86_64, arm64             | native   | fedora       | gcc            | shared [static-link]
 #| darwin                   | x86_64+arm64              | cross    | docker-build | clang          |
 #| freebsd                  | x86_64                    | cross    | docker-build | clang          | static-link, FreeBSD 14+15
-#| windows                  | x86_64+i686               | cross    | -            | gcc-mingw64    | static-link
-#| windows-signed           | x84_64+i686               | cross    | -            | gcc-mingw64    | static-link, signpath.io
+#| windows                  | x86_64+i686               | cross    | -            | gcc-mingw64/32 | static-link, NSIS
+#| windows-signed           | x84_64+i686               | cross    | -            | gcc-mingw64/32 | static-link, NSIS, signed
+#| windows-i686             | i686                      | native   | -            | gcc-mingw32    | static-link
+#| windows-x86_64           | x86_64                    | native   | -            | gcc-ucrt64     | static-link, NSIS
+#| windows-ARCH-clang       | x86_64, arm64             | native   | -            | clang+analyzer | static-link, x86_64: NSIS
 #| cygwin                   | x86_64                    | cross    | fedora       | gcc            |
 #| os2emx                   | i486                      | cross    | -            | gcc-emx        |
 #| ubuntu-ARCH              | ppc64le, riscv64, s390x   | emulated | vmactions    | gcc            | Big Endian: s390x
@@ -49,6 +52,7 @@ jobs:
   source-tarball:
     outputs:
       linux-matrix: ${{ steps.init.outputs.linux-matrix }}
+      msys2-matrix: ${{ steps.init.outputs.msys2-matrix }}
       qemu-matrix: ${{ steps.init.outputs.qemu-matrix }}
     runs-on: ubuntu-latest
 
@@ -84,6 +88,21 @@ jobs:
                 done
               done
             done
+          done
+          echo ']}' >> $GITHUB_OUTPUT
+          delim=
+          printf 'msys2-matrix={"include":[' >> $GITHUB_OUTPUT
+          for build in $builds; do
+            case $build in
+              windows-i686)         msystem=mingw32    output=zip  ;; # deprecated, NSIS removed
+              windows-x86_64)       msystem=ucrt64     output=nsis ;;
+              windows-x86_64-clang) msystem=clang64    output=nsis ;;
+              windows-arm64-clang)  msystem=clangarm64 output=zip  ;; # experimental, NSIS not available yet
+              *) continue ;;
+            esac
+            printf '%s{"name":"%s","msystem":"%s","output":"%s"}' "$delim" "${build#windows-}" \
+              "$msystem" "$output" >> $GITHUB_OUTPUT
+            delim=','; valid+=" $build"
           done
           echo ']}' >> $GITHUB_OUTPUT
           delim=
@@ -476,6 +495,81 @@ jobs:
           path: signed-installer/smartmontools-win32-setup-signed-*.*.exe
           if-no-files-found: error
           retention-days: ${{ inputs.retention-days }}
+
+  msys2:
+    if: ${{ ! contains(needs.source-tarball.outputs.msys2-matrix, '[]') }}
+    needs: source-tarball
+    strategy:
+      matrix: ${{ fromJSON(needs.source-tarball.outputs.msys2-matrix) }}
+    runs-on: ${{ case(matrix.msystem != 'clangarm64', 'windows-latest', 'windows-11-arm') }}
+
+    steps:
+      - name: Setup MSYS2 and install ${{ matrix.msystem }} build tools
+        uses: msys2/setup-msys2@v2
+        with:
+          release: false # try to re-use official MSYS2 GHA Runner Image
+          msystem: ${{ matrix.msystem }}
+          install: >-
+            diffutils dos2unix groff make man2html
+          pacboy: >-
+            toolchain:p ${{ case(matrix.output == 'nsis', 'nsis:p', '') }}
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: smartmontools-src
+          path: source
+
+      - name: Build
+        run: |
+          uname -a && id &&
+          tar -xf source/smartmontools-*.*.tar.gz && mv -v smartmontools-*.*/ smartmontools &&
+          mkdir smartmontools/build && cd smartmontools/build &&
+          version_sh=$(../util/getversion.sh -s) && eval "${version_sh}" &&
+          ../configure --with-build-info='(GHA Build)' \
+            ${{ inputs.configure-override || '--enable-static-link' }} \
+            SOURCE_DATE_EPOCH=$((SMARTMONTOOLS_GIT_REV_EPOCH + 1)) &&
+          report="smartmontools-windows-${{ matrix.name }}-report-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" &&
+          ${{ case(contains(matrix.msystem, 'clang'), '../util/clang-scan-build.sh -f "../../$report" ', '')
+          }}make ${{ inputs.make-override || '-j V=0' }} && make check && make distdir-win32 &&
+          cd src/smartmontools-*.*.win*/ && ls -dl --full-time bin/* doc/* &&
+          echo SMARTMONTOOLS_GIT_VER_FNAME=${SMARTMONTOOLS_GIT_VER_FNAME} >> $GITHUB_ENV &&
+          cat $GITHUB_ENV
+        shell: msys2 '{0}'
+
+      - name: Build installer
+        if: ${{ matrix.output == 'nsis' }}
+        run: |
+          cd smartmontools/build &&
+          distinst_win32="../../../smartmontools-windows-${{ matrix.name }}-setup-${SMARTMONTOOLS_GIT_VER_FNAME}.exe" &&
+          make distinst_win32="$distinst_win32" installer-win32
+        shell: msys2 '{0}'
+
+      - name: Build archive
+        if: ${{ matrix.output == 'zip' }}
+        run: |
+          Remove-Item -Verbose smartmontools/build/src/smartmontools-*.*.win*.stamp
+          $name = "smartmontools-windows-${{ matrix.name }}-$env:SMARTMONTOOLS_GIT_VER_FNAME"
+          Move-Item -Verbose smartmontools/build/src/smartmontools-*.*.win*/ $name
+          Compress-Archive -Verbose $name "$name.zip"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: smartmontools-windows-${{ matrix.name }}
+          path: smartmontools-windows-${{ matrix.name }}-*.*.[ez][xi][ep] # .exe, .zip, !.gz
+          if-no-files-found: error
+          retention-days: ${{ inputs.retention-days }}
+
+      - name: Run actions/upload-artifact@v7 (clang report)
+        if: ${{ contains(matrix.msystem, 'clang') }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: smartmontools-windows-${{ matrix.name }}-report
+          path: smartmontools-windows-${{ matrix.name }}-report-*.*.tar.gz
+          if-no-files-found: ignore
+          retention-days: ${{ inputs.retention-days }}
+
+      - run: smartmontools/build/src/smartctl --scan
+        continue-on-error: true
 
   cygwin:
     if: ${{ contains(format(' {0} ', inputs.builds), ' cygwin ') }}

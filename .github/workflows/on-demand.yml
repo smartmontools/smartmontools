@@ -16,7 +16,8 @@ on:
           ubuntu-(x86_64|i686|arm64)[-clang][-static]
           (debian|fedora)-(x86_64|arm64)[-static]
           (free|net|open)bsd-x86_64 (omnios|solaris)-x86_64
-          windows[-test]-signed os2emx
+          windows-(signed|x86_64[-clang]|i686|arm64-clang)
+          os2emx
         default: ''
         type: string
       builds-3:
