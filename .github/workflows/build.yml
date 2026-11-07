@@ -6,6 +6,8 @@ name: Build smartmontools (non-release)
 #| ubuntu-ARCH-static       | x86_64, i686, arm64       | native   | -            | gcc[-multilib] | static-link
 #| ubuntu-ARCH-clang        | x86_64, arm64             | native   | -            | clang+analyzer | shared
 #| ubuntu-ARCH-clang-static | x86_64, arm64             | native   | -            | clang+analyzer | static-link
+#| debian-ARCH[-static]     | x86_64, arm64             | native   | debian       | gcc            | shared [static-link]
+#| fedora-ARCH[-static]     | x86_64, arm64             | native   | fedora       | gcc            | shared [static-link]
 #| darwin                   | x86_64+arm64              | cross    | docker-build | clang          |
 #| freebsd                  | x86_64                    | cross    | docker-build | clang          | static-link, FreeBSD 14+15
 #| windows                  | x86_64+i686               | cross    | -            | gcc-mingw64    | static-link
@@ -46,7 +48,7 @@ on:
 jobs:
   source-tarball:
     outputs:
-      ubuntu-matrix: ${{ steps.init.outputs.ubuntu-matrix }}
+      linux-matrix: ${{ steps.init.outputs.linux-matrix }}
       qemu-matrix: ${{ steps.init.outputs.qemu-matrix }}
     runs-on: ubuntu-latest
 
@@ -59,19 +61,27 @@ jobs:
                "make-override: '${{ inputs.make-override }}'" \
                "run-checks: '${{ inputs.run-checks }}'" \
                "retention-days: '${{ inputs.retention-days }}'"
+          builds='${{ inputs.builds }}'
+          valid="darwin freebsd windows windows-signed windows-test-signed cygwin os2emx"
           delim=
-          printf 'ubuntu-matrix={"include":[' >> $GITHUB_OUTPUT
-          for arch in x86_64 i686 arm64; do
-            for clang in '' '-clang'; do
-              for static in '' '-static'; do
-                build="ubuntu-$arch$clang$static"
-                case $build in ubuntu-i686-clang*) continue ;; esac
-                case ' ${{ inputs.builds }} ' in
-                  *\ $build\ *)
-                    printf '%s{"arch":"%s","clang":"%s","static":"%s"}' \
-                      "$delim" "$arch" "$clang" "$static" >> $GITHUB_OUTPUT
-                    delim=',' ;;
+          printf 'linux-matrix={"include":[' >> $GITHUB_OUTPUT
+          for os in ubuntu debian fedora; do
+            for arch in x86_64 i686 arm64; do
+              for clang in '' '-clang'; do
+                case "$os-$arch$clang" in
+                  ubuntu-i686-clang) continue ;;
+                  ubuntu-*|*-x86_64|*-arm64) ;;
+                  *) continue ;;
                 esac
+                for static in '' '-static'; do
+                  build="$os-$arch$clang$static"
+                  case " $builds " in
+                    *\ $build\ *)
+                      printf '%s{"os":"%s","arch":"%s","clang":"%s","static":"%s"}' \
+                        "$delim" "$os" "$arch" "$clang" "$static" >> $GITHUB_OUTPUT
+                      delim=','; valid+=" $build" ;;
+                  esac
+                done
               done
             done
           done
@@ -88,15 +98,23 @@ jobs:
                 omnios-x86_64|solaris-x86_64) ;;
                 *) continue ;;
               esac
-              case ' ${{ inputs.builds }} ' in
+              case " $builds " in
                 *\ $build\ *)
                   printf '%s{"os":"%s","arch":"%s"}' "$delim" "$os" "$arch" >> $GITHUB_OUTPUT
-                  delim=',' ;;
+                  delim=','; valid+=" $build" ;;
               esac
             done
           done
           echo ']}' >> $GITHUB_OUTPUT
           cat $GITHUB_OUTPUT
+          invalid=
+          for build in $builds; do
+            case " $valid " in
+              *\ $build\ *) ;;
+              *) invalid+=" $build"
+            esac
+          done
+          test -z "$invalid" || ! echo "::error::invalid builds:$invalid"
 
       - uses: actions/checkout@v6
         with:
@@ -125,12 +143,13 @@ jobs:
           if-no-files-found: error
           retention-days: ${{ inputs.retention-days }}
 
-  ubuntu:
-    if: ${{ ! contains(needs.source-tarball.outputs.ubuntu-matrix, '[]') }}
+  linux:
+    if: ${{ ! contains(needs.source-tarball.outputs.linux-matrix, '[]') }}
     needs: source-tarball
     strategy:
-      matrix: ${{ fromJSON(needs.source-tarball.outputs.ubuntu-matrix) }}
+      matrix: ${{ fromJSON(needs.source-tarball.outputs.linux-matrix) }}
     runs-on: ${{ case(matrix.arch != 'arm64', 'ubuntu-latest', 'ubuntu-24.04-arm') }}
+    container: ${{ fromJSON(case(matrix.os == 'ubuntu', 'null', format('"{0}:latest"', matrix.os))) }}
 
     steps:
       - if: ${{ matrix.arch == 'i686' }}
@@ -140,6 +159,14 @@ jobs:
       - if: ${{ matrix.clang != '' }}
         run: |
           sudo apt-get update && sudo apt-get install -y clang-tools
+
+      - if: ${{ matrix.os == 'debian' }}
+        run: |
+          apt-get update && apt-get install -y g++ make
+
+      - if: ${{ matrix.os == 'fedora' }}
+        run: |
+          dnf install -y diffutils gcc-g++ make
 
       - uses: actions/download-artifact@v8
         with:
@@ -151,7 +178,7 @@ jobs:
         # With 'setarch i686 ...' it correctly detects 'host=i686-pc-linux-gnu'.
         # TODO: Remove this workaround if 'ubuntu-latest' provides automake >= 1.17.
         run: |
-          uname -a && id &&
+          uname -a && grep '^PRETTY_NAME=' /etc/os-release && id &&
           tar -xf source/smartmontools-*.*.tar.gz && mv -v smartmontools-*.*/ smartmontools &&
           mkdir smartmontools/build && cd smartmontools/build &&
           version_sh=$(../util/getversion.sh -s) && eval "${version_sh}" &&
@@ -160,7 +187,7 @@ jobs:
             ${{ inputs.configure-override || case (matrix.static != '', '--enable-static-link', '--enable-shared') }} \
             ${{ case(matrix.arch == 'i686', 'CC="gcc -m32" CXX="g++ -m32" ', matrix.clang != '', 'CC=clang CXX=clang++ ', '') }}\
             SOURCE_DATE_EPOCH=$((SMARTMONTOOLS_GIT_REV_EPOCH + 1)) &&
-          name='smartmontools-ubuntu-${{ matrix.arch }}${{ matrix.clang }}${{ matrix.static }}' &&
+          name='smartmontools-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.clang }}${{ matrix.static }}' &&
           ${{ case(matrix.clang != '', '../util/clang-scan-build.sh -f "../../$name-report-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz" ', '')
           }}make ${{ inputs.make-override || '-j V=0' }} &&
           make check &&
@@ -169,18 +196,20 @@ jobs:
 
       - uses: actions/upload-artifact@v7
         with:
-          name: smartmontools-ubuntu-${{ matrix.arch }}${{ matrix.clang }}${{ matrix.static }}
+          name: smartmontools-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.clang }}${{ matrix.static }}
           path: |
-            smartmontools-ubuntu-${{ matrix.arch }}${{ matrix.clang }}${{ matrix.static }}-*.*.tar.gz
+            smartmontools-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.clang }}${{ matrix.static }}-*.*.tar.gz
             !*-report-*
           if-no-files-found: error
           retention-days: ${{ inputs.retention-days }}
 
-      - uses: actions/upload-artifact@v7
+      - name: Run actions/upload-artifact@v7 (clang report)
+        if: ${{ matrix.clang != '' }}
+        uses: actions/upload-artifact@v7
         with:
-          name: smartmontools-ubuntu-${{ matrix.arch }}${{ matrix.clang }}${{ matrix.static }}-report
+          name: smartmontools-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.clang }}${{ matrix.static }}-report
           path: |
-            smartmontools-ubuntu-${{ matrix.arch }}${{ matrix.clang }}${{ matrix.static }}-report-*.*.tar.gz
+            smartmontools-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.clang }}${{ matrix.static }}-report-*.*.tar.gz
           if-no-files-found: ignore
           retention-days: ${{ inputs.retention-days }}
 

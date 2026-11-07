@@ -14,6 +14,7 @@ on:
         description: >-
           Extra builds:
           ubuntu-(x86_64|i686|arm64)[-clang][-static]
+          (debian|fedora)-(x86_64|arm64)[-static]
           (free|net|open)bsd-x86_64 (omnios|solaris)-x86_64
           windows[-test]-signed os2emx
         default: ''
