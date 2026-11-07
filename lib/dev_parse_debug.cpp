@@ -12,6 +12,8 @@
 
 #include "dev_ata_cmd_set.h"
 
+#include <errno.h>
+
 namespace smartmon {
 
 const char * const commandstrings[] = {

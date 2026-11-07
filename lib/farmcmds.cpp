@@ -19,6 +19,8 @@
 #include <smartmon/knowndrives.h>
 #include <smartmon/scsicmds.h>
 
+#include <errno.h>
+
 namespace smartmon {
 
 /////////////////////////////////////////////////////////////////////////////////////////
