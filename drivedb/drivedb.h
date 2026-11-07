@@ -482,7 +482,8 @@ const drive_settings builtin_knowndrives[] = {
     "MTFDDA[AK](064|128|256|512|050|100|200|400)MA[MNR]-1[JKS]1.*", // tested with
       // MTFDDAK256MAR-1K1AA/MA52, MTFDDAK256MAM-1K12/08TH,
       // MTFDDAA064MAR-1J1AB  49Y5835 49Y5838IBM/MA49 (P400e)
-    "030[9-Z]|03[1-Z].|0[4-Z]..|[1-Z]....*", // >= "0309"
+    "030[9-Z]|03[1-Z].|0[4-Z]..|[1-Z]....*|" // >= "0309"
+    "000F|010G|01MG", // later updates that sort below "0309"
     "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
