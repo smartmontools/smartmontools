@@ -490,6 +490,7 @@ struct persistent_dev_state
                                           // (NVMe self-test log uses a 64 bit value)
 
   time_t scheduled_test_next_check{};     // Time of next check for scheduled self-tests
+  char scheduled_test_saved{};            // Scheduled test which has been found but not yet run
 
   uint64_t selective_test_last_start{};   // Start LBA of last scheduled selective self-test
   uint64_t selective_test_last_end{};     // End LBA of last scheduled selective self-test
@@ -682,11 +683,12 @@ static bool parse_dev_state_line(const char * line, persistent_dev_state & state
      "|(nvme-available-spare)" // (25)
      "|(nvme-percentage-used)" // (26)
      "|(nvme-media-errors)" // (27)
+     "|(scheduled-test-saved)" // (28)
      ")" // 1)
-     " *= *([0-9]+)[ \n]*$" // (28)
+     " *= *([0-9]+)[ \n]*$" // (29)
   );
 
-  constexpr int nmatch = 1+28;
+  constexpr int nmatch = 1+29;
   regular_expression::match_range match[nmatch];
   if (!regex.execute(line, match))
     return false;
@@ -752,6 +754,8 @@ static bool parse_dev_state_line(const char * line, persistent_dev_state & state
     state.nvme_smartval.percent_used = val;
   else if (match[++m].rm_so >= 0)
     state.nvme_smartval.media_errors = uint64_to_uile128(val);
+  else if (match[++m].rm_so >= 0)
+    state.scheduled_test_saved = (char)val;
   else
     return false;
   return true;
@@ -828,6 +832,7 @@ static bool write_dev_state(const char * path, const persistent_dev_state & stat
   write_dev_state_line(f, "self-test-errors", state.selflogcount);
   write_dev_state_line(f, "self-test-last-err-hour", state.selfloghour);
   write_dev_state_line(f, "scheduled-test-next-check", state.scheduled_test_next_check);
+  write_dev_state_line(f, "scheduled-test-saved", state.scheduled_test_saved);
   write_dev_state_line(f, "selective-test-last-start", state.selective_test_last_start);
   write_dev_state_line(f, "selective-test-last-end", state.selective_test_last_end);
 
@@ -3350,6 +3355,22 @@ static void report_self_test_log_changes(const dev_config & cfg, dev_state & sta
 static const char test_type_chars[] = "LncrSCO";
 static const unsigned num_test_types = sizeof(test_type_chars)-1;
 
+// Return the index of the provided test type char. If the provided char is
+// null or not found, return the index of the last test type.
+static unsigned int test_type_index(char testtype)
+{
+  if (!testtype)
+    return num_test_types - 1;
+
+  for (unsigned int i = 0; i < num_test_types; ++i)
+    if (test_type_chars[i] == testtype)
+      return i;
+
+  // Bug in the program or state file--should not happen.
+  PrintOut(LOG_CRIT, "invalid test type char: 0x%x\n", testtype);
+  return num_test_types - 1;
+}
+
 // returns test type if time to do test of type testtype,
 // 0 if not time to do test.
 static char next_scheduled_test(const dev_config & cfg, dev_state & state, time_t usetime = 0)
@@ -3372,7 +3393,8 @@ static char next_scheduled_test(const dev_config & cfg, dev_state & state, time_
   time_t now = (!usetime ? time(nullptr) : usetime);
   if (now < state.scheduled_test_next_check) {
     if (state.scheduled_test_next_check <= now + 3600)
-      return 0; // Next check within one hour
+      // Next check within one hour; return the saved test (which may be null).
+      return state.scheduled_test_saved;
     // More than one hour, assume system clock time adjusted to the past
     state.scheduled_test_next_check = now;
   }
@@ -3402,7 +3424,7 @@ static char next_scheduled_test(const dev_config & cfg, dev_state & state, time_
   // Check interval [state.scheduled_test_next_check, now] for scheduled tests
   char testtype = 0;
   time_t testtime = 0;
-  int maxtest = num_test_types-1;
+  int maxtest = (int) test_type_index(state.scheduled_test_saved);
 
   for (time_t t = state.scheduled_test_next_check; ; ) {
     // Check offset 0 and then all offsets for ':NNN' found above
@@ -3466,9 +3488,13 @@ static char next_scheduled_test(const dev_config & cfg, dev_state & state, time_
     // Tell user if an old test was found.
     if (!usetime && (testtime / 3600) < (now / 3600)) {
       char datebuf[DATEANDEPOCHLEN]; dateandtimezoneepoch(datebuf, testtime);
-      PrintOut(LOG_INFO, "Device: %s, old test of type %c not run at %s, starting now.\n",
+      PrintOut(LOG_INFO, "Device: %s, old test of type %c not run at %s, will start when possible.\n",
         cfg.name.c_str(), testtype, datebuf);
     }
+    state.scheduled_test_saved = testtype;
+  } else if (state.scheduled_test_saved) {
+    // Saved test is present, and not overridden by a higher-priority test.
+    testtype = state.scheduled_test_saved;
   }
 
   return testtype;
@@ -3536,6 +3562,8 @@ static int DoSCSISelfTest(const dev_config & cfg, dev_state & state, scsi_device
   const char *name = cfg.name.c_str();
   int inProgress;
 
+  state.scheduled_test_saved = '\0';
+
   if (scsiSelfTestInProgress(device, &inProgress)) {
     PrintOut(LOG_CRIT, "Device: %s, does not support Self-Tests\n", name);
     state.not_cap_short = state.not_cap_long = true;
@@ -3591,6 +3619,8 @@ static int DoSCSISelfTest(const dev_config & cfg, dev_state & state, scsi_device
 static int DoATASelfTest(const dev_config & cfg, dev_state & state, ata_device * device, char testtype)
 {
   const char *name = cfg.name.c_str();
+
+  state.scheduled_test_saved = '\0';
 
   // Read current smart data and check status/capability
   // TODO: Reuse smart data already read in ATACheckDevice()
@@ -4426,6 +4456,9 @@ static int start_nvme_self_test(const dev_config & cfg, dev_state & state, nvme_
   unsigned nsid = device->get_nsid();
 
   const char *testname; uint8_t stc;
+
+  state.scheduled_test_saved = '\0';
+
   switch (testtype) {
     case 'S': testname = "Short";    stc = 1; break;
     case 'L': testname = "Extended"; stc = 2; break;
