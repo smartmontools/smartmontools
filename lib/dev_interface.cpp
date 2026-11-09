@@ -345,7 +345,7 @@ std::string smart_interface::get_valid_dev_types_str()
     "ata, scsi[+TYPE], nvme[,NSID], sat[,auto][,N][+TYPE], usbasm1352r,N, usbcypress[,X], "
     "usbjmicron[,p][,x][,N], usbprolific, usbsunplus, sntasmedia, sntjmicron[,NSID], "
     "sntrealtek, snt*/sat, sat/snt*, jmb39x[-q[2]],N[,sLBA][,force][+TYPE], "
-    "jms56x,N[,sLBA][,force][+TYPE]";
+    "jms56x,N[,sLBA][,force][+TYPE], marvell-nvme,N[,0xNSID]";
   // append custom
   std::string s2 = get_valid_custom_dev_types_str();
   if (!s2.empty()) {
@@ -501,6 +501,14 @@ smart_device * smart_interface::get_smart_device(const char * name, const char *
       return set_err_np(EINVAL, "Type '%s': %s", type, get_errmsg());
 
     return get_snt_device(type, basedev.release()->to_scsi());
+  }
+
+  else if (str_starts_with(type, "marvell-nvme")) {
+    smart_device_auto_ptr basedev( get_smart_device(name, "nvme") );
+    if (!basedev)
+      return set_err_np(EINVAL, "Type '%s': %s", type, get_errmsg());
+
+    return get_marvell_nvme_device(type, basedev.release()->to_nvme());
   }
 
   else if (str_starts_with(type, "jmb39x") || str_starts_with(type, "jms56x")) {
