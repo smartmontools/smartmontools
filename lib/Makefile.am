@@ -114,7 +114,7 @@ libsmartmon_la_SOURCES += \
         os_win32/wmiquery.cpp
 
 # Windows DLLs do not support undefined symbols
-libsmartmon_la_LDFLAGS = -no-undefined -lole32 -loleaut32
+libsmartmon_la_LDFLAGS = -no-undefined -lole32 -loleaut32 -lsetupapi
 endif
 
 if OS_WIN32_MINGW

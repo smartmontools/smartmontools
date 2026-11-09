@@ -45,6 +45,8 @@
 
 #include <windows.h>
 #include <ntddscsi.h> // IOCTL_ATA_PASS_THROUGH, IOCTL_SCSI_PASS_THROUGH, ...
+#include <setupapi.h> // SetupDi*()
+#include <cfgmgr32.h> // CM_Get_Parent()
 // #include <nvme.h> // NVME_COMMAND, missing in older versions of Mingw-w64
 
 #ifndef _WIN32
@@ -58,6 +60,11 @@
 
 // aacraid support
 #include "aacraid.h"
+
+#ifdef _MSC_VER
+#pragma comment(lib, "setupapi.lib")
+#pragma comment(lib, "cfgmgr32.lib")
+#endif
 
 #ifndef _WIN64
 #define SELECT_WIN_32_64(x32, x64) (x32)
@@ -240,6 +247,7 @@ typedef struct _STORAGE_PROTOCOL_COMMAND {
 } STORAGE_PROTOCOL_COMMAND;
 
 #define STORAGE_PROTOCOL_COMMAND_FLAG_ADAPTER_REQUEST 0x80000000
+#define STORAGE_PROTOCOL_STATUS_SUCCESS 0x01
 #define STORAGE_PROTOCOL_SPECIFIC_NVME_ADMIN_COMMAND 0x01
 #define STORAGE_PROTOCOL_COMMAND_LENGTH_NVME 0x40
 
@@ -3810,9 +3818,10 @@ public:
 
   virtual bool nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out & out) override;
 
-private:
-  bool open(int phydrive, int logdrive);
+protected:
+  virtual bool open(int phydrive, int logdrive);
 
+private:
   bool nvme_storage_query_property(const nvme_cmd_in & in, nvme_cmd_out & out);
 
   bool nvme_storage_protocol_command(const nvme_cmd_in & in, nvme_cmd_out & out);
@@ -4048,6 +4057,196 @@ bool win10_nvme_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out &
 }
 
 /////////////////////////////////////////////////////////////////////////////
+// win_marvell_nvme_device
+
+// Controller device for '-d marvell-nvme'.
+// The vendor specific tunnel command is sent to the storage port device
+// of the controller, as done by the vendor tool. Standard commands are
+// handled by win10_nvme_device.
+
+class win_marvell_nvme_device
+: public win10_nvme_device
+{
+public:
+  win_marvell_nvme_device(smart_interface * intf, const char * dev_name,
+    const char * req_type);
+
+  using win10_nvme_device::open;
+
+  virtual bool nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out & out) override;
+
+protected:
+  virtual bool open(int phydrive, int logdrive) override;
+};
+
+win_marvell_nvme_device::win_marvell_nvme_device(smart_interface * intf,
+  const char * dev_name, const char * req_type)
+: smart_device(intf, dev_name, "nvme", req_type),
+  win10_nvme_device(intf, dev_name, req_type, nvme_broadcast_nsid)
+{
+}
+
+struct dev_interface
+{
+  std::wstring path;
+  DEVINST node;
+};
+
+// Get device paths and device nodes of all present interfaces of a class
+static void get_dev_interfaces(const GUID & guid, std::vector<dev_interface> & list)
+{
+  HDEVINFO devs = SetupDiGetClassDevsW(&guid, nullptr, nullptr,
+                                       DIGCF_PRESENT | DIGCF_DEVICEINTERFACE);
+  if (devs == INVALID_HANDLE_VALUE)
+    return;
+
+  SP_DEVICE_INTERFACE_DATA iface{};
+  iface.cbSize = sizeof(iface);
+  for (DWORD i = 0; SetupDiEnumDeviceInterfaces(devs, nullptr, &guid, i, &iface); i++) {
+    DWORD size = 0;
+    SetupDiGetDeviceInterfaceDetailW(devs, &iface, nullptr, 0, &size, nullptr);
+    if (size < sizeof(SP_DEVICE_INTERFACE_DETAIL_DATA_W))
+      continue;
+    raw_buffer buf(size);
+    auto detail = reinterpret_cast<SP_DEVICE_INTERFACE_DETAIL_DATA_W *>(buf.data());
+    detail->cbSize = sizeof(*detail);
+    SP_DEVINFO_DATA info{};
+    info.cbSize = sizeof(info);
+    if (SetupDiGetDeviceInterfaceDetailW(devs, &iface, detail, size, nullptr, &info))
+      list.push_back({detail->DevicePath, info.DevInst});
+  }
+
+  SetupDiDestroyDeviceInfoList(devs);
+}
+
+// Get device path of the storage port the physical drive is attached to
+static bool get_phydrive_storage_port(int phydrive, std::wstring & path)
+{
+  static const GUID guid_disk = // GUID_DEVINTERFACE_DISK
+    {0x53f56307, 0xb6bf, 0x11d0, {0x94, 0xf2, 0x00, 0xa0, 0xc9, 0x1e, 0xfb, 0x8b}};
+  static const GUID guid_port = // GUID_DEVINTERFACE_STORAGEPORT
+    {0x2accfe60, 0xc130, 0x11d2, {0xb0, 0x82, 0x00, 0xa0, 0xc9, 0x1e, 0xfb, 0x8b}};
+
+  // Find device node of the disk
+  std::vector<dev_interface> disks;
+  get_dev_interfaces(guid_disk, disks);
+  DEVINST node = 0;
+  for (const auto & disk : disks) {
+    HANDLE h = CreateFileW(disk.path.c_str(), 0, FILE_SHARE_READ | FILE_SHARE_WRITE,
+                           nullptr, OPEN_EXISTING, 0, nullptr);
+    if (h == INVALID_HANDLE_VALUE)
+      continue;
+    STORAGE_DEVICE_NUMBER num{};
+    DWORD num_out = 0;
+    BOOL ok = DeviceIoControl(h, IOCTL_STORAGE_GET_DEVICE_NUMBER, nullptr, 0,
+                              &num, sizeof(num), &num_out, nullptr);
+    CloseHandle(h);
+    if (ok && num.DeviceType == FILE_DEVICE_DISK && num.DeviceNumber == (DWORD)phydrive) {
+      node = disk.node;
+      break;
+    }
+  }
+  if (!node)
+    return false;
+
+  // Find the storage port in the parents of the disk
+  std::vector<dev_interface> ports;
+  get_dev_interfaces(guid_port, ports);
+  do {
+    for (const auto & port : ports) {
+      if (port.node == node) {
+        path = port.path;
+        return true;
+      }
+    }
+  } while (CM_Get_Parent(&node, node, 0) == CR_SUCCESS);
+  return false;
+}
+
+bool win_marvell_nvme_device::open(int phydrive, int /*logdrive*/)
+{
+  std::wstring path;
+  if (phydrive < 0 || !get_phydrive_storage_port(phydrive, path))
+    return set_err(ENODEV, "Storage port not found");
+
+  HANDLE h = CreateFileW(path.c_str(), GENERIC_READ | GENERIC_WRITE,
+                         FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, 0, nullptr);
+  if (h == INVALID_HANDLE_VALUE) {
+    long err = GetLastError();
+    if (err == ERROR_ACCESS_DENIED)
+      return set_err(EACCES, "Storage port: access denied");
+    return set_err(EIO, "Storage port: Error=%ld", err);
+  }
+
+  if (nvme_debugmode > 1)
+    lib_printf("  %ls: successfully opened\n", path.c_str());
+
+  set_fh(h);
+  return true;
+}
+
+bool win_marvell_nvme_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out & out)
+{
+  if (!(in.opcode >= 0xc0 && in.direction() == nvme_cmd_in::data_in))
+    return win10_nvme_device::nvme_pass_through(in, out);
+
+  // STORAGE_PROTOCOL_COMMAND with NVMe command, followed by error info and data
+  const unsigned err_offset = offsetof(STORAGE_PROTOCOL_COMMAND, Command)
+                            + STORAGE_PROTOCOL_COMMAND_LENGTH_NVME;
+  const unsigned err_size = 64; // NVME_ERROR_INFO_LOG
+  const unsigned data_offset = err_offset + err_size;
+  raw_buffer spcm_buf(data_offset + in.size);
+  auto spcm = reinterpret_cast<STORAGE_PROTOCOL_COMMAND *>(spcm_buf.data());
+
+  spcm->Version = STORAGE_PROTOCOL_STRUCTURE_VERSION;
+  spcm->Length = sizeof(STORAGE_PROTOCOL_COMMAND);
+  spcm->ProtocolType = (decltype(spcm->ProtocolType))win10::ProtocolTypeNvme;
+  spcm->Flags = STORAGE_PROTOCOL_COMMAND_FLAG_ADAPTER_REQUEST;
+  spcm->CommandLength = STORAGE_PROTOCOL_COMMAND_LENGTH_NVME;
+  spcm->ErrorInfoLength = err_size;
+  spcm->ErrorInfoOffset = err_offset;
+  spcm->DataFromDeviceTransferLength = in.size;
+  spcm->DataFromDeviceBufferOffset = data_offset;
+  spcm->TimeOutValue = 30;
+  spcm->CommandSpecific = STORAGE_PROTOCOL_SPECIFIC_NVME_ADMIN_COMMAND;
+
+  auto nvcm = reinterpret_cast<NVME_COMMAND *>(&spcm->Command);
+  nvcm->CDW0.OPC = in.opcode;
+  nvcm->NSID = in.nsid;
+  nvcm->u.GENERAL.CDW10 = in.cdw10;
+  nvcm->u.GENERAL.CDW11 = in.cdw11;
+  nvcm->u.GENERAL.CDW12 = in.cdw12;
+  nvcm->u.GENERAL.CDW13 = in.cdw13;
+  nvcm->u.GENERAL.CDW14 = in.cdw14;
+  nvcm->u.GENERAL.CDW15 = in.cdw15;
+
+  DWORD num_out = 0;
+  if (!DeviceIoControl(get_fh(), IOCTL_STORAGE_PROTOCOL_COMMAND,
+                       spcm, spcm_buf.size(), spcm, spcm_buf.size(), &num_out, nullptr)) {
+    long err = GetLastError();
+    return set_err((err == ERROR_ACCESS_DENIED ? EACCES : EIO),
+                   "IOCTL_STORAGE_PROTOCOL_COMMAND(NVMe) failed, Error=%ld", err);
+  }
+
+  if (nvme_debugmode > 1)
+    lib_printf("  [IOCTL_STORAGE_PROTOCOL_COMMAND(NVMe): ReturnStatus=%u, ErrorCode=0x%08x, "
+               "ReturnData=0x%08x, DataLength=%u]\n",
+               (unsigned)spcm->ReturnStatus, (unsigned)spcm->ErrorCode,
+               (unsigned)spcm->FixedProtocolReturnData,
+               (unsigned)spcm->DataFromDeviceTransferLength);
+
+  if (spcm->ReturnStatus != STORAGE_PROTOCOL_STATUS_SUCCESS)
+    return set_err(EIO, "IOCTL_STORAGE_PROTOCOL_COMMAND(NVMe) failed, ReturnStatus=%u, ErrorCode=0x%08x",
+                   (unsigned)spcm->ReturnStatus, (unsigned)spcm->ErrorCode);
+  if (!(num_out >= data_offset + in.size && spcm->DataFromDeviceTransferLength == in.size))
+    return set_err(EIO, "IOCTL_STORAGE_PROTOCOL_COMMAND(NVMe) returned short data");
+
+  memcpy(in.buffer, spcm_buf.data() + data_offset, in.size);
+  out.result = spcm->FixedProtocolReturnData;
+  return true;
+}
+
+/////////////////////////////////////////////////////////////////////////////
 // win_smart_interface
 // Platform specific interface
 
@@ -4277,6 +4476,10 @@ nvme_device * win_smart_interface::get_nvme_device(const char * name, const char
 
 smart_device * win_smart_interface::get_custom_smart_device(const char * name, const char * type)
 {
+  // Marvell 88NR2241 NVMe RAID member?
+  if (str_starts_with(type, "marvell-nvme"))
+    return get_marvell_nvme_device(type, new win_marvell_nvme_device(this, name, type));
+
   // Areca?
   int disknum = -1, n1 = -1, n2 = -1;
   int encnum = 1;
