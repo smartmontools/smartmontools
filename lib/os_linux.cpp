@@ -1806,10 +1806,25 @@ bool linux_mpi3mr_device::mpi3mr_cmd(int cdbLen, void *cdb,
       return set_err(EINVAL, "mpi3mr_cmd: bad dxfer_dir");
   }
 
-  uint8_t in_buf = 2; // 1 MPI Resp + DATA_IN
-  uint8_t out_buf = 2; // 1 MPI Req + DATA_OUT
-  uint32_t bsg_buf_entry_list_size = sizeof(struct mpi3mr_buf_entry_list) + (sizeof(struct mpi3mr_buf_entry) * ((in_buf+out_buf)-1));
+  // Build the buffer entry list.  Only add DATA_OUT/DATA_IN entries if data
+  // is actually transferred: older mpi3mr drivers (e.g. 8.5.0.0.50 as
+  // shipped with RHEL 8, before the v6.8 "preallocation of SGL BSG data
+  // buffers" series) terminate the SGL at a zero length buffer entry.  The
+  // controller then sees no data buffer and rejects the command.
+  struct bsg_entry { uint8_t type; uint32_t len; };
+  bsg_entry entries[4];
+  unsigned num_entries = 0;
+  entries[num_entries++] = { MPI3MR_BSG_BUFTYPE_MPI_REPLY,
+    sizeof(SL8_MPI_REPLY_BUF) + sizeof(MPI3_SCSI_IO_REPLY) };
+  if (dout_buffers_size)
+    entries[num_entries++] = { MPI3MR_BSG_BUFTYPE_DATA_OUT, dout_buffers_size };
+  if (din_buffers_size)
+    entries[num_entries++] = { MPI3MR_BSG_BUFTYPE_DATA_IN, din_buffers_size };
+  entries[num_entries++] = { MPI3MR_BSG_BUFTYPE_MPI_REQUEST,
+    sizeof(struct mpi3_scsi_io_request) - (4 * sizeof(MPI3_SGE_UNION)) };
 
+  uint32_t bsg_buf_entry_list_size = sizeof(struct mpi3mr_buf_entry_list)
+    + (sizeof(struct mpi3mr_buf_entry) * (num_entries - 1));
   uint32_t bsg_req_len = sizeof(struct mpi3mr_bsg_packet) + bsg_buf_entry_list_size;
   std::unique_ptr<uint8_t[]> bsg_req_buffer(new uint8_t[bsg_req_len]{});
   struct mpi3mr_bsg_packet *bsg_req = (struct mpi3mr_bsg_packet *)bsg_req_buffer.get();
@@ -1818,34 +1833,25 @@ bool linux_mpi3mr_device::mpi3mr_cmd(int cdbLen, void *cdb,
   bsg_req->cmd_type = MPI3MR_MPT_CMD;
   bsg_req->cmd.mptcmd.mrioc_id = m_mrioc_id;
 
-  bsg_req->cmd.mptcmd.buf_entry_list.buf_entry[0].buf_type = MPI3MR_BSG_BUFTYPE_MPI_REPLY;
-  bsg_req->cmd.mptcmd.buf_entry_list.buf_entry[0].buf_len = sizeof(SL8_MPI_REPLY_BUF) + sizeof(MPI3_SCSI_IO_REPLY);
-  bsg_req->cmd.mptcmd.buf_entry_list.buf_entry[1].buf_type = MPI3MR_BSG_BUFTYPE_DATA_OUT;
-  bsg_req->cmd.mptcmd.buf_entry_list.buf_entry[1].buf_len = dout_buffers_size;
-  bsg_req->cmd.mptcmd.buf_entry_list.buf_entry[2].buf_type = MPI3MR_BSG_BUFTYPE_DATA_IN;
-  bsg_req->cmd.mptcmd.buf_entry_list.buf_entry[2].buf_len = din_buffers_size;
-  bsg_req->cmd.mptcmd.buf_entry_list.buf_entry[3].buf_type = MPI3MR_BSG_BUFTYPE_MPI_REQUEST;
-  bsg_req->cmd.mptcmd.buf_entry_list.buf_entry[3].buf_len = sizeof(struct mpi3_scsi_io_request) - (4 * sizeof(MPI3_SGE_UNION));
-  bsg_req->cmd.mptcmd.buf_entry_list.num_of_entries = (in_buf+out_buf);
-
-  // get the total buffer size and allocate the memory
-  for(uint32_t i = 0; i < (in_buf+out_buf); i++) {
-    switch (bsg_req->cmd.mptcmd.buf_entry_list.buf_entry[i].buf_type)   {
-      case MPI3MR_BSG_BUFTYPE_RAIDMGMT_CMD:
+  // Fill the buffer entries and get the total buffer sizes
+  dout_buffers_size = din_buffers_size = 0;
+  for (unsigned i = 0; i < num_entries; i++) {
+    bsg_req->cmd.mptcmd.buf_entry_list.buf_entry[i].buf_type = entries[i].type;
+    bsg_req->cmd.mptcmd.buf_entry_list.buf_entry[i].buf_len  = entries[i].len;
+    switch (entries[i].type) {
       case MPI3MR_BSG_BUFTYPE_DATA_OUT:
       case MPI3MR_BSG_BUFTYPE_MPI_REQUEST:
-        dout_buffers_size += bsg_req->cmd.mptcmd.buf_entry_list.buf_entry[i].buf_len;
+        dout_buffers_size += entries[i].len;
         break;
-      case MPI3MR_BSG_BUFTYPE_RAIDMGMT_RESP:
       case MPI3MR_BSG_BUFTYPE_DATA_IN:
       case MPI3MR_BSG_BUFTYPE_MPI_REPLY:
-      case MPI3MR_BSG_BUFTYPE_ERR_RESPONSE:
-        din_buffers_size += bsg_req->cmd.mptcmd.buf_entry_list.buf_entry[i].buf_len;
+        din_buffers_size += entries[i].len;
         break;
       default:
-      return set_err(EINVAL, "mpi3mr_cmd: bad buff_type");
+        return set_err(EINVAL, "mpi3mr_cmd: bad buff_type");
     }
   }
+  bsg_req->cmd.mptcmd.buf_entry_list.num_of_entries = (uint8_t)num_entries;
 
   // allocate the memory for the request / response buffers
   std::vector<uint8_t> sgl_dout_base_ptr(dout_buffers_size, 0);
@@ -1883,18 +1889,22 @@ bool linux_mpi3mr_device::mpi3mr_cmd(int cdbLen, void *cdb,
   }
 
   // Copy the payload, honoring the residual count reported by the kernel.
+  // Only for data-in commands: the data buffer of a data-out command is
+  // owned by the caller and must not be modified.
   // The response buffer starts with the MPI and SCSI IO reply headers.
-  const size_t reply_hdr_size = sizeof(SL8_MPI_REPLY_BUF) + sizeof(MPI3_SCSI_IO_REPLY);
-  uint8_t *buff = sgl_din_base_ptr.data() + reply_hdr_size;
-  size_t xfer_len = dataLen;
-  if (io_hdr_v4.din_resid > 0 && din_buffers_size > (uint32_t)io_hdr_v4.din_resid) {
-    uint32_t avail = din_buffers_size - (uint32_t)io_hdr_v4.din_resid;
-    avail = (avail > (uint32_t)reply_hdr_size ? avail - (uint32_t)reply_hdr_size : 0);
-    if (xfer_len > avail)
-      xfer_len = avail;
+  if (dxfer_dir == DXFER_FROM_DEVICE) {
+    const size_t reply_hdr_size = sizeof(SL8_MPI_REPLY_BUF) + sizeof(MPI3_SCSI_IO_REPLY);
+    uint8_t *buff = sgl_din_base_ptr.data() + reply_hdr_size;
+    size_t xfer_len = dataLen;
+    if (io_hdr_v4.din_resid > 0 && din_buffers_size > (uint32_t)io_hdr_v4.din_resid) {
+      uint32_t avail = din_buffers_size - (uint32_t)io_hdr_v4.din_resid;
+      avail = (avail > (uint32_t)reply_hdr_size ? avail - (uint32_t)reply_hdr_size : 0);
+      if (xfer_len > avail)
+        xfer_len = avail;
+    }
+    if (xfer_len > 0)
+      memcpy(data, buff, xfer_len);
   }
-  if (xfer_len > 0)
-    memcpy(data, buff, xfer_len);
 
   return true;
 }
