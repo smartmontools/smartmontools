@@ -376,6 +376,27 @@ SMARTMON_ASSERT_SIZEOF(mpi3_scsi_io_reply, 56);
 #define MPI3MR_BSG_MPI_REPLY_BUFTYPE_STATUS     1
 #define MPI3MR_BSG_MPI_REPLY_BUFTYPE_ADDRESS    2
 
+/* Size of the sense buffer returned via MPI3MR_BSG_BUFTYPE_ERR_RESPONSE */
+#define MPI3MR_SENSE_BUF_SZ     256
+
+/* MPI3 status reply descriptor, see MPI3 spec (MPI3ReplyDescriptor) */
+struct mpi3_status_reply_descriptor {
+    uint16_t ioc_status;
+    uint16_t rsvd02;
+    uint32_t ioc_log_info;
+    uint16_t request_queue_ci;
+    uint16_t request_queue_id;
+    uint16_t host_tag;
+    uint16_t reply_flags;
+} __attribute__ ((packed));
+SMARTMON_ASSERT_SIZEOF(mpi3_status_reply_descriptor, 16);
+
+/* IOC status of a MPI3 reply descriptor */
+#define MPI3_IOCSTATUS_STATUS_MASK      0x7fff
+#define MPI3_IOCSTATUS_SUCCESS          0x0000
+#define MPI3_IOCSTATUS_SCSI_DATA_UNDERRUN       0x0045
+#define MPI3_IOCSTATUS_SCSI_RESIDUAL_MISMATCH   0x0049
+
 #define MPI3MR_HDB_BUFTYPE_UNKNOWN      0
 #define MPI3MR_HDB_BUFTYPE_TRACE        1
 #define MPI3MR_HDB_BUFTYPE_FIRMWARE     2

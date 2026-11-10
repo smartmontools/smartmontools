@@ -75,6 +75,7 @@
 #include <smartmon/atacmds.h>
 #include "os_linux.h"
 #include <smartmon/scsicmds.h>
+#include <smartmon/sg_unaligned.h>
 #include <smartmon/utility.h>
 #include "cciss.h"
 #include "megaraid.h"
@@ -1541,8 +1542,7 @@ private:
   unsigned int m_diskhandle = (unsigned int)-1;
   unsigned int m_mrioc_id = (unsigned int)-1;
 
-  bool mpi3mr_cmd(int cdbLen, void *cdb, int dataLen,
-    void *data, int senseLen,void *sense, int report, int dxfer_dir);
+  bool mpi3mr_cmd(scsi_cmnd_io * iop);
   unsigned int mpi3mr_get_devhandle(int mrioc_id, unsigned int disknum);
 };
 
@@ -1761,17 +1761,8 @@ unsigned int linux_mpi3mr_device::mpi3mr_get_devhandle(int mrioc_id, unsigned in
 }
 
 /* Issue passthrough scsi commands to MR8 controllers */
-bool linux_mpi3mr_device::mpi3mr_cmd(int cdbLen, void *cdb,
-  int dataLen, void *data,
-  int /*senseLen*/, void * /*sense*/, int /*report*/, int dxfer_dir)
+bool linux_mpi3mr_device::mpi3mr_cmd(scsi_cmnd_io * iop)
 {
-  // TODO: The MPI3MR reply status and sense data are currently ignored.
-  // The controller only returns sense data if an MPI3MR_BSG_BUFTYPE_ERR_RESPONSE
-  // buffer entry is supplied, and the MPI reply may be a STATUS descriptor
-  // instead of a full MPI3_SCSI_IO_REPLY.  'iop' is not available here, so
-  // scsi_status, resp_sense_len and resid cannot be propagated yet.  Without
-  // this, CHECK CONDITION results and SAT ATA return descriptors are lost.
-
   // get the mrioc_id for the bus, if not already known
   if (m_mrioc_id == (unsigned int)-1) {
     m_mrioc_id = get_mrioc_id(m_hba);
@@ -1788,15 +1779,26 @@ bool linux_mpi3mr_device::mpi3mr_cmd(int cdbLen, void *cdb,
     }
   }
 
+  // The response header, the data and the optional error response buffer
+  const size_t reply_hdr_size = sizeof(SL8_MPI_REPLY_BUF) + sizeof(MPI3_SCSI_IO_REPLY);
+  const unsigned data_len = (unsigned)iop->dxfer_len;
+  if (iop->cmnd_len > sizeof(((struct mpi3_scsi_io_request *)0)->cdb.cdb32))
+    return set_err(EINVAL, "mpi3mr_cmd: CDB length %u not supported",
+                   (unsigned)iop->cmnd_len);
+
+  iop->scsi_status = 0;
+  iop->resp_sense_len = 0;
+  iop->resid = 0;
+
   uint32_t dir_flag = 0;
   uint32_t dout_buffers_size = 0, din_buffers_size = 0;
-  switch (dxfer_dir) {
+  switch (iop->dxfer_dir) {
     case DXFER_FROM_DEVICE:
-      din_buffers_size = dataLen;
+      din_buffers_size = data_len;
       dir_flag |= MPI3_SCSIIO_FLAGS_DATADIRECTION_READ;
       break;
     case DXFER_TO_DEVICE:
-      dout_buffers_size = dataLen;
+      dout_buffers_size = data_len;
       dir_flag |= MPI3_SCSIIO_FLAGS_DATADIRECTION_WRITE;
       break;
     case DXFER_NONE:
@@ -1812,14 +1814,17 @@ bool linux_mpi3mr_device::mpi3mr_cmd(int cdbLen, void *cdb,
   // buffers" series) terminate the SGL at a zero length buffer entry.  The
   // controller then sees no data buffer and rejects the command.
   struct bsg_entry { uint8_t type; uint32_t len; };
-  bsg_entry entries[4];
+  bsg_entry entries[5];
   unsigned num_entries = 0;
-  entries[num_entries++] = { MPI3MR_BSG_BUFTYPE_MPI_REPLY,
-    sizeof(SL8_MPI_REPLY_BUF) + sizeof(MPI3_SCSI_IO_REPLY) };
+  entries[num_entries++] = { MPI3MR_BSG_BUFTYPE_MPI_REPLY, (uint32_t)reply_hdr_size };
   if (dout_buffers_size)
     entries[num_entries++] = { MPI3MR_BSG_BUFTYPE_DATA_OUT, dout_buffers_size };
   if (din_buffers_size)
     entries[num_entries++] = { MPI3MR_BSG_BUFTYPE_DATA_IN, din_buffers_size };
+  // Sense data is only returned if an error response buffer is supplied
+  const unsigned err_off = (unsigned)reply_hdr_size
+    + (iop->dxfer_dir == DXFER_FROM_DEVICE ? data_len : 0);
+  entries[num_entries++] = { MPI3MR_BSG_BUFTYPE_ERR_RESPONSE, MPI3MR_SENSE_BUF_SZ };
   entries[num_entries++] = { MPI3MR_BSG_BUFTYPE_MPI_REQUEST,
     sizeof(struct mpi3_scsi_io_request) - (4 * sizeof(MPI3_SGE_UNION)) };
 
@@ -1845,6 +1850,7 @@ bool linux_mpi3mr_device::mpi3mr_cmd(int cdbLen, void *cdb,
         break;
       case MPI3MR_BSG_BUFTYPE_DATA_IN:
       case MPI3MR_BSG_BUFTYPE_MPI_REPLY:
+      case MPI3MR_BSG_BUFTYPE_ERR_RESPONSE:
         din_buffers_size += entries[i].len;
         break;
       default:
@@ -1858,16 +1864,16 @@ bool linux_mpi3mr_device::mpi3mr_cmd(int cdbLen, void *cdb,
   std::vector<uint8_t> sgl_din_base_ptr(din_buffers_size, 0xFF);
 
   // copy the data-out payload, the MPI request follows it
-  if (dxfer_dir == DXFER_TO_DEVICE && dataLen > 0)
-    memcpy(sgl_dout_base_ptr.data(), data, dataLen);
+  if (iop->dxfer_dir == DXFER_TO_DEVICE && data_len > 0)
+    memcpy(sgl_dout_base_ptr.data(), iop->dxferp, data_len);
 
   // populate the requests : MPI req
   struct mpi3_scsi_io_request *mpi_scsi_req = (struct mpi3_scsi_io_request *) (sgl_dout_base_ptr.data() + dout_buffers_size - (sizeof(struct mpi3_scsi_io_request)-(4 * sizeof(MPI3_SGE_UNION))));
   mpi_scsi_req->function = MPI3_FUNCTION_SCSI_IO;
   mpi_scsi_req->dev_handle = (uint16_t)(m_diskhandle);
   mpi_scsi_req->flags = dir_flag;
-  mpi_scsi_req->data_length = dataLen;
-  memcpy(mpi_scsi_req->cdb.cdb32, cdb, cdbLen);
+  mpi_scsi_req->data_length = data_len;
+  memcpy(mpi_scsi_req->cdb.cdb32, iop->cmnd, iop->cmnd_len);
 
   uint8_t sense_buffer[32]{};
   struct sg_io_v4 io_hdr_v4{};
@@ -1892,22 +1898,64 @@ bool linux_mpi3mr_device::mpi3mr_cmd(int cdbLen, void *cdb,
                    __LINE__, r, errno);
   }
 
-  // Copy the payload, honoring the residual count reported by the kernel.
-  // Only for data-in commands: the data buffer of a data-out command is
-  // owned by the caller and must not be modified.
-  // The response buffer starts with the MPI and SCSI IO reply headers.
-  if (dxfer_dir == DXFER_FROM_DEVICE) {
-    const size_t reply_hdr_size = sizeof(SL8_MPI_REPLY_BUF) + sizeof(MPI3_SCSI_IO_REPLY);
-    uint8_t *buff = sgl_din_base_ptr.data() + reply_hdr_size;
-    size_t xfer_len = dataLen;
-    if (io_hdr_v4.din_resid > 0 && din_buffers_size > (uint32_t)io_hdr_v4.din_resid) {
-      uint32_t avail = din_buffers_size - (uint32_t)io_hdr_v4.din_resid;
-      avail = (avail > (uint32_t)reply_hdr_size ? avail - (uint32_t)reply_hdr_size : 0);
-      if (xfer_len > avail)
-        xfer_len = avail;
+  // Evaluate the reply.  The driver returns either a STATUS descriptor (if
+  // the command failed before a reply frame was received) or the full SCSI
+  // IO reply, followed by the data.
+  const uint8_t * din = sgl_din_base_ptr.data();
+  const uint8_t * rep = din + sizeof(SL8_MPI_REPLY_BUF);
+  uint16_t ioc_status = MPI3_IOCSTATUS_SUCCESS;
+  uint32_t xfer_count = 0, sense_count = 0;
+
+  switch (din[0] /* MPI reply type */) {
+    case MPI3MR_BSG_MPI_REPLY_BUFTYPE_ADDRESS: {
+      // MPI3_SCSI_IO_REPLY, little endian
+      ioc_status = sg_get_unaligned_le16(rep + offsetof(MPI3_SCSI_IO_REPLY, IOCStatus));
+      iop->scsi_status = rep[offsetof(MPI3_SCSI_IO_REPLY, SCSIStatus)];
+      xfer_count = sg_get_unaligned_le32(rep + offsetof(MPI3_SCSI_IO_REPLY, TransferCount));
+      sense_count = sg_get_unaligned_le32(rep + offsetof(MPI3_SCSI_IO_REPLY, SenseCount));
+      break;
     }
-    if (xfer_len > 0)
-      memcpy(data, buff, xfer_len);
+    case MPI3MR_BSG_MPI_REPLY_BUFTYPE_STATUS: {
+      // MPI3 status descriptor, assembled by the kernel driver in host order
+      uint16_t status;
+      memcpy(&status, rep, sizeof(status));
+      ioc_status = status;
+      break;
+    }
+    default:
+      return set_err(EIO, "mpi3mr: unknown MPI reply type %u", (unsigned)din[0]);
+  }
+
+  // Data underrun and residual mismatch are normal SCSI completions
+  const uint16_t ioc = ioc_status & MPI3_IOCSTATUS_STATUS_MASK;
+  if (   ioc != MPI3_IOCSTATUS_SUCCESS
+      && ioc != MPI3_IOCSTATUS_SCSI_DATA_UNDERRUN
+      && ioc != MPI3_IOCSTATUS_SCSI_RESIDUAL_MISMATCH
+      && !iop->scsi_status && !sense_count)
+    return set_err(EIO, "mpi3mr: IOC status 0x%04x", ioc);
+
+  // A success status descriptor has no reply frame and no residual,
+  // i.e. the full transfer was done.
+  if (data_len) {
+    unsigned n = data_len;
+    if (din[0] == MPI3MR_BSG_MPI_REPLY_BUFTYPE_ADDRESS && xfer_count < n)
+      n = xfer_count;
+    if (iop->dxfer_dir == DXFER_FROM_DEVICE && n)
+      memcpy(iop->dxferp, din + reply_hdr_size, n);
+    iop->resid = (int)(data_len - n);
+  }
+
+  // Propagate sense data, it is only present if an error response buffer
+  // was supplied and the controller returned one
+  if (   sense_count && iop->sensep && iop->max_sense_len
+      && din_buffers_size > err_off) {
+    unsigned n = (unsigned)iop->max_sense_len;
+    if (n > sense_count)
+      n = sense_count;
+    if (n > din_buffers_size - err_off)
+      n = din_buffers_size - err_off;
+    memcpy(iop->sensep, din + err_off, n);
+    iop->resp_sense_len = n;
   }
 
   return true;
@@ -1946,9 +1994,7 @@ bool linux_mpi3mr_device::scsi_pass_through(scsi_cmnd_io *iop)
   if (iop->cmnd[0] == 0x00)
     return true;
 
-  return mpi3mr_cmd(iop->cmnd_len, iop->cmnd,
-    iop->dxfer_len, iop->dxferp,
-    iop->max_sense_len, iop->sensep, report, iop->dxfer_dir);
+  return mpi3mr_cmd(iop);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -3940,10 +3986,10 @@ linux_smart_interface::mpi3mr_pd_add_list(int bus_no, smart_device_list & devlis
     if (!dev->open())
       continue;
 
-    bool inquiry_ok = dev->scsi_pass_through(&cmd);
+    bool inquiry_ok = dev->scsi_pass_through(&cmd) && cmd.scsi_status == 0;
     dev->close();
 
-    if (inquiry_ok && inq[0] != 0x0d) // skip the SES targets
+    if (inquiry_ok && (inq[0] & 0x1f) != 0x0d) // skip the SES targets
       devlist.push_back(dev.release());
   }
 
