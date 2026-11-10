@@ -1857,6 +1857,10 @@ bool linux_mpi3mr_device::mpi3mr_cmd(int cdbLen, void *cdb,
   std::vector<uint8_t> sgl_dout_base_ptr(dout_buffers_size, 0);
   std::vector<uint8_t> sgl_din_base_ptr(din_buffers_size, 0xFF);
 
+  // copy the data-out payload, the MPI request follows it
+  if (dxfer_dir == DXFER_TO_DEVICE && dataLen > 0)
+    memcpy(sgl_dout_base_ptr.data(), data, dataLen);
+
   // populate the requests : MPI req
   struct mpi3_scsi_io_request *mpi_scsi_req = (struct mpi3_scsi_io_request *) (sgl_dout_base_ptr.data() + dout_buffers_size - (sizeof(struct mpi3_scsi_io_request)-(4 * sizeof(MPI3_SGE_UNION))));
   mpi_scsi_req->function = MPI3_FUNCTION_SCSI_IO;
