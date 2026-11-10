@@ -37,6 +37,20 @@ brew install autoconf automake libtool
 
 ### Configure and compile
 
+Use a full Git clone so the build can derive version information from
+history. If you have a shallow checkout, run this from the repository root
+before building:
+
+```sh
+git fetch --unshallow
+```
+
+The current version calculation requires base revision
+`943adaeda55c2d534c722fe66c6b4613a782caa1`. If it is missing, `make` fails
+while generating `drivedb.h`. For a test-only build without the required
+history, `export SMARTMONTOOLS_TEST_BUILD=1` bypasses that check, but the
+generated drive database version is marked unknown.
+
 From the root of the cloned smartmontools repository:
 
 ```sh
