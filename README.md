@@ -8,12 +8,16 @@ Smartmontools was originally derived from the Linux [smartsuite package](https:/
 It should run on any modern Linux, FreeBSD, NetBSD, OpenBSD, Darwin (macOS), Solaris, Windows, Cygwin, OS/2, eComStation, or QNX system.
 Smartmontools can also be run from one of many different Live CDs/DVDs.
 
+See [INSTALL.md](https://github.com/smartmontools/smartmontools/blob/main/doc/INSTALL.md)
+for installation instructions
+and [CHANGELOG.md](https://github.com/smartmontools/smartmontools/blob/main/doc/CHANGELOG.md)
+for new features, bug fixes and other changes.
+
 ## Important links
 - [Project homepage](https://www.smartmontools.org/)
 - [GitHub repository](https://github.com/smartmontools/smartmontools)
 - [CI builds](https://github.com/smartmontools/smartmontools-builds/releases)
 - [Project Releases](https://github.com/smartmontools/smartmontools/releases)
-
 
 ## Code Signing
 This program uses free code signing provided by [SignPath.io](https://signpath.io) and a free code signing certificate by the [SignPath Foundation](https://signpath.org)
