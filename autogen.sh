@@ -74,7 +74,7 @@ if [ -n "$AUTOMAKE" ]; then
   ver=$("$AUTOMAKE" --version) || exit 1
 else
   maxver=
-  for i in 1.19 1.18 1.17 1.16 1.15 1.14 1.13; do
+  for i in 1.20 1.19 1.18 1.17 1.16 1.15 1.14 1.13; do
     minver=$i; test -n "$maxver" || maxver=$i
     ver=$(automake-$i --version 2>/dev/null) || continue
     AUTOMAKE="automake-$i"
@@ -108,7 +108,7 @@ case "$ver" in
     echo "GNU Automake $ver is not supported."; exit 1
     ;;
 
-  1.13.[34]|1.14|1.14.1|1.15|1.15.1|1.16|1.16.[1-5]|1.17|1.18|1.18.1|1.19)
+  1.13.[34]|1.14|1.14.1|1.15|1.15.1|1.16|1.16.[1-5]|1.17|1.18|1.18.1|1.19|1.20)
     # OK
     ;;
 
@@ -118,8 +118,12 @@ case "$ver" in
 esac
 
 # Same order as 'autoreconf --install'
+# The 2nd run of aclocal is required if automake and libtool are installed
+# under different prefixes.  Otherwise LT_INIT is not expanded by autoconf
+# and automake fails with "... 'LIBTOOL' is undefined".
 vrun "$ACLOCAL" --install $warnings
 vrun "$LIBTOOLIZE" --copy $warnings
+vrun "$ACLOCAL" $warnings
 vrun autoconf $warnings
 vrun autoheader $warnings
 vrun "$AUTOMAKE" --add-missing --copy $warnings
