@@ -70,7 +70,8 @@ static int identify(smartmon::scsi_device * dev)
     return dev_error(dev, "scsiStdInquiry() failed");
 
   char cap[32]{};
-  uint64_t sz = smartmon::scsiGetSize(dev, false, nullptr);
+  uint64_t sz = ((inq[0] & 0x1f) == SCSI_PT_CDROM ? 0 :
+                 smartmon::scsiGetSize(dev, false, nullptr));
   if (sz)
     smartmon::format_capacity(cap, sizeof(cap), sz);
 
