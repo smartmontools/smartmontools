@@ -661,7 +661,7 @@ const drive_settings builtin_knowndrives[] = {
         // SPCC Solid State Disk/SN08921 (128GB), SPCC Solid State Disk/J00fae20 (512GB)
         // also available with Phison controllers
     "SSDPR-CX400-(128|256|512|01T|02T)-G2|"          // GOODRAM CX400 G2, tested with SSDPR-CX400-128-G2/SN07373
-        // also available with Phison controllers
+        // also available with Phison controllers and Maxio variant 3
     "Verbatim Vi560 SATA III M.2 SSD",               // Verbatim Vi560 SATA III M.2 SSD/H190505 (256GB)
     "03[01]fAA20|J00fae20|H(19[0-9]{4}[DH]?|2212[0-9]{2}a?)|SN(0(73|89|94)|81|1(18|41)|207)[0-9]{2}|V1\\.2\\.7", "",
   //"-v 1,raw48,Raw_Read_Error_Rate "
@@ -713,10 +713,12 @@ const drive_settings builtin_knowndrives[] = {
     "Patriot Burst Elite (120|240|480|960|1920)GB|"  // Patriot Burst Elite 1920GB/H220916a
     "PNY 1TB SATA SSD|"                  // PNY CS900, tested with PNY 1TB SATA SSD/H220916a
         // also available with Phison and Silicon Motion controllers
+    "SSDPR-CX400-(128|256|512|01T|02T)-G2|"          // GOODRAM CX400 G2, tested with SSDPR-CX400-01T-G2/SN19511
+        // also available with Phison controllers and Maxio variant 2
     "Verbatim Vi550 S3|"                 // Verbatim Vi550 S3/H220916a (1TB)
         // also available with Silicon Motion controllers
     "Verbatim Vi560 S3",                 // Verbatim Vi560 S3/H220916a (1TB)
-    "SN1(19|25|31|59)[0-9]{2}|H2209[0-9]{2}a?", "",
+    "SN1(19|25|31|59|95)[0-9]{2}|H2209[0-9]{2}a?", "",
     "-v 5,raw16(raw16),New_Bad_Blk_Count "
   //"-v 9,raw24(raw8),Power_On_Hours "
   //"-v 12,raw48,Power_Cycle_Count "
