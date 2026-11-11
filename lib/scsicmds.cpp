@@ -759,6 +759,7 @@ scsi_decode_lu_dev_id(const unsigned char * b, int blen, char * s, int slen,
 #define SLEN(a, b) ((a) > (b) ? ((a) - (b)) : 0)
     s[0] = '\0';
     int si = 0;
+    /* 0 or length of the formatted EUI-64 id */
     int have_scsi_ns = 0, have_eui_64 = 0, have_naa = 0;
     int off = -1;
     int u;
@@ -788,18 +789,18 @@ scsi_decode_lu_dev_id(const unsigned char * b, int blen, char * s, int slen,
                 snprintf(s+si, SLEN(slen, si), "error: EUI-64 length");
                 return -1;
             }
-            if (have_eui_64) {
-                snprintf(s+si, SLEN(slen, si), "error: Duplicate EUI-64 designator");
-                return -1;
-            }
             if (have_naa)
                 continue;
-            if (have_scsi_ns)
+            /* Some controllers report NGUID (16) and EUI-64 (8);
+               prefer the shortest one. */
+            if (have_eui_64 && (have_eui_64 <= i_len))
+                break;
+            if (have_eui_64 || have_scsi_ns)
                 si = 0;
             si += snprintf(s+si, SLEN(slen, si), "0x");
             for (int m = 0; m < i_len; ++m)
                 si += snprintf(s+si, SLEN(slen, si), "%02x", (unsigned int)ip[m]);
-            have_eui_64++;
+            have_eui_64 = i_len;
             break;
         case 3: /* NAA */
             if (1 != c_set) {
