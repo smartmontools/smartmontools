@@ -1091,6 +1091,12 @@ protected:
   virtual ata_device * get_jmb39x_device(const char * type, smart_device * smartdev);
   //{ implemented in dev_jmb39x_raid.cpp }
 
+  /// Return Marvell 88NR2241 RAID member->NVMe filter.
+  /// Device 'nvmedev' is used to access the RAID controller.
+  /// Return 0 and delete 'nvmedev' on error.
+  virtual nvme_device * get_marvell_nvme_device(const char * type, nvme_device * nvmedev);
+  //{ implemented in dev_marvell_nvme.cpp }
+
 public:
   /// Try to detect a SAT device behind a SCSI interface.
   /// Inquiry data can be passed if available.

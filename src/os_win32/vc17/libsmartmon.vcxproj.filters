@@ -52,6 +52,7 @@
     <ClCompile Include="..\..\..\lib\dev_interface.cpp" />
     <ClCompile Include="..\..\..\lib\dev_jmb39x_raid.cpp" />
     <ClCompile Include="..\..\..\lib\dev_legacy.cpp" />
+    <ClCompile Include="..\..\..\lib\dev_marvell_nvme.cpp" />
     <ClCompile Include="..\..\..\lib\dev_parse_debug.cpp" />
     <ClCompile Include="..\..\..\lib\farmcmds.cpp" />
     <ClCompile Include="..\..\..\lib\hexdump.cpp" />
