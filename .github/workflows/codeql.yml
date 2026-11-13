@@ -7,7 +7,14 @@ on:
     branches: [ "main" ]
   schedule:
     - cron: "15 10 * * 6"
+
   workflow_dispatch:
+    inputs:
+      timeout-override:
+        description: >-
+          Override timeout (minutes)
+        default: null
+        type: number
 
 jobs:
   analyze:
@@ -17,6 +24,7 @@ jobs:
       actions: read
       contents: read
       security-events: write
+    timeout-minutes: ${{ fromJSON(inputs.timeout-override || 10) }}
 
     strategy:
       fail-fast: false

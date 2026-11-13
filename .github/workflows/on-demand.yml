@@ -46,6 +46,11 @@ on:
         options:
           - 'no'
           - 'yes'
+      timeout-override:
+        description: >-
+          Override timeout (minutes)
+        default: null
+        type: number
       upload-all:
         description: >-
           Upload 'smartmontools-all' with all builds
@@ -75,8 +80,9 @@ jobs:
         ${{ inputs.make-override }}
       run-checks: >-
         ${{ inputs.run-checks }}
-      retention-days: >-
-        ${{ case(inputs.publish == 'yes', 1, 90) }}
+      timeout: ${{ fromJSON(inputs.timeout-override || 10) }}
+      timeout-qemu: ${{ fromJSON(inputs.timeout-override || 60) }}
+      retention-days: ${{ case(inputs.publish == 'yes', 1, 90) }}
     secrets: inherit
 
   upload-all:

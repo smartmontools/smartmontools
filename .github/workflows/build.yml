@@ -42,6 +42,12 @@ on:
       run-checks:
         default: 'no'
         type: string
+      timeout:
+        default: 10 # 'timeout-minutes' for native and cross builds
+        type: number
+      timeout-qemu:
+        default: 60 # 'timeout-minutes' for emulated builds (only run on-demand)
+        type: number
       retention-days:
         default: 1
         type: number
@@ -55,6 +61,7 @@ jobs:
       msys2-matrix: ${{ steps.init.outputs.msys2-matrix }}
       qemu-matrix: ${{ steps.init.outputs.qemu-matrix }}
     runs-on: ubuntu-latest
+    timeout-minutes: ${{ inputs.timeout }}
 
     steps:
       - name: Show inputs and initialize outputs
@@ -64,6 +71,8 @@ jobs:
                "configure-override: '${{ inputs.configure-override }}'" \
                "make-override: '${{ inputs.make-override }}'" \
                "run-checks: '${{ inputs.run-checks }}'" \
+               "run-checks: '${{ inputs.run-checks }}'" \
+               "timeouts: '${{ inputs.timeout }}/${{ inputs.timeout-qemu }}'" \
                "retention-days: '${{ inputs.retention-days }}'"
           builds='${{ inputs.builds }}'
           valid="darwin freebsd windows windows-signed windows-test-signed cygwin os2emx"
@@ -169,6 +178,7 @@ jobs:
       matrix: ${{ fromJSON(needs.source-tarball.outputs.linux-matrix) }}
     runs-on: ${{ case(matrix.arch != 'arm64', 'ubuntu-latest', 'ubuntu-24.04-arm') }}
     container: ${{ fromJSON(case(matrix.os == 'ubuntu', 'null', format('"{0}:latest"', matrix.os))) }}
+    timeout-minutes: ${{ inputs.timeout }}
 
     steps:
       - if: ${{ matrix.arch == 'i686' }}
@@ -244,6 +254,7 @@ jobs:
     # see smartmontools/docker-build for the source
     container:
       image: ghcr.io/smartmontools/docker-build:master
+    timeout-minutes: ${{ inputs.timeout }}
 
     steps:
       - uses: actions/download-artifact@v8
@@ -286,6 +297,7 @@ jobs:
     # and using cache
     container:
       image: ghcr.io/smartmontools/docker-build:master
+    timeout-minutes: ${{ inputs.timeout }}
 
     steps:
       - uses: actions/download-artifact@v8
@@ -348,6 +360,7 @@ jobs:
           || contains(format(' {0} ', inputs.builds), ' windows-test-signed ') }}
     needs: source-tarball
     runs-on: ubuntu-latest
+    timeout-minutes: ${{ inputs.timeout }}
 
     steps:
       - name: Install build tools
@@ -502,6 +515,7 @@ jobs:
     strategy:
       matrix: ${{ fromJSON(needs.source-tarball.outputs.msys2-matrix) }}
     runs-on: ${{ case(matrix.msystem != 'clangarm64', 'windows-latest', 'windows-11-arm') }}
+    timeout-minutes: ${{ inputs.timeout }}
 
     steps:
       - name: Setup MSYS2 and install ${{ matrix.msystem }} build tools
@@ -578,6 +592,7 @@ jobs:
     # Cross build on Fedora is faster than the native build done by 'cygwin.yml'.
     # The recipes below are partly borrowed from Cygwin's own CI build
     container: fedora:latest
+    timeout-minutes: ${{ inputs.timeout }}
 
     steps:
       - name: Install cross-cygwin toolchain
@@ -618,6 +633,7 @@ jobs:
     if: ${{ contains(format(' {0} ', inputs.builds), ' os2emx ') }}
     needs: source-tarball
     runs-on: ubuntu-26.04 # cross-os2emx requires glibc-2.43 (TODO: change to 'ubuntu-latest')
+    timeout-minutes: ${{ inputs.timeout }}
 
     steps:
       - name: Install cross-os2emx toolchain
@@ -662,6 +678,7 @@ jobs:
     strategy:
       matrix: ${{ fromJSON(needs.source-tarball.outputs.qemu-matrix) }}
     runs-on: ubuntu-latest
+    timeout-minutes: ${{ case(matrix.arch == 'x86_64', inputs.timeout, inputs.timeout-qemu) }}
 
     steps:
       - uses: actions/download-artifact@v8
@@ -804,6 +821,7 @@ jobs:
     if: ${{ inputs.run-checks == 'yes' }}
     needs: darwin
     runs-on: macos-latest
+    timeout-minutes: ${{ inputs.timeout }}
 
     steps:
       - uses: actions/download-artifact@v8
@@ -832,6 +850,7 @@ jobs:
       matrix:
         version: [ '14', '15' ]
     runs-on: ubuntu-latest
+    timeout-minutes: ${{ inputs.timeout }}
 
     steps:
       - uses: actions/download-artifact@v8
@@ -863,6 +882,7 @@ jobs:
       matrix:
         os: [ windows-latest, windows-11-arm ]
     runs-on: ${{ matrix.os }}
+    timeout-minutes: ${{ inputs.timeout }}
 
     steps:
       - uses: actions/download-artifact@v8
