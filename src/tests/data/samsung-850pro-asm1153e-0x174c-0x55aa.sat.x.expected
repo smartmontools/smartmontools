@@ -1,0 +1,262 @@
+
+=== START OF INFORMATION SECTION ===
+Model Family:     Samsung based SSDs
+Device Model:     Samsung SSD 850 PRO 512GB
+Serial Number:    S39FNX0J507946B
+LU WWN Device Id: 5 002538 d41f8387e
+Firmware Version: EXM04B6Q
+User Capacity:    512,110,190,592 bytes [512 GB]
+Sector Size:      512 bytes logical/physical
+Rotation Rate:    Solid State Device
+Form Factor:      2.5 inches
+TRIM Command:     Available
+Device is:        In smartctl database 8.0/6322
+ATA Version is:   ACS-2, ATA8-ACS T13/1699-D revision 4c
+SATA Version is:  SATA 3.1, 6.0 Gb/s (current: 6.0 Gb/s)
+Local Time is:    Thu Oct 22 20:03:06 2026 UTC
+SMART support is: Available - device has SMART capability.
+SMART support is: Enabled
+AAM feature is:   Unavailable
+APM feature is:   Unavailable
+Rd look-ahead is: Enabled
+Write cache is:   Enabled
+DSN feature is:   Unavailable
+ATA Security is:  Disabled, NOT FROZEN [SEC1]
+
+=== START OF READ SMART DATA SECTION ===
+SMART overall-health self-assessment test result: PASSED
+
+General SMART Values:
+Offline data collection status:  (0x00)	Offline data collection activity
+					was never started.
+					Auto Offline Data Collection: Disabled.
+Self-test execution status:      (   0)	The previous self-test routine completed
+					without error or no self-test has ever 
+					been run.
+Total time to complete Offline 
+data collection: 		(    0) seconds.
+Offline data collection
+capabilities: 			 (0x53) SMART execute Offline immediate.
+					Auto Offline data collection on/off support.
+					Suspend Offline collection upon new
+					command.
+					No Offline surface scan supported.
+					Self-test supported.
+					No Conveyance Self-test supported.
+					Selective Self-test supported.
+SMART capabilities:            (0x0003)	Saves SMART data before entering
+					power-saving mode.
+					Supports SMART auto save timer.
+Error logging capability:        (0x01)	Error logging supported.
+					General Purpose Logging supported.
+Short self-test routine 
+recommended polling time: 	 (   2) minutes.
+Extended self-test routine
+recommended polling time: 	 ( 265) minutes.
+SCT capabilities: 	       (0x003d)	SCT Status supported.
+					SCT Error Recovery Control supported.
+					SCT Feature Control supported.
+					SCT Data Table supported.
+
+SMART Attributes Data Structure revision number: 1
+Vendor Specific SMART Attributes with Thresholds:
+ID# ATTRIBUTE_NAME          FLAGS    VALUE WORST THRESH FAIL RAW_VALUE
+  5 Reallocated_Sector_Ct   PO--CK   100   100   010    -    0
+  9 Power_On_Hours          -O--CK   093   093   000    -    31020
+ 12 Power_Cycle_Count       -O--CK   098   098   000    -    1034
+177 Wear_Leveling_Count     PO--C-   098   098   000    -    82
+179 Used_Rsvd_Blk_Cnt_Tot   PO--C-   100   100   010    -    0
+181 Program_Fail_Cnt_Total  -O--CK   100   100   010    -    0
+182 Erase_Fail_Count_Total  -O--CK   100   100   010    -    0
+183 Runtime_Bad_Block       PO--C-   100   100   010    -    0
+187 Uncorrectable_Error_Cnt -O--CK   100   100   000    -    0
+190 Airflow_Temperature_Cel -O--CK   072   053   000    -    28
+195 ECC_Error_Rate          -O-RC-   200   200   000    -    0
+199 CRC_Error_Count         -OSRCK   100   100   000    -    0
+235 POR_Recovery_Count      -O--C-   099   099   000    -    202
+241 Total_LBAs_Written      -O--CK   099   099   000    -    33878928390
+                            ||||||_ K auto-keep
+                            |||||__ C event count
+                            ||||___ R error rate
+                            |||____ S speed/performance
+                            ||_____ O updated online
+                            |______ P prefailure warning
+
+General Purpose Log Directory Version 1
+SMART           Log Directory Version 1 [multi-sector log support]
+Address    Access  R/W   Size  Description
+0x00       GPL,SL  R/O      1  Log Directory
+0x01           SL  R/O      1  Summary SMART error log
+0x02           SL  R/O      1  Comprehensive SMART error log
+0x03       GPL     R/O      1  Ext. Comprehensive SMART error log
+0x06           SL  R/O      1  SMART self-test log
+0x07       GPL     R/O      1  Extended self-test log
+0x09           SL  R/W      1  Selective self-test log
+0x10       GPL     R/O      1  NCQ Command Error log
+0x11       GPL     R/O      1  SATA Phy Event Counters log
+0x13       GPL     R/O      1  SATA NCQ Send and Receive log
+0x30       GPL,SL  R/O      9  IDENTIFY DEVICE data log
+0x80-0x9f  GPL,SL  R/W     16  Host vendor specific log
+0xa1           SL  VS      16  Device vendor specific log
+0xa5           SL  VS      16  Device vendor specific log
+0xce           SL  VS      16  Device vendor specific log
+0xe0       GPL,SL  R/W      1  SCT Command/Status
+0xe1       GPL,SL  R/W      1  SCT Data Transfer
+
+SMART Extended Comprehensive Error Log Version: 1 (1 sectors)
+No Errors Logged
+
+SMART Extended Self-test Log Version: 1 (1 sectors)
+No self-tests have been logged.  [To run self-tests, use: smartctl -t]
+
+SMART Selective self-test log data structure revision number 1
+ SPAN  MIN_LBA  MAX_LBA  CURRENT_TEST_STATUS
+    1        0        0  Not_testing
+    2        0        0  Not_testing
+    3        0        0  Not_testing
+    4        0        0  Not_testing
+    5        0        0  Not_testing
+  255        0    65535  Read_scanning was never started
+Selective self-test flags (0x0):
+  After scanning selected spans, do NOT read-scan remainder of disk.
+If Selective self-test is pending on power-up, resume after 0 minute delay.
+
+SCT Status Version:                  3
+SCT Version (vendor specific):       256 (0x0100)
+Device State:                        Active (0)
+Current Temperature:                     ? Celsius
+Power Cycle Min/Max Temperature:      ?/ ? Celsius
+Lifetime    Min/Max Temperature:     15/46 Celsius
+Under/Over Temperature Limit Count:   0/0
+
+SCT Temperature History Version:     2
+Temperature Sampling Period:         1 minute
+Temperature Logging Interval:        10 minutes
+Min/Max recommended Temperature:      0/70 Celsius
+Min/Max Temperature Limit:            0/70 Celsius
+Temperature History Size (Index):    128 (8)
+
+Index    Estimated Time   Temperature Celsius
+   9    2026-10-21 22:50    35  ****************
+  10    2026-10-21 23:00    36  *****************
+  11    2026-10-21 23:10     ?  -
+  12    2026-10-21 23:20    39  ********************
+  13    2026-10-21 23:30    45  **************************
+  14    2026-10-21 23:40    36  *****************
+  15    2026-10-21 23:50     ?  -
+ ...    ..( 15 skipped).    ..  -
+  31    2026-10-22 02:30     ?  -
+  32    2026-10-22 02:40    31  ************
+  33    2026-10-22 02:50     ?  -
+  34    2026-10-22 03:00    43  ************************
+  35    2026-10-22 03:10     ?  -
+  36    2026-10-22 03:20     ?  -
+  37    2026-10-22 03:30     ?  -
+  38    2026-10-22 03:40    30  ***********
+  39    2026-10-22 03:50     ?  -
+ ...    ..( 12 skipped).    ..  -
+  52    2026-10-22 06:00     ?  -
+  53    2026-10-22 06:10    28  *********
+  54    2026-10-22 06:20     ?  -
+ ...    ..(  3 skipped).    ..  -
+  58    2026-10-22 07:00     ?  -
+  59    2026-10-22 07:10    33  **************
+  60    2026-10-22 07:20    42  ***********************
+  61    2026-10-22 07:30     ?  -
+  62    2026-10-22 07:40     ?  -
+  63    2026-10-22 07:50    33  **************
+  64    2026-10-22 08:00     ?  -
+  65    2026-10-22 08:10     ?  -
+  66    2026-10-22 08:20    33  **************
+  67    2026-10-22 08:30     ?  -
+ ...    ..(  3 skipped).    ..  -
+  71    2026-10-22 09:10     ?  -
+  72    2026-10-22 09:20    32  *************
+  73    2026-10-22 09:30    28  *********
+  74    2026-10-22 09:40    30  ***********
+ ...    ..(  2 skipped).    ..  ***********
+  77    2026-10-22 10:10    30  ***********
+  78    2026-10-22 10:20    33  **************
+  79    2026-10-22 10:30    36  *****************
+  80    2026-10-22 10:40    41  **********************
+  81    2026-10-22 10:50    31  ************
+  82    2026-10-22 11:00     ?  -
+  83    2026-10-22 11:10    29  **********
+  84    2026-10-22 11:20    33  **************
+  85    2026-10-22 11:30    37  ******************
+  86    2026-10-22 11:40    40  *********************
+  87    2026-10-22 11:50    40  *********************
+  88    2026-10-22 12:00     ?  -
+  89    2026-10-22 12:10    28  *********
+  90    2026-10-22 12:20     ?  -
+  91    2026-10-22 12:30     ?  -
+  92    2026-10-22 12:40    28  *********
+  93    2026-10-22 12:50    39  ********************
+  94    2026-10-22 13:00    39  ********************
+  95    2026-10-22 13:10     ?  -
+  96    2026-10-22 13:20    29  **********
+  97    2026-10-22 13:30    35  ****************
+  98    2026-10-22 13:40     ?  -
+ ...    ..(  2 skipped).    ..  -
+ 101    2026-10-22 14:10     ?  -
+ 102    2026-10-22 14:20    28  *********
+ 103    2026-10-22 14:30     ?  -
+ 104    2026-10-22 14:40    29  **********
+ 105    2026-10-22 14:50     ?  -
+ 106    2026-10-22 15:00    30  ***********
+ 107    2026-10-22 15:10     ?  -
+ 108    2026-10-22 15:20     ?  -
+ 109    2026-10-22 15:30    30  ***********
+ 110    2026-10-22 15:40     ?  -
+ 111    2026-10-22 15:50     ?  -
+ 112    2026-10-22 16:00    30  ***********
+ 113    2026-10-22 16:10     ?  -
+ 114    2026-10-22 16:20     ?  -
+ 115    2026-10-22 16:30    29  **********
+ 116    2026-10-22 16:40     ?  -
+ 117    2026-10-22 16:50     ?  -
+ 118    2026-10-22 17:00    29  **********
+ 119    2026-10-22 17:10     ?  -
+ 120    2026-10-22 17:20    29  **********
+ 121    2026-10-22 17:30     ?  -
+ 122    2026-10-22 17:40     ?  -
+ 123    2026-10-22 17:50    29  **********
+ 124    2026-10-22 18:00     ?  -
+ 125    2026-10-22 18:10     ?  -
+ 126    2026-10-22 18:20    29  **********
+ 127    2026-10-22 18:30     ?  -
+   0    2026-10-22 18:40     ?  -
+   1    2026-10-22 18:50    29  **********
+   2    2026-10-22 19:00     ?  -
+   3    2026-10-22 19:10    29  **********
+   4    2026-10-22 19:20     ?  -
+ ...    ..(  3 skipped).    ..  -
+   8    2026-10-22 20:00     ?  -
+
+SCT Error Recovery Control:
+           Read: Disabled
+          Write: Disabled
+
+Device Statistics (GP/SMART Log 0x04) not supported
+
+Pending Defects log (GP Log 0x0c) not supported
+
+SATA Phy Event Counters (GP Log 0x11)
+ID      Size     Value  Description
+0x0001  2            0  Command failed due to ICRC error
+0x0002  2            0  R_ERR response for data FIS
+0x0003  2            0  R_ERR response for device-to-host data FIS
+0x0004  2            0  R_ERR response for host-to-device data FIS
+0x0005  2            0  R_ERR response for non-data FIS
+0x0006  2            0  R_ERR response for device-to-host non-data FIS
+0x0007  2            0  R_ERR response for host-to-device non-data FIS
+0x0008  2            0  Device-to-host non-data FIS retries
+0x0009  2            0  Transition from drive PhyRdy to drive PhyNRdy
+0x000a  2            0  Device-to-host register FISes sent due to a COMRESET
+0x000b  2            0  CRC errors within host-to-device FIS
+0x000d  2            0  Non-CRC errors within host-to-device FIS
+0x000f  2            0  R_ERR response for host-to-device data FIS, CRC
+0x0010  2            0  R_ERR response for host-to-device data FIS, non-CRC
+0x0012  2            0  R_ERR response for host-to-device non-data FIS, CRC
+0x0013  2            0  R_ERR response for host-to-device non-data FIS, non-CRC
+

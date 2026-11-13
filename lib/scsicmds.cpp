@@ -1577,7 +1577,7 @@ scsi_pass_through_yield_sense(scsi_device * device, scsi_cmnd_io * iop,
         }
         np = scsi_get_opcode_name(iop->cmnd);
         lib_printf(" [%s: ", np ? np : "<unknown opcode>");
-        lib_printf("SCSI opcode=0x%x, CDB length=%u, data length=0x%u, data "
+        lib_printf("SCSI opcode=0x%x, CDB length=%u, data length=%u, data "
                    "dir=%s]\n", opcode, (unsigned int)iop->cmnd_len,
                    (unsigned int)iop->dxfer_len, ddir);
         if (dout && (scsi_debugmode > 3))  /* output hex without address */
@@ -2042,8 +2042,9 @@ scsiGetTemp(scsi_device * device, uint8_t *currenttemp, uint8_t *triptemp)
 
 /* Read informational exception log page or Request Sense response.
  * Fetching asc/ascq code potentially flagging an exception or warning.
- * Returns 0 if ok, else error number. A current temperature of 255
- * (Celsius) implies that the temperature not available. */
+ * Returns 0 if ok, else error number. A temperature of 0 (not provided by
+ * the IE or temperature log page) or 255 (Celsius) implies that the
+ * temperature is not available. */
 int
 scsiCheckIE(scsi_device * device, int hasIELogPage, int hasTempLogPage,
             uint8_t *asc, uint8_t *ascq, uint8_t *currenttemp,

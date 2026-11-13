@@ -1,0 +1,5 @@
+
+Read Device Identity failed: scsi error unsupported scsi opcode
+
+If this is a USB connected device, look at the various --device=TYPE variants
+A mandatory SMART command failed: exiting. To continue, add one or more '-T permissive' options.

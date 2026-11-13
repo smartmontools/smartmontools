@@ -254,6 +254,8 @@ struct scsi_supp_log_pages {
 #define SUPP_SPAGE_L_SPAGE              0xff    /* 0x0,0xff pages+subpages */
 
 /* Seagate vendor specific log pages. */
+#define SANDISK_COUNTERS_LPAGE              0x30
+#define SANDISK_TEMPERATURE_LPAGE           0x32
 #define SEAGATE_CACHE_LPAGE                 0x37
 #define SEAGATE_FARM_LPAGE                  0x3d
 #define SEAGATE_FACTORY_LPAGE               0x3e
@@ -577,6 +579,14 @@ const unsigned char * sg_scsi_sense_desc_find(const unsigned char * sensep,
  * arises (e.g. timeout) then returns a negative errno value. */
 // Moved to C++ interface
 //int do_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report);
+
+class smart_interface;
+
+// Return pseudo-device which replays a recorded SCSI command trace
+// (see dev_scsi_trace.cpp). The trace is read from 'trace_text' if
+// specified, else from stdin if 'dev_name' is "-", else from file 'dev_name'.
+scsi_device * get_trace_scsi_device(smart_interface * intf, const char * dev_name,
+                                    const char * trace_text = nullptr);
 
 } // namespace smartmon
 
