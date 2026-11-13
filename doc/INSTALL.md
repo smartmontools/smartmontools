@@ -3,13 +3,12 @@
 ## Supported platforms
 
 Builds have been successfully tested for:
-- Linux: i686, x86_64, arm64, riscv64, s390x
-- FreeBSD: x86_64, arm64, powerpc64
-- NetBSD: x86_64, sparc64
-- OpenBSD: x86_64
-- macOS: i686, x86_64, arm64
-- OpenIndiana: x86_64
-- Solaris: x86_64
+- Linux: i686, x86_64, arm64, ppc64le, riscv64, s390x
+- FreeBSD: x86_64, arm64, powerpc64, riscv64
+- NetBSD: x86_64, arm64, riscv64, sparc64
+- OpenBSD: x86_64, arm64, riscv64, sparc64
+- Darwin(macOS): i686, x86_64, arm64
+- OmniOS/Solaris: x86_64
 - Windows: i686, x86_64, arm64
 - Cygwin: x86_64
 - OS/2(ArcaOS): i686
@@ -25,17 +24,22 @@ For available versions, see for example
 [repology.org](https://repology.org/project/smartmontools/versions)
 ([Badge](https://repology.org/badge/vertical-allrepos/smartmontools.svg)).
 
-DMG files for macOS are also available from the
-[releases page](https://github.com/smartmontools/smartmontools/releases).
-
-**Experimental** binaries for more platforms are available from the
+**Experimental** source tarballs and various binary packages (including Linux, FreeBSD,
+Darwin and Windows) are available from the
 [CI builds](https://github.com/smartmontools/smartmontools-builds/releases) and from other
 [workflows](https://github.com/smartmontools/smartmontools/actions).
 
+#### Install the Darwin(macOS) package
+
+Download and run the latest DMG file from the
+[releases page](https://github.com/smartmontools/smartmontools/releases).
+
+The package provides Mach-O universal binaries with two architectures (arm64 and x86_64).
+
 #### Install the Windows package
 
-[NSIS](https://nsis.sourceforge.io/Main_Page) installers for the Windows version of smartmontools
-are available from the [releases page](https://github.com/smartmontools/smartmontools/releases).
+Download and run the latest [NSIS](https://nsis.sourceforge.io/Main_Page) installer from the
+[releases page](https://github.com/smartmontools/smartmontools/releases).
 
 The default installation type, "Full", creates start menu shortcuts, including an uninstaller, and adds
 the installation directory to the User PATH variable.
@@ -77,7 +81,7 @@ sudo make install
 
 This additionally requires `git` and GNU autotools (`autoconf`, `automake`, `libtool`).
 
-```
+```sh
 git clone https://github.com/smartmontools/smartmontools.git
 cd smartmontools
 ./autogen.sh
@@ -86,13 +90,17 @@ make
 sudo make install
 ```
 
+Shallow clones must contain the last commit of the previous release, otherwise the build
+will fail unless `SMARTMONTOOLS_TEST_BUILD=1` is set in the environment.
+A clone with `--shallow-since=2025-04-29` is sufficient.
+
 ### Install from ZIP file
 
 If `git` is unavailable, the current source could also be downloaded as a ZIP file.
-Then `SMARTMONTOOLS_TEST_BUILD` needs to be set in the environment because the
+Then `SMARTMONTOOLS_TEST_BUILD=1` needs to be set in the environment because the
 version information cannot retrieved from the `git log`.
 
-```
+```sh
 curl -L -O https://github.com/smartmontools/smartmontools/archive/refs/heads/main.zip
 unzip main.zip
 cd smartmontools-main
@@ -105,7 +113,7 @@ sudo make install
 
 ### Run without `make install` directly from build directory
 
-```
+```sh
 ./configure
 make
 src/smartctl -V
@@ -120,35 +128,78 @@ These run the real executables from `src/.libs` and ensure that the correct shar
 `libsmartmon` library from `lib/.libs` is loaded.
 The wrappers provide two extra options:
 
-```
+```sh
 src/smartctl --lt-debug # print debug info before running smartctl
 src/smartctl --lt-dump-script > src/smartctl.sh # create a wrapper shell script
 ```
+
+## Update the drive database
+
+The drive database file drivedb.h can be updated separately with the following command:
+
+```sh
+sudo /usr/sbin/update-smart-drivedb
+```
+
+This command uses `curl`, `wget` or `lynx` for download.
+A proxy server can be specified by the environment variable `https_proxy` (lower case only),
+see the man pages of the tools for details.
+
+The downloaded file is verified with OpenPGP/GPG key ID `EA74AB25721042C5`.
+The public key block is included in the script.
+It is also available at
+[Key Servers](https://keyserver.ubuntu.com/pks/lookup?search=0xEA74AB25721042C5&fingerprint=on&op=index)
+but it is not needed to import it into a local keyring.
+
+See `man update-smart-drivedb` for further details.
+
+The Windows package provides `update-smart-drivedb.ps1`.
+It reads the proxy configuration from the system settings.
+The installer creates "drivedb.h update (ps1)" and "drivedb.h update get help (ps1)"
+shortcuts.
+
+The drivedb.h file can be viewed or downloaded here:
+[7.0-7.1](https://github.com/smartmontools/smartmontools/tree/drivedb/7.0/smartmontools),
+[7.2](https://github.com/smartmontools/smartmontools/tree/drivedb/7.2/smartmontools),
+[7.3-7.4](https://github.com/smartmontools/smartmontools/tree/drivedb/7.3/smartmontools),
+[7.5](https://github.com/smartmontools/smartmontools/tree/drivedb/7.0/smartmontools),
+[8.0](https://github.com/smartmontools/smartmontools/tree/drivedb/8.0/drivedb),
+[main](https://github.com/smartmontools/smartmontools/tree/main/drivedb).
+The older branches for smartmontools 5.39 to 6.6 are no longer maintained.
 
 ## Build examples
 
 ### Show `./configure` options and environment variables
 
-```
+```sh
 ./configure --help
 ```
 
 ### Reduce verbosity of current build
 
-```
+```sh
 make V=0
 ```
 
 ### Reduce verbosity of all builds
 
-```
+```sh
 ./configure --enable-silent-rules
 make # undo with 'V=1'
 ```
 
+### Run build commands in parallel
+
+```sh
+make -j 8                    # Run up to 8 build commands simultaneously
+make -j $(sysctl -n hw.ncpu) # Limit to the number of CPUs (Linux, *BSD, macOS, ...)
+make -j 2.0C                 # Limit to twice the number of CPUs (BSD make only)
+make -j                      # No limit (GNU make only)
+```
+
 ### Run build in a separate directory
 
-```
+```sh
 mkdir build-config1
 cd build-config1
 ../configure [OPTION...]
@@ -157,7 +208,7 @@ make
 
 Or with absolute path names:
 
-```
+```sh
 mkdir /tmp/build-config1
 cd /tmp/build-config1
 /path/to/smartmontools-VERSION/configure [OPTION...]
@@ -168,7 +219,7 @@ This allows to handle multiple configurations simultaneously.
 
 ### Install in another destination for testing
 
-```
+```sh
 make DESTDIR=/tmp/test-install install
 ```
 
@@ -176,11 +227,11 @@ Note: `DESTDIR` must be an absolute path.
 
 ### Uninstall
 
-```
+```sh
 make uninstall
 ```
 
-```
+```sh
 make DESTDIR=/tmp/test-install uninstall
 ```
 
@@ -188,7 +239,7 @@ Note: this does not remove the empty directories.
 
 ### Clean up
 
-```
+```sh
 make clean            # Remove items generated by 'make' ...
 make distclean        # ... and items generated by './configure' ...
 make maintainer-clean # ... and items generated by './autogen.sh'.
@@ -197,7 +248,7 @@ make maintainer-clean # ... and items generated by './autogen.sh'.
 
 ### Run `smartctl -V` and check `drivedb.h` syntax
 
-```
+```sh
 make check
 ```
 
@@ -205,31 +256,31 @@ Note: shows only the `VERSION` string of the `drivedb.h` file if cross-compiling
 
 ### Create a source tarball
 
-```
+```sh
 make dist
 ```
 
 ### Create a binaries tarball
 
-```
+```sh
 make bin-dist
 ```
 
 ### Exclude development files from installation
 
-```
+```sh
 ./configure --without-devel
 ```
 
 ### Create a shared instead of a static `libsmartmon` library
 
-```
+```sh
 ./configure --enable-shared --disable-static
 ```
 
 ### Link binaries statically
 
-```
+```sh
 ./configure --enable-static-link
 ```
 
@@ -237,22 +288,22 @@ Note: this is not compatible with `--enable-shared`.
 
 ### Use `clang++` instead of `c++/g++`
 
-```
+```sh
 ./configure CC=clang CXX=clang++
 ```
 
 ### Create a *CLang Static Analyzer* report
 
-```
+```sh
 util/clang-scan-build.sh make
 ```
 
-Open `clang-report/DATE-TIME/index.html` in browser.
+Open `clang-report/DATE-TIME/index.html` in a browser.
 The directory does not exist if nothing has been reported.
 
 ### Use `gmake` instead of `make`
 
-```
+```sh
 ./configure MAKE=gmake
 gmake
 sudo gmake install
@@ -260,7 +311,7 @@ sudo gmake install
 
 ### Create a reproducible build
 
-```
+```sh
 ./configure SOURCE_DATE_EPOCH=$(date +%s)
 make dist
 make
@@ -269,7 +320,7 @@ make bin-dist
 
 If `make` does not support `export` (GNU make) or `.export` (BSD make):
 
-```
+```sh
 export SOURCE_DATE_EPOCH=$(date +%s)
 ./configure
 make dist
@@ -282,7 +333,7 @@ Note: `make dist` and `make bin-dist` require the GNU version of `tar` (`gnutar`
 
 ### Keep the installed version of `drivedb.h` unchanged
 
-```
+```sh
 ./configure --with-drivedbinstdir
 make
 sudo make install
@@ -294,25 +345,39 @@ The file `/usr/local/var/lib/smartmontools/drivedb.h` is used and updated then.
 
 ### Prevent `font name 'CW' is deprecated` warning from `groff(1)`
 
-```
+```sh
 ./configure --with-troff-cw-font=CR
 ```
 
 Note: this does not affect the formatting of man pages for a terminal window.
 
-### Linux: add `--capabilities` and systemd `Type=notify` support to `smartd`
+### Linux: add `--capabilities` and systemd `Type=notify[-reload]` support to `smartd`
 
-```
+```sh
 sudo apt install libcap-ng libsystemd-dev # Debian/Ubuntu
-./configure --with-libcap-ng --with-libsystemd
+./configure --with-libcap-ng --with-libsystemd[=reload]
 ```
 
 Note: the libraries are always detected if installed unless `--without-lib*` are specified.
 The extra `--with-lib*` options let `./configure` fail if the libraries could not be detected.
 
+### Darwin(macOS): Build a DMG file containing universal binaries (arm64 and x86_64)
+
+```sh
+./configure CFLAGS='-arch arm64 -arch x86_64' CXXFLAGS='-arch arm64 -arch x86_64'
+make
+make install-darwin # creates 'src/smartmontools-VERSION.dmg'
+```
+
+Clean up later:
+
+```sh
+make install-darwin-cleanup
+```
+
 ### Windows: build a NSIS installer containing 32-bit and 64-bit smartmontools
 
-```
+```sh
 mkdir build64
 cd build64
 ../configure --build=$(../config.guess) --host=x86_64-w64-mingw32 --enable-static-link
@@ -327,6 +392,12 @@ make distdir-win32
 make builddir_win64=../../build64/src installer-win32
 ```
 
+Clean up later:
+
+```sh
+make cleandist-win32
+```
+
 Tested on Linux and Cygwin.
 This requires the packages dos2unix, groff, [nsis](https://nsis.sourceforge.io/Main_Page) and
 man2html.
@@ -336,7 +407,7 @@ man2html.
 Run this on [MSYS2](https://www.msys2.org/) or with the cross compile options on
 [Cygwin](https://www.cygwin.com/):
 
-```
+```sh
 mkdir build-vc
 cd build-vc
 ../configure # --build=$(../config.guess) --host=x86_64-w64-mingw32
@@ -352,14 +423,14 @@ These require at least Windows Vista.
 
 Clean up later:
 
-```
+```sh
 cd build-vc
 make clean-vc # distclean-vc # maintainer-clean-vc
 ```
 
 ### Build some new `libsmartmon` example
 
-```
+```sh
 mkdir build
 cd build
 ../configure
@@ -378,7 +449,7 @@ script uses absolute path names to adjust the `make` variables.
 The following list shows the directories and files which are usually installed by default and
 the related `./configure` options which modify (or disable) the install locations:
 
-```
+```sh
 /usr/local/                                             # --prefix
 /usr/local/etc/                                         # --sysconfdir, --with-smartdscriptdir
 /usr/local/etc/smartd.conf
@@ -416,7 +487,7 @@ the related `./configure` options which modify (or disable) the install location
 The following optional directories and files may be installed or configured if explicitly
 enabled or autodetected by `./configure`:
 
-```
+```sh
 /usr/local/etc/default/smartmontools                    # --with-systemdenvfile (--without-systemdenvfile)
 /usr/local/etc/init.d/                                  # --with-initscriptdir
 /usr/local/etc/init.d/smartd
@@ -497,7 +568,7 @@ This is the case for NVMe devices behind the `stornvme.sys` driver on Windows.
 
 ### Scan for devices
 
-```
+```sh
 /usr/local/sbin/smartctl --scan
 sudo /usr/local/sbin/smartctl --scan-open
 ```
@@ -506,19 +577,19 @@ Note: it is platform specific whether `--scan` works without `sudo`.
 
 ### Print diagnostic information
 
-```
+```sh
 sudo /usr/local/sbin/smartctl -x /dev/sda
 ```
 
 ### Print diagnostic information in JSON format
 
-```
+```sh
 sudo /usr/local/sbin/smartctl -j -x /dev/sda
 ```
 
 ### Print diagnostic information in JSON format with embedded original format
 
-```
+```sh
 sudo /usr/local/sbin/smartctl --json=o -x /dev/sda
 ```
 
@@ -527,38 +598,36 @@ The lines of the original non-JSON output appear in the JSON array
 
 ### Print diagnostic information in YAML format
 
-```
+```sh
 sudo /usr/local/sbin/smartctl --json=y -x /dev/sda
 ```
 
 ### Print diagnostic information in a *grep*able format
 
-```
+```sh
 sudo /usr/local/sbin/smartctl --json=g -x /dev/sda | grep -E '(power_on_time|temperature).*[0-9]'
 ```
 
 ### Start a short device self-test
 
-```
+```sh
 sudo /usr/local/sbin/smartctl -t short /dev/sda
 ```
 
 ### Use SAT (SCSI/ATA Translation) to access a SATA device behind an USB bridge
 
-```
+```sh
 sudo /usr/local/sbin/smartctl -d sat -x /dev/sda
 ```
 
 ### Test `smartd` with one device
 
-```
+```sh
 echo /dev/sda | sudo /usr/local/sbin/smartd -c - -q onecheck
-
 ```
 
 ### Test `smartd` email warnings
 
-```
+```sh
 echo /dev/sda -m admin@domain.local -M test | sudo /usr/local/sbin/smartd -c - -q onecheck
-
 ```
