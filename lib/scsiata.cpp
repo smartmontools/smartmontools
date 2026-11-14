@@ -115,10 +115,13 @@ public:
     sat_standard,
     sat_asm1352r, // ASM1352R port 0 or 1
   };
+  enum sat_quirks {
+    sat_quirks_uasbug = (1u<<0), // SAT may be unavailable with UAS (USB attached SCSI)
+  };
 
   sat_device(smart_interface * intf, scsi_device * scsidev,
     const char * req_type, sat_scsi_mode mode = sat_always, int passthrulen = 0,
-    sat_variant variant = sat_standard, int port = 0);
+    unsigned quirks = 0, sat_variant variant = sat_standard, int port = 0);
 
   virtual ~sat_device();
 
@@ -133,6 +136,7 @@ public:
 private:
   int m_passthrulen;
   sat_scsi_mode m_mode;
+  unsigned m_quirks;
   sat_variant m_variant;
   int m_port;
 };
@@ -140,12 +144,13 @@ private:
 
 sat_device::sat_device(smart_interface * intf, scsi_device * scsidev,
   const char * req_type, sat_scsi_mode mode /* = sat_always */,
-  int passthrulen /* = 0 */, sat_variant variant /* = sat_standard */, int port /* = 0 */)
+  int passthrulen /* = 0 */, unsigned quirks /* = 0 */,
+  sat_variant variant /* = sat_standard */, int port /* = 0 */)
 : smart_device(intf, scsidev->get_dev_name(),
     (mode == sat_always ? "sat" : mode == sat_auto ? "sat,auto" : "scsi"), req_type),
   tunnelled_device<ata_device, scsi_device>(scsidev),
   m_passthrulen(passthrulen),
-  m_mode(mode),
+  m_mode(mode), m_quirks(quirks),
   m_variant(variant), m_port(port)
 {
   if (mode != sat_always)
@@ -446,6 +451,13 @@ bool sat_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
             }
             if (t_dir && (t_length > 0) && (in.direction == ata_cmd_in::data_in))
                 memset(in.buffer, 0, in.size);
+
+            std::string error_msg;
+            if ((m_quirks & sat_quirks_uasbug) &&
+                smi()->did_kernel_block_sat_on_uas(status, &io_hdr, error_msg)) {
+                return set_err(error_info(ENOTSUP, error_msg));
+            }
+
             return set_err(EIO, "scsi error %s", scsiErrString(status));
         }
     }
@@ -1431,15 +1443,22 @@ ata_device * smart_interface::get_sat_device(const char * type, scsi_device * sc
   if (str_starts_with(type, "sat")) {
     const char * t = type + 3;
     sat_device::sat_scsi_mode mode = sat_device::sat_always;
+    unsigned quirks = 0;
+
     if (str_starts_with(t, ",auto")) {
       t += 5;
       mode = sat_device::sat_auto;
     }
+    if (str_starts_with(t, ",uasbug")) {
+      t += strlen(",uasbug");
+      quirks |= sat_device::sat_quirks_uasbug;
+    }
+
     int ptlen = 0, n = -1;
     if (*t && !(sscanf(t, ",%d%n", &ptlen, &n) == 1 && n == (int)strlen(t)
                 && (ptlen == 0 || ptlen == 12 || ptlen == 16)))
-      return set_err_np(EINVAL, "Option '-d sat[,auto][,N]' requires N to be 0, 12 or 16");
-    satdev = new sat_device(this, scsidev, type, mode, ptlen);
+      return set_err_np(EINVAL, "Option '-d sat[,auto][,uasbug][,N]' requires N to be 0, 12 or 16");
+    satdev = new sat_device(this, scsidev, type, mode, ptlen, quirks);
   }
 
   else if (!strcmp(type, "scsi")) {
@@ -1486,7 +1505,7 @@ ata_device * smart_interface::get_sat_device(const char * type, scsi_device * sc
     unsigned port = ~0; int n = -1;
     if (!(sscanf(type, "usbasm1352r,%u%n", &port, &n) == 1 && n == (int)strlen(type) && port <= 1))
       return set_err_np(EINVAL, "Option '-d usbasm1352r,<n>' requires <n> to be 0 or 1");
-    satdev = new sat_device(this, scsidev, type, sat_device::sat_always, 0, sat_device::sat_asm1352r, port);
+    satdev = new sat_device(this, scsidev, type, sat_device::sat_always, 0, 0, sat_device::sat_asm1352r, port);
   }
 
   else {

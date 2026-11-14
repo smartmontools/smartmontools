@@ -2948,6 +2948,10 @@ public:
   virtual bool scan_smart_devices(smart_device_list & devlist,
     const smart_devtype_list & types, const char * pattern = 0) override;
 
+  virtual bool did_kernel_block_sat_on_uas(int scsi_simple_error_code,
+                                           const struct scsi_cmnd_io * io_buf,
+                                           std::string & error_message) const override;
+
 protected:
   virtual ata_device * get_ata_device(const char * name, const char * type) override;
 
@@ -3313,6 +3317,29 @@ bool linux_smart_interface::scan_smart_devices(smart_device_list & devlist,
   if (scan_sssraid)
     get_dev_sssraid(devlist);
   return true;
+}
+
+bool linux_smart_interface::did_kernel_block_sat_on_uas(int scsi_simple_error_code,
+                                                        const struct scsi_cmnd_io * /*io_buf*/,
+                                                        std::string & error_message) const
+{
+  /* The SCSI message the Linux kernel returns when it blocks access to ATA passthrough commands on
+   * UAS has never changed (see variable usb_stor_sense_invalidCDB in drivers/usb/storage/scsiglue.c
+   * and commit 593078525c8b in the Linux repository), but we want to be somewhat forgiving in case
+   * they would like to change it in the future (so as not to introduce a hard dependency).
+   */
+  if (scsi_simple_error_code == SIMPLE_ERR_BAD_FIELD ||
+      scsi_simple_error_code == SIMPLE_ERR_BAD_PARAM ||
+      scsi_simple_error_code == SIMPLE_ERR_BAD_OPCODE) {
+
+    error_message = "likely blocked by the kernel because of "
+                    "problems with UAS support in the drive, see "
+                    "https://www.smartmontools.org/wiki/SAT-with-UAS-Linux";
+    return true;
+  } else {
+    error_message = "";
+    return false;
+  }
 }
 
 ata_device * linux_smart_interface::get_ata_device(const char * name, const char * type)

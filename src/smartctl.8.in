@@ -443,7 +443,7 @@ Use 0xffffffff for the broadcast namespace id.
 The default for NSID is the namespace id addressed by the device name.
 .Sp
 .\" %IF NOT OS Darwin
-.I sat[,auto][,N]
+.I sat[,auto][,uasbug][,N]
 \- the device type is SCSI to ATA Translation (SAT).
 This is for ATA disks that have a SCSI to ATA Translation Layer (SATL)
 between the disk and the operating system.
@@ -454,6 +454,14 @@ overridden with either \*(Aq\-d sat,12\*(Aq or \*(Aq\-d sat,16\*(Aq.
 If \*(Aq\-d sat,auto\*(Aq is specified, device type SAT (for ATA/SATA disks)
 is only used if the SCSI INQUIRY data reports a SATL (VENDOR: "ATA     ").
 Otherwise device type SCSI (for SCSI/SAS disks) is used.
+.Sp
+The Linux kernel may block access to SAT commands for some USB drives it
+considers buggy, if these drives use the UAS (USB Attached SCSI) protocol.
+If the \*(Aq\-d sat,uasbug\*(Aq switch is used,
+\fBsmartctl\fP
+will assume that this drive is likely to be blocked and give an appropriate
+warning to the user if it cannot access it. The \*(Aquasbug\*(Aq flag is
+ignored on other operating systems.
 .Sp
 .I usbasm1352r,PORT
 \- this device type is for one or two SATA disks that are behind an ASMedia

@@ -342,7 +342,7 @@ std::string smart_interface::get_valid_dev_types_str()
 {
   // default
   std::string s =
-    "ata, scsi[+TYPE], nvme[,NSID], sat[,auto][,N][+TYPE], usbasm1352r,N, usbcypress[,X], "
+    "ata, scsi[+TYPE], nvme[,NSID], sat[,auto][,uasbug][,N][+TYPE], usbasm1352r,N, usbcypress[,X], "
     "usbjmicron[,p][,x][,N], usbprolific, usbsunplus, sntasmedia, sntjmicron[,NSID], "
     "sntrealtek, snt*/sat, sat/snt*, jmb39x[-q[2]],N[,sLBA][,force][+TYPE], "
     "jms56x,N[,sLBA][,force][+TYPE]";
@@ -589,6 +589,15 @@ smart_device * smart_interface::get_scsi_passthrough_device(const char * type, s
     return get_snt_device(type, scsidev);
 
   return get_sat_device(type, scsidev);
+}
+
+bool smart_interface::did_kernel_block_sat_on_uas(int /*scsi_simple_error_code*/,
+                                                  const struct scsi_cmnd_io * /*io_buf*/,
+                                                  std::string &error_message) const
+{
+  // Currently only Linux is known to do this.
+  error_message = "";
+  return false;
 }
 
 } // namespace smartmon

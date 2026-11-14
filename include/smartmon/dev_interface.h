@@ -55,6 +55,8 @@ public:
       : no(n) { }
     error_info(int n, const char * m)
       : no(n), msg(m) { }
+    error_info(int n, std::string m)
+      : no(n), msg(m) { }
     void clear()
       { no = 0; msg.erase(); }
 
@@ -1105,6 +1107,12 @@ public:
   virtual const char * get_usb_dev_type_by_id(int vendor_id, int product_id,
                                               int version = -1);
   //{ implemented in scsiata.cpp }
+
+  /// Checks if the operating system kernel can have blocked SAT access on UAS
+  /// (USB attached SCSI) devices. Currently only Linux is known to do this.
+  virtual bool did_kernel_block_sat_on_uas(int scsi_simple_error_code,
+                                           const struct scsi_cmnd_io * io_buf,
+                                           std::string & error_message) const;
 
 protected:
   /// Set interface to use, must be called from init().
