@@ -6797,7 +6797,7 @@ const drive_settings builtin_knowndrives[] = {
     "0x0bc2:0x....",
     "",
     "",
-    "-d sat"
+    "-d sat,uasbug"
   },
   // Realtek
   { "USB: ; Realtek RTL9201", // USB->SATA
@@ -7023,6 +7023,12 @@ const drive_settings builtin_knowndrives[] = {
     "", // 0x1640: 0x0864, 0x1650: 0x0436
     "",
     "-d sat,12" // some SMART commands fail, see ticket #295
+  },
+  { "USB: ; Initio",
+    "0x13fd:0x3940",
+    "",
+    "",
+    "-d sat,uasbug" // uasbug affects only bcdDevice up to 0x0309
   },
   { "USB: ; Initio",
     "0x13fd:0x....",
@@ -7260,10 +7266,17 @@ const drive_settings builtin_knowndrives[] = {
   },
   // PNY
   { "USB: ; PNY",
-    "0x154b:0x(5678|8001|f009)",
+    "0x154b:0x(5678|8001)",
     "", // 0x5678: 0x5408
     "",
     "-d sat"
+  },
+  // PNY
+  { "USB: ; PNY",
+    "0x154b:0xf009",
+    "",
+    "",
+    "-d sat,uasbug"
   },
   // Pinas
   { "USB: ; Pinas",
@@ -7470,7 +7483,7 @@ const drive_settings builtin_knowndrives[] = {
     "0x2109:0x0711",
     "", // 0x0114, Mediasonic ProBox K32-SU3 (ticket #594)
     "", // 0x0507, Intenso 2,5" Memory Case 2TB USB3
-    "-d sat"
+    "-d sat,uasbug"
   },
   { "USB: ; VIA VL715/6/7", // USB2/3->SATA, USB-C->SATA
     "0x2109:0x071[567]",
