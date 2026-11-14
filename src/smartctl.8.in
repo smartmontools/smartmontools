@@ -578,23 +578,40 @@ For PERC2/3/4 controllers: \fBmegadevN\fP
 For PERC5/6 controllers: \fBmegaraid_sas_ioctlN\fP
 .Sp
 .\" %ENDIF OS Linux
-.\" %IF OS Linux
+.\" %IF OS FreeBSD Linux
 .I mpi3mr,N
 - [NEW EXPERIMENTAL SMARTCTL 8.0 FEATURE]
-\- [Linux only] the device consists of one or more SCSI/SAS, SATA or NVMe disks
-connected to a Broadcom MPI3 RAID controller (for example Dell PERC H965i or
-MegaRAID 96xx).
+\- [FreeBSD and Linux only] the device consists of one or more SCSI/SAS, SATA
+or NVMe disks connected to a Broadcom MPI3 RAID controller (for example Dell
+PERC H965i or MegaRAID 96xx).
 The non-negative integer N denotes which disk on the controller is monitored.
 Use syntax such as:
+.\" %ENDIF OS FreeBSD Linux
+.\" %IF OS ALL
+.br
+FreeBSD:
+.\" %ENDIF OS ALL
+.\" %IF OS FreeBSD
+.br
+\fBsmartctl \-a \-d mpi3mr,0 /dev/mpi3mr0\fP
+.br
+It is possible to set RAID device name as /dev/mpi3mrN, where N is the
+controller instance.
+.Sp
+.\" %ENDIF OS FreeBSD
+.\" %IF OS ALL
+Linux:
+.\" %ENDIF OS ALL
+.\" %IF OS Linux
 .br
 \fBsmartctl \-a \-d mpi3mr,0 /dev/bus/0\fP
 .br
 It is possible to set RAID device name as /dev/bus/N, where N is a SCSI bus
 number.
-.sp
+.br
 The device node \fB/dev/bsg/mpi3mrctlN\fP must exist, where N is the
 controller ID.
-.sp
+.Sp
 .\" %ENDIF OS Linux
 .\" %IF OS Linux Windows Cygwin
 .I aacraid,H,L,ID

@@ -422,4 +422,62 @@ enum mpi3mr_bsg_cmd_type {
     MPI3MR_MPT_CMD = 2,
 };
 
+/* FreeBSD ioctl interface, see sys/dev/mpi3mr/mpi3mr_app.h */
+struct mpi3mr_ioctl_drvcmd {
+    uint8_t    mrioc_id;
+    uint8_t    opcode;
+    uint16_t   rsvd1;
+    uint32_t   rsvd2;
+    void *     data_in_buf;
+    void *     data_out_buf;
+    uint32_t   data_in_size;
+    uint32_t   data_out_size;
+};
+
+struct mpi3mr_ioctl_mptcmd {
+    uint8_t    mrioc_id;
+    uint8_t    rsvd1;
+    uint16_t   timeout;
+    uint16_t   rsvd2;
+    uint16_t   mpi_msg_size; /* in dwords */
+    void *     mpi_msg_buf;
+    void *     buf_entry_list;
+    uint32_t   buf_entry_list_size;
+};
+
+struct mpi3mr_ioctl_buf_entry {
+    uint8_t    buf_type;
+    uint8_t    rsvd1;
+    uint16_t   rsvd2;
+    uint32_t   buf_len;
+    void *     buffer;
+};
+
+struct mpi3mr_ioctl_buf_entry_list {
+    uint8_t    num_of_buf_entries;
+    uint8_t    rsvd1;
+    uint16_t   rsvd2;
+    uint32_t   rsvd3;
+    struct mpi3mr_ioctl_buf_entry buf_entry[1];
+};
+
+enum mpi3mr_ioctl_mpibuffer_type {
+    MPI3MR_IOCTL_BUFTYPE_UNKNOWN,
+    MPI3MR_IOCTL_BUFTYPE_RAIDMGMT_CMD,
+    MPI3MR_IOCTL_BUFTYPE_RAIDMGMT_RESP,
+    MPI3MR_IOCTL_BUFTYPE_DATA_IN,
+    MPI3MR_IOCTL_BUFTYPE_DATA_OUT,
+    MPI3MR_IOCTL_BUFTYPE_MPI_REPLY,
+    MPI3MR_IOCTL_BUFTYPE_ERR_RESPONSE,
+};
+
+enum mpi3mr_ioctl_mpireply_type {
+    MPI3MR_IOCTL_MPI_REPLY_BUFTYPE_UNKNOWN,
+    MPI3MR_IOCTL_MPI_REPLY_BUFTYPE_STATUS,
+    MPI3MR_IOCTL_MPI_REPLY_BUFTYPE_ADDRESS,
+};
+
+#define MPI3MR_DRVRIOCTL_OPCODE_ALLTGTDEVINFO   4
+#define MPI3MR_IOCTL_DEFAULT_TIMEOUT            10
+
 #endif /* MPI3MR_H */
