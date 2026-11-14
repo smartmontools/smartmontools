@@ -959,7 +959,7 @@ bool freebsd_megaraid_device::megasas_cmd(int cdbLen, void *cdb,
 #define MPI3MRDRVCMD _IOWR('B', 1, struct mpi3mr_ioctl_drvcmd)
 #define MPI3MRMPTCMD _IOWR('B', 2, struct mpi3mr_ioctl_mptcmd)
 
-// Query target list of controller, returns number of entries or -1
+// Query target list, returns entry count or -1
 static int mpi3mr_get_tgt_list(int fd, unsigned mrioc_id,
   std::vector<uint8_t> & list_buffer)
 {
@@ -968,7 +968,7 @@ static int mpi3mr_get_tgt_list(int fd, unsigned mrioc_id,
   drv.mrioc_id = (uint8_t)mrioc_id;
   drv.opcode = MPI3MR_DRVRIOCTL_OPCODE_ALLTGTDEVINFO;
 
-  // A 32-bit buffer is required to query the number of devices
+  // 32-bit buffer is required to query the count
   uint32_t num_devices = 0;
   drv.data_in_buf = &num_devices;
   drv.data_in_size = sizeof(num_devices);
@@ -985,8 +985,31 @@ static int mpi3mr_get_tgt_list(int fd, unsigned mrioc_id,
   if (ioctl(fd, MPI3MRDRVCMD, &drv) < 0)
     return -1;
 
-  return (int)reinterpret_cast<struct mpi3mr_all_tgt_info *>(
-    list_buffer.data())->num_devices;
+  const struct mpi3mr_all_tgt_info * list =
+    reinterpret_cast<const struct mpi3mr_all_tgt_info *>(list_buffer.data());
+  if (list->num_devices > num_devices) {
+    // List changed since count query
+    errno = EAGAIN;
+    return -1;
+  }
+  return (int)list->num_devices;
+}
+
+// Get handle of disk from adapter, -1 if not found
+static int mpi3mr_find_target(int fd, unsigned mrioc_id, unsigned disknum,
+  std::vector<uint8_t> & list_buffer)
+{
+  int n = mpi3mr_get_tgt_list(fd, mrioc_id, list_buffer);
+  if (n < 1)
+    return -1;
+
+  const struct mpi3mr_all_tgt_info * list =
+    reinterpret_cast<const struct mpi3mr_all_tgt_info *>(list_buffer.data());
+  for (int i = 0; i < n; i++) {
+    if (disknum == list->dmi[i].perst_id)
+      return (int)list->dmi[i].handle;
+  }
+  return -1;
 }
 
 class freebsd_mpi3mr_device
@@ -1029,8 +1052,8 @@ freebsd_mpi3mr_device::freebsd_mpi3mr_device(smart_interface *intf,
 
 freebsd_mpi3mr_device::~freebsd_mpi3mr_device()
 {
-  if (m_fd >= 0)
-    ::close(m_fd);
+  // Also clears the base class descriptor copy
+  close();
 }
 
 smart_device * freebsd_mpi3mr_device::autodetect_open()
@@ -1103,8 +1126,26 @@ bool freebsd_mpi3mr_device::mpi3mr_get_devhandle()
 {
   std::vector<uint8_t> list_buffer;
   int n = mpi3mr_get_tgt_list(m_fd, m_mrioc_id, list_buffer);
-  if (n < 0)
+
+  if (n < 0 && errno != ENODEV)
     return set_err(errno, "mpi3mr: cannot get target list");
+
+  if (n < 0) {
+    // Adapter index may differ from unit after reattach
+    int handle = -1;
+    for (unsigned slot = 0; handle < 0 && slot < 32; slot++) {
+      if (slot == m_mrioc_id)
+        continue;
+      handle = mpi3mr_find_target(m_fd, slot, m_disknum, list_buffer);
+      if (handle >= 0)
+        m_mrioc_id = slot;
+    }
+    if (handle < 0)
+      return set_err(ENODEV, "mpi3mr: disk %u not found", m_disknum);
+    m_diskhandle = (unsigned int)handle;
+    return true;
+  }
+
   if (n < 1)
     return set_err(ENODEV, "mpi3mr: no target devices");
 
@@ -1150,12 +1191,14 @@ bool freebsd_mpi3mr_device::mpi3mr_cmd(scsi_cmnd_io * iop)
       return set_err(EINVAL, "mpi3mr: bad dxfer_dir");
   }
 
-  // MPI SCSI IO request, the SGLs are added by the driver
+  // SGLs are added by the driver
   struct mpi3_scsi_io_request req;
   memset(&req, 0, sizeof(req));
   req.function = MPI3_FUNCTION_SCSI_IO;
   req.dev_handle = (uint16_t)m_diskhandle;
   req.flags = dir_flag;
+  if (iop->cmnd_len > 16)
+    req.flags |= MPI3_SCSIIO_FLAGS_CDB_GREATER_THAN_16;
   req.data_length = data_len;
   memcpy(req.cdb.cdb32, iop->cmnd, iop->cmnd_len);
 
@@ -1222,7 +1265,7 @@ bool freebsd_mpi3mr_device::mpi3mr_cmd(scsi_cmnd_io * iop)
       sense_count = sg_get_unaligned_le32(rep + offsetof(MPI3_SCSI_IO_REPLY, SenseCount));
       break;
     case MPI3MR_IOCTL_MPI_REPLY_BUFTYPE_STATUS: {
-      // MPI3 status descriptor, assembled by the kernel driver in host order
+      // Status descriptor, host byte order
       uint16_t status;
       memcpy(&status, rep, sizeof(status));
       ioc_status = status;
@@ -1232,7 +1275,7 @@ bool freebsd_mpi3mr_device::mpi3mr_cmd(scsi_cmnd_io * iop)
       return set_err(EIO, "mpi3mr: unknown MPI reply type %u", (unsigned)reply_buf[0]);
   }
 
-  // Data underrun and residual mismatch are normal SCSI completions
+  // Underrun/residual mismatch are normal completions
   const uint16_t ioc = ioc_status & MPI3_IOCSTATUS_STATUS_MASK;
   if (   ioc != MPI3_IOCSTATUS_SUCCESS
       && ioc != MPI3_IOCSTATUS_SCSI_DATA_UNDERRUN
@@ -1240,8 +1283,7 @@ bool freebsd_mpi3mr_device::mpi3mr_cmd(scsi_cmnd_io * iop)
       && !iop->scsi_status && !sense_count)
     return set_err(EIO, "mpi3mr: IOC status 0x%04x", ioc);
 
-  // A success status descriptor has no reply frame and no residual,
-  // i.e. the full transfer was done.
+  // Success status descriptor means full transfer
   if (data_len) {
     unsigned n = data_len;
     if (reply_buf[0] == MPI3MR_IOCTL_MPI_REPLY_BUFTYPE_ADDRESS && xfer_count < n)
@@ -2318,7 +2360,7 @@ bool freebsd_smart_interface::scan_smart_devices(smart_device_list & devlist,
   // add devices from LSI MegaRaid controllers
   get_dev_megaraid(devlist);
 
-  if (!type || !strcmp(type, "mpi3mr"))
+  if (!*type || !strcmp(type, "mpi3mr"))
     get_dev_mpi3mr(devlist);
 
   if (scan_nvme)
@@ -2362,7 +2404,7 @@ bool freebsd_smart_interface::get_dev_megaraid(smart_device_list & devlist)
   return true;
 }
 
-// getting devices from Broadcom MPI3 RAID controllers, if available
+// Get devices from MPI3 RAID controllers
 bool freebsd_smart_interface::get_dev_mpi3mr(smart_device_list & devlist)
 {
   char ctrlpath[64];
