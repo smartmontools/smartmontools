@@ -463,8 +463,13 @@ smart_device * smart_interface::get_smart_device(const char * name, const char *
 
   if (!strcmp(type, "ata"))
     dev = get_ata_device(name, type);
-  else if (!strcmp(type, "scsi"))
-    dev = get_scsi_device(name, type);
+  else if (!strcmp(type, "scsi")) {
+    if (!strcmp(name, "-"))
+      // Replay SCSI trace from stdin, also used as base device of SAT/SNT tunnels
+      dev = get_trace_scsi_device(this, name);
+    else
+      dev = get_scsi_device(name, type);
+  }
 
   else if (str_starts_with(type, "nvme")) {
     int n1 = -1, n2 = -1, len = strlen(type);

@@ -1648,14 +1648,20 @@ static int main_worker(int argc, char **argv)
   const char * name = argv[argc-1];
 
   smart_device_auto_ptr dev;
-  if (!strcmp(name,"-")) {
+  if (!strcmp(name,"-") && !type) {
     // Parse "smartctl -r ataioctl,2 ..." output from stdin
-    if (type || print_type_only) {
-      pout("-d option is not allowed in conjunction with device name \"-\".\n");
+    if (print_type_only) {
+      pout("-d option is required in conjunction with device name \"-\" and --identify=t.\n");
       UsageSummary();
       return FAILCMD;
     }
     dev = get_parsed_ata_device(smi(), name);
+  }
+  else if (!strcmp(name,"-") && !(!strcmp(type, "scsi") || str_starts_with(type, "sat")
+                                  || str_starts_with(type, "snt"))) {
+    pout("-d %s is not allowed in conjunction with device name \"-\".\n", type);
+    UsageSummary();
+    return FAILCMD;
   }
   else
     // get device of appropriate type

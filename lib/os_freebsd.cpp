@@ -845,11 +845,13 @@ bool freebsd_megaraid_device::scsi_pass_through(scsi_cmnd_io *iop)
             j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "%02x ", ucp[k]);
         if ((report > 1) &&
             (DXFER_TO_DEVICE == iop->dxfer_dir) && (iop->dxferp)) {
-            int trunc = (iop->dxfer_len > 256) ? 1 : 0;
+            int trunc = (report < 4 && iop->dxfer_len > 256) ? 1 : 0;
 
             snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n  Outgoing "
                      "data, len=%d%s:\n", (int)iop->dxfer_len,
                      (trunc ? " [only first 256 bytes shown]" : ""));
+            lib_printf("%s", buff); // header before data
+            buff[0] = 0;
             dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
         }
         else
@@ -1209,7 +1211,7 @@ bool freebsd_scsi_device::scsi_pass_through(scsi_cmnd_io * iop)
       lib_printf("%02x ", ucp[k]);
     if ((scsi_debugmode > 1) && 
       (DXFER_TO_DEVICE == iop->dxfer_dir) && (iop->dxferp)) {
-    int trunc = (iop->dxfer_len > 256) ? 1 : 0;
+    int trunc = (scsi_debugmode < 4 && iop->dxfer_len > 256) ? 1 : 0;
 
     lib_printf("]\n  Outgoing data, len=%d%s:\n", (int)iop->dxfer_len,
       (trunc ? " [only first 256 bytes shown]" : ""));
@@ -1280,7 +1282,7 @@ bool freebsd_scsi_device::scsi_pass_through(scsi_cmnd_io * iop)
       int trunc, len;
 
       len = iop->dxfer_len - ccb->csio.resid;
-      trunc = (len > 256) ? 1 : 0;
+      trunc = (scsi_debugmode < 4 && len > 256) ? 1 : 0;
       if (len > 0) {
         lib_printf("  Incoming data, len=%d%s:\n", len,
              (trunc ? " [only first 256 bytes shown]" : ""));

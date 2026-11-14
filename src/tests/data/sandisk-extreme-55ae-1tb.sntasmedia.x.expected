@@ -1,0 +1,70 @@
+
+=== START OF INFORMATION SECTION ===
+Model Number:                       Western Digital SN560E
+Serial Number:                      24254C806931
+Firmware Version:                   232091WD
+PCI Vendor/Subsystem ID:            0x15b7
+IEEE OUI Identifier:                0x001b44
+Total NVM Capacity:                 1,000,204,886,016 [1.00 TB]
+Unallocated NVM Capacity:           0
+Controller ID:                      0
+NVMe Version:                       1.4
+Number of Namespaces:               1
+Namespace 1 Size/Capacity:          1,000,204,886,016 [1.00 TB]
+Namespace 1 Formatted LBA Size:     512
+Namespace 1 IEEE EUI-64:            001b44 8b408928f7
+Local Time is:                      Thu Oct 22 18:31:25 2026 UTC
+Firmware Updates (0x14):            2 Slots, no Reset required
+Optional Admin Commands (0x0017):   Security Format Frmw_DL Self_Test
+Optional NVM Commands (0x005f):     Comp Wr_Unc DS_Mngmt Wr_Zero Sav/Sel_Feat Timestmp
+Log Page Attributes (0x1e):         Cmd_Eff_Lg Ext_Get_Lg Telmtry_Lg Pers_Ev_Lg
+Maximum Data Transfer Size:         128 Pages
+Warning  Comp. Temp. Threshold:     91 Celsius
+Critical Comp. Temp. Threshold:     95 Celsius
+Namespace 1 Features (0x02):        NA_Fields
+
+Supported Power States
+St Op     Max   Active     Idle   RL RT WL WT  Ent_Lat  Ex_Lat
+ 0 +     3.50W    2.90W       -    0  0  0  0        0       0
+ 1 +     2.70W    2.30W       -    0  0  0  0        0       0
+ 2 +     1.90W    1.80W       -    0  0  0  0        0       0
+ 3 -   0.0250W       -        -    3  3  3  3     3900   11000
+ 4 -   0.0050W       -        -    4  4  4  4     5000   44000
+
+Supported LBA Sizes (NSID 0x1)
+Id Fmt  Data  Metadt  Rel_Perf
+ 0 +     512       0         2
+ 1 -    4096       0         1
+
+=== START OF SMART DATA SECTION ===
+SMART overall-health self-assessment test result: PASSED
+
+SMART/Health Information (NVMe Log 0x02, NSID 0xffffffff)
+Critical Warning:                   0x00
+Temperature:                        31 Celsius
+Available Spare:                    100%
+Available Spare Threshold:          10%
+Percentage Used:                    0%
+Data Units Read:                    253,505 [129 GB]
+Data Units Written:                 494,012 [252 GB]
+Host Read Commands:                 2,146,770
+Host Write Commands:                3,926,767
+Controller Busy Time:               15
+Power Cycles:                       520
+Power On Hours:                     3
+Unsafe Shutdowns:                   143
+Media and Data Integrity Errors:    0
+Error Information Log Entries:      1
+Warning  Comp. Temperature Time:    0
+Critical Comp. Temperature Time:    0
+
+Warning: Error Information truncated to 8 entries to prevent device reset
+Error Information (NVMe Log 0x01, 16 of 256 entries)
+No Errors Logged
+
+Warning: Self-test Log truncated to 18 entries to prevent device reset
+Self-test Log (NVMe Log 0x06, NSID 0xffffffff)
+Self-test status: No self-test in progress
+Num  Test_Description  Status                       Power_on_Hours  Failing_LBA  NSID Seg SCT Code
+ 0   Extended          Completed without error                   3            -     -   -   -    -
+
