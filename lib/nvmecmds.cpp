@@ -173,8 +173,13 @@ unsigned nvme_read_log_page(nvme_device * device, unsigned nsid, unsigned char l
     // Limit transfer size to one page to avoid problems with
     // limits of NVMe pass-through layer or too low MDTS values.
     bs = size - n;
-    if (bs > 0x1000)
-      bs = 0x1000;
+    unsigned limit = device->get_log_page_size_limit();
+    if (limit < 4 || limit > 0x1000 || limit % 4) {
+      device->set_err(EINVAL, "Invalid NVMe log transfer limit %u", limit);
+      break;
+    }
+    if (bs > limit)
+      bs = limit;
     if (!nvme_read_log_page_1(device, nsid, lid, (char *)data + n, bs, offset + n))
       break;
   }
