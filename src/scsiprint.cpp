@@ -2936,8 +2936,8 @@ scsiGetDriveInfo(scsi_device * device, uint8_t * peripheral_type,
         int lbpme = -1;
         int lbprz = -1;
         unsigned char lb_prov_resp[8];
-        uint64_t capacity = scsiGetSize(device, false /*avoid_rcap16 */,
-                                        &srr);
+        uint64_t capacity = (peri_dt == SCSI_PT_CDROM ? 0 :
+                             scsiGetSize(device, false /*avoid_rcap16*/, &srr));
         static const char * lb_prov_j = "scsi_lb_provisioning";
 
         if (capacity) {
