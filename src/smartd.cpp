@@ -6228,13 +6228,13 @@ static int ReadOrMakeConfigEntries(dev_config_vector & conf_entries, smart_devic
 }
 
 // Register one device, return false on error
-static bool register_device(dev_config & cfg, dev_state & state, smart_device_auto_ptr & dev,
-                            const dev_config_vector * prev_cfgs)
+static bool register_device(dev_config & cfg, dev_state & state,
+  std::unique_ptr<smart_device> & dev, const dev_config_vector * prev_cfgs)
 {
   bool scanning;
   if (!dev) {
     // Get device of appropriate type
-    dev = smi()->get_smart_device(cfg.name.c_str(), cfg.dev_type.c_str());
+    dev.reset(smi()->get_smart_device(cfg.name.c_str(), cfg.dev_type.c_str()));
     if (!dev) {
       if (cfg.dev_type.empty())
         PrintOut(LOG_INFO, "Device: %s, unable to autodetect device type\n", cfg.name.c_str());
@@ -6253,7 +6253,7 @@ static bool register_device(dev_config & cfg, dev_state & state, smart_device_au
   smart_device::device_info oldinfo = dev->get_info();
 
   // Open with autodetect support, may return 'better' device
-  dev.replace( dev->autodetect_open() );
+  smart_device::autodetect_open(dev);
 
   // Report if type has changed
   if (oldinfo.dev_type != dev->get_dev_type())
@@ -6346,12 +6346,12 @@ static bool register_devices(const dev_config_vector & conf_entries, smart_devic
       continue;
     }
 
-    smart_device_auto_ptr dev;
+    std::unique_ptr<smart_device> dev{};
 
     // Device may already be detected during devicescan
     bool scanning = false;
     if (i < scanned_devs.size()) {
-      dev = scanned_devs.release(i);
+      dev.reset(scanned_devs.release(i));
       if (dev) {
         // Check for a preceding non-DEVICESCAN entry for the same device
         prev_unique_names_map::iterator ui = prev_unique_names.find(unique_name);

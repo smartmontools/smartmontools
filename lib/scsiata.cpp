@@ -1425,7 +1425,7 @@ ata_device * smart_interface::get_sat_device(const char * type, scsi_device * sc
     throw std::logic_error("smart_interface: get_sat_device() called with scsidev=0");
 
   // Take temporary ownership of 'scsidev' to delete it on error
-  scsi_device_auto_ptr scsidev_holder(scsidev);
+  std::unique_ptr<scsi_device> scsidev_holder{ scsidev };
   ata_device * satdev = nullptr;
 
   if (str_starts_with(type, "sat")) {
@@ -1508,11 +1508,20 @@ ata_device * smart_interface::autodetect_sat_device(scsi_device * scsidev,
 
   // SAT ?
   if (inqdata && inqsize >= 36 && !memcmp(inqdata + 8, "ATA     ", 8)) {
-    // TODO: Linux-specific? No, all SAT standards say the 'T10 Vendor
-    // Identification' field shall be 'ATA     '.
-    ata_device_auto_ptr atadev( new sat_device(this, scsidev, "") , scsidev);
-    if (has_sat_pass_through(atadev.get()))
-      return atadev.release(); // Detected SAT
+    std::unique_ptr<ata_device> satdev{ new sat_device(this, scsidev, "") };
+    // 'scsidev' is now owned by 'atadev'
+    bool sat;
+    try {
+      sat = has_sat_pass_through(satdev.get());
+    }
+    catch (...) {
+      satdev->release(scsidev);
+      throw;
+    }
+    if (sat)
+      return satdev.release(); // Detected SAT
+    // Keep 'scsidev'
+    satdev->release(scsidev);
   }
 
   return 0;

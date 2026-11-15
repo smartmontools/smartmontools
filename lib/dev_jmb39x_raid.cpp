@@ -781,7 +781,7 @@ ata_device * smart_interface::get_jmb39x_device(const char * type, smart_device 
 {
   jmbassert(smartdev != 0);
   // Take temporary ownership of 'smartdev' to delete it on error
-  smart_device_auto_ptr smartdev_holder(smartdev);
+  std::unique_ptr<smart_device> smartdev_holder{ smartdev };
   jmb_check_funcs();
 
   // Base device must be ATA or SCSI

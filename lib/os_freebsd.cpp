@@ -1408,7 +1408,7 @@ smart_device * freebsd_areca_ata_device::autodetect_open()
   }
 
   // SAS device
-  smart_device_auto_ptr newdev(new freebsd_areca_scsi_device(smi(), get_dev_name(), get_disknum(), get_encnum()));
+  std::unique_ptr<smart_device> newdev{ new freebsd_areca_scsi_device(smi(), get_dev_name(), get_disknum(), get_encnum()) };
   close();
   delete this;
   newdev->open();	// TODO: Can possibly pass open fd

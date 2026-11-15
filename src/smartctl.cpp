@@ -1577,12 +1577,12 @@ void scan_devices(const smart_devtype_list & types, bool with_open, char ** argv
   }
 
   for (unsigned i = 0; i < devlist.size(); i++) {
-    smart_device_auto_ptr dev( devlist.release(i) );
+    std::unique_ptr<smart_device> dev{ devlist.release(i) };
     json::ref jref = jglb["devices"][i];
 
     if (with_open) {
       printing_is_off = dont_print;
-      dev.replace ( dev->autodetect_open() );
+      smart_device::autodetect_open(dev);
       printing_is_off = false;
     }
 
@@ -1647,7 +1647,7 @@ static int main_worker(int argc, char **argv)
 
   const char * name = argv[argc-1];
 
-  smart_device_auto_ptr dev;
+  std::unique_ptr<smart_device> dev{};
   if (!strcmp(name,"-")) {
     // Parse "smartctl -r ataioctl,2 ..." output from stdin
     if (type || print_type_only) {
@@ -1655,11 +1655,11 @@ static int main_worker(int argc, char **argv)
       UsageSummary();
       return FAILCMD;
     }
-    dev = get_parsed_ata_device(smi(), name);
+    dev.reset(get_parsed_ata_device(smi(), name));
   }
   else
     // get device of appropriate type
-    dev = smi()->get_smart_device(name, type);
+    dev.reset(smi()->get_smart_device(name, type));
 
   if (!dev) {
     jerr("%s: %s\n", name, smi()->get_errmsg());
@@ -1687,7 +1687,7 @@ static int main_worker(int argc, char **argv)
     smart_device::device_info oldinfo = dev->get_info();
 
     // Open with autodetect support, may return 'better' device
-    dev.replace( dev->autodetect_open() );
+    smart_device::autodetect_open(dev);
 
     // Report if type has changed
     if (   (ata_debugmode || scsi_debugmode || nvme_debugmode || print_type_only)

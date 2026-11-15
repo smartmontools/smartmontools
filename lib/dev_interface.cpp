@@ -485,7 +485,7 @@ smart_device * smart_interface::get_smart_device(const char * name, const char *
     // Recurse to allocate base device, default is standard SCSI
     if (!*basetype)
       basetype = "scsi";
-    smart_device_auto_ptr basedev( get_smart_device(name, basetype) );
+    std::unique_ptr<smart_device> basedev{ get_smart_device(name, basetype) };
     if (!basedev)
       return set_err_np(EINVAL, "Type '%s+...': %s", sattype.c_str(), get_errmsg());
     // Result must be SCSI
@@ -496,7 +496,7 @@ smart_device * smart_interface::get_smart_device(const char * name, const char *
   }
 
   else if (str_starts_with(type, "snt") || str_starts_with(type, "sat/snt")) {
-    smart_device_auto_ptr basedev( get_smart_device(name, "scsi") );
+    std::unique_ptr<smart_device> basedev{ get_smart_device(name, "scsi") };
     if (!basedev)
       return set_err_np(EINVAL, "Type '%s': %s", type, get_errmsg());
 
@@ -511,7 +511,7 @@ smart_device * smart_interface::get_smart_device(const char * name, const char *
     // Recurse to allocate base device, default is standard SCSI
     if (!*basetype)
       basetype = "scsi";
-    smart_device_auto_ptr basedev( get_smart_device(name, basetype) );
+    std::unique_ptr<smart_device> basedev{ get_smart_device(name, basetype) };
     if (!basedev)
       return set_err_np(EINVAL, "Type '%s+...': %s", jmbtype.c_str(), get_errmsg());
     // Attach JMB39x tunnel
@@ -526,7 +526,7 @@ smart_device * smart_interface::get_smart_device(const char * name, const char *
     // Recurse to allocate base device, default is standard ATA
     if (!*basetype)
       basetype = "ata";
-    smart_device_auto_ptr basedev( get_smart_device(name, basetype) );
+    std::unique_ptr<smart_device> basedev{ get_smart_device(name, basetype) };
     if (!basedev)
       return set_err_np(EINVAL, "Type '%s': %s", type, get_errmsg());
     // Result must be ATA

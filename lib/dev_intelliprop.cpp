@@ -292,7 +292,7 @@ bool intelliprop_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & o
 ata_device * smart_interface::get_intelliprop_device(const char * type, ata_device * atadev)
 {
   // Take temporary ownership of 'atadev' to delete it on error
-  ata_device_auto_ptr atadev_holder(atadev);
+  std::unique_ptr<ata_device> atadev_holder{ atadev };
 
   unsigned phydrive = ~0; int n = -1;
   sscanf(type, "intelliprop,%u,force%n", &phydrive, &n);

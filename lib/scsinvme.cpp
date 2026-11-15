@@ -504,7 +504,7 @@ nvme_device * smart_interface::get_snt_device(const char * type, scsi_device * s
   }
 
   // Take temporary ownership of 'scsidev' to delete it on error
-  scsi_device_auto_ptr scsidev_holder(scsidev);
+  std::unique_ptr<scsi_device> scsidev_holder{ scsidev };
   nvme_device * sntdev = nullptr;
 
   if (!strcmp(snt_type, "sntasmedia")) {
