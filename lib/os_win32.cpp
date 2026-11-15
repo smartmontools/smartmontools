@@ -2278,7 +2278,7 @@ bool csmi_ata_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
     return false;
 
   // Create buffer with appropriate size
-  raw_buffer pthru_raw_buf(sizeof(CSMI_SAS_STP_PASSTHRU_BUFFER) + in.size);
+  std::vector<uint8_t> pthru_raw_buf(sizeof(CSMI_SAS_STP_PASSTHRU_BUFFER) + in.size);
   CSMI_SAS_STP_PASSTHRU_BUFFER * pthru_buf = (CSMI_SAS_STP_PASSTHRU_BUFFER *)pthru_raw_buf.data();
 
   // Set addresses from Phy info
@@ -3494,14 +3494,14 @@ bool win_aacraid_device::scsi_pass_through(struct scsi_cmnd_io *iop)
   // Create buffer with appropriate size
   constexpr unsigned scsiRequestBlockSize = sizeof(SCSI_REQUEST_BLOCK);
   constexpr unsigned dataOffset = (sizeof(SRB_IO_CONTROL) + scsiRequestBlockSize + 7) & 0xfffffff8;
-  raw_buffer pthru_raw_buf(dataOffset + iop->dxfer_len + 8); // 32|64-bit: 96|120 + ...
+  std::vector<char> pthru_raw_buf(dataOffset + iop->dxfer_len + 8); // 32|64-bit: 96|120 + ...
 
-  char * ioBuffer = reinterpret_cast<char *>(pthru_raw_buf.data());
+  char * ioBuffer = pthru_raw_buf.data();
   SRB_IO_CONTROL * pSrbIO = (SRB_IO_CONTROL *) ioBuffer;
   SCSI_REQUEST_BLOCK * pScsiIO = (SCSI_REQUEST_BLOCK *) (ioBuffer + sizeof(SRB_IO_CONTROL));
   char *pRequestSenseIO = (char *) (ioBuffer + sizeof(SRB_IO_CONTROL) + scsiRequestBlockSize);
   char *pDataIO = (char *) (ioBuffer + dataOffset);
-  memset(pScsiIO, 0, scsiRequestBlockSize);
+  *pScsiIO = {};
   pScsiIO->Length    = (USHORT) scsiRequestBlockSize;
   pScsiIO->Function  = SRB_FUNCTION_EXECUTE_SCSI;
   pScsiIO->PathId    = 0;
@@ -3742,7 +3742,7 @@ bool win_nvme_device::open()
 bool win_nvme_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out & out)
 {
   // Create buffer with appropriate size
-  raw_buffer pthru_raw_buf(offsetof(NVME_PASS_THROUGH_IOCTL, DataBuffer) + in.size);
+  std::vector<uint8_t> pthru_raw_buf(offsetof(NVME_PASS_THROUGH_IOCTL, DataBuffer) + in.size);
   NVME_PASS_THROUGH_IOCTL * pthru =
     reinterpret_cast<NVME_PASS_THROUGH_IOCTL *>(pthru_raw_buf.data());
 
@@ -3908,7 +3908,7 @@ struct STORAGE_PROTOCOL_SPECIFIC_QUERY_WITH_BUFFER
 bool win10_nvme_device::nvme_storage_query_property(const nvme_cmd_in & in, nvme_cmd_out & out)
 {
   // Create buffer with appropriate size
-  raw_buffer spsq_raw_buf(offsetof(STORAGE_PROTOCOL_SPECIFIC_QUERY_WITH_BUFFER, DataBuffer) + in.size);
+  std::vector<uint8_t> spsq_raw_buf(offsetof(STORAGE_PROTOCOL_SPECIFIC_QUERY_WITH_BUFFER, DataBuffer) + in.size);
   STORAGE_PROTOCOL_SPECIFIC_QUERY_WITH_BUFFER * spsq =
     reinterpret_cast<STORAGE_PROTOCOL_SPECIFIC_QUERY_WITH_BUFFER *>(spsq_raw_buf.data());
 

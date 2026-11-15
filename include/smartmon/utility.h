@@ -200,34 +200,6 @@ void realloc_malloced_ptr(unique_malloced_ptr<T[]> & ptr, size_t size)
     throw std::bad_alloc();
 }
 
-// Wrapper class for a raw data buffer
-class raw_buffer
-{
-public:
-  explicit raw_buffer(unsigned sz, unsigned char val = 0)
-    : m_data(new unsigned char[sz]),
-      m_size(sz)
-    { memset(m_data, val, m_size); }
-
-  ~raw_buffer()
-    { delete [] m_data; }
-
-  unsigned size() const
-    { return m_size; }
-
-  unsigned char * data()
-    { return m_data; }
-  const unsigned char * data() const
-    { return m_data; }
-
-private:
-  unsigned char * m_data;
-  unsigned m_size;
-
-  raw_buffer(const raw_buffer &);
-  void operator=(const raw_buffer &);
-};
-
 /// Wrapper class for FILE *.
 class stdio_file
 {

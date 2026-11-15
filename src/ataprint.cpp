@@ -2055,7 +2055,7 @@ static bool print_device_statistics(ata_device * device, unsigned nsectors,
           max_page = page;
       }
 
-    raw_buffer pages_buf((max_page+1) * 512);
+    std::vector<uint8_t> pages_buf((max_page+1) * 512);
 
     if (!use_gplog && !ata_read_smart_log(device, 0x04, pages_buf.data(), max_page+1)) {
       jerr("Read Device Statistics pages 0x00-0x%02x failed\n\n", max_page);
@@ -4378,7 +4378,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
     // SMART log don't support sector offset, start with first sector
     unsigned offs = (req.gpl ? 0 : req.page);
 
-    raw_buffer log_buf((offs + ns) * 512);
+    std::vector<uint8_t> log_buf((offs + ns) * 512);
     bool ok;
     if (req.gpl)
       ok = ata_read_log_ext(device, req.logaddr, 0x00, req.page, log_buf.data(), ns);
@@ -4453,7 +4453,7 @@ int ataPrintMain (ata_device * device, const ata_print_options & options)
     else if (nsectors >= 256)
       pout("SMART Extended Self-test Log size %u not supported\n\n", nsectors);
     else {
-      raw_buffer log_07_buf(nsectors * 512);
+      std::vector<uint8_t> log_07_buf(nsectors * 512);
       ata_smart_extselftestlog * log_07 = reinterpret_cast<ata_smart_extselftestlog *>(log_07_buf.data());
       if (!ata_read_smart_ext_self_test_log(device, log_07, (uint16_t)nsectors)) {
         pout("Read SMART Extended Self-test Log failed\n\n");

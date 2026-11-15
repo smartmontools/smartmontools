@@ -3007,7 +3007,7 @@ static bool check_nvme_error_log(const dev_config & cfg, dev_state & state, nvme
   unsigned want_entries = 64;
   if (want_entries > cfg.nvme_err_log_max_entries)
     want_entries = cfg.nvme_err_log_max_entries;
-  raw_buffer error_log_buf(want_entries * sizeof(nvme_error_log_page));
+  std::vector<uint8_t> error_log_buf(want_entries * sizeof(nvme_error_log_page));
   nvme_error_log_page * error_log =
     reinterpret_cast<nvme_error_log_page *>(error_log_buf.data());
   unsigned read_entries = nvme_read_error_log(nvmedev, error_log, want_entries, false /*!lpo_sup*/);

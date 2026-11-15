@@ -869,7 +869,7 @@ int nvmePrintMain(nvme_device * device, const nvme_print_options & options)
       unsigned want_entries = options.error_log_entries;
       if (want_entries > max_entries)
         want_entries = max_entries;
-      raw_buffer error_log_buf(want_entries * sizeof(nvme_error_log_page));
+      std::vector<uint8_t> error_log_buf(want_entries * sizeof(nvme_error_log_page));
       nvme_error_log_page * error_log =
         reinterpret_cast<nvme_error_log_page *>(error_log_buf.data());
 
@@ -915,7 +915,7 @@ int nvmePrintMain(nvme_device * device, const nvme_print_options & options)
   if (options.log_page_size) {
     // Align size to dword boundary
     unsigned size = ((options.log_page_size + 4-1) / 4) * 4;
-    raw_buffer log_buf(size);
+    std::vector<uint8_t> log_buf(size);
 
     unsigned nsid;
     switch (options.log_page) {
