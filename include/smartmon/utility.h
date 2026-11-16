@@ -65,6 +65,10 @@ extern unsigned char failuretest_permissive;
 // lines: 1: version only, 2: version+copyright, >=3: full information
 std::string format_version_info(const char * prog_name, int lines = 2);
 
+// Like strncmp, but returns 1 if the length of the second argument is not n.
+// The second argument must be null-terminated.
+bool strncmp_full(const char * buf, const char * str, size_t n);
+
 // return (v)sprintf() formatted std::string
 std::string strprintf(const char * fmt, ...)
   SMARTMON_FORMAT_PRINTF(1, 2);
