@@ -176,17 +176,31 @@ bool sntasmedia_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out &
   cdb[14] = (uint8_t)(in.cdw12 >> 8);
   cdb[15] = (uint8_t)in.cdw12;
 
+  // The CDB has no transfer length field.  Some firmware ignores NUMD and
+  // always returns 512 bytes for Get Log Page.
+  uint8_t tmpbuf[512];
+  bool use_tmpbuf = (in.opcode == nvme_admin_get_log_page && size < sizeof(tmpbuf));
+
   scsi_cmnd_io io_hdr = {};
   io_hdr.cmnd = cdb;
   io_hdr.cmnd_len = sizeof(cdb);
   io_hdr.dxfer_dir = DXFER_FROM_DEVICE;
-  io_hdr.dxferp = (uint8_t *)in.buffer;
-  io_hdr.dxfer_len = size;
-  memset(in.buffer, 0, in.size);
+  if (use_tmpbuf) {
+    io_hdr.dxferp = tmpbuf;
+    io_hdr.dxfer_len = sizeof(tmpbuf);
+  }
+  else {
+    io_hdr.dxferp = (uint8_t *)in.buffer;
+    io_hdr.dxfer_len = size;
+  }
+  memset(io_hdr.dxferp, 0, io_hdr.dxfer_len);
 
   scsi_device * scsidev = get_tunnel_dev();
   if (!scsidev->scsi_pass_through_and_check(&io_hdr, "sntasmedia_device::nvme_pass_through: "))
     return set_err(scsidev->get_err());
+
+  if (use_tmpbuf)
+    memcpy(in.buffer, tmpbuf, size);
 
   //out.result = ?;
   return true;
