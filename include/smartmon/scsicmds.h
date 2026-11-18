@@ -19,6 +19,8 @@
 #ifndef SMARTMON_SCSICMDS_H
 #define SMARTMON_SCSICMDS_H
 
+#include <smartmon/dev_interface.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -104,32 +106,7 @@ namespace smartmon {
 #define SAT_ATA_PASSTHROUGH_16 0x85
 #endif
 
-
-#define DXFER_NONE        0
-#define DXFER_FROM_DEVICE 1
-#define DXFER_TO_DEVICE   2
-
-
-/* scsi_rsoc_elem and scsi_device is defined in dev_interface.h */
-
-struct scsi_cmnd_io
-{
-    uint8_t * cmnd;     /* [in]: ptr to SCSI command block (cdb) */
-    size_t  cmnd_len;   /* [in]: number of bytes in SCSI command */
-    int dxfer_dir;      /* [in]: DXFER_NONE, DXFER_FROM_DEVICE, or
-                                 DXFER_TO_DEVICE */
-    uint8_t * dxferp;   /* [in]: ptr to outgoing or incoming data buffer */
-    size_t dxfer_len;   /* [in]: bytes to be transferred to/from dxferp */
-    uint8_t * sensep;   /* [in]: ptr to sense buffer, filled when
-                                 CHECK CONDITION status occurs */
-    size_t max_sense_len; /* [in]: max number of bytes to write to sensep */
-    unsigned timeout;   /* [in]: seconds, 0-> default timeout (60 seconds?) */
-    size_t resp_sense_len;  /* [out]: sense buffer length written */
-    uint8_t scsi_status;  /* [out]: 0->ok, 2->CHECK CONDITION, etc ... */
-    int resid;          /* [out]: Number of bytes requested to be transferred
-                                  less actual number transferred (0 if not
-                                   supported) */
-};
+/* scsi_cmnd_io and scsi_device are defined in dev_interface.h */
 
 struct scsi_sense_disect {
     uint8_t resp_code;
@@ -383,8 +360,6 @@ Documentation, see http://www.storage.ibm.com/techsup/hddtech/prodspecs.htm */
                                             /* extended foreground self test */
 
 #define LOGPAGEHDRSIZE  4
-
-class scsi_device;
 
 // Set of supported SCSI VPD pages. Constructor fetches Supported VPD pages
 // VPD page and remembers the response for later queries.

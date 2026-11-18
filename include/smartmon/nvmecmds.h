@@ -11,14 +11,13 @@
 #ifndef SMARTMON_NVMECMDS_H
 #define SMARTMON_NVMECMDS_H
 
+#include <smartmon/dev_interface.h>
 #include <smartmon/nvme.h>
 
 #include <errno.h>
 #include <stddef.h>
 
 namespace smartmon {
-
-class nvme_device;
 
 // Broadcast namespace ID.
 constexpr uint32_t nvme_broadcast_nsid = 0xffffffffU;

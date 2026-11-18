@@ -580,7 +580,30 @@ protected:
 /////////////////////////////////////////////////////////////////////////////
 // SCSI specific interface
 
-struct scsi_cmnd_io;
+enum {
+  DXFER_NONE = 0,
+  DXFER_FROM_DEVICE = 1,
+  DXFER_TO_DEVICE = 2
+};
+
+struct scsi_cmnd_io
+{
+  uint8_t * cmnd;     /* [in]: ptr to SCSI command block (cdb) */
+  size_t  cmnd_len;   /* [in]: number of bytes in SCSI command */
+  int dxfer_dir;      /* [in]: DXFER_NONE, DXFER_FROM_DEVICE, or
+                               DXFER_TO_DEVICE */
+  uint8_t * dxferp;   /* [in]: ptr to outgoing or incoming data buffer */
+  size_t dxfer_len;   /* [in]: bytes to be transferred to/from dxferp */
+  uint8_t * sensep;   /* [in]: ptr to sense buffer, filled when
+                               CHECK CONDITION status occurs */
+  size_t max_sense_len; /* [in]: max number of bytes to write to sensep */
+  unsigned timeout;   /* [in]: seconds, 0-> default timeout (60 seconds?) */
+  size_t resp_sense_len;  /* [out]: sense buffer length written */
+  uint8_t scsi_status;  /* [out]: 0->ok, 2->CHECK CONDITION, etc ... */
+  int resid;          /* [out]: Number of bytes requested to be transferred
+                                less actual number transferred (0 if not
+                                supported) */
+};
 
 enum scsi_cmd_support
 {

@@ -12,6 +12,10 @@
 #ifndef SMARTMON_KNOWNDRIVES_H
 #define SMARTMON_KNOWNDRIVES_H
 
+#include <smartmon/atacmds.h>
+
+#include <string>
+
 namespace smartmon {
 
 // Structure to store drive database entries, see drivedb.h for a description.
