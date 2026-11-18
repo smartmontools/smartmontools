@@ -14,6 +14,7 @@
 #include <smartmon/dev_interface.h>
 
 namespace smartmon {
+SMARTMON_BEGIN_VERSION_NAMESPACE
 
 /////////////////////////////////////////////////////////////////////////////
 // tunnelled_device_base
@@ -99,6 +100,7 @@ private:
   tunnel_device_type * m_tunnel_dev;
 };
 
+SMARTMON_END_VERSION_NAMESPACE
 } // namespace smartmon
 
 #endif // DEV_TUNNELLED_H

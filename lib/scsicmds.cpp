@@ -38,6 +38,7 @@
 
 
 namespace smartmon {
+SMARTMON_BEGIN_VERSION_NAMESPACE
 
 static const char * logSenStr = "Log Sense";
 
@@ -3297,4 +3298,5 @@ scsiGetIEString(uint8_t asc, uint8_t ascq, char * b, int blen)
         return nullptr;
 }
 
+SMARTMON_END_VERSION_NAMESPACE
 } // namespace smartmon

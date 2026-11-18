@@ -23,6 +23,7 @@
 #include <stdexcept>
 
 namespace smartmon {
+SMARTMON_BEGIN_VERSION_NAMESPACE
 
 /////////////////////////////////////////////////////////////////////////////
 // smart_device
@@ -591,4 +592,5 @@ smart_device * smart_interface::get_scsi_passthrough_device(const char * type, s
   return get_sat_device(type, scsidev);
 }
 
+SMARTMON_END_VERSION_NAMESPACE
 } // namespace smartmon

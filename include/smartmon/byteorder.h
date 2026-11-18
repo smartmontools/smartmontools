@@ -19,6 +19,7 @@
 #include <utility>
 
 namespace smartmon {
+SMARTMON_BEGIN_VERSION_NAMESPACE
 
 // Little/Big Endian compile time constant
 #ifdef SMARTMON_WORDS_BIGENDIAN
@@ -224,6 +225,7 @@ SMARTMON_STATIC_ASSERT(uibe64_to_uint(uint_to_uibe64(0x123456789abcdef1)) == 0x1
 SMARTMON_STATIC_ASSERT(uile128_clamp_to_uint64(uint64_to_uile128(0x123456789abcdef1)) == 0x123456789abcdef1);
 SMARTMON_STATIC_ASSERT(uile128_clamp_to_uint64(uile128_t{{},{1}}) == 0xffffffffffffffff);
 
+SMARTMON_END_VERSION_NAMESPACE
 } // namespace smartmon
 
 #endif // SMARTMON_BYTEORDER_H

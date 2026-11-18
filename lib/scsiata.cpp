@@ -57,6 +57,7 @@
 #include <smartmon/sg_unaligned.h>
 
 namespace smartmon {
+SMARTMON_BEGIN_VERSION_NAMESPACE
 
 /* This is a slightly stretched SCSI sense "descriptor" format header.
    The addition is to allow the 0x70 and 0x71 response codes. The idea
@@ -1573,4 +1574,5 @@ const char * smart_interface::get_usb_dev_type_by_id(int vendor_id, int product_
   return type.c_str();
 }
 
+SMARTMON_END_VERSION_NAMESPACE
 } // namespace smartmon

@@ -11,7 +11,10 @@
 #ifndef DEV_ARECA_H
 #define DEV_ARECA_H
 
+#include <smartmon/smartmon_defs.h>
+
 namespace smartmon {
+SMARTMON_BEGIN_VERSION_NAMESPACE
 
 /////////////////////////////////////////////////////////////////////////////
 /// Areca RAID support
@@ -175,6 +178,7 @@ protected:
   virtual bool scsi_pass_through(scsi_cmnd_io * iop) override;
 };
 
+SMARTMON_END_VERSION_NAMESPACE
 } // namespace smartmon
 
 #endif

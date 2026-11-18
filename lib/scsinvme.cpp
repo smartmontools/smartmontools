@@ -23,6 +23,7 @@
 #include <errno.h>
 
 namespace smartmon {
+SMARTMON_BEGIN_VERSION_NAMESPACE
 
 // Return true if '-T permissive' is specified.
 static bool is_permissive()
@@ -535,4 +536,5 @@ nvme_device * smart_interface::get_snt_device(const char * type, scsi_device * s
   return sntdev;
 }
 
+SMARTMON_END_VERSION_NAMESPACE
 } // namespace smartmon

@@ -25,6 +25,7 @@
 #include <errno.h>
 
 namespace smartmon {
+SMARTMON_BEGIN_VERSION_NAMESPACE
 
 static void jmbassert_failed(int line, const char * expr)
 {
@@ -838,4 +839,5 @@ ata_device * smart_interface::get_jmb39x_device(const char * type, smart_device 
   return jmbdev;
 }
 
+SMARTMON_END_VERSION_NAMESPACE
 } // namespace smartmon

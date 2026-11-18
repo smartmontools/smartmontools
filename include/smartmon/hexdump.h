@@ -11,11 +11,14 @@
 #ifndef SMARTMON_HEXDUMP_H
 #define SMARTMON_HEXDUMP_H
 
+#include <smartmon/smartmon_defs.h>
+
 #include <stdint.h>
 #include <stdlib.h>
 #include <array>
 
 namespace smartmon {
+SMARTMON_BEGIN_VERSION_NAMESPACE
 
 /// Options for 'hexdumper<>' and 'hexdump()'.
 // TODO: add zero initialization to members when C++14 is enabled.
@@ -109,6 +112,7 @@ void hexdump(F out, const void * ptr, size_t size, const hexdump_options & optio
   hd();
 }
 
+SMARTMON_END_VERSION_NAMESPACE
 } // namespace smartmon
 
 #endif // SMARTMON_HEXDUMP_H

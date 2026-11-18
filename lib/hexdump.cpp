@@ -15,6 +15,7 @@
 #include <algorithm>
 
 namespace smartmon {
+SMARTMON_BEGIN_VERSION_NAMESPACE
 
 hexdumper_base::hexdumper_base(const hexdump_options & options)
 : m_options(options)
@@ -201,4 +202,5 @@ void hexdumper_base::operator()()
   operator()((const void *)0, 0);
 }
 
+SMARTMON_END_VERSION_NAMESPACE
 } // namespace smartmon

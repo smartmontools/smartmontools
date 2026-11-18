@@ -62,6 +62,7 @@
 #endif
 
 namespace smartmon {
+SMARTMON_BEGIN_VERSION_NAMESPACE
 
 // Default library hook
 
@@ -1002,4 +1003,5 @@ void check_config()
   check_endianness();
 }
 
+SMARTMON_END_VERSION_NAMESPACE
 } // namespace smartmon

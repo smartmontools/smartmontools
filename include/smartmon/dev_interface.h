@@ -19,6 +19,7 @@
 #include <vector>
 
 namespace smartmon {
+SMARTMON_BEGIN_VERSION_NAMESPACE
 
 /////////////////////////////////////////////////////////////////////////////
 // Common functionality for all device types
@@ -1066,6 +1067,7 @@ inline smart_interface * smi()
 
 /////////////////////////////////////////////////////////////////////////////
 
+SMARTMON_END_VERSION_NAMESPACE
 } // namespace smartmon
 
 #endif // SMARTMON_DEV_INTERFACE_H

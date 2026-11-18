@@ -17,6 +17,7 @@
 #include <string>
 
 namespace smartmon {
+SMARTMON_BEGIN_VERSION_NAMESPACE
 
 // Structure to store drive database entries, see drivedb.h for a description.
 struct drive_settings {
@@ -75,6 +76,7 @@ bool init_drive_database(bool use_default_db);
 // Get vendor attribute options from default db entry.
 const ata_vendor_attr_defs & get_default_attr_defs();
 
+SMARTMON_END_VERSION_NAMESPACE
 } // namespace smartmon
 
 #endif // SMARTMON_KNOWNDRIVES_H

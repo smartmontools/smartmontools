@@ -27,6 +27,7 @@
 #include <string.h>
 
 namespace smartmon {
+SMARTMON_BEGIN_VERSION_NAMESPACE
 
 /* #define SCSI_DEBUG 1 */ /* Comment out to disable command debugging */
 
@@ -553,6 +554,7 @@ const unsigned char * sg_scsi_sense_desc_find(const unsigned char * sensep,
 // Moved to C++ interface
 //int do_scsi_cmnd_io(int dev_fd, struct scsi_cmnd_io * iop, int report);
 
+SMARTMON_END_VERSION_NAMESPACE
 } // namespace smartmon
 
 #endif // SMARTMON_SCSICMDS_H

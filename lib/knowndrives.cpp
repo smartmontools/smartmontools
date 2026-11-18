@@ -26,6 +26,7 @@
 #include <stdexcept>
 
 namespace smartmon {
+SMARTMON_BEGIN_VERSION_NAMESPACE
 
 #define MODEL_STRING_LENGTH                         40
 #define FIRMWARE_STRING_LENGTH                       8
@@ -994,4 +995,5 @@ const ata_vendor_attr_defs & get_default_attr_defs()
   return default_attr_defs;
 }
 
+SMARTMON_END_VERSION_NAMESPACE
 } // namespace smartmon

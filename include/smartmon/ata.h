@@ -16,6 +16,7 @@
 #include <smartmon/byteorder.h>
 
 namespace smartmon {
+SMARTMON_BEGIN_VERSION_NAMESPACE
 
 // ATA Specification Command Register Values (Commands)
 #define ATA_CHECK_POWER_MODE            0xe5
@@ -602,6 +603,7 @@ struct ata_sct_temperature_history_table
 };
 SMARTMON_ASSERT_SIZEOF(ata_sct_temperature_history_table, 512);
 
+SMARTMON_END_VERSION_NAMESPACE
 } // namespace smartmon
 
 #endif // SMARTMON_ATA_H

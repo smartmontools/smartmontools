@@ -22,6 +22,7 @@
 #include <vector>
 
 namespace smartmon {
+SMARTMON_BEGIN_VERSION_NAMESPACE
 
 /// Create and print JSON output.
 class json
@@ -324,6 +325,7 @@ private:
     const node * p, std::string & path);
 };
 
+SMARTMON_END_VERSION_NAMESPACE
 } // namespace smartmon
 
 #endif // SMARTMON_JSON_H

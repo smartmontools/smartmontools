@@ -37,6 +37,7 @@
 #include <smartmon/dev_interface.h>
 
 namespace smartmon {
+SMARTMON_BEGIN_VERSION_NAMESPACE
 
 #define ARGUSED(x) ((void)(x))
 
@@ -767,4 +768,5 @@ void smart_interface::init()
   smart_interface::set(&the_interface);
 }
 
+SMARTMON_END_VERSION_NAMESPACE
 } // namespace smartmon

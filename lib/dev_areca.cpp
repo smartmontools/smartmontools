@@ -19,6 +19,7 @@
 #include <errno.h>
 
 namespace smartmon {
+SMARTMON_BEGIN_VERSION_NAMESPACE
 
 #if 0 // For debugging areca code
 static void dumpdata(unsigned char *block, int len)
@@ -689,4 +690,5 @@ bool areca_scsi_device::scsi_pass_through(struct scsi_cmnd_io * iop)
   return arcmsr_scsi_pass_through(iop);
 }
 
+SMARTMON_END_VERSION_NAMESPACE
 } // namespace smartmon

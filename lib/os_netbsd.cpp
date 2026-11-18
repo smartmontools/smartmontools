@@ -26,6 +26,7 @@
 #include "netbsd_nvme_ioctl.h" // NVME_PASSTHROUGH_CMD, nvme_completion_is_error
 
 namespace smartmon {
+SMARTMON_BEGIN_VERSION_NAMESPACE
 
 #define ARGUSED(x) ((void)(x))
 
@@ -816,6 +817,7 @@ void smart_interface::init()
   smart_interface::set(&the_interface);
 }
 
+SMARTMON_END_VERSION_NAMESPACE
 } // namespace smartmon
 
 /* vim: set ts=2 sw=2 et ff=unix : */

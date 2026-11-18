@@ -366,6 +366,7 @@ SMARTMON_ASSERT_SIZEOF(SCSI_REQUEST_BLOCK, SELECT_WIN_32_64(64, 88));
 /////////////////////////////////////////////////////////////////////////////
 
 namespace smartmon {
+SMARTMON_BEGIN_VERSION_NAMESPACE
 
 namespace os_win32 { // no need to publish anything, name provided for Doxygen
 
@@ -4889,4 +4890,5 @@ std::string get_exe_dir()
 
 #endif
 
+SMARTMON_END_VERSION_NAMESPACE
 } // namespace smartmon

@@ -20,6 +20,7 @@
 #include <smartmon/knowndrives.h>
 
 namespace smartmon {
+SMARTMON_BEGIN_VERSION_NAMESPACE
 
 ///////////////////////////////////////////////////////////////////////////////////
 // Seagate ATA Field Access Reliability Metrics log (FARM) structures (GP Log 0xA6)
@@ -708,6 +709,7 @@ bool scsiIsSeagate(char* scsi_vendor);
  */
 bool scsiReadFarmLog(scsi_device* device, scsiFarmLog& farmLog);
 
+SMARTMON_END_VERSION_NAMESPACE
 } // namespace smartmon
 
 #endif // SMARTMON_FARMCMDS_H

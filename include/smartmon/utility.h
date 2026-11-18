@@ -27,6 +27,7 @@
 #include <string>
 
 namespace smartmon {
+SMARTMON_BEGIN_VERSION_NAMESPACE
 
 /// Class to register an application specific lib_vprintf() function.
 class lib_global_hook
@@ -357,6 +358,7 @@ long long get_timer_usec();
 std::string get_exe_dir();
 #endif
 
+SMARTMON_END_VERSION_NAMESPACE
 } // namespace smartmon
 
 #endif // SMARTMON_UTILITY_H

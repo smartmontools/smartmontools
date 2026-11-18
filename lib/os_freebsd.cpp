@@ -65,6 +65,7 @@
 #define MAX_MSG 3
 
 namespace smartmon {
+SMARTMON_BEGIN_VERSION_NAMESPACE
 
 // Utility function for printing warnings
 void printwarning(int msgNo, const char* extra) {
@@ -2408,4 +2409,5 @@ void smart_interface::init()
   smart_interface::set(&the_interface);
 }
 
+SMARTMON_END_VERSION_NAMESPACE
 } // namespace smartmon

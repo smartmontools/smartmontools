@@ -16,6 +16,7 @@
 #include <errno.h>
 
 namespace smartmon {
+SMARTMON_BEGIN_VERSION_NAMESPACE
 
 /////////////////////////////////////////////////////////////////////////////
 // ata_device_with_command_set
@@ -115,4 +116,5 @@ bool ata_device_with_command_set::ata_pass_through(const ata_cmd_in & in, ata_cm
   return true;
 }
 
+SMARTMON_END_VERSION_NAMESPACE
 } // namespace smartmon

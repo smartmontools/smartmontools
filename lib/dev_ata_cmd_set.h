@@ -15,6 +15,7 @@
 #include <smartmon/dev_interface.h>
 
 namespace smartmon {
+SMARTMON_BEGIN_VERSION_NAMESPACE
 
 /////////////////////////////////////////////////////////////////////////////
 // ata_device_with_command_set
@@ -36,6 +37,7 @@ protected:
     : smart_device(never_called) { }
 };
 
+SMARTMON_END_VERSION_NAMESPACE
 } // namespace smartmon
 
 #endif // DEV_ATA_CMD_SET_H

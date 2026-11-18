@@ -17,6 +17,7 @@
 #include <smartmon/dev_interface.h> // ata_device
 
 namespace smartmon {
+SMARTMON_BEGIN_VERSION_NAMESPACE
 
 typedef enum {
   // returns no data, just succeeds or fails
@@ -490,6 +491,7 @@ void ata_if_be_byteswap_inplace(ata_sct_error_recovery_control_command & cmd);
 // and simulate an ATA device with same behaviour
 ata_device * get_parsed_ata_device(smart_interface * intf, const char * dev_name);
 
+SMARTMON_END_VERSION_NAMESPACE
 } // namespace smartmon
 
 #endif // SMARTMON_ATACMDS_H

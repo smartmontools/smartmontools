@@ -19,6 +19,7 @@
 #include <errno.h>
 
 namespace smartmon {
+SMARTMON_BEGIN_VERSION_NAMESPACE
 
 // Print NVMe debug messages?
 unsigned char nvme_debugmode = 0;
@@ -544,4 +545,5 @@ void nvme_if_be_byteswap_inplace(nvme_self_test_log & self_test_log)
     byteswap_inplace(self_test_log.results[i].nsid);
 }
 
+SMARTMON_END_VERSION_NAMESPACE
 } // namespace smartmon

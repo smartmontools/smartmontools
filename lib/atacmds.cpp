@@ -23,6 +23,7 @@
 #include <inttypes.h>
 
 namespace smartmon {
+SMARTMON_BEGIN_VERSION_NAMESPACE
 
 // Print ATA debug messages?
 unsigned char ata_debugmode = 0;
@@ -2289,4 +2290,5 @@ void ata_if_be_byteswap_inplace(ata_sct_error_recovery_control_command & cmd)
   byteswap_inplace(cmd.time_limit);
 }
 
+SMARTMON_END_VERSION_NAMESPACE
 } // namespace smartmon

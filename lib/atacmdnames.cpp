@@ -12,6 +12,7 @@
 #include <smartmon/atacmds.h>
 
 namespace smartmon {
+SMARTMON_BEGIN_VERSION_NAMESPACE
 
 const char cmd_reserved[]        = "[RESERVED]";
 const char cmd_vendor_specific[] = "[VENDOR SPECIFIC]";
@@ -501,4 +502,5 @@ const char * ata_get_command_name(uint8_t command, uint8_t features)
   }
 }
 
+SMARTMON_END_VERSION_NAMESPACE
 } // namespace smartmon

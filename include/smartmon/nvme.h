@@ -17,6 +17,7 @@
 #include <smartmon/byteorder.h>
 
 namespace smartmon {
+SMARTMON_BEGIN_VERSION_NAMESPACE
 
 struct nvme_error_log_page {
   uint64_t  error_count;
@@ -233,6 +234,7 @@ struct nvme_self_test_log {
 };
 SMARTMON_ASSERT_SIZEOF(nvme_self_test_log, 564);
 
+SMARTMON_END_VERSION_NAMESPACE
 } // namespace smartmon
 
 #endif // SMARTMON_NVME_H

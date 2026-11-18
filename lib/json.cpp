@@ -21,6 +21,7 @@
 #include <stdexcept>
 
 namespace smartmon {
+SMARTMON_BEGIN_VERSION_NAMESPACE
 
 static void jassert_failed(int line, const char * expr)
 {
@@ -780,4 +781,5 @@ void json::output(output_function & out, const output_options & options) const
   }
 }
 
+SMARTMON_END_VERSION_NAMESPACE
 } // namespace smartmon

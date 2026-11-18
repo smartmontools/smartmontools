@@ -22,6 +22,7 @@
 #include <errno.h>
 
 namespace smartmon {
+SMARTMON_BEGIN_VERSION_NAMESPACE
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // Seagate ATA Field Access Reliability Metrics (FARM) log (Log 0xA6)
@@ -305,4 +306,5 @@ bool scsiReadFarmLog(scsi_device* device, scsiFarmLog& farmLog) {
   return true;
 }
 
+SMARTMON_END_VERSION_NAMESPACE
 } // namespace smartmon

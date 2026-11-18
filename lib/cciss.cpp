@@ -40,6 +40,7 @@
 #include <smartmon/utility.h>
 
 namespace smartmon {
+SMARTMON_BEGIN_VERSION_NAMESPACE
 
 typedef struct _ReportLUNdata_struct
 {
@@ -243,6 +244,7 @@ static int cciss_getlun(int device, int target, unsigned char *physlun, int repo
     return 1;
 }
 
+SMARTMON_END_VERSION_NAMESPACE
 } // namespace smartmon
 
 #endif 

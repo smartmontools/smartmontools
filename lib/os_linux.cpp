@@ -100,6 +100,7 @@
 #define ARGUSED(x) ((void)(x))
 
 namespace smartmon {
+SMARTMON_BEGIN_VERSION_NAMESPACE
 
 namespace os_linux { // No need to publish anything, name provided for Doxygen
 
@@ -4415,4 +4416,5 @@ void smart_interface::init()
   smart_interface::set(&the_interface);
 }
 
+SMARTMON_END_VERSION_NAMESPACE
 } // namespace smartmon

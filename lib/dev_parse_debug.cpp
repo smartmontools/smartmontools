@@ -15,6 +15,7 @@
 #include <errno.h>
 
 namespace smartmon {
+SMARTMON_BEGIN_VERSION_NAMESPACE
 
 const char * const commandstrings[] = {
   "SMART ENABLE",
@@ -354,4 +355,5 @@ ata_device * get_parsed_ata_device(smart_interface * intf, const char * dev_name
   return new parsed_ata_device(intf, dev_name);
 }
 
+SMARTMON_END_VERSION_NAMESPACE
 } // namespace smartmon

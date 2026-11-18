@@ -16,6 +16,7 @@
 #include <errno.h>
 
 namespace smartmon {
+SMARTMON_BEGIN_VERSION_NAMESPACE
 
 //Vendor Specific log addresses
 #define LOG_C0           0xc0
@@ -311,4 +312,5 @@ ata_device * smart_interface::get_intelliprop_device(const char * type, ata_devi
   return itldev;
 }
 
+SMARTMON_END_VERSION_NAMESPACE
 } // namespace smartmon

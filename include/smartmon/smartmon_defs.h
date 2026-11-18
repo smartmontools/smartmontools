@@ -3,7 +3,7 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2025 Christian Franke
+ * Copyright (C) 2025-26 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -14,6 +14,17 @@
 #include <smartmon/smartmon_config.h>
 
 #include <type_traits>
+
+// Version of library API and C++ ABI
+#define SMARTMON_API_VERSION 0
+
+// Versioned namespace below 'namespace smartmon'
+#define SMARTMON_VERSION_NAMESPACE_N(n) v##n
+#define SMARTMON_VERSION_NAMESPACE_S(s) SMARTMON_VERSION_NAMESPACE_N(s)
+#define SMARTMON_VERSION_NAMESPACE SMARTMON_VERSION_NAMESPACE_S(SMARTMON_API_VERSION)
+// All declarations from C++11 inline namespace are visible in 'namespace smartmon'
+#define SMARTMON_BEGIN_VERSION_NAMESPACE inline namespace SMARTMON_VERSION_NAMESPACE {
+#define SMARTMON_END_VERSION_NAMESPACE   }
 
 // Enable format check of printf()-like functions
 #ifndef __GNUC__
