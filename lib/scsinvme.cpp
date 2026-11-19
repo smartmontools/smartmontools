@@ -198,8 +198,9 @@ bool sntasmedia_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out &
   if (in.cdw11 || in.cdw14 || in.cdw15)
     return set_err(ENOSYS, "Nonzero NVMe command dwords 11, 14, or 15 not supported");
 
-  // The bridge returns at most 0x0200 bytes for Get Log, a longer transfer
-  // times out and resets the device on Windows
+  // A Get Log transfer longer than 0x0200 bytes times out and resets the device on
+  // Windows (SanDisk Extreme 55AE firmware) or returns zeros beyond 0x0200 bytes
+  // (ASM2362 stock firmware, depending on the previous command)
   unsigned size, log_size, cdw10;
   if (!limit_get_log_size(this, in, size, cdw10, log_size))
     return false;
