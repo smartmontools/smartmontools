@@ -339,6 +339,16 @@ static void test_drivedb_usb_sandisk_55dd(const char * drivedb)
   info = usb_dev_info(); info2 = usb_dev_info();
   CHECK_EQ(lookup_usb_device(0x152d, 0x0583, 0x1234, info, info2), 2);
   CHECK(info.usb_type == "sat" && info2.usb_type == "sntjmicron");
+
+  // ASMedia ASM2464PD in USB 3 mode reports 0x2463 or 0x2464 (Axagon EEM2-40G),
+  // 0x2464 must not fall through to the ASMedia catch-all '-d sat'
+  info = usb_dev_info();
+  CHECK_EQ(lookup_usb_device(0x174c, 0x2463, -1, info, info2), 1);
+  CHECK(info.usb_type == "sntasmedia");
+  info = usb_dev_info();
+  CHECK_EQ(lookup_usb_device(0x174c, 0x2464, 0x5417, info, info2), 1);
+  CHECK(info.usb_type == "sntasmedia");
+  CHECK(info.usb_bridge.find("ASM2464PD") != std::string::npos);
 }
 
 #if defined(_WIN32) || defined(__CYGWIN__)
