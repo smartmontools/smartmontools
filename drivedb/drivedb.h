@@ -7295,8 +7295,8 @@ const drive_settings builtin_knowndrives[] = {
     "-d sntasmedia"
   },
   { "USB: ; ASMedia ASM2464PD", // USB4->PCIe (NVMe) in USB3
-    "0x174c:0x2463",
-    "",
+    "0x174c:0x246[34]",
+    "", // 0x2464 (0x5417): Axagon EEM2-40G
     "",
     "-d sntasmedia"
   },
