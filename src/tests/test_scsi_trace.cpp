@@ -340,6 +340,16 @@ static void test_drivedb_usb_sandisk_55dd(const char * drivedb)
   CHECK_EQ(lookup_usb_device(0x152d, 0x0583, 0x1234, info, info2), 2);
   CHECK(info.usb_type == "sat" && info2.usb_type == "sntjmicron");
 
+  // JMicron JMS581 (ICY BOX IB-2915) bridges SATA and NVMe
+  info = usb_dev_info();
+  CHECK_EQ(lookup_usb_device(0x152d, 0x0581, 0x8204, info, info2), 1);
+  CHECK(info.usb_type == "sat/sntjmicron");
+
+  // Realtek RTL9220 (Delock 42031)
+  info = usb_dev_info();
+  CHECK_EQ(lookup_usb_device(0x0bda, 0x9220, 0xf100, info, info2), 1);
+  CHECK(info.usb_type == "sntrealtek");
+
   // ASMedia ASM2464PD in USB 3 mode reports 0x2463 or 0x2464 (Axagon EEM2-40G),
   // 0x2464 must not fall through to the ASMedia catch-all '-d sat'
   info = usb_dev_info();
