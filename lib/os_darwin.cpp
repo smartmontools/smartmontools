@@ -67,7 +67,7 @@ static struct {
 
 /////////////////////////////////////////////////////////////////////////////
 
-namespace os_darwin { // No need to publish anything, name provided for Doxygen
+namespace {
 
 /////////////////////////////////////////////////////////////////////////////
 /// Implement shared open/close routines with old functions.
@@ -756,7 +756,7 @@ bool darwin_smart_interface::scan_smart_devices(smart_device_list & devlist,
   return true;
 }
 
-} // namespace os_darwin
+} // namespace
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -764,7 +764,7 @@ bool darwin_smart_interface::scan_smart_devices(smart_device_list & devlist,
 
 void smart_interface::init()
 {
-  static os_darwin::darwin_smart_interface the_interface;
+  static darwin_smart_interface the_interface;
   smart_interface::set(&the_interface);
 }
 

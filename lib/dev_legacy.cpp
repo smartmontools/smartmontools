@@ -45,7 +45,7 @@ void print_smartctl_examples();
 namespace smartmon {
 SMARTMON_BEGIN_VERSION_NAMESPACE
 
-namespace os { // No need to publish anything, name provided for Doxygen
+namespace {
 
 /////////////////////////////////////////////////////////////////////////////
 /// Implement shared open/close routines with old functions.
@@ -328,7 +328,7 @@ bool legacy_smart_interface::scan_smart_devices(smart_device_list & devlist,
   return true;
 }
 
-} // namespace os
+} // namespace
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -336,7 +336,7 @@ bool legacy_smart_interface::scan_smart_devices(smart_device_list & devlist,
 
 void smart_interface::init()
 {
-  static os::legacy_smart_interface the_interface;
+  static legacy_smart_interface the_interface;
   smart_interface::set(&the_interface);
 }
 

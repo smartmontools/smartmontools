@@ -35,7 +35,7 @@
 namespace smartmon {
 SMARTMON_BEGIN_VERSION_NAMESPACE
 
-namespace os_solaris { // No need to publish anything, name provided for Doxygen
+namespace {
 
 // Return true if the device node that 'dev_name' resolves to is named
 // after one of the drivers in 'table'.
@@ -368,14 +368,14 @@ bool solaris_smart_interface::scan_smart_devices(smart_device_list & devlist,
   return true;
 }
 
-} // namespace os_solaris
+} // namespace
 
 /////////////////////////////////////////////////////////////////////////////
 /// Initialize platform interface and register with smi()
 
 void smart_interface::init()
 {
-  static os_solaris::solaris_smart_interface the_interface;
+  static solaris_smart_interface the_interface;
   smart_interface::set(&the_interface);
 }
 

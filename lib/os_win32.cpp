@@ -368,7 +368,7 @@ SMARTMON_ASSERT_SIZEOF(SCSI_REQUEST_BLOCK, SELECT_WIN_32_64(64, 88));
 namespace smartmon {
 SMARTMON_BEGIN_VERSION_NAMESPACE
 
-namespace os_win32 { // no need to publish anything, name provided for Doxygen
+namespace {
 
 #ifdef _MSC_VER
 #pragma warning(disable:4250)
@@ -4844,7 +4844,7 @@ bool win_smart_interface::disable_system_auto_standby(bool disable)
 }
 
 
-} // namespace os_win32
+} // namespace
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -4854,14 +4854,14 @@ void smart_interface::init()
   {
     // Remove "." from DLL search path if supported
     // to prevent DLL preloading attacks
-    auto SetDllDirectoryA_p = os_win32::get_proc_address<BOOL WINAPI (LPCSTR)>(
+    auto SetDllDirectoryA_p = get_proc_address<BOOL WINAPI (LPCSTR)>(
       GetModuleHandleA("kernel32.dll"), "SetDllDirectoryA" // >= Windows XP SP1
     );
     if (SetDllDirectoryA_p)
       SetDllDirectoryA_p("");
   }
 
-  static os_win32::win_smart_interface the_win_interface;
+  static win_smart_interface the_win_interface;
   smart_interface::set(&the_win_interface);
 }
 

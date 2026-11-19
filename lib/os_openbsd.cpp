@@ -33,7 +33,7 @@ SMARTMON_BEGIN_VERSION_NAMESPACE
 
 /////////////////////////////////////////////////////////////////////////////
 
-namespace os_openbsd { // No need to publish anything, name provided for Doxygen
+namespace {
 
 static const char *net_dev_prefix = "/dev/";
 
@@ -91,7 +91,7 @@ private:
 openbsd_smart_device::~openbsd_smart_device()
 {
   if (m_fd >= 0)
-    os_openbsd::openbsd_smart_device::close();
+    openbsd_smart_device::close();
 }
 
 bool openbsd_smart_device::is_open() const
@@ -726,14 +726,14 @@ std::string openbsd_smart_interface::get_valid_custom_dev_types_str()
   return "";
 }
 
-} // namespace os_openbsd
+} // namespace
 
 /////////////////////////////////////////////////////////////////////////////
 /// Initialize platform interface and register with smi()
 
 void smart_interface::init()
 {
-  static os_openbsd::openbsd_smart_interface the_interface;
+  static openbsd_smart_interface the_interface;
   smart_interface::set(&the_interface);
 }
 

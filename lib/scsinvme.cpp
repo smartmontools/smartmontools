@@ -35,7 +35,7 @@ static bool is_permissive()
 }
 
 // SNT (SCSI NVMe Translation) namespace and prefix
-namespace snt {
+namespace {
 
 /////////////////////////////////////////////////////////////////////////////
 // nvme_or_sat_device: Common base class for NVMe/SATA -> USB bridges
@@ -483,9 +483,7 @@ bool sntrealtek_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out &
 }
 
 
-} // namespace snt
-
-using namespace snt;
+} // namespace
 
 nvme_device * smart_interface::get_snt_device(const char * type, scsi_device * scsidev)
 {

@@ -32,7 +32,7 @@ SMARTMON_BEGIN_VERSION_NAMESPACE
 
 /////////////////////////////////////////////////////////////////////////////
 
-namespace os_netbsd { // No need to publish anything, name provided for Doxygen
+namespace {
 
 static const char *net_dev_prefix = "/dev/";
 static const char *net_dev_raw_prefix = "/dev/r";
@@ -75,7 +75,7 @@ private:
 netbsd_smart_device::~netbsd_smart_device()
 {
   if (m_fd >= 0)
-    os_netbsd::netbsd_smart_device::close();
+    netbsd_smart_device::close();
 }
 
 bool netbsd_smart_device::is_open() const
@@ -806,14 +806,14 @@ std::string netbsd_smart_interface::get_valid_custom_dev_types_str()
   return "";
 }
 
-} // namespace os_netbsd
+} // namespace
 
 /////////////////////////////////////////////////////////////////////////////
 /// Initialize platform interface and register with smi()
 
 void smart_interface::init()
 {
-  static os_netbsd::netbsd_smart_interface the_interface;
+  static netbsd_smart_interface the_interface;
   smart_interface::set(&the_interface);
 }
 

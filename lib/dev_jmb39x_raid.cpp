@@ -309,7 +309,7 @@ static bool scsi_write_lba8(scsi_device * scsidev,  uint8_t lba8, const uint8_t 
 
 /////////////////////////////////////////////////////////////////////////////
 
-namespace jmb39x {
+namespace {
 
 class jmb39x_device
 : public tunnelled_device<
@@ -776,7 +776,7 @@ bool jmb39x_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & /* out
   return true;
 }
 
-} // namespace jmb39x
+} // namespace
 
 ata_device * smart_interface::get_jmb39x_device(const char * type, smart_device * smartdev)
 {
@@ -833,7 +833,7 @@ ata_device * smart_interface::get_jmb39x_device(const char * type, smart_device 
     return 0;
   }
 
-  ata_device * jmbdev = new jmb39x::jmb39x_device(this, smartdev, type, version, port, lba, force);
+  ata_device * jmbdev = new jmb39x_device(this, smartdev, type, version, port, lba, force);
   // 'smartdev' is now owned by 'jmbdev'
   smartdev_holder.release();
   return jmbdev;

@@ -102,7 +102,7 @@
 namespace smartmon {
 SMARTMON_BEGIN_VERSION_NAMESPACE
 
-namespace os_linux { // No need to publish anything, name provided for Doxygen
+namespace {
 
 /////////////////////////////////////////////////////////////////////////////
 /// Shared open/close routines
@@ -4405,14 +4405,14 @@ std::string linux_smart_interface::get_valid_custom_dev_types_str()
     ;
 }
 
-} // namespace os_linux
+} // namespace
 
 /////////////////////////////////////////////////////////////////////////////
 /// Initialize platform interface and register with smi()
 
 void smart_interface::init()
 {
-  static os_linux::linux_smart_interface the_interface;
+  static linux_smart_interface the_interface;
   smart_interface::set(&the_interface);
 }
 

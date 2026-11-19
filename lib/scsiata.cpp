@@ -94,7 +94,7 @@ static int sg_scsi_normalize_sense(const unsigned char * sensep, int sb_len,
 #define ATA_RETURN_DESCRIPTOR 9
 
 
-namespace sat { // no need to publish anything, name provided for Doxygen
+namespace {
 
 /// SAT support.
 /// Implements ATA by tunnelling through SCSI.
@@ -566,7 +566,7 @@ smart_device * sat_device::autodetect_open()
   return this;
 }
 
-} // namespace sat
+} // namespace
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -628,7 +628,7 @@ static int sg_scsi_normalize_sense(const unsigned char * sensep, int sb_len,
 
 /////////////////////////////////////////////////////////////////////////////
 
-namespace sat {
+namespace {
 
 /// Cypress USB Bridge support.
 
@@ -1411,9 +1411,7 @@ bool usbsunplus_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & ou
 }
 
 
-} // namespace sat
-
-using namespace sat;
+} // namespace
 
 
 /////////////////////////////////////////////////////////////////////////////
