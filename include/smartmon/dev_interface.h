@@ -626,13 +626,15 @@ public:
   bool scsi_pass_through_and_check(scsi_cmnd_io * iop,
                                    const char * msg = "");
 
-  /// Always try READ CAPACITY(10) (rcap10) first but once we know
-  /// rcap16 is needed, use it instead.
-  void set_rcap16_first()
-    { rcap16_first = true; }
+  // Preserve result of READ CAPACITY(10/16) support check
+  // or preset READ CAPACITY(10) for CD/DVD drives.
+  enum rcap_mode { try_rcap16, use_rcap10, use_rcap16 };
 
-  bool use_rcap16() const
-    { return rcap16_first; }
+  void set_rcap_mode(rcap_mode mode)
+    { m_rcap_mode = mode; }
+
+  rcap_mode get_rcap_mode() const
+    { return m_rcap_mode; }
 
   void set_spc4_or_higher() { spc4_or_above = true; }
 
@@ -654,7 +656,6 @@ protected:
   /// Default constructor, registers device as SCSI.
   scsi_device()
     : smart_device(never_called),
-      rcap16_first(false),
       spc4_or_above(false),
       rsoc_queried(false),
       rsoc_sup(SC_SUPPORT_UNKNOWN),
@@ -666,7 +667,7 @@ protected:
     { hide_scsi(false); }
 
 private:
-  bool rcap16_first;
+  rcap_mode m_rcap_mode = try_rcap16;
   bool spc4_or_above;
 
   bool rsoc_queried;

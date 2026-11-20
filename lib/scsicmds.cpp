@@ -1206,6 +1206,11 @@ scsiStdInquiry(scsi_device * device, uint8_t *pBuf, int bufLen)
     if (! scsi_pass_through_yield_sense(device, &io_hdr, sinfo))
         return -device->get_errno();
     res = scsiSimpleSenseFilter(&sinfo);
+
+    // Older (IDE) CD/DVD drives do not support READ CAPACITY(16)
+    if ((SIMPLE_NO_ERROR == res) && (SCSI_PT_CDROM == (pBuf[0] & 0x1f)))
+      device->set_rcap_mode(scsi_device::use_rcap10);
+
     if ((SIMPLE_NO_ERROR == res) && (! device->is_spc4_or_higher())) {
         if (((bufLen -  io_hdr.resid) >= 36) &&
             (pBuf[2] >= 6) &&           /* VERSION field >= SPC-4 */
@@ -1734,79 +1739,75 @@ uint64_t
 scsiGetSize(scsi_device * device, bool avoid_rcap16,
             struct scsi_readcap_resp * srrp)
 {
-    bool try_16 = false;
-    bool try_12 = false;
-    unsigned int last_lba = 0, lb_size = 0;
-    int res;
-    uint64_t ret_val = 0;
-    uint8_t rc16resp[32];
+    bool retry = false, try_16 = false;
+    switch (device->get_rcap_mode()) {
+      case scsi_device::use_rcap10: break;                // always use rcap10
+      case scsi_device::use_rcap16: try_16 = true; break; // always use rcap16
+      default: // case scsi_device::try_rcap16:           // try both
+        retry = true;
+        // start with rcap16 if support is indicated
+        try_16 = (!avoid_rcap16 &&
+                  SC_SUPPORT == device->cmd_support_level(SERVICE_ACTION_IN_16, true,
+                                                          SAI_READ_CAPACITY_16));
+        break;
+    }
 
-    if (avoid_rcap16) {
-        res = scsiReadCapacity10(device, &last_lba, &lb_size);
-        if (res) {
-            if (scsi_debugmode)
-                lib_printf("%s: READ CAPACITY(10) failed, res=%d\n", __func__, res);
-            try_16 = true;
-        } else {        /* rcap10 succeeded */
-            if (0xffffffff == last_lba) {
-                /* so number of blocks needs > 32 bits to represent */
-                try_16 = true;
-                device->set_rcap16_first();
-            } else {
-                ret_val = last_lba + 1;
+    uint64_t ret_val = 0;
+    unsigned lb_size = 0;
+
+    for (;;) {
+        if (!try_16) {
+            unsigned last_lba = 0;
+            int res = scsiReadCapacity10(device, &last_lba, &lb_size);
+            if (res) {
+                if (scsi_debugmode)
+                    lib_printf("%s: READ CAPACITY(10) failed, res=%d\n", __func__, res);
+            } else if (0xffffffff == last_lba) {
+                // rcap10 succeeded but number of blocks needs > 32 bits
+            } else { // rcap10 succeeded
+                device->set_rcap_mode(scsi_device::use_rcap10); // never try rcap16 again
+                ret_val = (uint64_t)last_lba + 1;
                 if (srrp) {
-                    memset(srrp, 0, sizeof(*srrp));
+                    *srrp = {};
                     srrp->num_lblocks = ret_val;
                     srrp->lb_size = lb_size;
                 }
+                break;
+            }
+        } else {
+            uint8_t rc16resp[32]{};
+            int res = scsiReadCapacity16(device, rc16resp, sizeof(rc16resp));
+            if (res) {
+                if (scsi_debugmode)
+                    lib_printf("%s: READ CAPACITY(16) failed, res=%d\n", __func__, res);
+            } else { // rcap16 succeeded
+                device->set_rcap_mode(scsi_device::use_rcap16); // never try rcap10 again
+                ret_val = sg_get_unaligned_be64(rc16resp + 0) + 1;
+                lb_size = sg_get_unaligned_be32(rc16resp + 8);
+                if (srrp) {         /* writes to all fields */
+                    srrp->num_lblocks = ret_val;
+                    srrp->lb_size = lb_size;
+                    bool prot_en = !!(0x1 & rc16resp[12]);
+                    uint8_t p_type = ((rc16resp[12] >> 1) & 0x7);
+                    srrp->prot_type = prot_en ? (1 + p_type) : 0;
+                    srrp->p_i_exp = ((rc16resp[13] >> 4) & 0xf);
+                    srrp->lb_p_pb_exp = (rc16resp[13] & 0xf);
+                    srrp->lbpme = !!(0x80 & rc16resp[14]);
+                    srrp->lbprz = !!(0x40 & rc16resp[14]);
+                    srrp->l_a_lba = sg_get_unaligned_be16(rc16resp + 14) & 0x3fff;
+                }
+                break;
             }
         }
-    } else if (SC_SUPPORT ==
-               device->cmd_support_level(SERVICE_ACTION_IN_16, true,
-                                         SAI_READ_CAPACITY_16))
-        try_16 = true;
 
-    if (try_16 || (! avoid_rcap16)) {
-        res = scsiReadCapacity16(device, rc16resp, sizeof(rc16resp));
-        if (res) {
-            if (scsi_debugmode)
-                lib_printf("%s: READ CAPACITY(16) failed, res=%d\n", __func__, res);
-            if (try_16)         /* so already tried rcap10 */
-                return 0;
-            try_12 = true;
-        } else {        /* rcap16 succeeded */
-            ret_val = sg_get_unaligned_be64(rc16resp + 0) + 1;
-            lb_size = sg_get_unaligned_be32(rc16resp + 8);
-            if (srrp) {         /* writes to all fields */
-                srrp->num_lblocks = ret_val;
-                srrp->lb_size = lb_size;
-                bool prot_en = !!(0x1 & rc16resp[12]);
-                uint8_t p_type = ((rc16resp[12] >> 1) & 0x7);
-                srrp->prot_type = prot_en ? (1 + p_type) : 0;
-                srrp->p_i_exp = ((rc16resp[13] >> 4) & 0xf);
-                srrp->lb_p_pb_exp = (rc16resp[13] & 0xf);
-                srrp->lbpme = !!(0x80 & rc16resp[14]);
-                srrp->lbprz = !!(0x40 & rc16resp[14]);
-                srrp->l_a_lba = sg_get_unaligned_be16(rc16resp + 14) & 0x3fff;
-            }
-        }
+        // retry only one time
+        if (!retry)
+          return 0;
+        retry = false;
+        // retry with the other variant
+        try_16 = !try_16;
     }
-    if (try_12) {  /* case where only rcap16 has been tried and failed */
-        res = scsiReadCapacity10(device, &last_lba, &lb_size);
-        if (res) {
-            if (scsi_debugmode)
-                lib_printf("%s: 2nd READ CAPACITY(10) failed, res=%d\n", __func__,
-                     res);
-            return 0;
-        } else {        /* rcap10 succeeded */
-            ret_val = (uint64_t)last_lba + 1;
-            if (srrp) {
-                memset(srrp, 0, sizeof(*srrp));
-                srrp->num_lblocks = ret_val;
-                srrp->lb_size = lb_size;
-            }
-        }
-    }
+
     return (ret_val * lb_size);
 }
 
