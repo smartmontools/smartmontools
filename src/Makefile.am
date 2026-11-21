@@ -663,6 +663,24 @@ check-smartctl:
 	fi
 endif
 
+# Unit tests (no hardware required)
+check_PROGRAMS = test_marvell_nvme
+
+test_marvell_nvme_SOURCES = tests/test_marvell_nvme.cpp
+test_marvell_nvme_LDADD = ../lib/libsmartmon.la $(os_libs)
+test_marvell_nvme_DEPENDENCIES = ../lib/libsmartmon.la
+
+phony += check-unit
+check += check-unit
+
+if REALLY_CROSS_COMPILING
+check-unit:
+	@echo "$@: check is unavailable if cross-compiling"
+else
+check-unit: $(check_PROGRAMS)
+	./test_marvell_nvme$(EXEEXT)
+endif
+
 check: $(check)
 
 if OS_WIN32_MINGW

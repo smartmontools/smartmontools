@@ -59,6 +59,7 @@ libsmartmon_la_SOURCES = \
         dev_intelliprop.cpp \
         dev_interface.cpp \
         dev_jmb39x_raid.cpp \
+        dev_marvell_nvme.cpp \
         dev_parse_debug.cpp \
         dev_tunnelled.h \
         farmcmds.cpp \
@@ -114,7 +115,7 @@ libsmartmon_la_SOURCES += \
         os_win32/wmiquery.cpp
 
 # Windows DLLs do not support undefined symbols
-libsmartmon_la_LDFLAGS = -no-undefined -lole32 -loleaut32
+libsmartmon_la_LDFLAGS = -no-undefined -lole32 -loleaut32 -lsetupapi
 endif
 
 if OS_WIN32_MINGW
