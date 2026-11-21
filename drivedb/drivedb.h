@@ -409,9 +409,9 @@ const drive_settings builtin_knowndrives[] = {
     "-v 248,raw48,Percent_Lifetime_Remain "
     "-v 249,raw48,Spare_Blocks_Remaining " // same as ID 17 (Remaining_Spare_Blocks)
   },
-  { "ATP SATA III aMLC M.2 2242/80 Embedded SSDs",
-    "ATP I-Temp M\\.2 22(42|80)", // tested with ATP I-Temp M.2 2242/R0822A,
-      // ATP I-Temp M.2 2280/R0822A
+  { "ATP SATA III SSDs",
+    "ATP ((AF|FT|FA).*|I-Temp(\\. SATA III)? M\\.2 22(42|80))",
+      // tested with ATP I-Temp M.2 2242/R0822A, ATP I-Temp M.2 2280/R0822A
     "","",
     "-v 1,raw48,Raw_Read_Error_Count "
   //"-v 5,raw16(raw16),Reallocated_Sector_Ct "
@@ -421,7 +421,7 @@ const drive_settings builtin_knowndrives[] = {
     "-v 15,raw48,Device_User_Capacity "
     "-v 16,raw48,Initial_Spare_Blocks "
     "-v 17,raw48,Remaining_Spare_Blocks "
-    "-v 100,raw48,Total_Erease_Count "
+    "-v 100,raw48,Total_Erase_Count "
     "-v 160,raw48,Uncorrectable_Sectors "
     "-v 172,raw48,Block_Erase_Failure "
     "-v 173,raw48,Max_Erase_Count "
@@ -429,14 +429,14 @@ const drive_settings builtin_knowndrives[] = {
     "-v 175,raw48,Average_Erase_Count "
     "-v 181,raw48,Program_Fail_Blocks "
     "-v 187,raw48,Reported_UE_Counts "
-    "-v 194,raw48,Device_Temperature "
+    "-v 194,tempminmax,Device_Temperature "
   //"-v 195,raw48,Hardware_ECC_Recovered "
   //"-v 197,raw48,Current_Pending_Sector "
   //"-v 198,raw48,Offline_Uncorrectable "
     "-v 199,raw48,SATA_CRC_Error_Count "
     "-v 202,raw48,Percent_Lifetime_Used "
     "-v 205,raw48,Thermal_Asperity_Rate "
-    "-v 231,raw48,Controller_Temperature "
+    "-v 231,tempminmax,Controller_Temperature "
     "-v 234,raw48,Nand_Sectors_Read "
     "-v 235,raw48,Device_Sectors_Written "
     "-v 241,raw48,Nand_Sectors_Written "
