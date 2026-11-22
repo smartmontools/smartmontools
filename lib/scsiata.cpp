@@ -322,9 +322,15 @@ bool sat_device::ata_pass_through(const ata_cmd_in & in, ata_cmd_out & out)
 
     // The ASM1352R uses reserved values for 'protocol' field to select drive
     if (m_variant == sat_asm1352r) {
-      if (in.direction == ata_cmd_in::no_data)
-        return set_err(ENOSYS, "NO DATA ATA commands not implemented [ASM1352R]");
-      protocol = (m_port == 0 ? 0xd : 0xe);
+      if (in.direction == ata_cmd_in::no_data) {
+        // Allow standard SAT non-data (protocol 3) for CHECK POWER MODE
+        // Tested with TerraMaster D2-320, ASM1352R FW 161028_B5_1C_E3 (0x174c:0x1356/0x0100)
+        if (in.in_regs.command != ATA_CHECK_POWER_MODE)
+          return set_err(ENOSYS, "NO DATA ATA commands not implemented [ASM1352R]");
+      }
+      else {
+        protocol = (m_port == 0 ? 0xd : 0xe);
+      }
     }
 
     // Check condition if any output register needed
