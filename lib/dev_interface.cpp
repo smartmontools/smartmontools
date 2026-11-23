@@ -73,7 +73,7 @@ bool smart_device::set_err(int no, const char * msg, ...)
 
 bool smart_device::set_err(int no)
 {
-  return smi()->set_err_var(&m_err, no);
+  return get_smart_interface().set_err_var(&m_err, no);
 }
 
 smart_device * smart_device::autodetect_open()
@@ -330,9 +330,6 @@ void tunnelled_device_base::attach_base(smart_device * dev)
 
 /////////////////////////////////////////////////////////////////////////////
 // smart_interface
-
-// Pointer to (usually singleton) interface object returned by ::smi()
-smart_interface * smart_interface::s_instance;
 
 std::string smart_interface::get_os_version_str()
 {
@@ -591,6 +588,59 @@ smart_device * smart_interface::get_scsi_passthrough_device(const char * type, s
 
   return get_sat_device(type, scsidev);
 }
+
+namespace {
+
+// Default implementation which always fails
+class default_interface : public smart_interface
+{
+public:
+  virtual smart_device * get_smart_device(const char * name, const char * type) override;
+  virtual bool scan_smart_devices(smart_device_list & devlist, const char * type,
+      const char * pattern = 0) override;
+protected:
+  virtual ata_device * get_ata_device(const char * name, const char * type) override;
+  virtual scsi_device * get_scsi_device(const char * name, const char * type) override;
+  virtual smart_device * autodetect_smart_device(const char * name) override;
+private:
+  void report_failure();
+};
+
+smart_device * default_interface::get_smart_device(const char * /*name*/, const char * /*type*/)
+{
+  report_failure(); return nullptr;
+}
+
+bool default_interface::scan_smart_devices(smart_device_list & /*devlist*/, const char * /*type*/,
+    const char * /*pattern = 0*/)
+{
+  report_failure(); return false;
+}
+
+ata_device * default_interface::get_ata_device(const char * /*name*/, const char * /*type*/)
+{
+  report_failure(); return nullptr;
+}
+
+scsi_device * default_interface::get_scsi_device(const char * /*name*/, const char * /*type*/)
+{
+  report_failure(); return nullptr;
+}
+smart_device * default_interface::autodetect_smart_device(const char * /*name*/)
+{
+  report_failure(); return nullptr;
+}
+
+void default_interface::report_failure()
+{
+  set_err(ENOSYS, "smartmon::smart_interface::init(): not called");
+}
+
+static default_interface the_default_interface;
+
+} // namespace
+
+smart_interface * smart_interface::s_instance = &the_default_interface;
 
 SMARTMON_END_VERSION_NAMESPACE
 } // namespace smartmon

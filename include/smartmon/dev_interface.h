@@ -227,11 +227,11 @@ public:
 
 protected:
   /// Get interface which produced this object.
-  smart_interface * smi()
-    { return m_intf; }
+  smart_interface & get_smart_interface()
+    { return *m_intf; }
   /// Get interface which produced this object (const).
-  const smart_interface * smi() const
-    { return m_intf; }
+  const smart_interface & get_smart_interface() const
+    { return *m_intf; }
 
 // Implementation
 private:
@@ -852,9 +852,13 @@ typedef std::vector<std::string> smart_devtype_list;
 class smart_interface
 {
 public:
-  /// Initialize platform interface and register with smi().
+  /// Initialize and register platform interface
   /// Must be implemented by platform module and register interface with set()
-  static void init();
+  static smart_interface & init();
+
+  /// Global access to the (usually singleton) smart_interface
+  static smart_interface & get()
+    { return *s_instance; }
 
   smart_interface()
     { }
@@ -1043,14 +1047,13 @@ public:
 
 protected:
   /// Set interface to use, must be called from init().
-  static void set(smart_interface * intf)
-    { s_instance = intf; }
+  static smart_interface & set(smart_interface & intf)
+    { s_instance = &intf; return intf; }
 
 // Implementation
 private:
   smart_device::error_info m_err;
 
-  friend smart_interface * smi(); // below
   static smart_interface * s_instance; ///< Pointer to the interface object.
 
   // Prevent copy/assignment
@@ -1058,13 +1061,6 @@ private:
   void operator=(const smart_interface &);
 };
 
-
-/////////////////////////////////////////////////////////////////////////////
-// smi()
-
-/// Global access to the (usually singleton) smart_interface
-inline smart_interface * smi()
-  { return smart_interface::s_instance; }
 
 /////////////////////////////////////////////////////////////////////////////
 

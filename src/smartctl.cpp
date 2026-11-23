@@ -104,7 +104,7 @@ static void js_initialize(int argc, char **argv, bool verbose)
     { "time", SMARTMONTOOLS_GIT_REV_TIME }
   };
 #endif
-  jref["platform_info"] = smi()->get_os_version_str();
+  jref["platform_info"] = smart_interface::get().get_os_version_str();
 #ifdef BUILD_INFO
   jref["build_info"] = BUILD_INFO;
 #endif
@@ -222,7 +222,7 @@ static void Usage()
 "  -X, --abort\n"
 "        Abort any non-captive test on device\n\n"
 );
-  std::string examples = smi()->get_app_examples("smartctl");
+  std::string examples = smart_interface::get().get_app_examples("smartctl");
   if (!examples.empty())
     pout("%s\n", examples.c_str());
 }
@@ -238,7 +238,7 @@ static std::string getvalidarglist(int opt)
   case 'q':
     return "errorsonly, silent, noserial";
   case 'd':
-    return smi()->get_valid_dev_types_str() + ", auto, test";
+    return smart_interface::get().get_valid_dev_types_str() + ", auto, test";
   case 'T':
     return "normal, conservative, permissive, verypermissive";
   case 'b':
@@ -1568,11 +1568,11 @@ void scan_devices(const smart_devtype_list & types, bool with_open, char ** argv
 
   smart_device_list devlist;
   printing_is_off = dont_print;
-  bool ok = smi()->scan_smart_devices(devlist, types, pattern);
+  bool ok = smart_interface::get().scan_smart_devices(devlist, types, pattern);
   printing_is_off = false;
 
   if (!ok) {
-    pout("# scan_smart_devices: %s\n", smi()->get_errmsg());
+    pout("# scan_smart_devices: %s\n", smart_interface::get().get_errmsg());
     return;
   }
 
@@ -1622,8 +1622,6 @@ static int main_worker(int argc, char **argv)
 
   // Initialize interface
   smart_interface::init();
-  if (!smi())
-    return 1;
 
   // Parse input arguments
   const char * type = 0;
@@ -1655,14 +1653,14 @@ static int main_worker(int argc, char **argv)
       UsageSummary();
       return FAILCMD;
     }
-    dev.reset(get_parsed_ata_device(smi(), name));
+    dev.reset(get_parsed_ata_device(&smart_interface::get(), name));
   }
   else
     // get device of appropriate type
-    dev.reset(smi()->get_smart_device(name, type));
+    dev.reset(smart_interface::get().get_smart_device(name, type));
 
   if (!dev) {
-    jerr("%s: %s\n", name, smi()->get_errmsg());
+    jerr("%s: %s\n", name, smart_interface::get().get_errmsg());
     if (type)
       printvalidarglistmessage('d');
     else

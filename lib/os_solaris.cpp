@@ -371,12 +371,12 @@ bool solaris_smart_interface::scan_smart_devices(smart_device_list & devlist,
 } // namespace
 
 /////////////////////////////////////////////////////////////////////////////
-/// Initialize platform interface and register with smi()
+/// Initialize and register platform interface
 
-void smart_interface::init()
+smart_interface & smart_interface::init()
 {
   static solaris_smart_interface the_interface;
-  smart_interface::set(&the_interface);
+  return smart_interface::set(the_interface);
 }
 
 SMARTMON_END_VERSION_NAMESPACE

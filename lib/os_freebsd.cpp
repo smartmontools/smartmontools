@@ -796,7 +796,7 @@ smart_device * freebsd_megaraid_device::autodetect_open()
   // Use INQUIRY to detect type
   {
     // SAT?
-    ata_device * newdev = smi()->autodetect_sat_device(this, req_buff, len);
+    ata_device * newdev = get_smart_interface().autodetect_sat_device(this, req_buff, len);
     if (newdev) // NOTE: 'this' is now owned by '*newdev'
       return newdev;
   }
@@ -1409,7 +1409,9 @@ smart_device * freebsd_areca_ata_device::autodetect_open()
   }
 
   // SAS device
-  std::unique_ptr<smart_device> newdev{ new freebsd_areca_scsi_device(smi(), get_dev_name(), get_disknum(), get_encnum()) };
+  std::unique_ptr<smart_device> newdev{
+    new freebsd_areca_scsi_device(&get_smart_interface(), get_dev_name(), get_disknum(), get_encnum())
+  };
   close();
   delete this;
   newdev->open();	// TODO: Can possibly pass open fd
@@ -1598,7 +1600,7 @@ smart_device * freebsd_scsi_device::autodetect_open()
 
   // SAT or USB, skip MFI controllers because of bugs
   {
-    smart_device * newdev = smi()->autodetect_sat_device(this, req_buff, len);
+    smart_device * newdev = get_smart_interface().autodetect_sat_device(this, req_buff, len);
     if (newdev) {
       // NOTE: 'this' is now owned by '*newdev'
       if(!strcmp("mfi",m_camdev->sim_name)) {
@@ -2401,12 +2403,12 @@ std::string freebsd_smart_interface::get_valid_custom_dev_types_str()
 } // namespace
 
 /////////////////////////////////////////////////////////////////////////////
-/// Initialize platform interface and register with smi()
+/// Initialize and register platform interface
 
-void smart_interface::init()
+smart_interface & smart_interface::init()
 {
   static freebsd_smart_interface the_interface;
-  smart_interface::set(&the_interface);
+  return smart_interface::set(the_interface);
 }
 
 SMARTMON_END_VERSION_NAMESPACE

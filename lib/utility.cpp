@@ -146,7 +146,7 @@ std::string format_version_info(const char * prog_name, int lines /* = 2 */)
       "(build date " __DATE__ ")" // not build from git repository or src tarball
 #endif
       " [%s] " BUILD_INFO "\n",
-    prog_name, smi()->get_os_version_str().c_str()
+    prog_name, smart_interface::get().get_os_version_str().c_str()
   );
   if (lines <= 1)
     return info;

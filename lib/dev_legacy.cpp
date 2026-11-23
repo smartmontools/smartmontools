@@ -206,7 +206,7 @@ smart_device * legacy_scsi_device::autodetect_open()
 
   // SAT or USB ?
   {
-    smart_device * newdev = smi()->autodetect_sat_device(this, req_buff, len);
+    smart_device * newdev = get_smart_interface().autodetect_sat_device(this, req_buff, len);
     if (newdev)
       // NOTE: 'this' is now owned by '*newdev'
       return newdev;
@@ -332,12 +332,12 @@ bool legacy_smart_interface::scan_smart_devices(smart_device_list & devlist,
 
 
 /////////////////////////////////////////////////////////////////////////////
-/// Initialize platform interface and register with smi()
+/// Initialize and register platform interface
 
-void smart_interface::init()
+smart_interface & smart_interface::init()
 {
   static legacy_smart_interface the_interface;
-  smart_interface::set(&the_interface);
+  return smart_interface::set(the_interface);
 }
 
 SMARTMON_END_VERSION_NAMESPACE

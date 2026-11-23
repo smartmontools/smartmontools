@@ -73,7 +73,7 @@ smart_device * nvme_or_sat_device::autodetect_open()
   std::unique_ptr<ata_device> satdev{};
   if (m_maybe_sat == 1) {
     // Try SAT first
-    satdev.reset(smi()->get_sat_device("sat", scsidev));
+    satdev.reset(get_smart_interface().get_sat_device("sat", scsidev));
     release(scsidev); // 'scsidev' is now owned by 'satdev'
     // TODO: Preserve id for next ata_read_identity() call
     ata_identify_device id{};
@@ -91,7 +91,7 @@ smart_device * nvme_or_sat_device::autodetect_open()
     nvme_id_ctrl id_ctrl{};
     if (!(nvme_read_id_ctrl(this, id_ctrl) && nonempty(id_ctrl.mn, sizeof(id_ctrl.mn)))) {
       // NVMe Identify Controller failed or is incomplete
-      satdev.reset(smi()->get_sat_device("sat", scsidev));
+      satdev.reset(get_smart_interface().get_sat_device("sat", scsidev));
       release(scsidev); // 'scsidev' is now owned by 'satdev'
     }
   }

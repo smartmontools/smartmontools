@@ -1874,7 +1874,7 @@ static void Directives()
            "Use ID = 0 to turn off -C and/or -U Directives\n"
            "Example: /dev/sda -a\n",
            configfile,
-           smi()->get_valid_dev_types_str().c_str(),
+           smart_interface::get().get_valid_dev_types_str().c_str(),
            get_valid_firmwarebug_args());
 }
 
@@ -4610,9 +4610,9 @@ static void init_disable_standby_check(const dev_config_vector & configs)
   // Check for support of disable auto standby
   // Reenable standby if smartd.conf was reread
   if (sts1 || sts2 || standby_disable_state == 3) {
-   if (!smi()->disable_system_auto_standby(false)) {
+   if (!smart_interface::get().disable_system_auto_standby(false)) {
       if (standby_disable_state == 3)
-        PrintOut(LOG_CRIT, "System auto standby enable failed: %s\n", smi()->get_errmsg());
+        PrintOut(LOG_CRIT, "System auto standby enable failed: %s\n", smart_interface::get().get_errmsg());
       if (sts1 || sts2) {
         PrintOut(LOG_INFO, "Disable auto standby not supported, ignoring ',ns' from %s%s%s\n",
           (sts1 ? "-l offlinests,ns" : ""), (sts1 && sts2 ? " and " : ""), (sts2 ? "-l selfteststs,ns" : ""));
@@ -4647,18 +4647,18 @@ static void do_disable_standby_check(const dev_config_vector & configs, const de
   // Disable/enable auto standby and log state changes
   if (!running) {
     if (standby_disable_state != 1) {
-      if (!smi()->disable_system_auto_standby(false))
+      if (!smart_interface::get().disable_system_auto_standby(false))
         PrintOut(LOG_CRIT, "Self-test(s) completed, system auto standby enable failed: %s\n",
-                 smi()->get_errmsg());
+                 smart_interface::get().get_errmsg());
       else
         PrintOut(LOG_INFO, "Self-test(s) completed, system auto standby enabled\n");
       standby_disable_state = 1;
     }
   }
-  else if (!smi()->disable_system_auto_standby(true)) {
+  else if (!smart_interface::get().disable_system_auto_standby(true)) {
     if (standby_disable_state != 2) {
       PrintOut(LOG_INFO, "Self-test(s) in progress, system auto standby disable rejected: %s\n",
-               smi()->get_errmsg());
+               smart_interface::get().get_errmsg());
       standby_disable_state = 2;
     }
   }
@@ -4848,7 +4848,7 @@ static void printoutvaliddirectiveargs(int priority, char d)
     PrintOut(priority, "valid_regular_expression");
     break;
   case 'd':
-    PrintOut(priority, "%s", smi()->get_valid_dev_types_str().c_str());
+    PrintOut(priority, "%s", smart_interface::get().get_valid_dev_types_str().c_str());
     break;
   case 'T':
     PrintOut(priority, "normal, permissive");
@@ -6145,8 +6145,8 @@ static int MakeConfigEntries(const dev_config & base_cfg,
 {
   // make list of devices
   smart_device_list devlist;
-  if (!smi()->scan_smart_devices(devlist, types)) {
-    PrintOut(LOG_CRIT, "DEVICESCAN failed: %s\n", smi()->get_errmsg());
+  if (!smart_interface::get().scan_smart_devices(devlist, types)) {
+    PrintOut(LOG_CRIT, "DEVICESCAN failed: %s\n", smart_interface::get().get_errmsg());
     return 0;
   }
   
@@ -6234,7 +6234,7 @@ static bool register_device(dev_config & cfg, dev_state & state,
   bool scanning;
   if (!dev) {
     // Get device of appropriate type
-    dev.reset(smi()->get_smart_device(cfg.name.c_str(), cfg.dev_type.c_str()));
+    dev.reset(smart_interface::get().get_smart_device(cfg.name.c_str(), cfg.dev_type.c_str()));
     if (!dev) {
       if (cfg.dev_type.empty())
         PrintOut(LOG_INFO, "Device: %s, unable to autodetect device type\n", cfg.name.c_str());
@@ -6330,7 +6330,8 @@ static bool register_devices(const dev_config_vector & conf_entries, smart_devic
     dev_config cfg = conf_entries[i];
 
     // Get unique device "name [type]" (with symlinks resolved) for duplicate detection
-    std::string unique_name = smi()->get_unique_dev_name(cfg.dev_name.c_str(), cfg.dev_type.c_str());
+    std::string unique_name =
+      smart_interface::get().get_unique_dev_name(cfg.dev_name.c_str(), cfg.dev_type.c_str());
     if (debugmode && unique_name != cfg.dev_name) {
       lib_printf("Device: %s%s%s%s, unique name: %s\n", cfg.name.c_str(),
                  (!cfg.dev_type.empty() ? " [" : ""), cfg.dev_type.c_str(),
@@ -6421,8 +6422,6 @@ static int main_worker(int argc, char **argv)
 
   // Initialize interface
   smart_interface::init();
-  if (!smi())
-    return 1;
 
   // Check whether systemd notify is supported and enabled
   notify_init();

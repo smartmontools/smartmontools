@@ -3340,7 +3340,9 @@ smart_device * win_areca_ata_device::autodetect_open()
   }
 
   // SAS device
-  std::unique_ptr<smart_device> newdev{ new win_areca_scsi_device(smi(), get_dev_name(), get_disknum(), get_encnum()) };
+  std::unique_ptr<smart_device> newdev{
+    new win_areca_scsi_device(&get_smart_interface(), get_dev_name(), get_disknum(), get_encnum())
+  };
   close();
   delete this;
   newdev->open(); // TODO: Can possibly pass open fd
@@ -4848,8 +4850,8 @@ bool win_smart_interface::disable_system_auto_standby(bool disable)
 
 /////////////////////////////////////////////////////////////////////////////
 
-// Initialize platform interface and register with smi()
-void smart_interface::init()
+/// Initialize and register platform interface
+smart_interface & smart_interface::init()
 {
   {
     // Remove "." from DLL search path if supported
@@ -4862,7 +4864,7 @@ void smart_interface::init()
   }
 
   static win_smart_interface the_win_interface;
-  smart_interface::set(&the_win_interface);
+  return smart_interface::set(the_win_interface);
 }
 
 

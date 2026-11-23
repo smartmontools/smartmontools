@@ -441,7 +441,7 @@ smart_device * openbsd_scsi_device::autodetect_open()
 
   // SAT or USB, skip MFI controllers because of bugs
   {
-    smart_device * newdev = smi()->autodetect_sat_device(this, req_buff, len);
+    smart_device * newdev = get_smart_interface().autodetect_sat_device(this, req_buff, len);
     if (newdev) {
       // NOTE: 'this' is now owned by '*newdev'
       return newdev;
@@ -729,12 +729,12 @@ std::string openbsd_smart_interface::get_valid_custom_dev_types_str()
 } // namespace
 
 /////////////////////////////////////////////////////////////////////////////
-/// Initialize platform interface and register with smi()
+/// Initialize and register platform interface
 
-void smart_interface::init()
+smart_interface & smart_interface::init()
 {
   static openbsd_smart_interface the_interface;
-  smart_interface::set(&the_interface);
+  return smart_interface::set(the_interface);
 }
 
 SMARTMON_END_VERSION_NAMESPACE
