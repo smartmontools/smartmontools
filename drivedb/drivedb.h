@@ -6836,7 +6836,7 @@ const drive_settings builtin_knowndrives[] = {
     "0x0bda:0x9220",
     "", // 0xf100: Delock 42031
     "",
-    "-d sntrealtek" // ... SATA (requires `-d sat`)
+    "-d sntrealtek/sat" // SATA: NVMe Identify is rejected, then '-d sat' is used
   },
   // Addonics
   { "USB: Addonics HDMU3; ", // (ticket #609)
