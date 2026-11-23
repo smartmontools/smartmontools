@@ -879,9 +879,11 @@ int nvmePrintMain(nvme_device * device, const nvme_print_options & options)
              want_entries, device->get_errmsg());
         return retval | FAILSMART;
       }
-      if (read_entries < want_entries)
+      if (read_entries < want_entries) {
         jerr("Read Error Information Log failed, %u entries missing: %s\n",
              want_entries - read_entries, device->get_errmsg());
+        retval |= FAILSMART;
+      }
 
       print_error_log(error_log, read_entries, max_entries);
     }

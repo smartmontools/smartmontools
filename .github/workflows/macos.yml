@@ -34,6 +34,9 @@ jobs:
             CFLAGS=-'arch arm64 -arch x86_64' CXXFLAGS='-arch arm64 -arch x86_64' \
             SOURCE_DATE_EPOCH=$((SMARTMONTOOLS_GIT_REV_EPOCH + 1)) &&
           make -j && make check &&
+          lipo src/smartctl -verify_arch arm64 x86_64 &&
+          lipo src/smartd -verify_arch arm64 x86_64 &&
+          src/smartd -V &&
           make bin-dist bin_distfile="smartmontools-macos-${SMARTMONTOOLS_GIT_VER_FNAME}.tar.gz"
 
       - name: Upload artifact
