@@ -78,7 +78,7 @@ ID# ATTRIBUTE_NAME          FLAGS    VALUE WORST THRESH FAIL RAW_VALUE
 191 G-Sense_Error_Rate      -O--CK   099   099   000    -    2740
 192 Power-Off_Retract_Count -O--CK   100   100   000    -    16
 193 Load_Cycle_Count        -O--CK   099   099   000    -    2082
-194 Temperature_Celsius     -O---K   024   054   000    -    24 (0 16 0 0 0)
+194 Temperature_Celsius     -O---K   024   054   000    -    24 (Min/Max 16/54)
 195 ECC_On_the_Fly_Count    -O-RC-   009   003   000    -    0/243669670
 197 Current_Pending_Sector  -O--C-   100   100   000    -    0
 198 Offline_Uncorrectable   ----C-   100   100   000    -    0

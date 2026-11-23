@@ -6,7 +6,6 @@ Revision:             0010
 Compliance:           SPC-4
 User Capacity:        1.000.204.886.016 bytes [1,00 TB]
 Logical block size:   512 bytes
-Physical block size:  4096 bytes
 LU is resource provisioned, LBPRZ=0
 Rotation Rate:        Solid State Device
 Logical Unit id:      0x5001b44a4449b251
