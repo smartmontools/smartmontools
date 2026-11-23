@@ -902,6 +902,8 @@ arguments to this option are:
 Invoking this once shows the SCSI commands in hex and the corresponding status.
 Invoking it a second time adds a hex listing of the first 64 bytes of data
 send to, or received from the device.
+At level 4, the data transfers of the operating system pass-through layer
+are printed completely.
 .Sp
 .I nvmeioctl
 \- report only ioctl() transactions with NVMe devices.
@@ -927,6 +929,8 @@ SCSI command trace from stdin and simulates a SCSI device (or USB bridge)
 which returns the recorded responses.
 Each command of the trace is a block of lines \*(AqCDB\*(Aq, \*(AqALLOC\*(Aq,
 \*(AqSTATUS\*(Aq, \*(AqSENSE\*(Aq, \*(AqDATA\*(Aq and \*(AqEND\*(Aq.
+An optional \*(AqDATAOUT\*(Aq line records the data sent to the device,
+such a command is only answered if CDB and data are identical.
 The output of \*(Aq\-r scsiioctl,4\*(Aq can be converted into this format
 with the script \*(Aqsrc/tests/tools/scsiioctl2trace.py\*(Aq from the source
 tree.

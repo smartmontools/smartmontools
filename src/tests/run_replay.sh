@@ -56,9 +56,15 @@ for exp in "$datadir"/*.expected; do
   total=$((total + 1))
   # shellcheck disable=SC2086
   "$smartctl" -d "$type" $args - < "$name.trace" > "$tmp.out" 2>&1
+  rc=$?
   normalize < "$tmp.out" > "$tmp.act"
   normalize < "$exp" > "$tmp.exp"
-  if diff -u "$tmp.exp" "$tmp.act" > "$tmp.diff"; then
+  # Exit status bit 0 (command line error) must not be set, the other bits
+  # depend on the recorded device (e.g. device open failed)
+  if [ $((rc & 1)) -ne 0 ]; then
+    echo "FAIL: ${name##*/} (-d $type $args): exit status $rc"
+    fails=$((fails + 1))
+  elif diff -u "$tmp.exp" "$tmp.act" > "$tmp.diff"; then
     echo "PASS: ${name##*/} (-d $type $args)"
   else
     echo "FAIL: ${name##*/} (-d $type $args)"

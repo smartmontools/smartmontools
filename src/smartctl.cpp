@@ -1651,7 +1651,7 @@ static int main_worker(int argc, char **argv)
   if (!strcmp(name,"-") && !type) {
     // Parse "smartctl -r ataioctl,2 ..." output from stdin
     if (print_type_only) {
-      pout("-d option is required in conjunction with device name \"-\" and --identify=t.\n");
+      pout("-d test is not allowed in conjunction with device name \"-\".\n");
       UsageSummary();
       return FAILCMD;
     }

@@ -14,6 +14,7 @@
 #include <smartmon/scsicmds.h>
 #include <smartmon/utility.h>
 
+#include <ctype.h>
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -163,6 +164,9 @@ static bool parse_hex(const char * s, std::vector<uint8_t> & out)
       s++;
     if (!*s)
       return true;
+    // Exactly two hex digits (strtoul() would also accept a sign)
+    if (!(isxdigit((unsigned char)s[0]) && isxdigit((unsigned char)s[1])))
+      return false;
     char * end;
     unsigned long v = strtoul(s, &end, 16);
     if (end - s != 2 || !(!*end || *end == ' ' || *end == '\t'))

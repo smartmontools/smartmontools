@@ -20,6 +20,8 @@ Work towards a more consistent and flexible API is in progress.
 board and lifetime temperatures and host reads and writes are reported from the vendor specific log pages
 0x30 and 0x32 (JSON: `sandisk_vendor_log: {...}`).
 The controller temperature replaces the invalid value from the IE mode page.
+The SCSI vendor is now also read without `-i`, so the Seagate cache, factory and
+FARM log pages of Seagate and Hitachi SCSI drives are also printed with `-A` alone.
 
 - `smartctl -r scsiioctl,4`: data transfers of the operating system pass-through
 layer are printed completely instead of only the first 256 bytes.

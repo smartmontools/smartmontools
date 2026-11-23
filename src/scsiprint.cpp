@@ -445,8 +445,9 @@ scsiPrintSanDiskLPages(scsi_device * device)
     if (gSanDiskCountersLPage) {
         int err = scsiLogSense(device, SANDISK_COUNTERS_LPAGE, 0, gBuf,
                                LOG_RESP_LEN, 0);
+        // No signature, so only the known page length is accepted
         if (!err && ((gBuf[0] & 0x3f) == SANDISK_COUNTERS_LPAGE) &&
-            (sg_get_unaligned_be16(gBuf + 2) + 4 >= 0x85)) {
+            (sg_get_unaligned_be16(gBuf + 2) == 0xa5)) {
             host_written_gib = sg_get_unaligned_le32(gBuf + 0x79);
             host_read_gib = sg_get_unaligned_le32(gBuf + 0x81);
             have_reads = true;
