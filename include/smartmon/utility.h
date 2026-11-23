@@ -64,7 +64,14 @@ extern unsigned char failuretest_permissive;
 
 // Make version information string
 // lines: 1: version only, 2: version+copyright, >=3: full information
-std::string format_version_info(const char * prog_name, int lines = 2);
+std::string format_version_info(const char * prog_name, const char * os_version = nullptr,
+  int lines = 2);
+
+// Variant for os_version as std::string
+inline std::string format_version_info(const char * prog_name, const std::string & os_version,
+  int lines = 2)
+  { return format_version_info(prog_name, os_version.c_str(), lines); }
+
 
 // return (v)sprintf() formatted std::string
 std::string strprintf(const char * fmt, ...)

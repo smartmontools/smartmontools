@@ -26,7 +26,8 @@ static int usage(const char * prog, int status)
     "    -r LEVEL   Specify debug level\n"
     "    -h         Print this help\n"
     "    -V         Print version information\n",
-    smartmon::format_version_info("ata-standby").c_str(), prog);
+    smartmon::format_version_info("ata-standby",
+      smartmon::smart_interface::get().get_os_version_str()).c_str(), prog);
     return status;
 }
 
@@ -53,7 +54,8 @@ int main(int argc, char **argv)
         return usage(argv[0], 0);
       }
       else if (!std::strcmp(argv[ai], "-V")) {
-        std::fputs(smartmon::format_version_info("ata-standby", 3).c_str(), stdout);
+        std::fputs(smartmon::format_version_info("ata-standby",
+          smi.get_os_version_str(), 3).c_str(), stdout);
         return 0;
       }
       else {

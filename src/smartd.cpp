@@ -1827,7 +1827,8 @@ static bool write_pid_file()
 // Prints header identifying version of code and home
 static void PrintHead()
 {
-  PrintOut(LOG_INFO, "%s\n", format_version_info("smartd").c_str());
+  PrintOut(LOG_INFO, "%s\n", format_version_info("smartd",
+    smart_interface::get().get_os_version_str()).c_str());
 }
 
 // prints help info for configuration file Directives
@@ -6006,7 +6007,8 @@ static int parse_options(int argc, char **argv)
     case 'V':
       // print version and CVS info
       debugmode = 1;
-      PrintOut(LOG_INFO, "%s", format_version_info("smartd", 3 /*full*/).c_str());
+      PrintOut(LOG_INFO, "%s", format_version_info("smartd",
+        smart_interface::get().get_os_version_str().c_str(), 3 /*full*/).c_str());
       return 0;
 #ifdef HAVE_LIBCAP_NG
     case 'C':
@@ -6130,7 +6132,8 @@ static int parse_options(int argc, char **argv)
     return EXIT_BADCMD;
 
   // print header, don't write Copyright line to syslog
-  PrintOut(LOG_INFO, "%s\n", format_version_info("smartd", (debugmode ? 2 : 1)).c_str());
+  PrintOut(LOG_INFO, "%s\n", format_version_info("smartd",
+    smart_interface::get().get_os_version_str(), (debugmode ? 2 : 1)).c_str());
 
   // No error, continue in main_worker()
   return -1;

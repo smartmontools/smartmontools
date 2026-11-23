@@ -41,8 +41,8 @@
 
 #include <smartmon/utility.h>
 
-#include <smartmon/atacmds.h>
-#include <smartmon/dev_interface.h>
+#include <smartmon/atacmds.h> // 'enum { SEL_* }' only
+#include <smartmon/byteorder.h>
 #include <smartmon/sg_unaligned.h>
 #include <smartmon/version.h>
 
@@ -136,8 +136,11 @@ const char * packet_types[] = {
 
 // Make version information string
 // lines: 1: version only, 2: version+copyright, >=3: full information
-std::string format_version_info(const char * prog_name, int lines /* = 2 */)
+std::string format_version_info(const char * prog_name, const char * os_version, int lines /* = 2 */)
 {
+  if (!(os_version && *os_version))
+    os_version = SMARTMONTOOLS_BUILD_HOST;
+
   std::string info = strprintf(
     "%s " SMARTMONTOOLS_GIT_VER_DESC " "
 #ifdef SMARTMONTOOLS_GIT_REV_DATE
@@ -146,7 +149,7 @@ std::string format_version_info(const char * prog_name, int lines /* = 2 */)
       "(build date " __DATE__ ")" // not build from git repository or src tarball
 #endif
       " [%s] " BUILD_INFO "\n",
-    prog_name, smart_interface::get().get_os_version_str().c_str()
+    prog_name, os_version
   );
   if (lines <= 1)
     return info;
