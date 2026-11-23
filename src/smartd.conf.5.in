@@ -1001,6 +1001,10 @@ with this directive:
 .br
 \fB \-s n/../../[1\-5]/12\fP
 .Sp
+If a configuration entry has more than one \*(Aq\-s\*(Aq Directive, including
+a default set by a \fBDEFAULT\fP entry, only the last one is used and a
+message is logged to SYSLOG for each ignored one.
+.Sp
 Scheduled tests are run immediately following the regularly-scheduled
 device polling, if the current local date, time, and test type, match
 \fBREGEXP\fP.  By default the regularly-scheduled device polling
