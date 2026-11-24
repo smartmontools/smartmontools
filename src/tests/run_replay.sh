@@ -7,19 +7,23 @@
 #
 # For each DATADIR/NAME.TYPE.OPTS.expected runs
 #   SMARTCTL [-B DRIVEDB] -d TYPE -OPT1 -OPT2 ... - < DATADIR/NAME.trace
+# where OPTS is a '_' separated list of single letter options, e.g. "x" or "i_H_A".
 # DRIVEDB replaces the drive database, so that an installed one (global or
 # local entries) does not affect the result.
-# where OPTS is a '_' separated list of single letter options, e.g. "x" or "i_H_A".
-# The option "j" selects the line based JSON output ("--json=g"). In this
-# output the smartctl version, build and command line ("json.smartctl.*" except
-# exit_status and messages) and the local time are ignored. The JSON expected
-# files are the output of the replay itself and pin the JSON output.
-# Version, copyright and local time lines are ignored, digit grouping is removed
-# and decimal commas become points (the expected output may stem from a non-C
-# locale).
+#
+# Text output: version, copyright and local time lines are ignored, digit
+# grouping is removed and decimal commas become points (the expected output
+# may stem from a non-C locale).
 # The estimated times of the SCT temperature history depend on the current
 # time and are replaced by a placeholder. The drive database version is
 # removed as it changes with each commit.
+#
+# JSON output: the option "j" selects the JSON output as single assignments
+# ("--json=g") instead. All "json.smartctl.*" values except exit_status and
+# messages (version, build, command line) and "json.local_time" are ignored.
+# These expected files are not output of the real device but of the replay
+# itself, they pin the JSON output. To regenerate one, run the command above
+# and remove the ignored lines.
 #
 # Copyright (C) 2026 smartmontools contributors
 #
@@ -61,7 +65,9 @@ normalize_json()
       -e '/^json\.local_time/d'
 }
 
-tmpdir=$(mktemp -d "${TMPDIR:-/tmp}/run_replay.XXXXXX") || exit 2
+# mktemp is not POSIX, mkdir also fails if the directory exists
+tmpdir=$(mktemp -d "${TMPDIR:-/tmp}/run_replay.XXXXXX" 2>/dev/null) ||
+  { tmpdir=${TMPDIR:-/tmp}/run_replay.$$; mkdir -m 700 "$tmpdir" || exit 2; }
 trap 'rm -rf "$tmpdir"' 0
 tmp=$tmpdir/r
 fails=0

@@ -6340,7 +6340,7 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
-  { "USB: Samsung SD card reader; ", // uSD Card Reader, same ID as T9 below (#700)
+  { "USB: Samsung SD card reader; ", // uSD Card Reader, same ID as T9 below (GH issues/700)
     "0x04e8:0x61fd",
     "0x0005",
     "",
@@ -6603,7 +6603,7 @@ const drive_settings builtin_knowndrives[] = {
     "", // 0x55af(0x4060): SanDisk Extreme Pro Portable SSD (Western Digital SN850XE 4TB)
     "-d sntasmedia"
   },
-  { "USB: SanDisk Extreme Portable SSD; ", // SDSSDE61, no NVMe or ATA pass-through (#526)
+  { "USB: SanDisk Extreme Portable SSD; ", // SDSSDE61, no NVMe or ATA pass-through (GH issues/526)
     "0x0781:0x55dd", // SanDisk Extreme 55DD: 1TB (rev 0010), 4TB (rev 0830, 0x003)
     "", // Temperatures and host reads from vendor log pages 0x30-0x32
     "",

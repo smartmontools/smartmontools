@@ -62,8 +62,8 @@ and of `smartd.conf` directives `-s REGEXP -l selftest`.
 now also checks for nonempty NVMe identify controller data before assuming that a NVMe device is
 connected.
 
-- Windows: USB: the `bcdDevice` value of the USB device is now passed to the drive database
-lookup.
+- Windows: USB: the `bcdDevice` value of the USB bridge (WMI `HardwareID`) is now passed to
+the drive database lookup.
 Drive database entries for the same USB ID which differ in `bcdDevice` now also select the
 device type on Windows.
 
@@ -185,8 +185,9 @@ larger than 512 bytes are rejected.
 Longer transfers caused device resets or returned zeros beyond 512 bytes.
 Each `-T permissive` option overrides the limit for one transfer.
 
-- USB: Samsung Portable SSD T9 (0x04e8:0x61fd): the device type `-d sntasmedia` is now only
-selected for `bcdDevice` 0x0100.
+- USB: Samsung Portable SSD T9 (USB 0x04e8:0x61fd): the device type `-d sntasmedia` is now
+only selected for `bcdDevice` 0x0100.
+Other or unknown `bcdDevice` values are reported as ambiguous and require `-d sntasmedia`.
 A Samsung uSD card reader uses the same ID with `bcdDevice` 0x0005 and is now reported as
 unsupported instead of receiving NVMe pass-through commands.
 

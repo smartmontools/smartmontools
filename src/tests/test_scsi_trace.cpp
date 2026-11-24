@@ -417,6 +417,9 @@ static void test_drivedb_usb_sandisk_55dd(const char * drivedb)
   CHECK_EQ(lookup_usb_device(0x04e8, 0x61fd, 0x0100, info, info2), 1);
   CHECK(info.usb_type == "sntasmedia");
   info = usb_dev_info(); info2 = usb_dev_info();
+  CHECK_EQ(lookup_usb_device(0x04e8, 0x61fd, 0x0200, info, info2), 2);
+  CHECK(info.usb_type.empty() && info2.usb_type == "sntasmedia");
+  info = usb_dev_info(); info2 = usb_dev_info();
   CHECK_EQ(lookup_usb_device(0x04e8, 0x61fd, -1, info, info2), 2);
   CHECK(info.usb_type.empty() && info2.usb_type == "sntasmedia");
 }
