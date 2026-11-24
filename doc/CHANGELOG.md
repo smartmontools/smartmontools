@@ -188,6 +188,9 @@ available.
 
 - `smartctl --json=y`: no longer leaves some reserved YAML strings unquoted.
 
+- NVMe: big endian: the Thermal Management Temperature transition counts and total times of the
+SMART/Health Information log are no longer byte swapped.
+
 - `smartctl -l farm`: fixed null pointer dereference on unknown form factor value.
 
 - `smartctl -l farm`: fixed the output format of the fields `ATA Security State` and

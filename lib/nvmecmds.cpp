@@ -534,6 +534,10 @@ void nvme_if_be_byteswap_inplace(nvme_smart_log & smart_log)
   byteswap_inplace(smart_log.critical_comp_time);
   for (int i = 0; i < 8; i++)
     byteswap_inplace(smart_log.temp_sensor[i]);
+  byteswap_inplace(smart_log.thm_temp1_trans_count);
+  byteswap_inplace(smart_log.thm_temp2_trans_count);
+  byteswap_inplace(smart_log.thm_temp1_total_time);
+  byteswap_inplace(smart_log.thm_temp2_total_time);
 }
 
 void nvme_if_be_byteswap_inplace(nvme_self_test_log & self_test_log)
