@@ -26,7 +26,8 @@ log pages of Seagate and Hitachi SCSI drives are also printed with `-A` alone.
 - `smartctl -r scsiioctl,4`: data transfers of the operating system pass-through
 layer are printed completely instead of only the first 256 bytes.
 Data-out is printed after its CDB instead of before.
-Linux SG_IO devices (`/dev/sdX`) still print neither CDB nor data.
+The Linux SG_IO pass-through (`/dev/sdX`) still prints no CDB bytes and no data of SAT or
+NVMe tunnel commands.
 
 - `smartctl -d scsi|sat...|snt... -`: a recorded SCSI command trace can be replayed from stdin.
 This simulates a SCSI device or USB bridge without the hardware.

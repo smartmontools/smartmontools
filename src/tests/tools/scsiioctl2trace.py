@@ -18,8 +18,12 @@ CDB_RE = re.compile(r'^ \[([^:\]]+): ((?:[0-9a-f]{2} )+)\]$')
 DESC_RE = re.compile(r'^ \[[^:\]]+: SCSI opcode=0x[0-9a-f]+, CDB length=\d+, '
                      r'data length=(?:0x)?(\d+), data dir=(\w+)\]$')
 SENSE_RE = re.compile(r'^  >>> Sense buffer, len=(\d+):')
-# "status=2: sense_key=..." (Windows, Linux), "status=0x2: ..." (FreeBSD, cciss)
+# "status=2: sense_key=..." (CHECK CONDITION on Windows, Solaris), "status=0x2: ..."
+# (FreeBSD), "status=0" (NetBSD, OpenBSD); cciss prints its raw ioctl status
 STATUS_RE = re.compile(r'^  status=(?:0x)?([0-9a-f]+)(?::|$)')
+# FreeBSD: a CAM status other than REQ_CMP (0x01) or SCSI_STATUS_ERROR (0x0c)
+# fails the pass-through, no "status=" line follows
+CAM_RE = re.compile(r'^  CAM status=0x([0-9a-f]+), SCSI status=0x[0-9a-f]+, resid=0x[0-9a-f]+$')
 DATAIN_RE = re.compile(r'^  \[data-in buffer: req_len=(\d+), resid=(-?\d+), gives (\d+) bytes\]')
 # Windows: "len=ALLOC, resid=N", others: "len=N" only
 INCOMING_RE = re.compile(r'^  Incoming data, len=(\d+)(?:, resid=(-?\d+))?(.*):$')
@@ -103,7 +107,18 @@ def convert(lines):
             continue
         m = STATUS_RE.match(line)
         if m:
-            cur['status'] = int(m.group(1), 16)
+            st = int(m.group(1), 16)
+            if st > 0xff:
+                # Not a SCSI status (cciss ioctl status)
+                cur['status'], cur['error'] = -1, 0
+            elif cur['status'] != -1:
+                cur['status'] = st
+            i += 1
+            continue
+        m = CAM_RE.match(line)
+        if m:
+            if (int(m.group(1), 16) & 0x3f) not in (0x01, 0x0c):
+                cur['status'], cur['error'] = -1, 0
             i += 1
             continue
         m = DATAIN_RE.match(line)
@@ -156,7 +171,9 @@ def emit(cmds, src, out):
             out.write('\n# %s: OMITTED, data-out incomplete in debug output\n'
                       '# CDB %s\n' % (c['name'], ' '.join(c['cdb'])))
             continue
-        if c['data'] is None and c['status'] == 0 and c['truncated'] is not None:
+        with_data = (c['status'] == 0 or
+                     (c['status'] > 0 and sense_key(c['sense']) in (0, 1)))
+        if c['data'] is None and with_data and c['truncated'] is not None:
             # Incomplete response is worse than none: omit, a complete
             # recording of the same CDB may be appended to the trace.
             out.write('\n# %s: OMITTED, data truncated to 256 bytes in debug output\n'
@@ -174,8 +191,10 @@ def emit(cmds, src, out):
             out.write('DATAOUT %s\n' % ' '.join('%02x' % b for b in c['dataout']))
         data = c['data']
         # Data returned with CHECK CONDITION is kept only for NO SENSE and
-        # RECOVERED ERROR (e.g. ATA PASS-THROUGH with CK_COND)
-        if c['status'] != 0 and sense_key(c['sense']) not in (0, 1):
+        # RECOVERED ERROR (e.g. ATA PASS-THROUGH with CK_COND), the replay
+        # uses the same rule. Not covered: the SAT layer also accepts other
+        # sense keys if CK_COND is set and the ATA status indicates success.
+        if not with_data:
             data = []
         out.write('DATA %s\n' % ' '.join('%02x' % b for b in (data or [])))
         out.write('END\n')

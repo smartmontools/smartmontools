@@ -54,8 +54,9 @@ SMARTMON_BEGIN_VERSION_NAMESPACE
 //   opcode was recorded at least once, INVALID COMMAND OPERATION CODE else.
 // - Data-out commands are only replayed if CDB and data match a record
 //   with DATAOUT exactly, such a record never answers other commands.
-// - A CHECK CONDITION record may contain DATA, e.g. ATA PASS-THROUGH with
-//   CK_COND returns data together with recovered error sense data.
+// - DATA of a CHECK CONDITION record is only returned for NO SENSE and
+//   RECOVERED ERROR sense data (e.g. ATA PASS-THROUGH with CK_COND), other
+//   CHECK CONDITION records return no data.
 
 namespace {
 
@@ -143,8 +144,10 @@ bool trace_scsi_device::open()
   else if (!strcmp(src, "-")) {
     src = "<stdin>";
     if (!m_stdin_read) {
-      if (!read_text(stdin, m_stdin_text))
+      if (!read_text(stdin, m_stdin_text)) {
+        m_stdin_text.clear();
         return set_err(EIO, "%s: read error", src);
+      }
       m_stdin_read = true;
     }
     text = m_stdin_text;
@@ -302,16 +305,26 @@ static bool get_alloc_field(const uint8_t * cdb, unsigned cdb_len,
   return (offset + size <= cdb_len);
 }
 
-// Allocation length of the CDB, or -1 if the command has no such field
-static long get_alloc_len(const uint8_t * cdb, unsigned cdb_len)
+// Get allocation length of the CDB, return false if there is no such field
+static bool get_alloc_len(const uint8_t * cdb, unsigned cdb_len, uint32_t & len)
 {
   unsigned offset = 0, size = 0;
   if (!get_alloc_field(cdb, cdb_len, offset, size))
-    return -1;
-  unsigned long len = 0;
+    return false;
+  len = 0;
   for (unsigned i = 0; i < size; i++)
     len = (len << 8) | cdb[offset + i];
-  return (long)len;
+  return true;
+}
+
+// Sense key of fixed or descriptor format sense data, -1 if none
+static int get_sense_key(const std::vector<uint8_t> & sense)
+{
+  if (sense.size() < 3)
+    return -1;
+  if ((sense[0] & 0x7f) >= 0x72)
+    return sense[1] & 0x0f;
+  return sense[2] & 0x0f;
 }
 
 static bool same_cdb(const std::vector<uint8_t> & rec, const uint8_t * cdb,
@@ -423,11 +436,13 @@ bool trace_scsi_device::scsi_pass_through(scsi_cmnd_io * iop)
     iop->resp_sense_len = n;
   }
 
-  if (iop->dxfer_dir == DXFER_FROM_DEVICE && iop->dxferp) {
+  int sk = (best->status ? get_sense_key(best->sense) : 0);
+  bool with_data = (sk == SCSI_SK_NO_SENSE || sk == SCSI_SK_RECOVERED_ERR);
+  if (iop->dxfer_dir == DXFER_FROM_DEVICE && iop->dxferp && with_data) {
     size_t n = best->data.size();
-    long alloc = get_alloc_len(iop->cmnd, iop->cmnd_len);
-    if (alloc >= 0 && n > (size_t)alloc)
-      n = (size_t)alloc;
+    uint32_t alloc = 0;
+    if (get_alloc_len(iop->cmnd, iop->cmnd_len, alloc) && n > alloc)
+      n = alloc;
     if (n > iop->dxfer_len)
       n = iop->dxfer_len;
     if (n)

@@ -184,6 +184,28 @@ static void test_check_condition_with_data()
   CHECK_EQ(buf[3], 0x44);
 }
 
+// CHECK CONDITION with other sense keys returns no data, even if recorded
+static void test_check_condition_without_data()
+{
+  static const char trace[] =
+    "CDB 4d 00 42 00 00 00 00 00 04 00\n"
+    "ALLOC 4\n"
+    "STATUS 2\n"
+    "SENSE 70 00 05 00 00 00 00 0a 00 00 00 00 24 00 00 00 00 00\n"
+    "DATA 11 22 33 44\n"
+    "END\n";
+  scsi_ptr dev = open_trace(trace);
+  uint8_t buf[4] = {0, };
+  scsi_sense_disect sinfo;
+  scsi_cmnd_io io;
+  const uint8_t cdb[10] = {0x4d, 0, 0x42, 0, 0, 0, 0, 0, 4, 0};
+  CHECK(raw_cmd(dev.get(), cdb, sizeof(cdb), DXFER_FROM_DEVICE, buf, 4, sinfo, io));
+  CHECK_EQ(io.scsi_status, SCSI_STATUS_CHECK_CONDITION);
+  CHECK_EQ(sinfo.sense_key, SCSI_SK_ILLEGAL_REQUEST);
+  CHECK_EQ(io.resid, 4);
+  CHECK_EQ(buf[0], 0);
+}
+
 static void test_unrecorded_page_of_known_opcode()
 {
   scsi_ptr dev = open_trace(mini_trace);
@@ -466,6 +488,7 @@ int main(int argc, char ** argv)
   test_log_sense_twin_fetch();
   test_recorded_check_condition();
   test_check_condition_with_data();
+  test_check_condition_without_data();
   test_unrecorded_page_of_known_opcode();
   test_unknown_opcode();
   test_transport_failure();

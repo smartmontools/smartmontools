@@ -23,7 +23,7 @@
 # messages (version, build, command line) and "json.local_time" are ignored.
 # These expected files are not output of the real device but of the replay
 # itself, they pin the JSON output. To regenerate one, run the command above
-# and remove the ignored lines.
+# with "--json=g" in place of "-j" (removing the ignored lines is optional).
 #
 # Copyright (C) 2026 smartmontools contributors
 #
