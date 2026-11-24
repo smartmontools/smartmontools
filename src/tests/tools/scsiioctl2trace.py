@@ -32,6 +32,8 @@ OUTGOING_RE = re.compile(r'^  Outgoing data, len=(\d+)(.*):$')
 HEX_OFS_RE = re.compile(r'^ [0-9a-f]+ {3,}((?:[0-9a-f]{2} +)*[0-9a-f]{2})\s*$')
 HEX_RAW_RE = re.compile(r'^((?:[0-9a-f]{2} +)*[0-9a-f]{2})\s*$')
 IOCTL_ERR_RE = re.compile(r'IOCTL_SCSI_PASS_THROUGH\w* failed, Error=(\d+)')
+# FreeBSD: cam_send_ccb() failed
+CAM_SEND_ERR_RE = re.compile(r'^  error sending SCSI ccb$')
 
 
 def read_hex(lines, i, count, with_offset):
@@ -142,7 +144,10 @@ def convert(lines):
             if 'only first' in m.group(3) or len(data) != n:
                 cur['truncated'] = data
             elif cur['data'] is None:
-                cur['data'] = data
+                # Windows dumps the whole buffer, only len - resid bytes
+                # were transferred
+                resid = int(m.group(2)) if m.group(2) is not None else 0
+                cur['data'] = data[:n - resid] if 0 < resid <= n else data
             continue
         if TRIMMED_RE.match(line):
             if cur['data'] is None:
@@ -153,6 +158,8 @@ def convert(lines):
         if m:
             cur['status'] = -1
             cur['error'] = int(m.group(1))
+        elif CAM_SEND_ERR_RE.match(line):
+            cur['status'], cur['error'] = -1, 0
         i += 1
     for c in cmds:
         # Data-in command without any response: pass-through itself failed
