@@ -61,6 +61,11 @@ and of `smartd.conf` directives `-s REGEXP -l selftest`.
 now also checks for nonempty NVMe identify controller data before assuming that a NVMe device is
 connected.
 
+- Windows: USB: the `bcdDevice` value of the USB device is now passed to the drive database
+lookup.
+Drive database entries for the same USB ID which differ in `bcdDevice` now also select the
+device type on Windows.
+
 - Linux: a check of runtime power management has been added for ATA, SCSI and NVMe devices.
 If the `-n standby` option or directive is specified, `/sys/.../device/power/control` and
 `/sys/.../device/power/runtime_status` are checked before opening the device.
@@ -178,6 +183,11 @@ The Error Information log is truncated to 8 and the Self-test log to 18 entries,
 larger than 512 bytes are rejected.
 Longer transfers caused device resets or returned zeros beyond 512 bytes.
 The option `-T permissive` overrides the limit.
+
+- USB: Samsung Portable SSD T9 (0x04e8:0x61fd): the device type `-d sntasmedia` is now only
+selected for `bcdDevice` 0x0100.
+A Samsung uSD card reader uses the same ID with `bcdDevice` 0x0005 and is now reported as
+unsupported instead of receiving NVMe pass-through commands.
 
 - The handling of unaligned integers in data structures has been reworked.
 Most `packed` structure attributes are no longer needed and have been removed.

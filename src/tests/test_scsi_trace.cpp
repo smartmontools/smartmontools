@@ -359,6 +359,19 @@ static void test_drivedb_usb_sandisk_55dd(const char * drivedb)
   CHECK_EQ(lookup_usb_device(0x174c, 0x2464, 0x5417, info, info2), 1);
   CHECK(info.usb_type == "sntasmedia");
   CHECK(info.usb_bridge.find("ASM2464PD") != std::string::npos);
+
+  // Samsung uSD card reader reuses the ID of the Portable SSD T9 (#700):
+  // bcdDevice selects the entry, sending NVMe commands to the reader blocks it
+  info = usb_dev_info();
+  CHECK_EQ(lookup_usb_device(0x04e8, 0x61fd, 0x0005, info, info2), 1);
+  CHECK(info.usb_type.empty());
+  CHECK(info.usb_device.find("card reader") != std::string::npos);
+  info = usb_dev_info();
+  CHECK_EQ(lookup_usb_device(0x04e8, 0x61fd, 0x0100, info, info2), 1);
+  CHECK(info.usb_type == "sntasmedia");
+  info = usb_dev_info(); info2 = usb_dev_info();
+  CHECK_EQ(lookup_usb_device(0x04e8, 0x61fd, -1, info, info2), 2);
+  CHECK(info.usb_type.empty() && info2.usb_type == "sntasmedia");
 }
 
 #if defined(_WIN32) || defined(__CYGWIN__)

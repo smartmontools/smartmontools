@@ -6340,9 +6340,15 @@ const drive_settings builtin_knowndrives[] = {
     "",
     "-d sat"
   },
+  { "USB: Samsung SD card reader; ", // uSD Card Reader, same ID as T9 below (#700)
+    "0x04e8:0x61fd",
+    "0x0005",
+    "",
+    "" // unsupported
+  },
   { "USB: Samsung Portable SSD T9; ASMedia ASM2362",
     "0x04e8:0x61fd",
-    "", // 0x0100
+    "0x0100", // other values are ambiguous because of the card reader above
     "",
     "-d sntasmedia"
   },
