@@ -1053,33 +1053,8 @@ bool linux_aacraid_device::scsi_pass_through(scsi_cmnd_io *iop)
 {
   int report = scsi_debugmode;
 
-  if (report > 0) {
-    int k, j;
-    const unsigned char * ucp = iop->cmnd;
-    const char * np;
-    char buff[256];
-    const int sz = (int)sizeof(buff);
-
-    np = scsi_get_opcode_name(ucp);
-    j  = snprintf(buff, sz, " [%s: ", np ? np : "<unknown opcode>");
-    for (k = 0; k < (int)iop->cmnd_len; ++k)
-      j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "%02x ", ucp[k]);
-    if ((report > 1) &&
-        (DXFER_TO_DEVICE == iop->dxfer_dir) && (iop->dxferp)) {
-        int trunc = (report < 4 && iop->dxfer_len > 256) ? 1 : 0;
-
-        snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n  Outgoing "
-                 "data, len=%d%s:\n", (int)iop->dxfer_len,
-                 (trunc ? " [only first 256 bytes shown]" : ""));
-        lib_printf("%s", buff); // header before data
-        buff[0] = 0;
-        dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
-    }
-    else
-      snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n");
-
-    lib_printf("%s", buff);
-  }
+  if (report > 0)
+    scsi_print_command(iop, report);
 
 
   //return test commands
@@ -1360,32 +1335,8 @@ bool linux_megaraid_device::scsi_pass_through(scsi_cmnd_io *iop)
 {
   int report = scsi_debugmode;
 
-  if (report > 0) {
-        int k, j;
-        const unsigned char * ucp = iop->cmnd;
-        const char * np;
-        char buff[256];
-        const int sz = (int)sizeof(buff);
-
-        np = scsi_get_opcode_name(ucp);
-        j = snprintf(buff, sz, " [%s: ", np ? np : "<unknown opcode>");
-        for (k = 0; k < (int)iop->cmnd_len; ++k)
-            j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "%02x ", ucp[k]);
-        if ((report > 1) &&
-            (DXFER_TO_DEVICE == iop->dxfer_dir) && (iop->dxferp)) {
-            int trunc = (report < 4 && iop->dxfer_len > 256) ? 1 : 0;
-
-            snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n  Outgoing "
-                     "data, len=%d%s:\n", (int)iop->dxfer_len,
-                     (trunc ? " [only first 256 bytes shown]" : ""));
-            lib_printf("%s", buff); // header before data
-            buff[0] = 0;
-            dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
-        }
-        else
-            snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n");
-        lib_printf("%s", buff);
-  }
+  if (report > 0)
+    scsi_print_command(iop, report);
 
   // Controller rejects Test Unit Ready
   if (iop->cmnd[0] == 0x00)
@@ -1970,32 +1921,8 @@ bool linux_mpi3mr_device::scsi_pass_through(scsi_cmnd_io *iop)
 {
   int report = scsi_debugmode;
 
-  if (report > 0) {
-    int k, j;
-    const unsigned char * ucp = iop->cmnd;
-    const char * np;
-    char buff[256];
-    const int sz = (int)sizeof(buff);
-
-    np = scsi_get_opcode_name(ucp);
-    j = snprintf(buff, sz, " [%s: ", np ? np : "<unknown opcode>");
-    for (k = 0; k < (int)iop->cmnd_len; ++k)
-      j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "%02x ", ucp[k]);
-    if ((report > 1) &&
-      (DXFER_TO_DEVICE == iop->dxfer_dir) && (iop->dxferp)) {
-      int trunc = (report < 4 && iop->dxfer_len > 256) ? 1 : 0;
-
-      snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n  Outgoing "
-           "data, len=%d%s:\n", (int)iop->dxfer_len,
-           (trunc ? " [only first 256 bytes shown]" : ""));
-      lib_printf("%s", buff); // header before data
-      buff[0] = 0;
-      dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
-    }
-    else
-      snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n");
-    lib_printf("%s", buff);
-  }
+  if (report > 0)
+    scsi_print_command(iop, report);
 
   // Controller rejects Test Unit Ready
   if (iop->cmnd[0] == 0x00)
@@ -2037,31 +1964,8 @@ linux_sssraid_device::linux_sssraid_device(smart_interface *intf,
 bool linux_sssraid_device::scsi_pass_through(scsi_cmnd_io *iop)
 {
   int report = scsi_debugmode;
-  if (report > 0) {
-    int k, j;
-    const unsigned char * ucp = iop->cmnd;
-    const char * np;
-    char buff[256];
-    const int sz = (int)sizeof(buff);
-
-    np = scsi_get_opcode_name(ucp);
-    j = snprintf(buff, sz, " [%s: ", np ? np : "<unknown opcode>");
-    for (k = 0; k < (int)iop->cmnd_len; ++k)
-      j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "%02x ", ucp[k]);
-    if ((report > 1) && (DXFER_TO_DEVICE == iop->dxfer_dir) && (iop->dxferp)) {
-      int trunc = (report < 4 && iop->dxfer_len > 256) ? 1 : 0;
-
-      snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n  Outgoing "
-              "data, len=%d%s:\n", (int)iop->dxfer_len,
-              (trunc ? " [only first 256 bytes shown]" : ""));
-      lib_printf("%s", buff); // header before data
-      buff[0] = 0;
-      dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
-    }
-    else
-      snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n");
-    lib_printf("%s", buff);
-  }
+  if (report > 0)
+    scsi_print_command(iop, report);
 
   bool r = scsi_cmd(iop);
   return r;

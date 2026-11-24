@@ -2945,32 +2945,8 @@ bool win_scsi_device::scsi_pass_through(struct scsi_cmnd_io * iop)
 {
   int report = scsi_debugmode; // TODO
 
-  if (report > 0) {
-    int k, j;
-    const unsigned char * ucp = iop->cmnd;
-    const char * np;
-    char buff[256];
-    const int sz = (int)sizeof(buff);
-
-    np = scsi_get_opcode_name(ucp);
-    j = snprintf(buff, sz, " [%s: ", np ? np : "<unknown opcode>");
-    for (k = 0; k < (int)iop->cmnd_len; ++k)
-      j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "%02x ", ucp[k]);
-    if ((report > 1) &&
-      (DXFER_TO_DEVICE == iop->dxfer_dir) && (iop->dxferp)) {
-      int trunc = (report < 4 && iop->dxfer_len > 256) ? 1 : 0;
-
-      j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n  Outgoing "
-              "data, len=%d%s:\n", (int)iop->dxfer_len,
-              (trunc ? " [only first 256 bytes shown]" : ""));
-      lib_printf("%s", buff); // header before data
-      buff[0] = 0;
-      dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
-    }
-    else
-      j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n");
-    lib_printf("%s", buff);
-  }
+  if (report > 0)
+    scsi_print_command(iop, report);
 
   SCSI_PASS_THROUGH_DIRECT_WITH_BUFFER sb;
   if (iop->cmnd_len > (int)sizeof(sb.spt.Cdb)) {
@@ -3076,32 +3052,8 @@ static long scsi_pass_through_direct(HANDLE fd, UCHAR targetid, struct scsi_cmnd
 {
   int report = scsi_debugmode; // TODO
 
-  if (report > 0) {
-    int k, j;
-    const unsigned char * ucp = iop->cmnd;
-    const char * np;
-    char buff[256];
-    const int sz = (int)sizeof(buff);
-
-    np = scsi_get_opcode_name(ucp);
-    j = snprintf(buff, sz, " [%s: ", np ? np : "<unknown opcode>");
-    for (k = 0; k < (int)iop->cmnd_len; ++k)
-      j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "%02x ", ucp[k]);
-    if ((report > 1) &&
-      (DXFER_TO_DEVICE == iop->dxfer_dir) && (iop->dxferp)) {
-      int trunc = (report < 4 && iop->dxfer_len > 256) ? 1 : 0;
-
-      j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n  Outgoing "
-              "data, len=%d%s:\n", (int)iop->dxfer_len,
-              (trunc ? " [only first 256 bytes shown]" : ""));
-      lib_printf("%s", buff); // header before data
-      buff[0] = 0;
-      dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
-    }
-    else
-      j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n");
-    lib_printf("%s", buff);
-  }
+  if (report > 0)
+    scsi_print_command(iop, report);
 
   SCSI_PASS_THROUGH_DIRECT_WITH_BUFFER sb;
   if (iop->cmnd_len > (int)sizeof(sb.spt.Cdb)) {
@@ -3518,31 +3470,7 @@ bool win_aacraid_device::scsi_pass_through(struct scsi_cmnd_io *iop)
 {
   int report = scsi_debugmode;
   if (report > 0)
-  {
-    int k, j;
-    const unsigned char * ucp = iop->cmnd;
-    const char * np;
-    char buff[256];
-    const int sz = (int)sizeof(buff);
-    np = scsi_get_opcode_name(ucp);
-    j  = snprintf(buff, sz, " [%s: ", np ? np : "<unknown opcode>");
-    for (k = 0; k < (int)iop->cmnd_len; ++k)
-      j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "%02x ", ucp[k]);
-    if ((report > 1) &&
-      (DXFER_TO_DEVICE == iop->dxfer_dir) && (iop->dxferp)) {
-      int trunc = (report < 4 && iop->dxfer_len > 256) ? 1 : 0;
-
-      j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n  Outgoing "
-        "data, len=%d%s:\n", (int)iop->dxfer_len,
-        (trunc ? " [only first 256 bytes shown]" : ""));
-        lib_printf("%s", buff); // header before data
-        buff[0] = 0;
-        dStrHex(iop->dxferp, (trunc ? 256 : (int)iop->dxfer_len) , 1);
-      }
-    else
-      j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n");
-    lib_printf("%s", buff);
-  }
+    scsi_print_command(iop, report);
 
   // Create buffer with appropriate size
   constexpr unsigned scsiRequestBlockSize = sizeof(SCSI_REQUEST_BLOCK);

@@ -160,22 +160,8 @@ bool solaris_scsi_device::scsi_pass_through(scsi_cmnd_io * iop)
 {
   int report = scsi_debugmode;
 
-  if (report > 0) {
-    const unsigned char * ucp = iop->cmnd;
-    const char * np = scsi_get_opcode_name(ucp);
-
-    lib_printf(" [%s: ", np ? np : "<unknown opcode>");
-    for (unsigned k = 0; k < iop->cmnd_len; ++k)
-      lib_printf("%02x ", ucp[k]);
-    lib_printf("]\n");
-    if (report > 1 && iop->dxfer_dir == DXFER_TO_DEVICE && iop->dxferp) {
-      int trunc = (report < 4 && iop->dxfer_len > 256) ? 1 : 0;
-
-      lib_printf("  Outgoing data, len=%d%s:\n", (int)iop->dxfer_len,
-        (trunc ? " [only first 256 bytes shown]" : ""));
-      dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len), 1);
-    }
-  }
+  if (report > 0)
+    scsi_print_command(iop, report);
 
   struct uscsi_cmd uscsi;
   memset(&uscsi, 0, sizeof(uscsi));

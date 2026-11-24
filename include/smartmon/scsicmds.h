@@ -537,6 +537,11 @@ void dStrHex(const uint8_t * up, int len, int no_ascii);
  * See dStrHex() above for more information. */
 void dStrHexFp(const uint8_t * up, int len, int no_ascii, FILE * fp);
 
+/* Print the CDB of a SCSI command and, if 'report' > 1, its data-out
+ * into lib_printf(): the first 256 bytes, all bytes if 'report' > 3.
+ * Used by the scsi_pass_through() implementations for '-r scsiioctl,N'. */
+void scsi_print_command(const struct scsi_cmnd_io * iop, int report);
+
 /* Attempt to find the first SCSI sense data descriptor that matches the
  * given 'desc_type'. If found return pointer to start of sense data
  * descriptor; otherwise (including fixed format sense data) returns
