@@ -10,6 +10,10 @@
 # DRIVEDB replaces the drive database, so that an installed one (global or
 # local entries) does not affect the result.
 # where OPTS is a '_' separated list of single letter options, e.g. "x" or "i_H_A".
+# The option "j" selects the line based JSON output ("--json=g"). In this
+# output the smartctl version, build and command line ("json.smartctl.*" except
+# exit_status and messages) and the local time are ignored. The JSON expected
+# files are the output of the replay itself and pin the JSON output.
 # Version, copyright and local time lines are ignored, digit grouping is removed
 # and decimal commas become points (the expected output may stem from a non-C
 # locale).
@@ -48,6 +52,15 @@ normalize()
       -e 's/ $//'
 }
 
+normalize_json()
+{
+  tr -d '\r' |
+  sed -e '/^json\.smartctl\.exit_status /b' \
+      -e '/^json\.smartctl\.messages/b' \
+      -e '/^json\.smartctl\./d' \
+      -e '/^json\.local_time/d'
+}
+
 tmp=${TMPDIR:-/tmp}/run_replay.$$
 trap 'rm -f "$tmp".*' 0
 fails=0
@@ -58,12 +71,22 @@ for exp in "$datadir"/*.expected; do
   opts=${base##*.}; base=${base%.*}
   type=${base##*.}; name=${base%.*}
   args=$(echo "$opts" | sed -e 's/^/-/' -e 's/_/ -/g')
+  json=
+  case " $args " in
+    *" -j "*) json=1
+              args=$(echo " $args " | sed -e 's/ -j / --json=g /' -e 's/^ //' -e 's/ $//') ;;
+  esac
   total=$((total + 1))
   # shellcheck disable=SC2086
   "$smartctl" "$@" -d "$type" $args - < "$name.trace" > "$tmp.out" 2>&1
   rc=$?
-  normalize < "$tmp.out" > "$tmp.act"
-  normalize < "$exp" > "$tmp.exp"
+  if [ -n "$json" ]; then
+    normalize_json < "$tmp.out" > "$tmp.act"
+    normalize_json < "$exp" > "$tmp.exp"
+  else
+    normalize < "$tmp.out" > "$tmp.act"
+    normalize < "$exp" > "$tmp.exp"
+  fi
   # Exit status bit 0 (command line error) must not be set, the other bits
   # depend on the recorded device (e.g. device open failed)
   if [ $((rc & 1)) -ne 0 ]; then

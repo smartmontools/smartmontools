@@ -32,6 +32,7 @@ This simulates a SCSI device or USB bridge without the hardware.
 `make check` now runs unit tests and compares the replayed output of recorded devices
 with the output of the real device.
 Some synthetic traces check corner cases of the SanDisk vendor log pages.
+Some replays are also compared in the line based JSON format (`--json=g`).
 
 - `smartctl -j`: the new JSON values `host_reads: {...}` and `host_writes: {...}` have been
 added for ATA and NVMe.

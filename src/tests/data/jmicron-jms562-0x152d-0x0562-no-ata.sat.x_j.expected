@@ -1,0 +1,11 @@
+json = {};
+json.json_format_version = [];
+json.json_format_version[0] = 1;
+json.json_format_version[1] = 0;
+json.smartctl = {};
+json.smartctl.exit_status = 2;
+json.device = {};
+json.device.name = "-";
+json.device.info_name = "- [SCSI trace] [SAT]";
+json.device.type = "sat";
+json.device.protocol = "ATA";
