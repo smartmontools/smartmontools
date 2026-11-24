@@ -18,9 +18,12 @@ CDB_RE = re.compile(r'^ \[([^:\]]+): ((?:[0-9a-f]{2} )+)\]$')
 DESC_RE = re.compile(r'^ \[[^:\]]+: SCSI opcode=0x[0-9a-f]+, CDB length=\d+, '
                      r'data length=(?:0x)?(\d+), data dir=(\w+)\]$')
 SENSE_RE = re.compile(r'^  >>> Sense buffer, len=(\d+):')
-STATUS_RE = re.compile(r'^  status=([0-9a-f]+):')
+# "status=2: sense_key=..." (Windows, Linux), "status=0x2: ..." (FreeBSD, cciss)
+STATUS_RE = re.compile(r'^  status=(?:0x)?([0-9a-f]+)(?::|$)')
 DATAIN_RE = re.compile(r'^  \[data-in buffer: req_len=(\d+), resid=(-?\d+), gives (\d+) bytes\]')
-INCOMING_RE = re.compile(r'^  Incoming data, len=(\d+), resid=(-?\d+)(.*):')
+# Windows: "len=ALLOC, resid=N", others: "len=N" only
+INCOMING_RE = re.compile(r'^  Incoming data, len=(\d+)(?:, resid=(-?\d+))?(.*):$')
+TRIMMED_RE = re.compile(r'^  Incoming data trimmed to nothing by resid$')
 OUTGOING_RE = re.compile(r'^  Outgoing data, len=(\d+)(.*):$')
 HEX_OFS_RE = re.compile(r'^ [0-9a-f]+ {3,}((?:[0-9a-f]{2} +)*[0-9a-f]{2})\s*$')
 HEX_RAW_RE = re.compile(r'^((?:[0-9a-f]{2} +)*[0-9a-f]{2})\s*$')
@@ -37,6 +40,14 @@ def read_hex(lines, i, count, with_offset):
         out += [int(b, 16) for b in m.group(1).split()]
         i += 1
     return out[:count], i
+
+
+def sense_key(sense):
+    if len(sense) < 3:
+        return None
+    if (sense[0] & 0x7f) >= 0x72:  # descriptor format
+        return sense[1] & 0x0f
+    return sense[2] & 0x0f
 
 
 def convert(lines):
@@ -98,16 +109,30 @@ def convert(lines):
         m = DATAIN_RE.match(line)
         if m:
             cur['alloc'] = int(m.group(1))
-            cur['data'], i = read_hex([l.rstrip('\r\n') for l in lines], i + 1, int(m.group(3)), False)
+            n = int(m.group(3))
+            data, i = read_hex([l.rstrip('\r\n') for l in lines], i + 1, n, False)
+            if len(data) != n:
+                cur['truncated'] = data
+            else:
+                cur['data'] = data
             continue
         m = INCOMING_RE.match(line)
         if m:
-            cur['alloc'] = int(m.group(1))
-            data, i = read_hex([l.rstrip('\r\n') for l in lines], i + 1, int(m.group(1)), True)
-            if 'only first' in m.group(3):
+            n = int(m.group(1))
+            # With resid, len is the allocation length (Windows). Otherwise
+            # it may be the transferred length, keep a known data length.
+            if m.group(2) is not None or not cur['alloc']:
+                cur['alloc'] = n
+            data, i = read_hex([l.rstrip('\r\n') for l in lines], i + 1, n, True)
+            if 'only first' in m.group(3) or len(data) != n:
                 cur['truncated'] = data
             elif cur['data'] is None:
                 cur['data'] = data
+            continue
+        if TRIMMED_RE.match(line):
+            if cur['data'] is None:
+                cur['data'] = []
+            i += 1
             continue
         m = IOCTL_ERR_RE.search(line)
         if m:
@@ -148,7 +173,9 @@ def emit(cmds, src, out):
         if c['dataout']:
             out.write('DATAOUT %s\n' % ' '.join('%02x' % b for b in c['dataout']))
         data = c['data']
-        if c['status'] != 0:
+        # Data returned with CHECK CONDITION is kept only for NO SENSE and
+        # RECOVERED ERROR (e.g. ATA PASS-THROUGH with CK_COND)
+        if c['status'] != 0 and sense_key(c['sense']) not in (0, 1):
             data = []
         out.write('DATA %s\n' % ' '.join('%02x' % b for b in (data or [])))
         out.write('END\n')
@@ -164,8 +191,7 @@ def main(argv):
             cmds = convert(f.readlines())
         if not cmds:
             # e.g. Linux SG_IO: the CDB bytes are not printed
-            sys.stderr.write('%s: no SCSI commands with CDB bytes found
-' % path)
+            sys.stderr.write('%s: no SCSI commands with CDB bytes found\n' % path)
             rc = 1
         emit(cmds, path.rsplit('/', 1)[-1], sys.stdout)
     return rc

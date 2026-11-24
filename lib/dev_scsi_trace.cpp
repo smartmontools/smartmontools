@@ -43,8 +43,9 @@ SMARTMON_BEGIN_VERSION_NAMESPACE
 //
 // Replay rules:
 // - The allocation length field of well known commands is ignored when
-//   matching a CDB. A recorded response is truncated to the requested
-//   length or returned with a residual count.
+//   matching a CDB. A recorded response is truncated to the allocation
+//   length of the CDB and to the buffer length, or returned with a
+//   residual count.
 // - An exact match (including allocation length) is preferred, otherwise
 //   the response recorded with the largest allocation length is used.
 // - Several exact matches are used in recorded order, the last one is
@@ -53,6 +54,8 @@ SMARTMON_BEGIN_VERSION_NAMESPACE
 //   opcode was recorded at least once, INVALID COMMAND OPERATION CODE else.
 // - Data-out commands are only replayed if CDB and data match a record
 //   with DATAOUT exactly, such a record never answers other commands.
+// - A CHECK CONDITION record may contain DATA, e.g. ATA PASS-THROUGH with
+//   CK_COND returns data together with recovered error sense data.
 
 namespace {
 
@@ -89,6 +92,8 @@ private:
 
   bool m_has_text;
   std::string m_text;
+  bool m_stdin_read; // stdin is read once, reopen parses the same text
+  std::string m_stdin_text;
   std::vector<trace_cmd> m_cmds;
   std::vector<bool> m_used;
   bool m_open;
@@ -99,6 +104,7 @@ trace_scsi_device::trace_scsi_device(smart_interface * intf, const char * dev_na
 : smart_device(intf, dev_name, "scsi", "scsi"),
   m_has_text(!!trace_text),
   m_text(trace_text ? trace_text : ""),
+  m_stdin_read(false),
   m_open(false)
 {
   set_info().info_name = strprintf("%s [SCSI trace]", dev_name);
@@ -136,8 +142,12 @@ bool trace_scsi_device::open()
   }
   else if (!strcmp(src, "-")) {
     src = "<stdin>";
-    if (!read_text(stdin, text))
-      return set_err(EIO, "%s: read error", src);
+    if (!m_stdin_read) {
+      if (!read_text(stdin, m_stdin_text))
+        return set_err(EIO, "%s: read error", src);
+      m_stdin_read = true;
+    }
+    text = m_stdin_text;
   }
   else {
     FILE * f = fopen(src, "rb");
@@ -225,6 +235,9 @@ bool trace_scsi_device::parse(const std::string & text, const char * src)
       line.pop_back();
     if (line.empty() || line[0] == '#')
       continue;
+    // The C string parsers below would ignore the rest of the line
+    if (line.find('\0') != std::string::npos)
+      return set_err(EINVAL, "%s(%d): NUL character", src, lineno);
 
     size_t sp = line.find(' ');
     std::string key = line.substr(0, sp);
@@ -287,6 +300,18 @@ static bool get_alloc_field(const uint8_t * cdb, unsigned cdb_len,
       return false;
   }
   return (offset + size <= cdb_len);
+}
+
+// Allocation length of the CDB, or -1 if the command has no such field
+static long get_alloc_len(const uint8_t * cdb, unsigned cdb_len)
+{
+  unsigned offset = 0, size = 0;
+  if (!get_alloc_field(cdb, cdb_len, offset, size))
+    return -1;
+  unsigned long len = 0;
+  for (unsigned i = 0; i < size; i++)
+    len = (len << 8) | cdb[offset + i];
+  return (long)len;
 }
 
 static bool same_cdb(const std::vector<uint8_t> & rec, const uint8_t * cdb,
@@ -396,17 +421,21 @@ bool trace_scsi_device::scsi_pass_through(scsi_cmnd_io * iop)
     if (iop->sensep && n)
       memcpy(iop->sensep, best->sense.data(), n);
     iop->resp_sense_len = n;
-    iop->resid = (int)iop->dxfer_len;
-    return true;
   }
 
   if (iop->dxfer_dir == DXFER_FROM_DEVICE && iop->dxferp) {
     size_t n = best->data.size();
+    long alloc = get_alloc_len(iop->cmnd, iop->cmnd_len);
+    if (alloc >= 0 && n > (size_t)alloc)
+      n = (size_t)alloc;
     if (n > iop->dxfer_len)
       n = iop->dxfer_len;
-    memcpy(iop->dxferp, best->data.data(), n);
+    if (n)
+      memcpy(iop->dxferp, best->data.data(), n);
     iop->resid = (int)(iop->dxfer_len - n);
   }
+  else if (best->status)
+    iop->resid = (int)iop->dxfer_len;
   return true;
 }
 

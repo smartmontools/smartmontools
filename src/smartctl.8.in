@@ -936,6 +936,8 @@ with the script \*(Aqsrc/tests/tools/scsiioctl2trace.py\*(Aq from the source
 tree.
 This requires that the operating system pass-through layer prints the CDB
 bytes, which is not the case for Linux SG_IO devices (\*(Aq/dev/sdX\*(Aq).
+The script was tested with the output of Windows, the data and status formats
+of the other pass-through layers are recognized but untested.
 .TP
 .B \-n POWERMODE[,STATUS[,STATUS2]], \-\-nocheck=POWERMODE[,STATUS[,STATUS2]]
 [ATA, SCSI] Specifies if \fBsmartctl\fP should exit before performing any

@@ -129,6 +129,15 @@ static void test_inquiry_any_allocation_length()
   CHECK_EQ(io.resid, 0);
   CHECK_EQ(buf[4], 0x5b);
   CHECK_EQ(buf[5], 0);
+
+  // Allocation length smaller than the buffer: the device returns at most
+  // the allocation length
+  const uint8_t cdb8[6] = {0x12, 0, 0, 0, 8, 0};
+  memset(buf, 0, sizeof(buf));
+  CHECK(raw_cmd(dev.get(), cdb8, sizeof(cdb8), DXFER_FROM_DEVICE, buf, 96, sinfo, io));
+  CHECK_EQ(io.resid, 96 - 8);
+  CHECK_EQ(buf[7], 0x02);
+  CHECK_EQ(buf[8], 0);
 }
 
 static void test_log_sense_twin_fetch()
@@ -149,6 +158,30 @@ static void test_recorded_check_condition()
   scsi_ptr dev = open_trace(mini_trace);
   uint8_t buf[252];
   CHECK_EQ(scsiLogSense(dev.get(), 0x02, 0, buf, sizeof(buf), 0), SIMPLE_ERR_BAD_FIELD);
+}
+
+// ATA PASS-THROUGH with CK_COND: CHECK CONDITION with RECOVERED ERROR sense
+// data (ATA Return Descriptor) and data-in
+static void test_check_condition_with_data()
+{
+  static const char trace[] =
+    "CDB 85 09 2e 00 00 00 01 00 00 00 00 00 00 00 ec 00\n"
+    "ALLOC 4\n"
+    "STATUS 2\n"
+    "SENSE 72 01 00 1d 00 00 00 0e 09 0c 00 00 00 01 00 00 00 00 00 00 00 50\n"
+    "DATA 11 22 33 44\n"
+    "END\n";
+  scsi_ptr dev = open_trace(trace);
+  uint8_t buf[4] = {0, };
+  scsi_sense_disect sinfo;
+  scsi_cmnd_io io;
+  const uint8_t cdb[16] = {0x85, 0x09, 0x2e, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0xec, 0};
+  CHECK(raw_cmd(dev.get(), cdb, sizeof(cdb), DXFER_FROM_DEVICE, buf, 4, sinfo, io));
+  CHECK_EQ(io.scsi_status, SCSI_STATUS_CHECK_CONDITION);
+  CHECK_EQ(sinfo.sense_key, SCSI_SK_RECOVERED_ERR);
+  CHECK_EQ(io.resid, 0);
+  CHECK_EQ(buf[0], 0x11);
+  CHECK_EQ(buf[3], 0x44);
 }
 
 static void test_unrecorded_page_of_known_opcode()
@@ -265,6 +298,20 @@ static void test_parse_errors()
     CHECK(!dev->open());
     CHECK(!dev->is_open());
     CHECK_EQ(dev->get_errno(), EINVAL);
+  }
+
+  // A NUL character in a trace file is rejected, not truncated at
+  static const char nul_trace[] = "CDB 12 00 00 00 24 00\nALLOC 36\nSTATUS 0\0 junk\nSENSE\nDATA\nEND\n";
+  const char * path = "test_scsi_trace.nul.tmp";
+  FILE * f = fopen(path, "wb");
+  CHECK(f);
+  if (f) {
+    CHECK_EQ(fwrite(nul_trace, 1, sizeof(nul_trace) - 1, f), sizeof(nul_trace) - 1);
+    fclose(f);
+    scsi_ptr dev(get_trace_scsi_device(&smart_interface::get(), path, nullptr));
+    CHECK(dev && !dev->open());
+    CHECK(dev && dev->get_errno() == EINVAL);
+    remove(path);
   }
 }
 
@@ -415,6 +462,7 @@ int main(int argc, char ** argv)
   test_inquiry_any_allocation_length();
   test_log_sense_twin_fetch();
   test_recorded_check_condition();
+  test_check_condition_with_data();
   test_unrecorded_page_of_known_opcode();
   test_unknown_opcode();
   test_transport_failure();

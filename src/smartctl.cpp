@@ -1657,8 +1657,10 @@ static int main_worker(int argc, char **argv)
     }
     dev.reset(get_parsed_ata_device(&smart_interface::get(), name));
   }
-  else if (!strcmp(name,"-") && !(!strcmp(type, "scsi") || str_starts_with(type, "sat")
-                                  || str_starts_with(type, "snt"))) {
+  else if (!strcmp(name,"-") && !(   (   !strcmp(type, "scsi") || str_starts_with(type, "sat")
+                                       || str_starts_with(type, "snt"))
+                                   && !strchr(type, '+'))) {
+    // "sat+TYPE" would open a real device of base TYPE instead of the trace
     pout("-d %s is not allowed in conjunction with device name \"-\".\n", type);
     UsageSummary();
     return FAILCMD;

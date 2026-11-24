@@ -61,8 +61,9 @@ normalize_json()
       -e '/^json\.local_time/d'
 }
 
-tmp=${TMPDIR:-/tmp}/run_replay.$$
-trap 'rm -f "$tmp".*' 0
+tmpdir=$(mktemp -d "${TMPDIR:-/tmp}/run_replay.XXXXXX") || exit 2
+trap 'rm -rf "$tmpdir"' 0
+tmp=$tmpdir/r
 fails=0
 total=0
 for exp in "$datadir"/*.expected; do

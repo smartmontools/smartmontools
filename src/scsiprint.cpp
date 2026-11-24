@@ -410,6 +410,8 @@ static bool
 scsiGetSanDiskTemps(scsi_device * device, sandisk_temps & t)
 {
     int err;
+    // A short response must not leave data of a previous command
+    memset(gBuf, 0, LOG_RESP_LEN);
     if ((err = scsiLogSense(device, SANDISK_TEMPERATURE_LPAGE, 0, gBuf,
                             LOG_RESP_LEN, 0))) {
         if (scsi_debugmode > 0)
@@ -443,6 +445,7 @@ scsiPrintSanDiskLPages(scsi_device * device)
     bool have_reads = false;
     uint32_t host_read_gib = 0, host_written_gib = 0;
     if (gSanDiskCountersLPage) {
+        memset(gBuf, 0, LOG_RESP_LEN);
         int err = scsiLogSense(device, SANDISK_COUNTERS_LPAGE, 0, gBuf,
                                LOG_RESP_LEN, 0);
         // No signature, so only the known page length is accepted

@@ -20,12 +20,13 @@ Work towards a more consistent and flexible API is in progress.
 board and lifetime temperatures and host reads and writes are reported from the vendor specific log pages
 0x30 and 0x32 (JSON: `sandisk_vendor_log: {...}`).
 The controller temperature replaces the invalid value from the IE mode page.
-The SCSI vendor is now also read without `-i`, so the Seagate cache, factory and
-FARM log pages of Seagate and Hitachi SCSI drives are also printed with `-A` alone.
+The SCSI vendor is now also read without `-i`, so the Seagate cache and factory
+log pages of Seagate and Hitachi SCSI drives are also printed with `-A` alone.
 
 - `smartctl -r scsiioctl,4`: data transfers of the operating system pass-through
 layer are printed completely instead of only the first 256 bytes.
 Data-out is printed after its CDB instead of before.
+Linux SG_IO devices (`/dev/sdX`) still print neither CDB nor data.
 
 - `smartctl -d scsi|sat...|snt... -`: a recorded SCSI command trace can be replayed from stdin.
 This simulates a SCSI device or USB bridge without the hardware.
@@ -182,7 +183,7 @@ limited to 512 bytes.
 The Error Information log is truncated to 8 and the Self-test log to 18 entries, other logs
 larger than 512 bytes are rejected.
 Longer transfers caused device resets or returned zeros beyond 512 bytes.
-The option `-T permissive` overrides the limit.
+Each `-T permissive` option overrides the limit for one transfer.
 
 - USB: Samsung Portable SSD T9 (0x04e8:0x61fd): the device type `-d sntasmedia` is now only
 selected for `bcdDevice` 0x0100.
