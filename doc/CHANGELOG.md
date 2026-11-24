@@ -31,6 +31,7 @@ Data-out is printed after its CDB instead of before.
 This simulates a SCSI device or USB bridge without the hardware.
 `make check` now runs unit tests and compares the replayed output of recorded devices
 with the output of the real device.
+Some synthetic traces check corner cases of the SanDisk vendor log pages.
 
 - `smartctl -j`: the new JSON values `host_reads: {...}` and `host_writes: {...}` have been
 added for ATA and NVMe.
@@ -169,6 +170,13 @@ NVMe device scanning is now always enabled by default if supported.
 - Windows: `configure`: `LDFLAGS=-static -Wl,--nxcompat,--tsaware` is no longer automatically
 set for MinGW-w64 builds.
 The new option `--enable-static-link` is now required to build the Windows installer.
+
+- USB/NVMe: device types `-d sntasmedia` and `-d sntjmicron`: NVMe Get Log Page transfers are
+limited to 512 bytes.
+The Error Information log is truncated to 8 and the Self-test log to 18 entries, other logs
+larger than 512 bytes are rejected.
+Longer transfers caused device resets or returned zeros beyond 512 bytes.
+The option `-T permissive` overrides the limit.
 
 - The handling of unaligned integers in data structures has been reworked.
 Most `packed` structure attributes are no longer needed and have been removed.

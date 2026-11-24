@@ -158,10 +158,17 @@ def main(argv):
     if len(argv) < 2:
         sys.stderr.write('Usage: %s SMARTCTL_DEBUG_OUTPUT... > FILE.trace\n' % argv[0])
         return 1
+    rc = 0
     for path in argv[1:]:
         with open(path, encoding='utf-8', errors='replace') as f:
-            emit(convert(f.readlines()), path.rsplit('/', 1)[-1], sys.stdout)
-    return 0
+            cmds = convert(f.readlines())
+        if not cmds:
+            # e.g. Linux SG_IO: the CDB bytes are not printed
+            sys.stderr.write('%s: no SCSI commands with CDB bytes found
+' % path)
+            rc = 1
+        emit(cmds, path.rsplit('/', 1)[-1], sys.stdout)
+    return rc
 
 
 if __name__ == '__main__':

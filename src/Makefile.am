@@ -687,7 +687,7 @@ check-unit: test_scsi_trace$(EXEEXT)
 	./test_scsi_trace$(EXEEXT) $(srcdir)/tests/data ../lib/drivedb.h
 
 check-replay: smartctl$(EXEEXT)
-	$(SHELL) $(srcdir)/tests/run_replay.sh ./smartctl$(EXEEXT) $(srcdir)/tests/data
+	$(SHELL) $(srcdir)/tests/run_replay.sh ./smartctl$(EXEEXT) $(srcdir)/tests/data ../lib/drivedb.h
 endif
 
 check: $(check)

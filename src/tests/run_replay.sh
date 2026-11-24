@@ -3,10 +3,12 @@
 # run_replay.sh - replay recorded SCSI traces through smartctl and compare
 #                 the output with the output of the real device
 #
-# Usage: run_replay.sh SMARTCTL DATADIR
+# Usage: run_replay.sh SMARTCTL DATADIR [DRIVEDB]
 #
 # For each DATADIR/NAME.TYPE.OPTS.expected runs
-#   SMARTCTL -d TYPE -OPT1 -OPT2 ... - < DATADIR/NAME.trace
+#   SMARTCTL [-B DRIVEDB] -d TYPE -OPT1 -OPT2 ... - < DATADIR/NAME.trace
+# DRIVEDB replaces the drive database, so that an installed one (global or
+# local entries) does not affect the result.
 # where OPTS is a '_' separated list of single letter options, e.g. "x" or "i_H_A".
 # Version, copyright and local time lines are ignored, digit grouping is removed
 # and decimal commas become points (the expected output may stem from a non-C
@@ -22,10 +24,13 @@
 
 smartctl=$1
 datadir=$2
+drivedb=$3
 if [ -z "$smartctl" ] || [ -z "$datadir" ]; then
-  echo "Usage: $0 SMARTCTL DATADIR" >&2
+  echo "Usage: $0 SMARTCTL DATADIR [DRIVEDB]" >&2
   exit 2
 fi
+set --
+[ -n "$drivedb" ] && set -- -B "$drivedb"
 
 # POSIX sed only (no GNU extensions): a trailing blank marks the end of line
 normalize()
@@ -55,7 +60,7 @@ for exp in "$datadir"/*.expected; do
   args=$(echo "$opts" | sed -e 's/^/-/' -e 's/_/ -/g')
   total=$((total + 1))
   # shellcheck disable=SC2086
-  "$smartctl" -d "$type" $args - < "$name.trace" > "$tmp.out" 2>&1
+  "$smartctl" "$@" -d "$type" $args - < "$name.trace" > "$tmp.out" 2>&1
   rc=$?
   normalize < "$tmp.out" > "$tmp.act"
   normalize < "$exp" > "$tmp.exp"
@@ -78,7 +83,7 @@ done
 trace=$datadir/sandisk-extreme-55dd-1tb.trace
 if [ -f "$trace" ]; then
   total=$((total + 1))
-  "$smartctl" -d scsi -i -r scsiioctl,3 - < "$trace" > "$tmp.dbg" 2>&1
+  "$smartctl" "$@" -d scsi -i -r scsiioctl,3 - < "$trace" > "$tmp.dbg" 2>&1
   first=$(grep 'data length=' "$tmp.dbg" | head -n 1)
   case $first in
     *'data length=252,'*) echo "PASS: debug output data length (-r scsiioctl,3)" ;;
