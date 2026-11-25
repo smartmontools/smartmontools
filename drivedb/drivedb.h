@@ -4756,9 +4756,16 @@ const drive_settings builtin_knowndrives[] = {
     "", "",
     "-v 1,raw24/raw32 -v 7,raw24/raw32 -v 188,raw16"
   },
-  { "Seagate Medalist 1010, 1720, 1721, 2120, 3230 and 4340",  // ATA2, with -t permissive
+  { "Seagate Medalist 1010, 1720, 1721, 2120, 3230 and 4340",  // ATA2, with -T permissive
     "ST3(1010|1720|1721|2120|3230|4340)A",
     "", "", ""
+  },
+  { "Seagate Medalist 1012, 1722, 2122, 3232, and 4342", // ATA2, with -T permissive
+      // tested with ST32122A/3.02
+      // https://www.seagate.com/support/disc/manuals/ata/4342pmb.pdf
+    "ST3(101|172|212|323|434)2A",
+    "", "",
+    "-v 1,raw24/raw32 -v 7,raw24/raw32"
   },
   { "Seagate Medalist 2110, 3221, 4321, 6531, and 8641",
     "ST3(2110|3221|4321|6531|8641)A",
