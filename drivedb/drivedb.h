@@ -7253,10 +7253,10 @@ const drive_settings builtin_knowndrives[] = {
     "-d sntjmicron/sat"
   },
   { "USB: ; JMicron JMS583", // USB->PCIe (NVMe)
-    "0x152d:0xa583",
+    "0x152d:0xa583", // also used by USB->SATA adapters (e.g. mSATA enclosures)
     "", // 0x0214
     "",
-    "-d sntjmicron"
+    "-d sat/sntjmicron" // 'sntjmicron' first would hang on the USB->SATA adapters
   },
   // PNY
   { "USB: ; PNY",
