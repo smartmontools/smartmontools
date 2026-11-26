@@ -73,6 +73,10 @@ inline std::string format_version_info(const char * prog_name, const std::string
   { return format_version_info(prog_name, os_version.c_str(), lines); }
 
 
+// Like strncmp, but returns 1 if the length of the second argument is not n.
+// The second argument must be null-terminated.
+bool strncmp_full(const char * buf, const char * str, size_t n);
+
 // return (v)sprintf() formatted std::string
 std::string strprintf(const char * fmt, ...)
   SMARTMON_FORMAT_PRINTF(1, 2);
