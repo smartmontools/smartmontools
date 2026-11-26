@@ -75,6 +75,7 @@
 /src/smartd
 /src/smartd.service
 /src/smartd_warning.sh
+/src/test_marvell_nvme
 /src/smartmontools-*.*.win*
 /src/update-smart-drivedb
 /src/os_win32/*_res.rc
