@@ -373,6 +373,25 @@ dStrHex(const uint8_t * up, int len, int no_ascii)
                   [](const char * s, void *){ lib_printf("%s", s); });
 }
 
+/* Print the CDB of a SCSI command and, if 'report' > 1, its data-out
+ * into lib_printf(): the first 256 bytes, all bytes if 'report' > 3.
+ * Used by the scsi_pass_through() implementations for '-r scsiioctl,N'. */
+void
+scsi_print_command(const struct scsi_cmnd_io * iop, int report)
+{
+    const char * np = scsi_get_opcode_name(iop->cmnd);
+    lib_printf(" [%s: ", np ? np : "<unknown opcode>");
+    for (size_t k = 0; k < iop->cmnd_len; ++k)
+        lib_printf("%02x ", iop->cmnd[k]);
+    lib_printf("]\n");
+    if ((report > 1) && (DXFER_TO_DEVICE == iop->dxfer_dir) && iop->dxferp) {
+        bool trunc = (report < 4 && iop->dxfer_len > 256);
+        lib_printf("  Outgoing data, len=%d%s:\n", (int)iop->dxfer_len,
+                   (trunc ? " [only first 256 bytes shown]" : ""));
+        dStrHex(iop->dxferp, (trunc ? 256 : (int)iop->dxfer_len), 1);
+    }
+}
+
 /* This is a heuristic that takes into account the command bytes and length
  * to decide whether the presented unstructured sequence of bytes could be
  * a SCSI command. If so it returns true otherwise false. Vendor specific
@@ -1583,7 +1602,7 @@ scsi_pass_through_yield_sense(scsi_device * device, scsi_cmnd_io * iop,
         }
         np = scsi_get_opcode_name(iop->cmnd);
         lib_printf(" [%s: ", np ? np : "<unknown opcode>");
-        lib_printf("SCSI opcode=0x%x, CDB length=%u, data length=0x%u, data "
+        lib_printf("SCSI opcode=0x%x, CDB length=%u, data length=%u, data "
                    "dir=%s]\n", opcode, (unsigned int)iop->cmnd_len,
                    (unsigned int)iop->dxfer_len, ddir);
         if (dout && (scsi_debugmode > 3))  /* output hex without address */
@@ -2044,8 +2063,9 @@ scsiGetTemp(scsi_device * device, uint8_t *currenttemp, uint8_t *triptemp)
 
 /* Read informational exception log page or Request Sense response.
  * Fetching asc/ascq code potentially flagging an exception or warning.
- * Returns 0 if ok, else error number. A current temperature of 255
- * (Celsius) implies that the temperature not available. */
+ * Returns 0 if ok, else error number. A temperature of 0 (not provided by
+ * the IE or temperature log page) or 255 (Celsius) implies that the
+ * temperature is not available. */
 int
 scsiCheckIE(scsi_device * device, int hasIELogPage, int hasTempLogPage,
             uint8_t *asc, uint8_t *ascq, uint8_t *currenttemp,

@@ -1,0 +1,146 @@
+
+=== START OF INFORMATION SECTION ===
+Model Family:     Crucial/Micron Client SSDs
+Device Model:     CT2000BX500SSD1
+Serial Number:    2043E4BCB2D7
+LU WWN Device Id: 5 00a075 1e4bcb2d7
+Firmware Version: M6CR030
+User Capacity:    2,000,398,934,016 bytes [2.00 TB]
+Sector Size:      512 bytes logical/physical
+Rotation Rate:    Solid State Device
+Form Factor:      2.5 inches
+TRIM Command:     Available
+Device is:        In smartctl database 8.0/6317
+ATA Version is:   ACS-3 T13/2161-D revision 4
+SATA Version is:  SATA 3.3, 6.0 Gb/s (current: 6.0 Gb/s)
+Local Time is:    Thu Oct 22 19:00:44 2026 UTC
+SMART support is: Available - device has SMART capability.
+SMART support is: Enabled
+AAM feature is:   Unavailable
+APM feature is:   Unavailable
+Rd look-ahead is: Enabled
+Write cache is:   Enabled
+DSN feature is:   Unavailable
+ATA Security is:  Disabled, NOT FROZEN [SEC1]
+
+=== START OF READ SMART DATA SECTION ===
+SMART overall-health self-assessment test result: PASSED
+
+General SMART Values:
+Offline data collection status:  (0x00)	Offline data collection activity
+					was never started.
+					Auto Offline Data Collection: Disabled.
+Self-test execution status:      (   0)	The previous self-test routine completed
+					without error or no self-test has ever 
+					been run.
+Total time to complete Offline 
+data collection: 		(  120) seconds.
+Offline data collection
+capabilities: 			 (0x11) SMART execute Offline immediate.
+					No Auto Offline data collection support.
+					Suspend Offline collection upon new
+					command.
+					No Offline surface scan supported.
+					Self-test supported.
+					No Conveyance Self-test supported.
+					No Selective Self-test supported.
+SMART capabilities:            (0x0002)	Does not save SMART data before
+					entering power-saving mode.
+					Supports SMART auto save timer.
+Error logging capability:        (0x01)	Error logging supported.
+					General Purpose Logging supported.
+Short self-test routine 
+recommended polling time: 	 (   2) minutes.
+Extended self-test routine
+recommended polling time: 	 (  10) minutes.
+
+SMART Attributes Data Structure revision number: 16
+Vendor Specific SMART Attributes with Thresholds:
+ID# ATTRIBUTE_NAME          FLAGS    VALUE WORST THRESH FAIL RAW_VALUE
+  1 Raw_Read_Error_Rate     POSR-K   100   100   000    -    0
+  5 Reallocate_NAND_Blk_Cnt -O--CK   100   100   010    -    0
+  9 Power_On_Hours          -O--CK   100   100   000    -    35160
+ 12 Power_Cycle_Count       -O--CK   100   100   000    -    173
+171 Program_Fail_Count      -O--CK   100   100   000    -    0
+172 Erase_Fail_Count        -O--CK   100   100   000    -    0
+173 Ave_Block-Erase_Count   -O--CK   026   026   000    -    1123
+174 Unexpect_Power_Loss_Ct  -O--CK   100   100   000    -    74
+180 Unused_Reserve_NAND_Blk PO--CK   100   100   000    -    10
+183 SATA_Interfac_Downshift -O--CK   100   100   000    -    0
+184 Error_Correction_Count  -O--CK   100   100   000    -    0
+187 Reported_Uncorrect      -O--CK   100   100   000    -    0
+194 Temperature_Celsius     -O---K   065   037   000    -    35 (Min/Max 21/63)
+196 Reallocated_Event_Count -O--CK   100   100   000    -    0
+197 Current_Pending_ECC_Cnt -O--CK   100   100   000    -    0
+198 Offline_Uncorrectable   ----CK   100   100   000    -    0
+199 UDMA_CRC_Error_Count    -O--CK   100   100   000    -    0
+202 Percent_Lifetime_Remain ----CK   026   026   001    -    74
+206 Write_Error_Rate        -OSR--   100   100   000    -    0
+210 Success_RAIN_Recov_Cnt  -O--CK   100   100   000    -    0
+246 Total_LBAs_Written      -O--CK   100   100   000    -    1256228120252
+247 Host_Program_Page_Count -O--CK   100   100   000    -    39257128757
+248 FTL_Program_Page_Count  -O--CK   100   100   000    -    22509159680
+249 Total_Refresh_ISP_Count -O--CK   100   100   000    -    0
+250 Total_Do_RefCal_Count   -O--CK   100   100   000    -    199270
+251 Tot_NAND_Rd_Plane_Cnt_L -O--CK   100   100   000    -    0x000000000008
+252 Tot_NAND_Rd_Plane_Cnt_H -O--CK   100   100   000    -    0x000000000000
+253 Tot_Blk_Remap_Pass_Cnt  -O--CK   100   100   000    -    41
+254 Tot_Bg_Scan_Over_Limit  -O--CK   100   100   000    -    12
+223 Tot_Bg_Scan_ECC_Fail_Ct -O--CK   100   100   000    -    2
+                            ||||||_ K auto-keep
+                            |||||__ C event count
+                            ||||___ R error rate
+                            |||____ S speed/performance
+                            ||_____ O updated online
+                            |______ P prefailure warning
+
+General Purpose Log Directory Version 1
+SMART           Log Directory Version 1 [multi-sector log support]
+Address    Access  R/W   Size  Description
+0x00       GPL,SL  R/O      1  Log Directory
+0x01           SL  R/O      1  Summary SMART error log
+0x02           SL  R/O      1  Comprehensive SMART error log
+0x03       GPL     R/O      1  Ext. Comprehensive SMART error log
+0x04       GPL,SL  R/O      8  Device Statistics log
+0x06           SL  R/O      1  SMART self-test log
+0x07       GPL     R/O      1  Extended self-test log
+0x10       GPL     R/O      1  NCQ Command Error log
+0x11       GPL     R/O      1  SATA Phy Event Counters log
+0x24       GPL     R/O     88  Current Device Internal Status Data log
+0x30       GPL,SL  R/O      9  IDENTIFY DEVICE data log
+0x80-0x9f  GPL,SL  R/W     16  Host vendor specific log
+
+SMART Extended Comprehensive Error Log Version: 1 (1 sectors)
+No Errors Logged
+
+SMART Extended Self-test Log Version: 1 (1 sectors)
+No self-tests have been logged.  [To run self-tests, use: smartctl -t]
+
+Selective Self-tests/Logging not supported
+
+SCT Commands not supported
+
+Device Statistics (GP Log 0x04)
+Page  Offset Size        Value Flags Description
+0x01  =====  =               =  ===  == General Statistics (rev 1) ==
+0x01  0x008  4             173  ---  Lifetime Power-On Resets
+0x01  0x010  4           35160  ---  Power-on Hours
+0x01  0x018  6      2097669820  ---  Logical Sectors Written [1.07 TB]
+0x01  0x020  6              53  ---  Number of Write Commands
+0x01  0x028  6      2747144152  ---  Logical Sectors Read [1.40 TB]
+0x01  0x030  6             550  ---  Number of Read Commands
+0x07  =====  =               =  ===  == Solid State Device Statistics (rev 1) ==
+0x07  0x008  1              89  ---  Percentage Used Endurance Indicator
+                                |||_ C monitored condition met
+                                ||__ D supports DSN
+                                |___ N normalized value
+
+Pending Defects log (GP Log 0x0c) not supported
+
+SATA Phy Event Counters (GP Log 0x11)
+ID      Size     Value  Description
+0x0001  4            0  Command failed due to ICRC error
+0x0002  4            0  R_ERR response for data FIS
+0x0005  4            0  R_ERR response for non-data FIS
+0x000a  4            0  Device-to-host register FISes sent due to a COMRESET
+

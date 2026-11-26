@@ -1,0 +1,227 @@
+#!/usr/bin/env python3
+#
+# scsiioctl2trace.py
+#
+# Convert "smartctl -r scsiioctl,4 ..." debug output into the SCSI trace
+# format replayed by "smartctl -d scsi ... -" (see lib/dev_scsi_trace.cpp).
+#
+# Copyright (C) 2026 smartmontools contributors
+#
+# SPDX-License-Identifier: GPL-2.0-or-later
+#
+
+import re
+import sys
+
+CDB_RE = re.compile(r'^ \[([^:\]]+): ((?:[0-9a-f]{2} )+)\]$')
+# Printed before the CDB; the length is decimal ("0x" prefix up to smartctl 7.5)
+DESC_RE = re.compile(r'^ \[[^:\]]+: SCSI opcode=0x[0-9a-f]+, CDB length=\d+, '
+                     r'data length=(?:0x)?(\d+), data dir=(\w+)\]$')
+SENSE_RE = re.compile(r'^  >>> Sense buffer, len=(\d+):')
+# "status=2: sense_key=..." (CHECK CONDITION on Windows, Solaris), "status=0x2: ..."
+# (FreeBSD), "status=0" (NetBSD, OpenBSD); cciss prints its raw ioctl status
+STATUS_RE = re.compile(r'^  status=(?:0x)?([0-9a-f]+)(?::|$)')
+# FreeBSD: a CAM status other than REQ_CMP (0x01) or SCSI_STATUS_ERROR (0x0c)
+# fails the pass-through, no "status=" line follows
+CAM_RE = re.compile(r'^  CAM status=0x([0-9a-f]+), SCSI status=0x[0-9a-f]+, resid=0x[0-9a-f]+$')
+DATAIN_RE = re.compile(r'^  \[data-in buffer: req_len=(\d+), resid=(-?\d+), gives (\d+) bytes\]')
+# Windows: "len=ALLOC, resid=N", others: "len=N" only
+INCOMING_RE = re.compile(r'^  Incoming data, len=(\d+)(?:, resid=(-?\d+))?(.*):$')
+TRIMMED_RE = re.compile(r'^  Incoming data trimmed to nothing by resid$')
+OUTGOING_RE = re.compile(r'^  Outgoing data, len=(\d+)(.*):$')
+HEX_OFS_RE = re.compile(r'^ [0-9a-f]+ {3,}((?:[0-9a-f]{2} +)*[0-9a-f]{2})\s*$')
+HEX_RAW_RE = re.compile(r'^((?:[0-9a-f]{2} +)*[0-9a-f]{2})\s*$')
+IOCTL_ERR_RE = re.compile(r'IOCTL_SCSI_PASS_THROUGH\w* failed, Error=(\d+)')
+# FreeBSD: cam_send_ccb() failed
+CAM_SEND_ERR_RE = re.compile(r'^  error sending SCSI ccb$')
+
+
+def read_hex(lines, i, count, with_offset):
+    out = []
+    rx = HEX_OFS_RE if with_offset else HEX_RAW_RE
+    while i < len(lines) and len(out) < count:
+        m = rx.match(lines[i])
+        if not m:
+            break
+        out += [int(b, 16) for b in m.group(1).split()]
+        i += 1
+    return out[:count], i
+
+
+def sense_key(sense):
+    if len(sense) < 3:
+        return None
+    if (sense[0] & 0x7f) >= 0x72:  # descriptor format
+        return sense[1] & 0x0f
+    return sense[2] & 0x0f
+
+
+def convert(lines):
+    cmds = []
+    cur = None
+    desc = None
+    loose = []  # hex dump not yet assigned to a command
+    i = 0
+    while i < len(lines):
+        line = lines[i].rstrip('\r\n')
+        m = DESC_RE.match(line)
+        if m:
+            desc = (int(m.group(1)), m.group(2))
+            i += 1
+            continue
+        m = CDB_RE.match(line)
+        if m:
+            dlen, ddir = desc if desc else (0, 'none')
+            desc = None
+            cur = {'name': m.group(1), 'cdb': m.group(2).split(), 'alloc': dlen,
+                   'dir': ddir, 'status': 0, 'error': None, 'sense': [],
+                   'data': None, 'truncated': None, 'dataout': None,
+                   'pre_hex': loose}
+            loose = []
+            cmds.append(cur)
+            i += 1
+            continue
+        m = HEX_OFS_RE.match(line)
+        if m:
+            # Up to smartctl 7.5, data-out was printed before its CDB
+            loose += [int(b, 16) for b in m.group(1).split()]
+            i += 1
+            continue
+        if cur is None:
+            i += 1
+            continue
+        m = OUTGOING_RE.match(line)
+        if m:
+            n = int(m.group(1))
+            data, i = read_hex([l.rstrip('\r\n') for l in lines], i + 1, n, True)
+            if not data and len(cur['pre_hex']) == n:
+                data = cur['pre_hex']
+            cur['dir'] = 'out'
+            cur['alloc'] = n
+            if 'only first' in m.group(2) or len(data) != n:
+                cur['dataout_truncated'] = True
+            else:
+                cur['dataout'] = data
+            continue
+        m = SENSE_RE.match(line)
+        if m:
+            cur['sense'], i = read_hex([l.rstrip('\r\n') for l in lines], i + 1, int(m.group(1)), True)
+            continue
+        m = STATUS_RE.match(line)
+        if m:
+            st = int(m.group(1), 16)
+            if st > 0xff:
+                # Not a SCSI status (cciss ioctl status)
+                cur['status'], cur['error'] = -1, 0
+            elif cur['status'] != -1:
+                cur['status'] = st
+            i += 1
+            continue
+        m = CAM_RE.match(line)
+        if m:
+            if (int(m.group(1), 16) & 0x3f) not in (0x01, 0x0c):
+                cur['status'], cur['error'] = -1, 0
+            i += 1
+            continue
+        m = DATAIN_RE.match(line)
+        if m:
+            cur['alloc'] = int(m.group(1))
+            n = int(m.group(3))
+            data, i = read_hex([l.rstrip('\r\n') for l in lines], i + 1, n, False)
+            if len(data) != n:
+                cur['truncated'] = data
+            else:
+                cur['data'] = data
+            continue
+        m = INCOMING_RE.match(line)
+        if m:
+            n = int(m.group(1))
+            # With resid, len is the allocation length (Windows). Otherwise
+            # it may be the transferred length, keep a known data length.
+            if m.group(2) is not None or not cur['alloc']:
+                cur['alloc'] = n
+            data, i = read_hex([l.rstrip('\r\n') for l in lines], i + 1, n, True)
+            if 'only first' in m.group(3) or len(data) != n:
+                cur['truncated'] = data
+            elif cur['data'] is None:
+                # Windows dumps the whole buffer, only len - resid bytes
+                # were transferred
+                resid = int(m.group(2)) if m.group(2) is not None else 0
+                cur['data'] = data[:n - resid] if 0 < resid <= n else data
+            continue
+        if TRIMMED_RE.match(line):
+            if cur['data'] is None:
+                cur['data'] = []
+            i += 1
+            continue
+        m = IOCTL_ERR_RE.search(line)
+        if m:
+            cur['status'] = -1
+            cur['error'] = int(m.group(1))
+        elif CAM_SEND_ERR_RE.match(line):
+            cur['status'], cur['error'] = -1, 0
+        i += 1
+    for c in cmds:
+        # Data-in command without any response: pass-through itself failed
+        if (c['dir'] == 'in' and c['alloc'] > 0 and c['status'] == 0
+                and c['data'] is None and c['truncated'] is None):
+            c['status'] = -1
+            c['error'] = 0
+    return cmds
+
+
+def emit(cmds, src, out):
+    out.write('# converted from "smartctl -r scsiioctl,4" output: %s\n' % src)
+    for c in cmds:
+        if c.get('dataout_truncated'):
+            # Data-out is only replayed if identical, so it must be complete
+            out.write('\n# %s: OMITTED, data-out incomplete in debug output\n'
+                      '# CDB %s\n' % (c['name'], ' '.join(c['cdb'])))
+            continue
+        with_data = (c['status'] == 0 or
+                     (c['status'] > 0 and sense_key(c['sense']) in (0, 1)))
+        if c['data'] is None and with_data and c['truncated'] is not None:
+            # Incomplete response is worse than none: omit, a complete
+            # recording of the same CDB may be appended to the trace.
+            out.write('\n# %s: OMITTED, data truncated to 256 bytes in debug output\n'
+                      '# CDB %s\n' % (c['name'], ' '.join(c['cdb'])))
+            continue
+        out.write('\n# %s\n' % c['name'])
+        out.write('CDB %s\n' % ' '.join(c['cdb']))
+        out.write('ALLOC %d\n' % c['alloc'])
+        if c['status'] == -1:
+            out.write('STATUS -1 ERROR %d\n' % c['error'])
+        else:
+            out.write('STATUS %d\n' % c['status'])
+        out.write('SENSE %s\n' % ' '.join('%02x' % b for b in c['sense']))
+        if c['dataout']:
+            out.write('DATAOUT %s\n' % ' '.join('%02x' % b for b in c['dataout']))
+        data = c['data']
+        # Data returned with CHECK CONDITION is kept only for NO SENSE and
+        # RECOVERED ERROR (e.g. ATA PASS-THROUGH with CK_COND), the replay
+        # uses the same rule. Not covered: the SAT layer also accepts other
+        # sense keys if CK_COND is set and the ATA status indicates success.
+        if not with_data:
+            data = []
+        out.write('DATA %s\n' % ' '.join('%02x' % b for b in (data or [])))
+        out.write('END\n')
+
+
+def main(argv):
+    if len(argv) < 2:
+        sys.stderr.write('Usage: %s SMARTCTL_DEBUG_OUTPUT... > FILE.trace\n' % argv[0])
+        return 1
+    rc = 0
+    for path in argv[1:]:
+        with open(path, encoding='utf-8', errors='replace') as f:
+            cmds = convert(f.readlines())
+        if not cmds:
+            # e.g. Linux SG_IO: the CDB bytes are not printed
+            sys.stderr.write('%s: no SCSI commands with CDB bytes found\n' % path)
+            rc = 1
+        emit(cmds, path.rsplit('/', 1)[-1], sys.stdout)
+    return rc
+
+
+if __name__ == '__main__':
+    sys.exit(main(sys.argv))

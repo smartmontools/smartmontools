@@ -1212,10 +1212,37 @@ static bool get_serial_from_wmi(int drive, ata_identify_device * id)
 /////////////////////////////////////////////////////////////////////////////
 // USB ID detection using WMI
 
-// Get USB ID for a physical or logical drive number
+} // namespace
+
+// Get bcdDevice of USB device VENDOR_ID:PRODUCT_ID from its hardware IDs
+// ("USB\VID_vvvv&PID_pppp&REV_rrrr"), return -1 if not found.
+// Not in the anonymous namespace, used by unit test.
+namespace os_win32 {
+int get_usb_bcd_device(const std::vector<std::string> & hwids,
+                       unsigned short vendor_id, unsigned short product_id);
+}
+
+int os_win32::get_usb_bcd_device(const std::vector<std::string> & hwids,
+                                 unsigned short vendor_id, unsigned short product_id)
+{
+  for (const std::string & hwid : hwids) {
+    unsigned short venid = 0, proid = 0, bcd = 0;
+    int nc = -1;
+    if (   sscanf(hwid.c_str(), "USB\\VID_%4hx&PID_%4hx&REV_%4hx%n", &venid, &proid, &bcd, &nc) == 3
+        && nc == 8+4+5+4+5+4 && hwid.size() == (unsigned)nc
+        && venid == vendor_id && proid == product_id)
+      return bcd;
+  }
+  return -1;
+}
+
+namespace {
+
+// Get USB ID and bcdDevice (-1 if unknown) for a physical or logical drive number
 static bool get_usb_id(int phydrive, int logdrive,
                        unsigned short & vendor_id,
-                       unsigned short & product_id)
+                       unsigned short & product_id,
+                       int & bcd_device)
 {
   bool debug = (scsi_debugmode > 1);
 
@@ -1270,7 +1297,8 @@ static bool get_usb_id(int phydrive, int logdrive,
 
   unsigned short usb_venid = 0, prev_usb_venid = 0;
   unsigned short usb_proid = 0, prev_usb_proid = 0;
-  std::string prev_usb_ant;
+  int usb_bcd = -1;
+  std::string prev_usb_ant, prev_usb_devid;
   std::string prev_ant, ant, dep;
 
   const regular_expression regex("^.*PnPEntity\\.DeviceID=\"([^\"]*)\"");
@@ -1302,6 +1330,7 @@ static bool get_usb_id(int phydrive, int logdrive,
         prev_usb_venid = prev_usb_proid = 0;
       }
       prev_usb_ant = ant;
+      prev_usb_devid = devid;
       if (debug)
         lib_printf("  +-> \"%s\" [0x%04x:0x%04x]\n", devid.c_str(), prev_usb_venid, prev_usb_proid);
     }
@@ -1330,6 +1359,15 @@ static bool get_usb_id(int phydrive, int logdrive,
         return false;
       }
 
+      // Get bcdDevice from hardware IDs of the USB bridge
+      int bcd = -1;
+      wbem_object wo3;
+      std::vector<std::string> hwids;
+      if (   ws.query1(wo3, "SELECT HardwareID FROM Win32_PnPEntity WHERE DeviceID=\"%s\"",
+                       prev_usb_devid.c_str())
+          && wo3.get_str_array("HardwareID", hwids))
+        bcd = os_win32::get_usb_bcd_device(hwids, prev_usb_venid, prev_usb_proid);
+
       // Handle multiple devices with same name
       if (usb_venid) {
         // Fail if multiple devices with same name have different USB bridge types
@@ -1338,13 +1376,18 @@ static bool get_usb_id(int phydrive, int logdrive,
             lib_printf("  +---> \"%s\" (Error: More than one USB ID found)\n", name2.c_str());
           return false;
         }
+        // Ignore bcdDevice if they differ
+        if (bcd != usb_bcd)
+          bcd = -1;
       }
 
       // Found
       usb_venid = prev_usb_venid;
       usb_proid = prev_usb_proid;
+      usb_bcd = bcd;
       if (debug)
-        lib_printf("  +===> \"%s\" [0x%04x:0x%04x]\n", name2.c_str(), usb_venid, usb_proid);
+        lib_printf("  +===> \"%s\" [0x%04x:0x%04x%s]\n", name2.c_str(), usb_venid, usb_proid,
+                   (usb_bcd >= 0 ? strprintf(" (0x%04x)", usb_bcd).c_str() : ""));
 
       // Continue to check for duplicate names ...
     }
@@ -1359,6 +1402,7 @@ static bool get_usb_id(int phydrive, int logdrive,
 
   vendor_id = usb_venid;
   product_id = usb_proid;
+  bcd_device = usb_bcd;
 
   return true;
 }
@@ -2901,30 +2945,8 @@ bool win_scsi_device::scsi_pass_through(struct scsi_cmnd_io * iop)
 {
   int report = scsi_debugmode; // TODO
 
-  if (report > 0) {
-    int k, j;
-    const unsigned char * ucp = iop->cmnd;
-    const char * np;
-    char buff[256];
-    const int sz = (int)sizeof(buff);
-
-    np = scsi_get_opcode_name(ucp);
-    j = snprintf(buff, sz, " [%s: ", np ? np : "<unknown opcode>");
-    for (k = 0; k < (int)iop->cmnd_len; ++k)
-      j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "%02x ", ucp[k]);
-    if ((report > 1) &&
-      (DXFER_TO_DEVICE == iop->dxfer_dir) && (iop->dxferp)) {
-      int trunc = (iop->dxfer_len > 256) ? 1 : 0;
-
-      j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n  Outgoing "
-              "data, len=%d%s:\n", (int)iop->dxfer_len,
-              (trunc ? " [only first 256 bytes shown]" : ""));
-      dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
-    }
-    else
-      j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n");
-    lib_printf("%s", buff);
-  }
+  if (report > 0)
+    scsi_print_command(iop, report);
 
   SCSI_PASS_THROUGH_DIRECT_WITH_BUFFER sb;
   if (iop->cmnd_len > (int)sizeof(sb.spt.Cdb)) {
@@ -3013,7 +3035,7 @@ bool win_scsi_device::scsi_pass_through(struct scsi_cmnd_io * iop)
     iop->resid = 0;
 
   if ((iop->dxfer_dir == DXFER_FROM_DEVICE) && (report > 1)) {
-     int trunc = (iop->dxfer_len > 256) ? 1 : 0;
+     int trunc = (report < 4 && iop->dxfer_len > 256) ? 1 : 0;
      lib_printf("  Incoming data, len=%d, resid=%d%s:\n", (int)iop->dxfer_len, iop->resid,
         (trunc ? " [only first 256 bytes shown]" : ""));
         dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
@@ -3030,30 +3052,8 @@ static long scsi_pass_through_direct(HANDLE fd, UCHAR targetid, struct scsi_cmnd
 {
   int report = scsi_debugmode; // TODO
 
-  if (report > 0) {
-    int k, j;
-    const unsigned char * ucp = iop->cmnd;
-    const char * np;
-    char buff[256];
-    const int sz = (int)sizeof(buff);
-
-    np = scsi_get_opcode_name(ucp);
-    j = snprintf(buff, sz, " [%s: ", np ? np : "<unknown opcode>");
-    for (k = 0; k < (int)iop->cmnd_len; ++k)
-      j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "%02x ", ucp[k]);
-    if ((report > 1) &&
-      (DXFER_TO_DEVICE == iop->dxfer_dir) && (iop->dxferp)) {
-      int trunc = (iop->dxfer_len > 256) ? 1 : 0;
-
-      j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n  Outgoing "
-              "data, len=%d%s:\n", (int)iop->dxfer_len,
-              (trunc ? " [only first 256 bytes shown]" : ""));
-      dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
-    }
-    else
-      j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n");
-    lib_printf("%s", buff);
-  }
+  if (report > 0)
+    scsi_print_command(iop, report);
 
   SCSI_PASS_THROUGH_DIRECT_WITH_BUFFER sb;
   if (iop->cmnd_len > (int)sizeof(sb.spt.Cdb)) {
@@ -3143,7 +3143,7 @@ static long scsi_pass_through_direct(HANDLE fd, UCHAR targetid, struct scsi_cmnd
     iop->resid = 0;
 
   if ((iop->dxfer_dir == DXFER_FROM_DEVICE) && (report > 1)) {
-     int trunc = (iop->dxfer_len > 256) ? 1 : 0;
+     int trunc = (report < 4 && iop->dxfer_len > 256) ? 1 : 0;
      lib_printf("  Incoming data, len=%d, resid=%d%s:\n", (int)iop->dxfer_len, iop->resid,
         (trunc ? " [only first 256 bytes shown]" : ""));
         dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
@@ -3470,29 +3470,7 @@ bool win_aacraid_device::scsi_pass_through(struct scsi_cmnd_io *iop)
 {
   int report = scsi_debugmode;
   if (report > 0)
-  {
-    int k, j;
-    const unsigned char * ucp = iop->cmnd;
-    const char * np;
-    char buff[256];
-    const int sz = (int)sizeof(buff);
-    np = scsi_get_opcode_name(ucp);
-    j  = snprintf(buff, sz, " [%s: ", np ? np : "<unknown opcode>");
-    for (k = 0; k < (int)iop->cmnd_len; ++k)
-      j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "%02x ", ucp[k]);
-    if ((report > 1) &&
-      (DXFER_TO_DEVICE == iop->dxfer_dir) && (iop->dxferp)) {
-      int trunc = (iop->dxfer_len > 256) ? 1 : 0;
-
-      j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n  Outgoing "
-        "data, len=%d%s:\n", (int)iop->dxfer_len,
-        (trunc ? " [only first 256 bytes shown]" : ""));
-        dStrHex(iop->dxferp, (trunc ? 256 : (int)iop->dxfer_len) , 1);
-      }
-    else
-      j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n");
-    lib_printf("buff %s\n",buff);
-  }
+    scsi_print_command(iop, report);
 
   // Create buffer with appropriate size
   constexpr unsigned scsiRequestBlockSize = sizeof(SCSI_REQUEST_BLOCK);
@@ -3592,7 +3570,7 @@ bool win_aacraid_device::scsi_pass_through(struct scsi_cmnd_io *iop)
      memcpy(iop->dxferp,pDataIO, iop->dxfer_len);
   }
   if((iop->dxfer_dir == DXFER_FROM_DEVICE) && (report > 1)){
-    int trunc = (iop->dxfer_len > 256) ? 1 : 0;
+    int trunc = (report < 4 && iop->dxfer_len > 256) ? 1 : 0;
     lib_printf("  Incoming data, len=%d, resid=%d%s:\n", (int)iop->dxfer_len, iop->resid,
       (trunc ? " [only first 256 bytes shown]" : ""));
     dStrHex((const uint8_t *)pDataIO, (trunc ? 256 : (int)(iop->dxfer_len)) , 1);
@@ -4550,13 +4528,14 @@ smart_device * win_smart_interface::get_usb_device(const char * name,
 {
   // Get USB bridge ID
   unsigned short vendor_id = 0, product_id = 0;
-  if (!get_usb_id(phydrive, logdrive, vendor_id, product_id)) {
+  int bcd_device = -1;
+  if (!get_usb_id(phydrive, logdrive, vendor_id, product_id, bcd_device)) {
     set_err(EINVAL, "Unable to read USB device ID");
     return 0;
   }
 
   // Get type name for this ID
-  const char * usbtype = get_usb_dev_type_by_id(vendor_id, product_id);
+  const char * usbtype = get_usb_dev_type_by_id(vendor_id, product_id, bcd_device);
   if (!usbtype)
     return 0;
 

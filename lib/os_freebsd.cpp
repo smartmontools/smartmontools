@@ -833,30 +833,8 @@ bool freebsd_megaraid_device::scsi_pass_through(scsi_cmnd_io *iop)
 {
   int report = scsi_debugmode;
 
-  if (report > 0) {
-        int k, j;
-        const unsigned char * ucp = iop->cmnd;
-        const char * np;
-        char buff[256];
-        const int sz = (int)sizeof(buff);
-
-        np = scsi_get_opcode_name(ucp);
-        j = snprintf(buff, sz, " [%s: ", np ? np : "<unknown opcode>");
-        for (k = 0; k < (int)iop->cmnd_len; ++k)
-            j += snprintf(&buff[j], (sz > j ? (sz - j) : 0), "%02x ", ucp[k]);
-        if ((report > 1) &&
-            (DXFER_TO_DEVICE == iop->dxfer_dir) && (iop->dxferp)) {
-            int trunc = (iop->dxfer_len > 256) ? 1 : 0;
-
-            snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n  Outgoing "
-                     "data, len=%d%s:\n", (int)iop->dxfer_len,
-                     (trunc ? " [only first 256 bytes shown]" : ""));
-            dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
-        }
-        else
-            snprintf(&buff[j], (sz > j ? (sz - j) : 0), "]\n");
-        lib_printf("%s", buff);
-  }
+  if (report > 0)
+    scsi_print_command(iop, report);
 
   // Controller rejects Test Unit Ready
   if (iop->cmnd[0] == 0x00)
@@ -1199,26 +1177,8 @@ bool freebsd_scsi_device::scsi_pass_through(scsi_cmnd_io * iop)
 {
   union ccb *ccb;
 
-  if (scsi_debugmode) {
-    unsigned int k;
-    const unsigned char * ucp = iop->cmnd;
-    const char * np;
-
-    np = scsi_get_opcode_name(ucp);
-    lib_printf(" [%s: ", np ? np : "<unknown opcode>");
-    for (k = 0; k < iop->cmnd_len; ++k)
-      lib_printf("%02x ", ucp[k]);
-    if ((scsi_debugmode > 1) && 
-      (DXFER_TO_DEVICE == iop->dxfer_dir) && (iop->dxferp)) {
-    int trunc = (iop->dxfer_len > 256) ? 1 : 0;
-
-    lib_printf("]\n  Outgoing data, len=%d%s:\n", (int)iop->dxfer_len,
-      (trunc ? " [only first 256 bytes shown]" : ""));
-    dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);
-      }
-      else
-        lib_printf("]\n");
-  }
+  if (scsi_debugmode)
+    scsi_print_command(iop, scsi_debugmode);
 
   if(m_camdev==NULL) {
     if (scsi_debugmode)
@@ -1281,7 +1241,7 @@ bool freebsd_scsi_device::scsi_pass_through(scsi_cmnd_io * iop)
       int trunc, len;
 
       len = iop->dxfer_len - ccb->csio.resid;
-      trunc = (len > 256) ? 1 : 0;
+      trunc = (scsi_debugmode < 4 && len > 256) ? 1 : 0;
       if (len > 0) {
         lib_printf("  Incoming data, len=%d%s:\n", len,
              (trunc ? " [only first 256 bytes shown]" : ""));

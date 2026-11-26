@@ -16,6 +16,26 @@ replaced by library hooks.
 Source code examples have been added to the new directory `lib/examples`.
 Work towards a more consistent and flexible API is in progress.
 
+- `smartctl -A`, `-x`: SanDisk Extreme Portable SSD (USB 0x0781:0x55dd): controller, NAND,
+board and lifetime temperatures and host reads and writes are reported from the vendor specific log pages
+0x30 and 0x32 (JSON: `sandisk_vendor_log: {...}`).
+The controller temperature replaces the invalid value from the IE mode page.
+The SCSI vendor is now also read without `-i`, so the Seagate cache and factory
+log pages of Seagate and Hitachi SCSI drives are also printed with `-A` alone.
+
+- `smartctl -r scsiioctl,4`: data transfers of the operating system pass-through
+layer are printed completely instead of only the first 256 bytes.
+Data-out is printed after its CDB instead of before.
+The Linux SG_IO pass-through (`/dev/sdX`) still prints no CDB bytes and no data of SAT or
+NVMe tunnel commands.
+
+- `smartctl -d scsi|sat...|snt... -`: a recorded SCSI command trace can be replayed from stdin.
+This simulates a SCSI device or USB bridge without the hardware.
+`make check` now runs unit tests and compares the replayed output of recorded devices
+with the output of the real device.
+Some synthetic traces check corner cases of the SanDisk vendor log pages.
+Some replays are also compared in the line based JSON format (`--json=g`).
+
 - `smartctl -j`: the new JSON values `host_reads: {...}` and `host_writes: {...}` have been
 added for ATA and NVMe.
 
@@ -42,6 +62,11 @@ and of `smartd.conf` directives `-s REGEXP -l selftest`.
 - USB/NVMe/SAT: device types `-d snt*/sat`: the NVMe/SAT autodetection enabled by these options
 now also checks for nonempty NVMe identify controller data before assuming that a NVMe device is
 connected.
+
+- Windows: USB: the `bcdDevice` value of the USB bridge (WMI `HardwareID`) is now passed to
+the drive database lookup.
+Drive database entries for the same USB ID which differ in `bcdDevice` now also select the
+device type on Windows.
 
 - Linux: a check of runtime power management has been added for ATA, SCSI and NVMe devices.
 If the `-n standby` option or directive is specified, `/sys/.../device/power/control` and
@@ -154,6 +179,19 @@ NVMe device scanning is now always enabled by default if supported.
 set for MinGW-w64 builds.
 The new option `--enable-static-link` is now required to build the Windows installer.
 
+- USB/NVMe: device types `-d sntasmedia` and `-d sntjmicron`: NVMe Get Log Page transfers are
+limited to 512 bytes.
+The Error Information log is truncated to 8 and the Self-test log to 18 entries, other logs
+larger than 512 bytes are rejected.
+Longer transfers caused device resets or returned zeros beyond 512 bytes.
+Each `-T permissive` option overrides the limit for one transfer.
+
+- USB: Samsung Portable SSD T9 (USB 0x04e8:0x61fd): the device type `-d sntasmedia` is now
+only selected for `bcdDevice` 0x0100.
+Other or unknown `bcdDevice` values are reported as ambiguous and require `-d sntasmedia`.
+A Samsung uSD card reader uses the same ID with `bcdDevice` 0x0005 and is now reported as
+unsupported instead of receiving NVMe pass-through commands.
+
 - The handling of unaligned integers in data structures has been reworked.
 Most `packed` structure attributes are no longer needed and have been removed.
 
@@ -171,6 +209,9 @@ available.
 - `smartctl -j`: no longer outputs invalid UTF-8 sequences in strings.
 
 - `smartctl --json=y`: no longer leaves some reserved YAML strings unquoted.
+
+- NVMe: big endian: the Thermal Management Temperature transition counts and total times of the
+SMART/Health Information log are no longer byte swapped.
 
 - `smartctl -l farm`: fixed null pointer dereference on unknown form factor value.
 

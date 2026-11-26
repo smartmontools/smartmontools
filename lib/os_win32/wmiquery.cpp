@@ -65,6 +65,36 @@ std::string wbem_object::get_str(const char * name) /*const*/
   return s;
 }
 
+bool wbem_object::get_str_array(const char * name, std::vector<std::string> & strs) /*const*/
+{
+  strs.clear();
+  if (!m_intf)
+    return false;
+
+  VARIANT var; VariantInit(&var);
+  if (m_intf->Get(com_bstr(name), 0L, &var, (CIMTYPE*)0, (LPLONG)0) /* != WBEM_S_NO_ERROR */)
+    return false;
+
+  bool ok = false;
+  LONG lb = 0, ub = -1;
+  if (   var.vt == (VT_ARRAY | VT_BSTR) && var.parray
+      && SUCCEEDED(SafeArrayGetLBound(var.parray, 1, &lb))
+      && SUCCEEDED(SafeArrayGetUBound(var.parray, 1, &ub))) {
+    for (LONG i = lb; i <= ub; i++) {
+      BSTR bstr = 0;
+      if (FAILED(SafeArrayGetElement(var.parray, &i, &bstr)))
+        continue;
+      std::string s;
+      if (com_bstr::to_str(bstr, s))
+        strs.push_back(s);
+      SysFreeString(bstr);
+    }
+    ok = true;
+  }
+  VariantClear(&var);
+  return ok;
+}
+
 
 /////////////////////////////////////////////////////////////////////////////
 // wbem_enumerator

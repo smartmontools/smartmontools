@@ -101,7 +101,7 @@ int cciss_io_interface(int device, int target, struct scsi_cmnd_io * iop, int re
          {
              if (report > 1)
              {
-                 int trunc = (iop->dxfer_len > 256) ? 1 : 0;
+                 int trunc = (report < 4 && iop->dxfer_len > 256) ? 1 : 0;
                  lib_printf("  Incoming data, len=%d%s:\n", (int)iop->dxfer_len,
                       (trunc ? " [only first 256 bytes shown]" : ""));
                  dStrHex(iop->dxferp, (trunc ? 256 : iop->dxfer_len) , 1);

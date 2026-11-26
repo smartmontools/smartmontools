@@ -73,6 +73,7 @@
 /src/examples/make.sh.tmp
 /src/smartctl
 /src/smartd
+/src/test_scsi_trace
 /src/smartd.service
 /src/smartd_warning.sh
 /src/smartmontools-*.*.win*

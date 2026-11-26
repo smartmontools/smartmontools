@@ -902,6 +902,8 @@ arguments to this option are:
 Invoking this once shows the SCSI commands in hex and the corresponding status.
 Invoking it a second time adds a hex listing of the first 64 bytes of data
 send to, or received from the device.
+At level 4, the data transfers of the operating system pass-through layer
+are printed completely.
 .Sp
 .I nvmeioctl
 \- report only ioctl() transactions with NVMe devices.
@@ -919,7 +921,26 @@ The ATA command input parameters, sector data and return values are
 reconstructed from the debug report read from stdin.
 Then \fBsmartctl\fP internally simulates an ATA device with the same
 behaviour.
-This is does not work for SCSI devices yet.
+.Sp
+[NEW EXPERIMENTAL SMARTCTL FEATURE]
+If \*(Aq\-d scsi\*(Aq, \*(Aq\-d sat...\*(Aq or \*(Aq\-d snt...\*(Aq is
+specified together with \*(Aq\-\*(Aq as device path, \fBsmartctl\fP reads a
+SCSI command trace from stdin and simulates a SCSI device (or USB bridge)
+which returns the recorded responses.
+Each command of the trace is a block of lines \*(AqCDB\*(Aq, \*(AqALLOC\*(Aq,
+\*(AqSTATUS\*(Aq, \*(AqSENSE\*(Aq, \*(AqDATA\*(Aq and \*(AqEND\*(Aq.
+An optional \*(AqDATAOUT\*(Aq line records the data sent to the device,
+such a command is only answered if CDB and data are identical.
+The output of \*(Aq\-r scsiioctl,4\*(Aq can be converted into this format
+with the script \*(Aqsrc/tests/tools/scsiioctl2trace.py\*(Aq from the source
+tree.
+This requires that the operating system pass-through layer prints the CDB
+bytes, which is not the case for Linux SG_IO devices (\*(Aq/dev/sdX\*(Aq).
+The script has only been tested with Windows output.
+The formats of the BSD and Solaris pass-through layers are recognized but
+untested; NetBSD and OpenBSD print no SCSI status and sense data, so failed
+commands cannot be recognized.
+The Linux RAID pass-throughs print no data-in of SAT or NVMe tunnel commands.
 .TP
 .B \-n POWERMODE[,STATUS[,STATUS2]], \-\-nocheck=POWERMODE[,STATUS[,STATUS2]]
 [ATA, SCSI] Specifies if \fBsmartctl\fP should exit before performing any
