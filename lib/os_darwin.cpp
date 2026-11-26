@@ -590,6 +590,16 @@ bool darwin_nvme_device::nvme_pass_through(const nvme_cmd_in & in, nvme_cmd_out 
       break;
     case nvme_admin_get_log_page:
       err = smartIfNVMe->GetLogPage(ifp, in.buffer, page, in.size / 4 - 1);
+      // SCSI NVMe translation may support only the dedicated health read.
+      if (err == kIOReturnBadArgument && smartIfNVMe->SMARTReadData && in.buffer
+          && in.size == sizeof(nvme_smart_log)
+          && in.cdw10 == (0x02U | ((in.size / 4 - 1) << 16))
+          && !in.cdw11 && !in.cdw12 && !in.cdw13 && !in.cdw14 && !in.cdw15
+          && (!in.nsid || in.nsid == nvme_broadcast_nsid)
+          && IOObjectConformsTo(devices[fd].ioob, "IOBlockStorageServices")) {
+        if (smartIfNVMe->SMARTReadData(ifp, static_cast<nvme_smart_log *>(in.buffer)) == kIOReturnSuccess)
+          err = kIOReturnSuccess;
+      }
       if (err)
         return set_err(ENOSYS, "GetLogPage failed: system=0x%x, sub=0x%x, code=%d",
           err_get_system(err), err_get_sub(err), err_get_code(err));
