@@ -7038,6 +7038,12 @@ const drive_settings builtin_knowndrives[] = {
     "-d sntasmedia" // limited info only
   },
   // StarTech
+  { "USB: StarTech USB312SAT3CB; ASMedia ASMT105x", // USB3.1->SATA
+    "0x14b0:0x0207",
+    "", // 0x0100
+    "",
+    "-d sat"
+  },
   { "USB: StarTech 1USB4-NVME-ENCLOSURE; ASMedia ASM2464PD", // USB3->PCIe (NVMe)
     "0x14b0:0x020b",
     "",
