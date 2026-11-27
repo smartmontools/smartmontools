@@ -1,9 +1,9 @@
 /*
  * os_win32/wmiquery.cpp
  *
- * Home page of code is: http://www.smartmontools.org
+ * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2011-13 Christian Franke
+ * Copyright (C) 2011-26 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -66,6 +66,34 @@ std::string wbem_object::get_str(const char * name) /*const*/
     com_bstr::to_str(var.bstrVal, s);
   VariantClear(&var);
   return s;
+}
+
+std::vector<std::string> wbem_object::get_multi_str(const char * name) /*const*/
+{
+  std::vector<std::string> ms;
+  if (!m_intf)
+    return ms;
+
+  VARIANT var; VariantInit(&var);
+  if (m_intf->Get(com_bstr(name), 0L, &var, (CIMTYPE*)0, (LPLONG)0) /* != WBEM_S_NO_ERROR */)
+    return ms;
+
+  LONG lo, up;
+  if (   var.vt == (VT_BSTR | VT_ARRAY) && var.parray
+      && SafeArrayGetLBound(var.parray, 1, &lo) == S_OK
+      && SafeArrayGetUBound(var.parray, 1, &up) == S_OK
+      && lo <= up                                      ) {
+    LONG n = up - lo + 1;
+    void * p = nullptr;
+    if (SUCCEEDED(SafeArrayAccessData(var.parray, &p))) {
+      ms.resize(n);
+      for (LONG i = 0; i < n; i++)
+        com_bstr::to_str(reinterpret_cast<const BSTR *>(p)[i], ms[i]);
+      SafeArrayUnaccessData(var.parray);
+    }
+  }
+  VariantClear(&var);
+  return ms;
 }
 
 

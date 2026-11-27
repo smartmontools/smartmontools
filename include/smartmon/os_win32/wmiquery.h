@@ -3,7 +3,7 @@
  *
  * Home page of code is: https://www.smartmontools.org
  *
- * Copyright (C) 2011-25 Christian Franke
+ * Copyright (C) 2011-26 Christian Franke
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -16,6 +16,7 @@
 #include <wbemcli.h>
 
 #include <string>
+#include <vector>
 
 namespace smartmon {
 SMARTMON_BEGIN_VERSION_NAMESPACE
@@ -112,6 +113,9 @@ class wbem_object
 public:
   /// Get string representation.
   std::string get_str(const char * name) /*const*/;
+
+  /// Get multi string representation.
+  std::vector<std::string> get_multi_str(const char * name) /*const*/;
 
 private:
   /// Contents is set by wbem_enumerator.
