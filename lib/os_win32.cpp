@@ -1214,8 +1214,7 @@ static bool get_serial_from_wmi(int drive, ata_identify_device * id)
 
 // Get USB ID for a physical or logical drive number
 static bool get_usb_id(int phydrive, int logdrive,
-                       unsigned short & vendor_id,
-                       unsigned short & product_id)
+  unsigned short & vendor_id, unsigned short & product_id, unsigned short & version)
 {
   bool debug = (scsi_debugmode > 1);
 
@@ -1268,8 +1267,10 @@ static bool get_usb_id(int phydrive, int logdrive,
   if (!ws.query(we, "SELECT Antecedent,Dependent FROM Win32_USBControllerDevice"))
     return false;
 
+  bool usb_found = false, prev_usb_found = false;
   unsigned short usb_venid = 0, prev_usb_venid = 0;
   unsigned short usb_proid = 0, prev_usb_proid = 0;
+  unsigned short usb_rev = 0, prev_usb_rev = 0;
   std::string prev_usb_ant;
   std::string prev_ant, ant, dep;
 
@@ -1296,14 +1297,46 @@ static bool get_usb_id(int phydrive, int logdrive,
 
     if (str_starts_with(devid, "USB\\\\VID_")) {
       // USB bridge entry, save CONTROLLER, ID
+      prev_usb_found = false;
       int nc = -1;
       if (!(sscanf(devid.c_str(), "USB\\\\VID_%4hx&PID_%4hx%n",
             &prev_usb_venid, &prev_usb_proid, &nc) == 2 && nc == 9+4+5+4)) {
-        prev_usb_venid = prev_usb_proid = 0;
+        if (debug)
+          lib_printf("  +-> \"%s\" (Error: No USB ID)\n", devid.c_str());
+        continue;
       }
+
+      // Get HardwareID
+      wbem_object wo2;
+      if (!ws.query1(wo2, "SELECT HardwareID FROM Win32_PnPEntity WHERE DeviceID=\"%s\"", devid.c_str())) {
+        if (debug)
+          lib_printf("  +-> \"%s\" (Error: No HardwareID)\n", devid.c_str());
+        continue;
+      }
+
+      // Search REVision (bcdDevice) in HardwareID
+      bool rev_found = false;
+      for (auto const & s : wo2.get_multi_str("HardwareID")) {
+        unsigned short vid = 0, pid = 0; nc = -1;
+        if (debug)
+          lib_printf("  .   \"%s\" -> \"%s\"\n", devid.c_str(), s.c_str());
+        if (!(   sscanf(s.c_str(), "USB\\VID_%4hx&PID_%4hx&REV_%4hx%n", &vid, &pid, &prev_usb_rev, &nc) == 3
+              && nc == 8+4+5+4+5+4 && vid == prev_usb_venid && pid == prev_usb_proid                        ))
+          continue;
+        rev_found = true;
+        break;
+      }
+      if (!rev_found) {
+        if (debug)
+          lib_printf("  +-> \"%s\" (Error: No REV)\n", devid.c_str());
+        continue;
+      }
+
+      prev_usb_found = true;
       prev_usb_ant = ant;
       if (debug)
-        lib_printf("  +-> \"%s\" [0x%04x:0x%04x]\n", devid.c_str(), prev_usb_venid, prev_usb_proid);
+        lib_printf("  +-> \"%s\" [0x%04x:0x%04x (0x%03x)]\n", devid.c_str(),
+          prev_usb_venid, prev_usb_proid, prev_usb_rev);
     }
     else if (str_starts_with(devid, "USBSTOR\\\\") || str_starts_with(devid, "SCSI\\\\")) {
       // USBSTORage or SCSI device found
@@ -1324,16 +1357,16 @@ static bool get_usb_id(int phydrive, int logdrive,
       }
 
       // Fail if previous USB bridge is associated to other controller or ID is unknown
-      if (!(ant == prev_usb_ant && prev_usb_venid)) {
+      if (!(ant == prev_usb_ant && prev_usb_found)) {
         if (debug)
           lib_printf("  +---> \"%s\" (Error: No USB bridge found)\n", name2.c_str());
         return false;
       }
 
       // Handle multiple devices with same name
-      if (usb_venid) {
-        // Fail if multiple devices with same name have different USB bridge types
-        if (!(usb_venid == prev_usb_venid && usb_proid == prev_usb_proid)) {
+      if (usb_found) {
+        // Fail if multiple devices with same name have different controllers
+        if (!(usb_venid == prev_usb_venid && usb_proid == prev_usb_proid && usb_rev == prev_usb_rev)) {
           if (debug)
             lib_printf("  +---> \"%s\" (Error: More than one USB ID found)\n", name2.c_str());
           return false;
@@ -1341,10 +1374,13 @@ static bool get_usb_id(int phydrive, int logdrive,
       }
 
       // Found
+      usb_found = true;
       usb_venid = prev_usb_venid;
       usb_proid = prev_usb_proid;
+      usb_rev = prev_usb_rev;
       if (debug)
-        lib_printf("  +===> \"%s\" [0x%04x:0x%04x]\n", name2.c_str(), usb_venid, usb_proid);
+        lib_printf("  +===> \"%s\" [0x%04x:0x%04x (0x%03x)]\n", name2.c_str(),
+          usb_venid, usb_proid, usb_rev);
 
       // Continue to check for duplicate names ...
     }
@@ -1354,12 +1390,12 @@ static bool get_usb_id(int phydrive, int logdrive,
     }
   }
 
-  if (!usb_venid)
+  if (!usb_found)
     return false;
 
   vendor_id = usb_venid;
   product_id = usb_proid;
-
+  version = usb_rev;
   return true;
 }
 
@@ -4549,14 +4585,12 @@ smart_device * win_smart_interface::get_usb_device(const char * name,
   int phydrive, int logdrive /* = -1 */)
 {
   // Get USB bridge ID
-  unsigned short vendor_id = 0, product_id = 0;
-  if (!get_usb_id(phydrive, logdrive, vendor_id, product_id)) {
-    set_err(EINVAL, "Unable to read USB device ID");
-    return 0;
-  }
+  unsigned short vendor_id = 0, product_id = 0, version = 0;
+  if (!get_usb_id(phydrive, logdrive, vendor_id, product_id, version))
+    return set_err_np(EINVAL, "Unable to read USB device ID");
 
   // Get type name for this ID
-  const char * usbtype = get_usb_dev_type_by_id(vendor_id, product_id);
+  const char * usbtype = get_usb_dev_type_by_id(vendor_id, product_id, version);
   if (!usbtype)
     return 0;
 
