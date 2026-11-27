@@ -16,6 +16,9 @@
 
 #include <stdio.h>
 
+namespace smartmon {
+SMARTMON_BEGIN_VERSION_NAMESPACE
+
 /////////////////////////////////////////////////////////////////////////////
 // com_bstr
 
@@ -184,3 +187,6 @@ bool wbem_services::query1(wbem_object & obj, const char * qstr, ...) /*const*/
   va_end(args);
   return ok;
 }
+
+SMARTMON_END_VERSION_NAMESPACE
+} // namespace smartmon

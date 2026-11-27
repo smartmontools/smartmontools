@@ -8,14 +8,17 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef WMIQUERY_H
-#define WMIQUERY_H
+#ifndef SMARTMON_WMIQUERY_H
+#define SMARTMON_WMIQUERY_H
 
 #include <smartmon/smartmon_defs.h>
 
 #include <wbemcli.h>
 
 #include <string>
+
+namespace smartmon {
+SMARTMON_BEGIN_VERSION_NAMESPACE
 
 /////////////////////////////////////////////////////////////////////////////
 // com_bstr
@@ -168,4 +171,7 @@ private:
   com_intf_ptr<IWbemServices> m_intf;
 };
 
-#endif // WMIQUERY_H
+SMARTMON_END_VERSION_NAMESPACE
+} // namespace smartmon
+
+#endif // SMARTMON_WMIQUERY_H
